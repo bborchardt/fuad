@@ -19,7 +19,7 @@ class FuadFranchiseDraftPrinter {
     private static prettyPrintFranchiseRows(Collection<MflFranchise> franchises) {
         println franchises*.name.join('\t' * 5)
         prettyPrintPositionRows(7, 'QB', franchises)
-        prettyPrintPositionRows(12, 'RB', franchises)
+        prettyPrintPositionRows(14, 'RB', franchises)
         prettyPrintPositionRows(14, 'WR', franchises)
         prettyPrintPositionRows(7, 'TE', franchises)
         prettyPrintPositionRows(4, 'PK', franchises)
