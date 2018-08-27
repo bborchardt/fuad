@@ -1,0 +1,333 @@
+{
+  "draftResults": {
+    "draftUnit": {
+      "draftPick": [
+        {
+          "comments": "",
+          "franchise": "0002",
+          "pick": "01",
+          "player": "",
+          "round": "01",
+          "timestamp": ""
+        },
+        {
+          "comments": "[Pick traded from Wide Left.] Pick traded from Room for Ron Mexico.",
+          "franchise": "0010",
+          "pick": "02",
+          "player": "",
+          "round": "01",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0003",
+          "pick": "03",
+          "player": "",
+          "round": "01",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0004",
+          "pick": "04",
+          "player": "",
+          "round": "01",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0008",
+          "pick": "05",
+          "player": "",
+          "round": "01",
+          "timestamp": ""
+        },
+        {
+          "comments": "Pick traded from Corpse Cart.",
+          "franchise": "0001",
+          "pick": "06",
+          "player": "",
+          "round": "01",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0009",
+          "pick": "07",
+          "player": "",
+          "round": "01",
+          "timestamp": ""
+        },
+        {
+          "comments": "[Pick traded from Welcome Back Cobber.] Pick traded from Wide Left.",
+          "franchise": "0007",
+          "pick": "08",
+          "player": "",
+          "round": "01",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0001",
+          "pick": "09",
+          "player": "",
+          "round": "01",
+          "timestamp": ""
+        },
+        {
+          "comments": "[Pick traded from Welcome Back Cobber.] ",
+          "franchise": "0007",
+          "pick": "10",
+          "player": "",
+          "round": "01",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0002",
+          "pick": "01",
+          "player": "",
+          "round": "02",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0006",
+          "pick": "02",
+          "player": "",
+          "round": "02",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0003",
+          "pick": "03",
+          "player": "",
+          "round": "02",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0004",
+          "pick": "04",
+          "player": "",
+          "round": "02",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0008",
+          "pick": "05",
+          "player": "",
+          "round": "02",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0005",
+          "pick": "06",
+          "player": "",
+          "round": "02",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0009",
+          "pick": "07",
+          "player": "",
+          "round": "02",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0007",
+          "pick": "08",
+          "player": "",
+          "round": "02",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0001",
+          "pick": "09",
+          "player": "",
+          "round": "02",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0010",
+          "pick": "10",
+          "player": "",
+          "round": "02",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0002",
+          "pick": "01",
+          "player": "",
+          "round": "03",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0006",
+          "pick": "02",
+          "player": "",
+          "round": "03",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0003",
+          "pick": "03",
+          "player": "",
+          "round": "03",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0004",
+          "pick": "04",
+          "player": "",
+          "round": "03",
+          "timestamp": ""
+        },
+        {
+          "comments": "Pick traded from Kickers Are The Devil!.",
+          "franchise": "0004",
+          "pick": "05",
+          "player": "",
+          "round": "03",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0005",
+          "pick": "06",
+          "player": "",
+          "round": "03",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0009",
+          "pick": "07",
+          "player": "",
+          "round": "03",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0007",
+          "pick": "08",
+          "player": "",
+          "round": "03",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0001",
+          "pick": "09",
+          "player": "",
+          "round": "03",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0010",
+          "pick": "10",
+          "player": "",
+          "round": "03",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0002",
+          "pick": "01",
+          "player": "",
+          "round": "04",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0006",
+          "pick": "02",
+          "player": "",
+          "round": "04",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0003",
+          "pick": "03",
+          "player": "",
+          "round": "04",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0004",
+          "pick": "04",
+          "player": "",
+          "round": "04",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0008",
+          "pick": "05",
+          "player": "",
+          "round": "04",
+          "timestamp": ""
+        },
+        {
+          "comments": "Pick traded from Corpse Cart.",
+          "franchise": "0003",
+          "pick": "06",
+          "player": "",
+          "round": "04",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0009",
+          "pick": "07",
+          "player": "",
+          "round": "04",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0007",
+          "pick": "08",
+          "player": "",
+          "round": "04",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0001",
+          "pick": "09",
+          "player": "",
+          "round": "04",
+          "timestamp": ""
+        },
+        {
+          "comments": "",
+          "franchise": "0010",
+          "pick": "10",
+          "player": "",
+          "round": "04",
+          "timestamp": ""
+        }
+      ],
+      "draftType": "SAME",
+      "round1DraftOrder": "0002,0010,0003,0004,0008,0001,0009,0007,0001,0007,",
+      "unit": "LEAGUE"
+    }
+  },
+  "encoding": "utf-8",
+  "version": "1.0"
+}

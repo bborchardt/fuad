@@ -1,0 +1,334 @@
+{
+  "version": "1.0",
+  "league": {
+    "currentWaiverType": "BBID_FCFS",
+    "playerLimitUnit": "LEAGUE",
+    "taxiSquad": "0",
+    "endWeek": "16",
+    "maxWaiverRounds": "4",
+    "lockout": "No",
+    "nflPoolStartWeek": "1",
+    "franchises": {
+      "count": "10",
+      "franchise": [
+        {
+          "icon": "http://www53.myfantasyleague.com/fflnetdynamic2016/48571_franchise_icon0001.jpg",
+          "use_skin": "1024",
+          "division": "01",
+          "future_draft_picks": "FP_0001_2018_1,FP_0001_2018_2,FP_0001_2018_3,FP_0001_2018_4,FP_0001_2019_1,FP_0001_2019_2,FP_0001_2019_3,FP_0001_2019_4,",
+          "waiverSortOrder": "10",
+          "lastVisit": "1503258547",
+          "email": "bborchardt@gmail.com",
+          "bbidAvailableBalance": "999999.00",
+          "play_audio": "No",
+          "id": "0001",
+          "cell": "612-839-4905",
+          "owner_name": "Brett Borchardt",
+          "mail_event": "TRADE,WAIVER,IR,TAXI,POLL,MSG_BOARD,ARTICLE,",
+          "name": "Charles in Charge",
+          "mail_type": "html",
+          "username": "bborchardt",
+          "time_zone": "CT",
+          "use_advanced_editor": "Yes"
+        },
+        {
+          "icon": "http://www53.myfantasyleague.com/fflnetdynamic2016/48571_franchise_icon0002.jpg",
+          "division": "01",
+          "future_draft_picks": "FP_0002_2018_1,FP_0002_2018_2,FP_0002_2018_3,FP_0002_2018_4,FP_0002_2019_1,FP_0002_2019_2,FP_0002_2019_3,FP_0002_2019_4,",
+          "waiverSortOrder": "9",
+          "email": "marknumberm@gmail.com",
+          "bbidAvailableBalance": "999999.00",
+          "id": "0002",
+          "play_audio": "Yes",
+          "owner_name": "Mark W",
+          "mail_event": "TRADE,POLL,MSG_BOARD,ARTICLE,",
+          "name": "Coo Coo Ca-Choo, Allen Robinson",
+          "mail_type": "html",
+          "username": "markmarkmark",
+          "logo": "http://www53.myfantasyleague.com/fflnetdynamic2016/48571_franchise_logo0002.jpg",
+          "time_zone": "CT",
+          "use_advanced_editor": "Yes"
+        },
+        {
+          "icon": "http://www53.myfantasyleague.com/fflnetdynamic2017/48571_franchise_icon0003.jpg",
+          "use_skin": "1024",
+          "division": "01",
+          "future_draft_picks": "FP_0003_2018_1,FP_0003_2018_2,FP_0003_2018_3,FP_0003_2018_4,FP_0003_2019_1,FP_0003_2019_2,FP_0003_2019_3,FP_0003_2019_4,",
+          "waiverSortOrder": "8",
+          "lastVisit": "1503247696",
+          "email": "nkallenbach@hotmail.com",
+          "bbidAvailableBalance": "999999.00",
+          "play_audio": "Yes",
+          "id": "0003",
+          "owner_name": "Nick Kallenbach",
+          "mail_event": "DRAFT,TRADE,",
+          "name": "Cagney and Fat Eddie Lacy",
+          "mail_type": "html",
+          "username": "nkallenbach",
+          "logo": "http://www53.myfantasyleague.com/fflnetdynamic2017/48571_franchise_logo0003.jpg",
+          "time_zone": "CT",
+          "use_advanced_editor": "Yes"
+        },
+        {
+          "icon": "http://www64.myfantasyleague.com/fflnetdynamic2010/47266_franchise_icon0004.jpg",
+          "division": "01",
+          "future_draft_picks": "FP_0004_2018_1,FP_0004_2018_2,FP_0004_2018_3,FP_0004_2018_4,FP_0004_2019_1,FP_0004_2019_2,FP_0004_2019_3,FP_0004_2019_4,",
+          "waiverSortOrder": "7",
+          "lastVisit": "1498160305",
+          "email": "jeff.obrien@gmail.com",
+          "bbidAvailableBalance": "999999.00",
+          "play_audio": "Yes",
+          "id": "0004",
+          "owner_name": "Jeff O'Brien",
+          "mail_event": "LREMINDER,TRADE,TBAIT,WAIVER,IR,TAXI,RESULT,INJURY,MSG_BOARD,PLAYER_NEWS,",
+          "country": "US",
+          "abbrev": "SCS",
+          "name": "Smooth City fhqwhgads",
+          "mail_type": "html",
+          "username": "jeffrodisiac",
+          "logo": "http://www64.myfantasyleague.com/fflnetdynamic2010/47266_franchise_logo0004.jpg",
+          "time_zone": "CT",
+          "use_advanced_editor": "Yes"
+        },
+        {
+          "icon": "http://www53.myfantasyleague.com/fflnetdynamic2016/48571_franchise_icon0005.jpg",
+          "home_modules": "COLUMN=50,MESSAGE_BOARD_SUMMARY=W,TRANSACTIONS=W,SUBMIT_LINEUP=N,COLUMN=50,LIVESCORING_SUMMARY=N,LEAGUE_CHAT=N,POLL=N,ARTICLE_SUMMARY=W",
+          "division": "00",
+          "future_draft_picks": "FP_0005_2018_1,FP_0005_2018_2,FP_0005_2018_3,FP_0005_2018_4,FP_0005_2019_1,FP_0005_2019_2,FP_0005_2019_3,FP_0005_2019_4,",
+          "waiverSortOrder": "6",
+          "email": "paulnumberpee@gmail.com",
+          "bbidAvailableBalance": "999999.00",
+          "play_audio": "Yes",
+          "id": "0005",
+          "cell": "612-217-1595",
+          "owner_name": "Paul Dorweiler",
+          "mail_event": "TRADE,",
+          "wireless_carrier": "Sprint",
+          "abbrev": "HoE",
+          "name": "Whoever Smelter, Dealter",
+          "mail_type": "html",
+          "username": "peedee",
+          "logo": "http://www53.myfantasyleague.com/fflnetdynamic2016/48571_franchise_logo0005.jpg",
+          "time_zone": "CT",
+          "use_advanced_editor": "Yes"
+        },
+        {
+          "icon": "http://www53.myfantasyleague.com/fflnetdynamic2015/15599_franchise_icon0006.jpg",
+          "division": "00",
+          "future_draft_picks": "FP_0006_2018_1,FP_0006_2018_2,FP_0006_2018_3,FP_0006_2018_4,FP_0006_2019_1,FP_0006_2019_2,FP_0006_2019_3,FP_0006_2019_4,",
+          "waiverSortOrder": "5",
+          "lastVisit": "1502417885",
+          "email": "mikeschwartz5151@gmail.com",
+          "bbidAvailableBalance": "999999.00",
+          "play_audio": "Yes",
+          "id": "0006",
+          "cell": "7634584884",
+          "owner_name": "Mike Schwartz",
+          "mail_event": "LINEUP,TRADE,WAIVER,IR,TAXI,RESULT,POLL,MSG_BOARD,ARTICLE,",
+          "wireless_carrier": "Sprint",
+          "name": "Mike's Team",
+          "mail_type": "html",
+          "username": "mikeschwartz5151",
+          "logo": "http://www53.myfantasyleague.com/fflnetdynamic2015/15599_franchise_logo0006.jpg",
+          "time_zone": "CT",
+          "use_advanced_editor": "Yes"
+        },
+        {
+          "icon": "http://www53.myfantasyleague.com/fflnet2016/newicons/11_check.png",
+          "home_modules": "COLUMN=50,TRADES=N,MESSAGE_BOARD_SUMMARY=W,TRANSACTIONS=W,COLUMN=50,MESSAGE=W,POLL_SUMMARY=N,POLL=N,OWNER_ACTIVITY=W,ARTICLE_SUMMARY=W,LIVESCORING=N,OWNER_POLL=N",
+          "division": "01",
+          "future_draft_picks": "FP_0007_2018_1,FP_0007_2018_2,FP_0007_2018_3,FP_0007_2018_4,FP_0007_2019_1,FP_0007_2019_2,FP_0007_2019_3,FP_0007_2019_4,",
+          "waiverSortOrder": "4",
+          "state": "MN",
+          "lastVisit": "1502906790",
+          "email": "marcus.martin@gmail.com",
+          "bbidAvailableBalance": "999999.00",
+          "play_audio": "Yes",
+          "id": "0007",
+          "owner_name": "Marcus Martin",
+          "mail_event": "none",
+          "wireless_carrier": "T-Mobile",
+          "country": "US",
+          "name": "Wide Left",
+          "mail_type": "html",
+          "username": "red-blue",
+          "logo": "http://cdn.chatsports.com/cache/48/31/48311d537dea714ae5d23ec11f1713e0-original.jpg",
+          "time_zone": "ET",
+          "use_advanced_editor": "Yes"
+        },
+        {
+          "icon": "https://cdn.meme.am/instances/500x/71507393.jpg",
+          "division": "00",
+          "future_draft_picks": "FP_0008_2018_1,FP_0008_2018_2,FP_0008_2018_3,FP_0008_2018_4,FP_0008_2019_1,FP_0008_2019_2,FP_0008_2019_3,FP_0008_2019_4,",
+          "waiverSortOrder": "3",
+          "email": "scott.arnold21@gmail.com",
+          "bbidAvailableBalance": "999999.00",
+          "url": "https://cdn.meme.am/instances/500x/71507393.jpg",
+          "play_audio": "Yes",
+          "id": "0008",
+          "owner_name": "Scott Arnold",
+          "mail_event": "LINEUP,LREMINDER,TRADE,TBAIT,WAIVER,IR,TAXI,POLL,MSG_BOARD,ARTICLE,",
+          "country": "US",
+          "abbrev": "KYIB",
+          "name": "Kickers Are The Devil!",
+          "mail_type": "html",
+          "username": "staples10",
+          "logo": "https://cdn.meme.am/instances/500x/71507393.jpg",
+          "time_zone": "CT",
+          "use_advanced_editor": "Yes"
+        },
+        {
+          "icon": "http://www53.myfantasyleague.com/fflnetdynamic2016/48571_franchise_icon0009.jpg",
+          "use_skin": "1024",
+          "division": "00",
+          "future_draft_picks": "FP_0009_2018_1,FP_0009_2018_2,FP_0009_2018_3,FP_0009_2018_4,FP_0009_2019_1,FP_0009_2019_2,FP_0009_2019_3,FP_0009_2019_4,",
+          "waiverSortOrder": "2",
+          "lastVisit": "1503240755",
+          "email": "brian.berwyn@hotmail.com",
+          "bbidAvailableBalance": "999999.00",
+          "play_audio": "Yes",
+          "id": "0009",
+          "cell": "612-741-0247",
+          "owner_name": "Brian Berwyn",
+          "mail_event": "TRADE,TBAIT,WAIVER,IR,TAXI,POLL,MSG_BOARD,ARTICLE,PLAYER_NEWS,",
+          "wireless_carrier": "Verizon",
+          "country": "US",
+          "name": "Golden Ratio",
+          "mail_type": "html",
+          "username": "berwynbm",
+          "logo": "http://www53.myfantasyleague.com/fflnetdynamic2016/48571_franchise_logo0009.jpg",
+          "time_zone": "PT",
+          "use_advanced_editor": "Yes"
+        },
+        {
+          "icon": "http://www53.myfantasyleague.com/fflnetdynamic2015/15599_franchise_icon0010.gif",
+          "division": "00",
+          "future_draft_picks": "FP_0010_2018_1,FP_0010_2018_2,FP_0010_2018_3,FP_0010_2018_4,FP_0010_2019_1,FP_0010_2019_2,FP_0010_2019_3,FP_0010_2019_4,",
+          "waiverSortOrder": "1",
+          "email": "ttemke@gmail.com",
+          "bbidAvailableBalance": "999999.00",
+          "id": "0010",
+          "play_audio": "Yes",
+          "owner_name": "Troy Temke",
+          "mail_event": "TRADE,TBAIT,WAIVER,",
+          "country": "US",
+          "name": "Not Your First Choice",
+          "mail_type": "html",
+          "username": "ttemke",
+          "logo": "http://www53.myfantasyleague.com/fflnetdynamic2015/15599_franchise_logo0010.gif",
+          "time_zone": "CT",
+          "use_advanced_editor": "Yes"
+        }
+      ]
+    },
+    "standingsSort": "PCT,PTS,H2H,DIVPCT,OPP_PTS,PWR,VICTORY_POINTS,LAST_WEEK_POINTS,",
+    "draftPlayerPool": "Rookie",
+    "id": "48571",
+    "nflPoolType": "Confidence",
+    "history": {
+      "league": [
+        {
+          "url": "http://www53.myfantasyleague.com/2017/home/48571",
+          "year": "2017"
+        },
+        {
+          "url": "http://www98.myfantasyleague.com/2008/home/75574",
+          "year": "2008"
+        },
+        {
+          "url": "http://www98.myfantasyleague.com/2009/home/20649",
+          "year": "2009"
+        },
+        {
+          "url": "http://www64.myfantasyleague.com/2010/home/47266",
+          "year": "2010"
+        },
+        {
+          "url": "http://www61.myfantasyleague.com/2011/home/28981",
+          "year": "2011"
+        },
+        {
+          "url": "http://www53.myfantasyleague.com/2012/home/36718",
+          "year": "2012"
+        },
+        {
+          "url": "http://www53.myfantasyleague.com/2013/home/34866",
+          "year": "2013"
+        },
+        {
+          "url": "http://www53.myfantasyleague.com/2014/home/43294",
+          "year": "2014"
+        },
+        {
+          "url": "http://www53.myfantasyleague.com/2015/home/15599",
+          "year": "2015"
+        },
+        {
+          "url": "http://www53.myfantasyleague.com/2016/home/48571",
+          "year": "2016"
+        }
+      ]
+    },
+    "rosterSize": "80",
+    "name": "Fuad Reveiz Fan Club Dynasty League",
+    "bbidSeasonLimit": "999999",
+    "includeIRWithSalary": "100",
+    "draftLimitHours": "0:00",
+    "starters": {
+      "count": "8",
+      "position": [
+        {
+          "name": "QB",
+          "limit": "1"
+        },
+        {
+          "name": "RB",
+          "limit": "1-2"
+        },
+        {
+          "name": "WR",
+          "limit": "2-4"
+        },
+        {
+          "name": "TE",
+          "limit": "1-2"
+        },
+        {
+          "name": "PK",
+          "limit": "1"
+        }
+      ],
+      "idp_starters": ""
+    },
+    "nflPoolEndWeek": "16",
+    "bestLineup": "No",
+    "precision": "2",
+    "lastRegularSeasonWeek": "14",
+    "survivorPool": "Yes",
+    "injuredReserve": "25",
+    "bbidConditional": "Yes",
+    "startWeek": "1",
+    "commish_username": "bborchardt",
+    "salaryCapAmount": "250",
+    "survivorPoolStartWeek": "1",
+    "survivorPoolEndWeek": "16",
+    "rostersPerPlayer": "1",
+    "h2h": "YES",
+    "divisions": {
+      "count": "2",
+      "division": [
+        {
+          "name": "West",
+          "id": "00"
+        },
+        {
+          "name": "Central",
+          "id": "01"
+        }
+      ]
+    },
+    "baseURL": "http://www53.myfantasyleague.com",
+    "loadRosters": "fflm_draft"
+  },
+  "encoding": "utf-8"
+}

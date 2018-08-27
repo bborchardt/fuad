@@ -1,0 +1,90 @@
+Rank	Player	Team	Pos	Bye	Best	Worst	Avg	Std Dev
+1	Corey Davis	TEN	WR1	8	1	8	1.9	1.6
+2	Leonard Fournette	JAC	RB1	8	1	5	2.5	1.2
+3	Christian McCaffrey	CAR	RB2	11	1	5	3.4	1.2
+4	Dalvin Cook	MIN	RB3	9	1	6	4	1.4
+5	Joe Mixon	CIN	RB4	6	2	5	3.3	1
+6	Mike Williams	LAC	WR2	9	5	26	8.1	4.9
+7	Kareem Hunt	KC	RB5	10	6	18	9.7	2.8
+8	O.J. Howard	TB	TE1	11	6	17	9.7	2.9
+9	John Ross	CIN	WR3	6	5	18	10	3.2
+10	Alvin Kamara	NO	RB6	5	6	19	10.8	3.3
+11	David Njoku	CLE	TE2	9	7	23	12.7	3.9
+12	Zay Jones	BUF	WR4	6	6	27	13	4.9
+13	Evan Engram	NYG	TE3	8	8	24	14.5	4
+14	Samaje Perine	WAS	RB7	5	7	30	14.6	5.5
+15	JuJu Smith-Schuster	PIT	WR5	9	9	33	17.3	5.6
+16	Curtis Samuel	CAR	WR6	11	8	36	18	5.8
+17	D'Onta Foreman	HOU	RB8	7	12	30	18.5	3.7
+18	Chris Godwin	TB	WR7	11	9	31	18.9	5.8
+19	Kenny Golladay	DET	WR8	7	6	35	19.5	7.9
+20	Joe Williams	SF	RB9	11	7	36	21.6	7.1
+21	Marlon Mack	IND	RB10	11	13	49	22	7.4
+22	Jamaal Williams	GB	RB11	8	10	45	23.2	9.2
+23	Carlos Henderson	DEN	WR9	5	13	39	24	5.1
+24	Cooper Kupp	LAR	WR10	8	14	39	26.2	7.4
+25	Taywan Taylor	TEN	WR11	8	14	46	27	8.2
+26	ArDarius Stewart	NYJ	WR12	11	17	40	27.2	6.2
+27	Deshaun Watson	HOU	QB1	7	13	49	27.7	8.6
+28	Patrick Mahomes	KC	QB2	10	16	47	29.3	7.1
+29	De'Angelo Henderson	DEN	RB12	5	24	41	30.6	6
+30	Chad Williams	ARI	WR13	8	21	41	30.7	4.9
+31	Gerald Everett	LAR	TE4	8	21	43	31	5.7
+32	James Conner	PIT	RB13	9	12	47	31.2	8.2
+33	Wayne Gallman	NYG	RB14	8	16	45	31.4	7.4
+34	Jeremy McNichols	TB	RB15	11	19	40	31.5	6
+35		1		14	41	32.2	10.5	
+36	Mitch Trubisky	CHI	QB3	9	16	43	33.2	7.4
+37	Adam Shaheen	CHI	TE5	9	19	44	33.6	6.3
+38	DeShone Kizer	CLE	QB4	9	22	44	34.6	6.6
+39		2		17	47	35	11	
+40		3		19	44	35.2	9.5	
+41	Jake Butt	DEN	TE6	5	23	45	35.7	5.5
+42		4		16	48	35.8	11.8	
+43	Chris Carson	SEA	RB16	6	25	46	36.3	9.8
+44		5		23	46	37.4	8.7	
+45	Dede Westbrook	JAC	WR14	8	9	49	37.5	8.6
+46		6		21	46	37.6	10	
+47	Jonnu Smith	TEN	TE7	8	29	48	37.6	4.9
+48	Aaron Jones	GB	RB17	8	32	47	38.1	4.3
+49	Josh Reynolds	LAR	WR15	8	24	51	38.3	7.5
+50	Ryan Switzer	DAL	WR16	6	20	48	39.8	10.7
+51	Amara Darboh	SEA	WR17	6	26	57	41.3	7.7
+52	Chad Hansen	NYJ	WR18	11	26	50	41.5	5.9
+53	Donnel Pumphrey	PHI	RB18	10	30	59	41.6	7.3
+54		7		32	53	42.3	8.6	
+55	Tarik Cohen	CHI	RB19	9	25	64	42.3	9.1
+56	Bucky Hodges	MIN	TE8	9	24	52	43	7.6
+57	Josh Malone	CIN	WR19	6	40	50	45.7	3.2
+58	Isaiah Ford MIA 	WR20	11	34	55	46.5	6.1	
+59	Malachi Dupre	GB	WR21	8	39	54	46.7	4.5
+60	Elijah McGuire	NYJ	RB20	11	33	62	46.7	6.2
+61	George Kittle	SF	TE9	11	28	87	47.3	16.9
+62	Elijah Hood	OAK	RB21	10	35	60	47.4	7.4
+63	Mack Hollins	PHI	WR22	10	34	77	48.2	14.6
+64	Brad Kaaya	DET	QB5	7	42	62	49.4	6.3
+65	KD Cannon	FA	WR23		46	55	49.7	3.1
+66	Davis Webb	NYG	QB6	8	37	57	50.5	6.8
+67	Joshua Dobbs	PIT	QB7	9	40	63	50.6	6.8
+68	Jordan Leggett	NYJ	TE10	11	38	63	50.8	9.7
+69	Travin Dural	NO	WR24	5	44	57	51.7	5.2
+70	Nathan Peterman	BUF	QB8	6	43	58	52.3	6.2
+71	Brian Hill	ATL	RB22	5	45	59	52.4	5.5
+72	Corey Clement	PHI	RB23	10	50	65	54.8	6
+73	Jalen Robinette	FA	WR25		49	61	55.8	4.7
+74	Noah Brown	DAL	WR26	6	44	64	56.3	8.8
+75	Chad Kelly	DEN	QB9	5	48	65	57	6.6
+76	Matt Dayes	FA	RB24		50	66	57	6.4
+77	Joseph Yearby	FA	RB25		54	65	59.5	5.5
+78	Jehu Chesson	KC	WR27	10	43	78	59.6	12.9
+79	C.J. Beathard	SF	QB10	11	50	67	61.3	6.8
+80	Speedy Noil	FA	WR28		60	63	61.5	1.5
+81	Shelton Gibson	PHI	WR29	10	47	76	62.8	11.2
+82	Ishmael Zamura	FA	WR30		47	81	64	17
+83	DeAngelo Yancey	GB	WR31	8	49	93	65	16.9
+84	D'Angelo Henderson	FA	RB26		61	70	65.5	4.5
+85	T.J. Logan	ARI	RB27	8	57	71	65.7	6.2
+86	Jeremy Sprinkle	WAS	TE11	5	60	72	66.3	4.9
+87	Trent Taylor	SF	WR32	11	54	92	69	14.2
+88	Robert Davis	WAS	WR33	5	56	84	70	14
+89	Krishawn Hogan	ARI	WR34	8	57	85	71	14

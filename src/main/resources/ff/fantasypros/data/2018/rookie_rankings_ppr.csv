@@ -1,0 +1,73 @@
+Rank	WSID	Rookies	Team	Pos	Bye	Age	Best	Worst	Avg	Std Dev
+1		Saquon Barkley	NYG	RB1	9		1	1	1	0
+2		Sony Michel	NE	RB2	11		2	8	4.5	1.8
+3		Nick Chubb	CLE	RB3	11		2	10	5.3	2.5
+4		Rashaad Penny	SEA	RB4	7		2	13	5.7	2.7
+5		D.J. Moore	CAR	WR1	4	21	3	12	6.1	2.5
+6		Royce Freeman	DEN	RB5	10		2	14	6.7	4.3
+7		Derrius Guice	WAS 	RB6	4		2	20	6.8	5.4
+8		Kerryon Johnson	DET	RB7	6		3	13	7.6	3.3
+9		Ronald Jones II	TB	RB8	5	21	2	18	8.8	4.1
+10		Calvin Ridley	ATL	WR2	8		6	13	9.1	2
+11		Courtland Sutton	DEN	WR3	10		5	31	12.1	6.5
+12		Christian Kirk	ARI	WR4	9		8	21	12.9	3.3
+13		Anthony Miller	CHI	WR5	5		8	22	13.5	3
+14		Michael Gallup	DAL	WR6	8		8	31	13.9	5.1
+15		James Washington	PIT	WR7	7		11	20	15	2.4
+16		Mike Gesicki	MIA	TE1	11		9	23	17.3	3.7
+17		Baker Mayfield	CLE	QB1	11		13	30	19.5	4.3
+18		Lamar Jackson	BAL	QB2	10		10	29	21.7	4.9
+19		Dante Pettis	SF	WR8	11		14	37	22	6.4
+20		Josh Rosen	ARI	QB3	9		16	35	24.1	5.8
+21		Nyheim Hines	IND	RB9	9		7	49	25.1	10.9
+22		Sam Darnold	NYJ	QB4	11		16	40	25.2	6.1
+23		Kalen Ballage	MIA	RB10	11		8	44	25.7	8
+24		Dallas Goedert	PHI	TE2	9		16	41	25.9	7.6
+25		Tre'Quan Smith	NO	WR9	6		16	40	26	7.2
+26		Jordan Wilkins	IND	RB11	9		9	38	24.4	7.6
+27		Antonio Callaway	CLE	WR10	11		9	54	26.5	9.8
+28		Hayden Hurst	BAL	TE3	10		11	43	26.3	7.9
+29		D.J. Chark	JAC	WR11	9		16	38	25.4	6.3
+30		Mark Andrews	BAL	TE4	10		24	46	33.9	5.6
+31		John Kelly	LAR	RB12	12		22	45	31.8	7.5
+32		Keke Coutee	HOU	WR12	10		22	49	33.2	7.5
+33		J'Mon Moore	GB	WR13	7		18	53	33.7	8.7
+34		DaeSean Hamilton	DEN	WR14	10		19	42	33.8	6.5
+35		Equanimeous St. Brown	GB	WR15	7	21	23	48	35.3	7.9
+36		Mark Walton	CIN	RB13	9		25	46	35.7	6.2
+37		Deon Cain	IND	WR16	9		27	42	36	4.3
+38		Chase Edmonds	ARI	RB14	9		27	52	35.8	7.1
+39		Ito Smith	ATL	RB15	8		28	51	37.6	7.1
+40		Josh Allen	BUF	QB5	11		24	52	38.2	7.7
+41		Bo Scarbrough	DAL	RB16	8		29	59	39.9	9.1
+42		Jaylen Samuels	PIT	TE5	7		21	59	40.9	10
+43		Marquez Valdes-Scantling	GB	WR17	7		25	43	35.9	5.7
+44		Auden Tate	CIN	WR18	9		17	54	41.6	9.9
+45		Josh Adams	PHI	RB17	9		27	48	37.9	6.2
+46		Justin Jackson	LAC	RB18	8		25	59	44.3	9.6
+47		Jordan Lasley	BAL	WR19	10		35	62	46	7.3
+48		Akrum Wadley	TEN	RB19	8		17	60	43.3	13
+49		Daurice Fountain	IND	WR20	9		36	71	46.6	9.5
+50		Mason Rudolph	PIT	QB6	7		22	57	45.3	8.9
+51		Marcell Ateman	OAK	WR21	7		32	52	43.8	7.4
+52		Braxton Berrios	NE	WR22	11		38	61	46.9	7.1
+53		Jaleel Scott	BAL	WR23	10		34	66	50.3	9
+54		Richie James	SF	WR24	11		38	57	48.5	5.1
+55		Trey Quinn	WAS	WR25	4		38	55	46.3	6.5
+56		Simmie Cobbs Jr.	WAS	WR26	4		32	55	46.9	7.1
+57		Dalton Schultz	DAL	TE6	8		34	62	47.2	9.5
+58		Justin Watson	TB	WR27	5		42	49	44.5	2.9
+59		Ian Thomas	CAR	TE7	4		44	61	50.6	5.3
+60		Cedrick Wilson	DAL	WR28	8		36	68	53.4	9.6
+61		Korey Robertson	MIN	WR29	10		37	60	49.2	7.3
+62		Deontay Burnett	TEN	WR30	8		33	65	51.8	10.5
+63		Allen Lazard	JAC	WR31	9		40	61	50.3	7.8
+64		Troy Fumagalli	DEN	TE8	10		43	69	55.6	8.3
+65		Jordan Akins	HOU	TE9	10		42	58	50.7	6.6
+66		Boston Scott	NO	RB20	6		46	57	50.3	4.8
+67		Kyle Lauletta	NYG	QB7	9		49	63	54.6	6.1
+68		Chris Herndon IV	NYJ	TE10	11		50	62	56	6
+69		Robert Foster	BUF	WR32	11		50	63	56.5	6.5
+70		Roc Thomas	MIN	RB21	10		51	54	52.3	1.2
+71		Javon Wims	CHI	WR33	5		54	58	56	2
+72		Luke Falk	TEN	QB8	8		58	67	62.5	4.5
