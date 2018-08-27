@@ -19,7 +19,6 @@ class FantasyProsLoader {
         LoadUtils.loadCsvResource(resource).each { line ->
             if (!started) {
                 List<String> headings = line.split('\t')
-                println headings
                 overallRankIndex = headings.indexOf('Rank')
                 playerNameIndex = [headings.indexOf('Player'), headings.indexOf('Overall'), headings.indexOf('Rookies')].max()
                 teamIndex = headings.indexOf('Team')
