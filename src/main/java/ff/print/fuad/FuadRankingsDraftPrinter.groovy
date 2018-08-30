@@ -33,8 +33,9 @@ class FuadRankingsDraftPrinter {
                 MflFranchise franchise = fuadData.mflData.franchiseByIdMap.values().find { f ->
                     f.players.find { fp -> fp.player.name == player.player.name } != null
                 }
-                String franchiseName = franchise ? franchise.name.split(' ')[0] : 'UFA'
-                print "$franchiseName"
+                String franchiseName = franchise?.ownerName ?: franchise?.name
+                String shortName = franchiseName ? franchiseName.split(' ')[0] : 'UFA'
+                print "$shortName"
             }
         } else {
             print "\t\t\t\t"

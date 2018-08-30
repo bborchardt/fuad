@@ -89,7 +89,7 @@ class FantasyProsLoaderSpec extends Specification {
                 ['Corey Davis'      : new FpRankedPlayer(new Player('Corey Davis', 'TEN', 'WR'), new Rank(1, 1), '8'),
                  'Leonard Fournette': new FpRankedPlayer(new Player('Leonard Fournette', 'JAC', 'RB'), new Rank(2, 1), '8')],
                 ['Saquon Barkley': new FpRankedPlayer(new Player('Saquon Barkley', 'NYG', 'RB'), new Rank(1, 1), '9'),
-                 'D.J. Moore'    : new FpRankedPlayer(new Player('D.J. Moore', 'CAR', 'WR'), new Rank(5, 1), '4')],
+                 'D.J. Moore'    : new FpRankedPlayer(new Player('D.J. Moore', 'CAR', 'WR'), new Rank(6, 1), '4')],
         ]
     }
 }

@@ -16,7 +16,8 @@ class MflLoaderSpec extends Specification {
         when:
         MflData data = new MflLoader().loadData(
                 LoadUtils.mflPlayersResourcePath(year),
-                LoadUtils.mflLeadResourcePath(year),
+                LoadUtils.mflOwnersResourcePath(year),
+                LoadUtils.mflLeagueResourcePath(year),
                 LoadUtils.mflRostersResourcePath(year),
                 LoadUtils.mflDraftResourcePath(year)
         )
@@ -26,7 +27,8 @@ class MflLoaderSpec extends Specification {
         mflPlayer == player
         data.franchiseByIdMap.size() == 10
         data.franchiseByIdMap['0001'].id == '0001'
-        data.franchiseByIdMap['0001'].name == 'Brett Borchardt'
+        data.franchiseByIdMap['0001'].name == franchiseName
+        data.franchiseByIdMap['0001'].ownerName == 'Brett'
         data.franchiseByIdMap['0001'].players.find { p -> p == player }
         data.draftPicks[1].round == 1
         data.draftPicks[1].pick == 2
@@ -34,6 +36,7 @@ class MflLoaderSpec extends Specification {
         where:
         year << ['2017', '2018']
         name << ['Dez Bryant', 'Dalvin Cook']
+        franchiseName << ['The Drake Equation', 'The Drake Equation']
         player << [
                 new MflPlayer(new Player('Dez Bryant', 'DAL', 'WR'), new Contract(2, 50), '9823', false, new Draft(1, 24)),
                 new MflPlayer(new Player('Dalvin Cook', 'MIN', 'RB'), new Contract(4, 2), '13128', false, new Draft(2, 9))

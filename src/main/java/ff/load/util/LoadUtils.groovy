@@ -6,7 +6,8 @@ public class LoadUtils {
 
     public static final List<String> YEARS = ['2017', '2018'];
 
-    public static String mflLeadResourcePath(String year) { "/ff/mfl/data/$year/league.json" }
+    public static String mflOwnersResourcePath(String year) { "/ff/mfl/data/$year/owners.json" }
+    public static String mflLeagueResourcePath(String year) { "/ff/mfl/data/$year/league.json" }
     public static String mflPlayersResourcePath(String year) { "/ff/mfl/data/$year/players.json" }
     public static String mflRostersResourcePath(String year) { "/ff/mfl/data/$year/rosters.json" }
     public static String mflDraftResourcePath(String year) { "/ff/mfl/data/$year/draft.json" }

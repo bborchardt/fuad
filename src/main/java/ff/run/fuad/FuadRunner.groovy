@@ -24,11 +24,11 @@ class FuadRunner {
             def options = cli.parse(args)
             if (options != null) {
                 String year = options.year ?: LoadUtils.YEARS.last()
-                if(!LoadUtils.YEARS.contains(year)) {
+                if (!LoadUtils.YEARS.contains(year)) {
                     throw new IllegalArgumentException("Invalid year: $year")
                 }
                 String type = options.type
-                if(!TYPES.contains(type)) {
+                if (!TYPES.contains(type)) {
                     throw new IllegalArgumentException("Invalid type: $type")
                 }
                 FuadData fuadData = new FuadLoader().loadData(year)
@@ -42,8 +42,7 @@ class FuadRunner {
             } else {
                 Runtime.getRuntime().exit(-1)
             }
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             log.error('Error running CirrusBackboneSourceGenerator.', ex)
             Runtime.getRuntime().exit(-1)
         }

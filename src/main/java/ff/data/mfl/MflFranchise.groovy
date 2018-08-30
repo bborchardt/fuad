@@ -8,5 +8,6 @@ import groovy.transform.Immutable
 class MflFranchise {
     String id
     String name
+    String ownerName
     List<MflPlayer> players
 }

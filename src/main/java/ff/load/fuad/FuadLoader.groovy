@@ -15,7 +15,8 @@ class FuadLoader {
         Map<String, FuadPlayer> playerMap = [:]
         MflData mflData = new MflLoader().loadData(
                 LoadUtils.mflPlayersResourcePath(year),
-                LoadUtils.mflLeadResourcePath(year),
+                LoadUtils.mflOwnersResourcePath(year),
+                LoadUtils.mflLeagueResourcePath(year),
                 LoadUtils.mflRostersResourcePath(year),
                 LoadUtils.mflDraftResourcePath(year)
         )

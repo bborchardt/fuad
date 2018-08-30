@@ -11,7 +11,7 @@ import ff.load.util.LoadUtils
 
 class MflLoader {
 
-    MflData loadData(playersResource, leagueResource, rostersResource, draftResource) {
+    MflData loadData(playersResource, ownersResource, leagueResource, rostersResource, draftResource) {
         List playerData = LoadUtils.loadJsonResource(playersResource).players.player
         Map<String, HashMap<String, String>> initialPlayerMap = playerData
                 .findAll { p -> ['QB', 'RB', 'WR', 'TE', 'PK'].contains(p.position) }
@@ -22,9 +22,12 @@ class MflLoader {
                       id    : p.id, rookie: rookie, draft: draft]]
         }
 
+        Map ownerData = LoadUtils.loadJsonResource(ownersResource).owners.collectEntries {
+            [(it.franchiseId): it.name]
+        }
         List franchiseData = LoadUtils.loadJsonResource(leagueResource).league.franchises.franchise
         Map<String, HashMap<String, String>> initialFranchiseMap = franchiseData.collectEntries { f ->
-            [(f.id): [id: f.id, name: f.owner_name, players: []]]
+            [(f.id): [id: f.id, name: f.name, ownerName: ownerData[f.id], players: []]]
         }
 
         List rosterData = LoadUtils.loadJsonResource(rostersResource).rosters.franchise

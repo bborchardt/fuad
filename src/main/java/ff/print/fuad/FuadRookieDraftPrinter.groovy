@@ -33,8 +33,9 @@ class FuadRookieDraftPrinter {
 
     private void printPick(MflDraftPick pick) {
         if (pick) {
-            def franchiseName = pick.franchise.name.split(' ')[0]
-            print "$pick.round.$pick.pick\t$franchiseName"
+            String franchiseName = pick.franchise.ownerName ?: pick.franchise.name
+            def shortName = franchiseName.split(' ')[0]
+            print "$pick.round.$pick.pick\t$shortName"
         } else {
             print '\t'
         }

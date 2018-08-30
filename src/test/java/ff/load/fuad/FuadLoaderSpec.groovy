@@ -58,7 +58,7 @@ class FuadLoaderSpec extends Specification {
         )
         fuadPlayer == new FuadPlayer(
                 new Player('Todd Gurley', 'LAR', 'RB'),
-                new Rank(1, 1),
+                new Rank(2, 1),
                 new Rank(1, 1),
                 null,
                 new Contract(2, 8),
