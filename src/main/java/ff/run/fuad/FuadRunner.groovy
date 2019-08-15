@@ -15,7 +15,7 @@ class FuadRunner {
     private static final String TYPE_ROOKIES = 'rookies'
     private static final List<String> TYPES = [TYPE_FRANCHISES, TYPE_RANKINGS, TYPE_ROOKIES]
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
         try {
             def cli = new CliBuilder(usage: 'FuadRunner [options]', width: 120, stopAtNonOption: false,
                     header: "Executed with args: $args")

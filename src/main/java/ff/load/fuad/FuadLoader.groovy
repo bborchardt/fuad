@@ -38,6 +38,16 @@ class FuadLoader {
         populatePlayerMap(mflData.playerByNameMap, unmatchedPlayerMap, playerMap,
                 upperDynastyRankedPlayers, upperRedraftRankedPlayers, upperRookieRankedPlayers, 3)
 
+        Collection<FpRankedPlayer> unmatchedDynasty = upperDynastyRankedPlayers.values().findAll {it.player.position != 'DST' && it.rank.overallRank < 300 }
+        Collection<FpRankedPlayer> unmatchedRedraft = upperRedraftRankedPlayers.values().findAll {it.player.position != 'DST' && it.rank.overallRank < 300 }
+        Collection<FpRankedPlayer> unmatchedRookie = upperRookieRankedPlayers.values().findAll {it.player.team != 'FA'}
+        if(unmatchedDynasty || unmatchedRedraft || unmatchedRookie) {
+            println "unmatched dynasty: $unmatchedDynasty"
+            println "unmatched redraft: $unmatchedRedraft"
+            println "unmatched rookie: $unmatchedRookie"
+            throw new IllegalStateException("Invalid data found")
+        }
+
         new FuadData(
                 mflData,
                 playerMap,

@@ -1,0 +1,1570 @@
+{
+    "rosters": {
+        "franchise": [
+            {
+                "player": [
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "10700",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "9099",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "12630",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "12151",
+                        "salary": "6"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "10276",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "12930",
+                        "salary": "15"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "9831",
+                        "salary": "20"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "12652",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11670",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "13158",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "13154",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11244",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "13128",
+                        "salary": "2"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11222",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "13630",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "13590",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "13674",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "8742",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11257",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "12912",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "9308",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "6789",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "13620",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "13980",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "13605",
+                        "salary": "2"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "13164",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "12676",
+                        "salary": "1"
+                    }
+                ],
+                "id": "0001"
+            },
+            {
+                "player": [
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "5848",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "7813",
+                        "salary": "7"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "10413",
+                        "salary": "2"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11668",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "12156",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "13130",
+                        "salary": "4"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11679",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "12257",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "12648",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "13163",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "10729",
+                        "salary": "85"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "13176",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "9525",
+                        "salary": "8"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "7236",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "10312",
+                        "salary": "18"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "8359",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11678",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "12956",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "11705",
+                        "salary": "15"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "11225",
+                        "salary": "8"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "13604",
+                        "salary": "5"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "13606",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "13616",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11975",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "13167",
+                        "salary": "1"
+                    }
+                ],
+                "id": "0002"
+            },
+            {
+                "player": [
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "7394",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "13290",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "13131",
+                        "salary": "5"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "12153",
+                        "salary": "3"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11674",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "12186",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11938",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11247",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "13364",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "9448",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "13319",
+                        "salary": "6"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "8658",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "13382",
+                        "salary": "3"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "10273",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "12188",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "13617",
+                        "salary": "3"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "13646",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "13591",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "13637",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "13621",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "12505",
+                        "salary": "3"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "12437",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "13909",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11886",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "9918",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "9611",
+                        "salary": "0.01"
+                    }
+                ],
+                "id": "0003"
+            },
+            {
+                "player": [
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "4925",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "12610",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "12637",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "12626",
+                        "salary": "6"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "12634",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "13156",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "11248",
+                        "salary": "12"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "11850",
+                        "salary": "2"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "13157",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11193",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "10722",
+                        "salary": "40"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "13610",
+                        "salary": "3"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "13645",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "13649",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "13671",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "12650",
+                        "salary": "2"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "13348",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "9686",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "12208",
+                        "salary": "2"
+                    }
+                ],
+                "id": "0004"
+            },
+            {
+                "player": [
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11644",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "12140",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "12152",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "12150",
+                        "salary": "8"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "12157",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "12169",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11675",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "13153",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11232",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "12658",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11228",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "9474",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11695",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "12417",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "12627",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "13662",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "9823",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "9075",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "8670",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11947",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "13968",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "10695",
+                        "salary": "23"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11747",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "10308",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11239",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "13188",
+                        "salary": "1"
+                    }
+                ],
+                "id": "0005"
+            },
+            {
+                "player": [
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11642",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "12620",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "13129",
+                        "salary": "6"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "13234",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "12181",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "10973",
+                        "salary": "6"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11783",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "10983",
+                        "salary": "9"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11925",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "10271",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "10723",
+                        "salary": "15"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "13280",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "12206",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "8930",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "10708",
+                        "salary": "37"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "9118",
+                        "salary": "21"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "13672",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "13593",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "13768",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11186",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "7422",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "12211",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "13614",
+                        "salary": "3"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "12814",
+                        "salary": "0.01"
+                    }
+                ],
+                "id": "0006"
+            },
+            {
+                "player": [
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "13116",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "7836",
+                        "salary": "62"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "13146",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "13412",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "13155",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "12110",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "13189",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "9902",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "13354",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "12171",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11812",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "13635",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "13639",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "13640",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "13378",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "13619",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "12164",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "13168",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "14017",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11456",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "11227",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "13377",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "12628",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11660",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "12647",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "10261",
+                        "salary": "106"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11890",
+                        "salary": "0.01"
+                    }
+                ],
+                "id": "0007"
+            },
+            {
+                "player": [
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "13138",
+                        "salary": "2"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "10389",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "12175",
+                        "salary": "2"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "13277",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "13607",
+                        "salary": "2"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "10868",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "9662",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "13793",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "10709",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "13679",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "8062",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "10976",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "13113",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11192",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "13850",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11182",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11199",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "13613",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11454",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "11760",
+                        "salary": "4"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "7877",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "13612",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "13636",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "11672",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "12777",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "13634",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "13664",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "13763",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "11516",
+                        "salary": "2"
+                    }
+                ],
+                "id": "0008"
+            },
+            {
+                "player": [
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11657",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "13132",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "9988",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "12184",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "12187",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "13299",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11680",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "12391",
+                        "salary": "2"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "8153",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "13629",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "13622",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "12611",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "13589",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "2842",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "12317",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "12636",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "13611",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "12632",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "13653",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "13134",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "8673",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11761",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "13633",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11250",
+                        "salary": "0.01"
+                    }
+                ],
+                "id": "0009"
+            },
+            {
+                "player": [
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "12141",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "7401",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "13115",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "12154",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "12625",
+                        "salary": "10"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11188",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "13139",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11671",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "7393",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "1",
+                        "status": "ROSTER",
+                        "id": "10738",
+                        "salary": "20"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "12677",
+                        "salary": "3"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "13192",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "10703",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "11390",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "9427",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "8416",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "4",
+                        "status": "ROSTER",
+                        "id": "13608",
+                        "salary": "4"
+                    },
+                    {
+                        "contractYear": "2",
+                        "status": "ROSTER",
+                        "id": "13592",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "13678",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "3",
+                        "status": "ROSTER",
+                        "id": "13236",
+                        "salary": "1"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "9898",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "13404",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "12665",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "12860",
+                        "salary": "0.01"
+                    },
+                    {
+                        "contractYear": "0",
+                        "status": "ROSTER",
+                        "id": "13631",
+                        "salary": "0.01"
+                    }
+                ],
+                "id": "0010"
+            }
+        ]
+    },
+    "version": "1.0",
+    "encoding": "utf-8"
+}

@@ -23,6 +23,8 @@ class MflDataRefresh implements Runnable {
         String baseUrl = "https://$host/$year/export?JSON=1"
         String resourcePath = "$FetchUtils.baseResourceFilePath/ff/mfl/data/$year"
 
+        println baseUrl
+
         new File("$resourcePath/draft.json").text = new JsonOutput().prettyPrint(new URL("$baseUrl&TYPE=draftResults&L=$leagueId").text)
         new File("$resourcePath/league.json").text = new JsonOutput().prettyPrint(new URL("$baseUrl&TYPE=league&L=$leagueId").text)
         new File("$resourcePath/players.json").text = new JsonOutput().prettyPrint(new URL("$baseUrl&TYPE=players&DETAILS=1").text)

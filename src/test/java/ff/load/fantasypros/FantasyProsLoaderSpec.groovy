@@ -21,12 +21,14 @@ class FantasyProsLoaderSpec extends Specification {
         }
 
         where:
-        year << ['2017', '2018']
+        year << LoadUtils.YEARS
         expected << [
                 ['Odell Beckham Jr.': new FpRankedPlayer(new Player('Odell Beckham Jr.', 'NYG', 'WR'), new Rank(1, 1), '8'),
                  'David Johnson'    : new FpRankedPlayer(new Player('David Johnson', 'ARI', 'RB'), new Rank(4, 1), '8')],
                 ['Odell Beckham Jr.': new FpRankedPlayer(new Player('Odell Beckham Jr.', 'NYG', 'WR'), new Rank(3, 2), '9'),
                  'David Johnson'    : new FpRankedPlayer(new Player('David Johnson', 'ARI', 'RB'), new Rank(8, 5), '9')],
+                ['Odell Beckham Jr.': new FpRankedPlayer(new Player('Odell Beckham Jr.', 'CLE', 'WR'), new Rank(6, 2), '7'),
+                 'David Johnson'    : new FpRankedPlayer(new Player('David Johnson', 'ARI', 'RB'), new Rank(15, 8), '12')],
         ]
     }
 
@@ -42,12 +44,14 @@ class FantasyProsLoaderSpec extends Specification {
         }
 
         where:
-        year << ['2017', '2018']
+        year << LoadUtils.YEARS
         expected << [
                 ['Odell Beckham Jr.': new FpRankedPlayer(new Player('Odell Beckham Jr.', 'NYG', 'WR'), new Rank(5, 3), '8'),
                  'David Johnson'    : new FpRankedPlayer(new Player('David Johnson', 'ARI', 'RB'), new Rank(1, 1), '8')],
                 ['Odell Beckham Jr.': new FpRankedPlayer(new Player('Odell Beckham Jr.', 'NYG', 'WR'), new Rank(8, 3), '9'),
                  'David Johnson'    : new FpRankedPlayer(new Player('David Johnson', 'ARI', 'RB'), new Rank(3, 3), '9')],
+                ['Odell Beckham Jr.': new FpRankedPlayer(new Player('Odell Beckham Jr.', 'CLE', 'WR'), new Rank(10, 4), '7'),
+                 'David Johnson'    : new FpRankedPlayer(new Player('David Johnson', 'ARI', 'RB'), new Rank(5, 5), '12')],
         ]
     }
 
@@ -63,12 +67,14 @@ class FantasyProsLoaderSpec extends Specification {
         }
 
         where:
-        year << ['2017', '2018']
+        year << LoadUtils.YEARS
         expected << [
                 ['Odell Beckham Jr.': new FpRankedPlayer(new Player('Odell Beckham Jr.', 'NYG', 'WR'), new Rank(6, 3), '8'),
                  'David Johnson'    : new FpRankedPlayer(new Player('David Johnson', 'ARI', 'RB'), new Rank(1, 1), '8')],
                 ['Odell Beckham Jr.': new FpRankedPlayer(new Player('Odell Beckham Jr.', 'NYG', 'WR'), new Rank(8, 3), '9'),
                  'David Johnson'    : new FpRankedPlayer(new Player('David Johnson', 'ARI', 'RB'), new Rank(3, 3), '9')],
+                ['Odell Beckham Jr.': new FpRankedPlayer(new Player('Odell Beckham Jr.', 'CLE', 'WR'), new Rank(13, 5), '7'),
+                 'David Johnson'    : new FpRankedPlayer(new Player('David Johnson', 'ARI', 'RB'), new Rank(5, 5), '12')],
         ]
     }
 
@@ -84,12 +90,14 @@ class FantasyProsLoaderSpec extends Specification {
         }
 
         where:
-        year << ['2017', '2018']
+        year << LoadUtils.YEARS
         expected << [
                 ['Corey Davis'      : new FpRankedPlayer(new Player('Corey Davis', 'TEN', 'WR'), new Rank(1, 1), '8'),
                  'Leonard Fournette': new FpRankedPlayer(new Player('Leonard Fournette', 'JAC', 'RB'), new Rank(2, 1), '8')],
                 ['Saquon Barkley': new FpRankedPlayer(new Player('Saquon Barkley', 'NYG', 'RB'), new Rank(1, 1), '9'),
-                 'D.J. Moore'    : new FpRankedPlayer(new Player('D.J. Moore', 'CAR', 'WR'), new Rank(6, 1), '4')],
+                 'DJ Moore'    : new FpRankedPlayer(new Player('DJ Moore', 'CAR', 'WR'), new Rank(6, 1), '4')],
+                ['Josh Jacobs': new FpRankedPlayer(new Player('Josh Jacobs', 'OAK', 'RB'), new Rank(1, 1), '6'),
+                 'Justice Hill'    : new FpRankedPlayer(new Player('Justice Hill', 'BAL', 'RB'), new Rank(15, 5), '8')],
         ]
     }
 }

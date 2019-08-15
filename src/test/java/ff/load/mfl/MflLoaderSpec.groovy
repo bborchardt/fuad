@@ -34,12 +34,13 @@ class MflLoaderSpec extends Specification {
         data.draftPicks[1].pick == 2
 
         where:
-        year << ['2017', '2018']
-        name << ['Dez Bryant', 'Dalvin Cook']
-        franchiseName << ['The Drake Equation', 'The Drake Equation']
+        year << LoadUtils.YEARS
+        name << ['Dez Bryant', 'Dalvin Cook', 'Dalvin Cook']
+        franchiseName << ['The Drake Equation', 'The Drake Equation', 'The Drake Equation']
         player << [
                 new MflPlayer(new Player('Dez Bryant', 'DAL', 'WR'), new Contract(2, 50), '9823', false, new Draft(1, 24)),
-                new MflPlayer(new Player('Dalvin Cook', 'MIN', 'RB'), new Contract(4, 2), '13128', false, new Draft(2, 9))
+                new MflPlayer(new Player('Dalvin Cook', 'MIN', 'RB'), new Contract(4, 2), '13128', false, new Draft(2, 9)),
+                new MflPlayer(new Player('Dalvin Cook', 'MIN', 'RB'), new Contract(3, 2), '13128', false, new Draft(2, 9))
         ]
     }
 }

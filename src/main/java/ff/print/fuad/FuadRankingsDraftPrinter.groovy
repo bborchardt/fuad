@@ -37,8 +37,9 @@ class FuadRankingsDraftPrinter {
                 String shortName = franchiseName ? franchiseName.split(' ')[0] : 'UFA'
                 print "$shortName"
             }
+            print '\t'
         } else {
-            print "\t\t\t\t"
+            print "\t\t\t\t\t"
         }
     }
 
