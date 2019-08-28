@@ -4,6 +4,7 @@ import ff.data.fuad.FuadData
 import ff.data.fuad.FuadPlayer
 import ff.data.mfl.MflFranchise
 import ff.print.MultiListPrinter
+import ff.projection.PlayerSalaryCalculator
 
 class FuadRankingsDraftPrinter {
 
@@ -38,8 +39,10 @@ class FuadRankingsDraftPrinter {
                 print "$shortName"
             }
             print '\t'
+            print PlayerSalaryCalculator.projectedSalary(player)
+            print '\t'
         } else {
-            print "\t\t\t\t\t"
+            print "\t\t\t\t\t\t"
         }
     }
 

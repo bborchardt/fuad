@@ -4,7 +4,7 @@ import ff.fetch.FetchUtils
 import groovy.json.JsonOutput
 
 /**
- * Fetch data from myfantasyleague.com and pull into project.
+ * Fetch data from myfantasyleague.com and pull into projection.
  */
 class MflDataRefresh implements Runnable {
 

@@ -11,9 +11,10 @@ import groovy.util.logging.Slf4j
 @Slf4j
 class FuadRunner {
     private static final String TYPE_FRANCHISES = 'franchises'
+    private static final String TYPE_FRANCHISE_PROJECTIONS = 'franchise_projections'
     private static final String TYPE_RANKINGS = 'rankings'
     private static final String TYPE_ROOKIES = 'rookies'
-    private static final List<String> TYPES = [TYPE_FRANCHISES, TYPE_RANKINGS, TYPE_ROOKIES]
+    private static final List<String> TYPES = [TYPE_FRANCHISES, TYPE_FRANCHISE_PROJECTIONS, TYPE_RANKINGS, TYPE_ROOKIES]
 
     static void main(String[] args) {
         try {
@@ -33,7 +34,9 @@ class FuadRunner {
                 }
                 FuadData fuadData = new FuadLoader().loadData(year)
                 if (TYPE_FRANCHISES == type) {
-                    new FuadFranchiseDraftPrinter(fuadData).print()
+                    new FuadFranchiseDraftPrinter(fuadData, false).print()
+                } else if (TYPE_FRANCHISE_PROJECTIONS == type) {
+                    new FuadFranchiseDraftPrinter(fuadData, true).print()
                 } else if (TYPE_RANKINGS == type) {
                     new FuadRankingsDraftPrinter(fuadData).print()
                 } else if (TYPE_ROOKIES == type) {
@@ -43,7 +46,7 @@ class FuadRunner {
                 Runtime.getRuntime().exit(-1)
             }
         } catch (Exception ex) {
-            log.error('Error running CirrusBackboneSourceGenerator.', ex)
+            log.error('Error running FuadRunner.', ex)
             Runtime.getRuntime().exit(-1)
         }
     }

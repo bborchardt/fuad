@@ -1066,12 +1066,6 @@
                         "salary": "1"
                     },
                     {
-                        "contractYear": "1",
-                        "status": "ROSTER",
-                        "id": "10261",
-                        "salary": "106"
-                    },
-                    {
                         "contractYear": "0",
                         "status": "ROSTER",
                         "id": "11890",
@@ -1373,12 +1367,6 @@
                         "contractYear": "4",
                         "status": "ROSTER",
                         "id": "13653",
-                        "salary": "1"
-                    },
-                    {
-                        "contractYear": "3",
-                        "status": "ROSTER",
-                        "id": "13134",
                         "salary": "1"
                     },
                     {

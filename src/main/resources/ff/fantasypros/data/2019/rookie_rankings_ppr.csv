@@ -1,100 +1,98 @@
-Rank	Rookies	Team	Pos	Bye	Best	Worst	Avg	Std Dev
-1	Josh Jacobs	OAK	RB1	6	1	4	1.5	0.8
-2	N'Keal Harry	NE	WR1	10	1	7	2.4	1.1
-3	David Montgomery	CHI	RB2	6	2	7	3.3	1.2
-4	Miles Sanders	PHI	RB3	10	2	17	4	1.5
-5	A.J. Brown	TEN	WR2	11	3	14	6.9	1.9
-6	D.K. Metcalf	SEA	WR3	11	1	15	7	2.7
-7	Darrell Henderson	LAR	RB4	9	3	18	8.2	3.7
-8	Parris Campbell	IND	WR4	6	5	16	9.1	2.8
-9	Marquise Brown	BAL	WR5	8	5	18	10.6	3.2
-10	T.J. Hockenson	DET	TE1	5	6	21	10.8	2.8
-11	Kyler Murray	ARI	QB1	12	3	19	11.8	4.3
-12	Deebo Samuel	SF	WR6	4	7	17	12.8	2.9
-13	Noah Fant	DEN	TE2	10	8	20	13.3	3.4
-14	J.J. Arcega-Whiteside	PHI	WR7	10	6	19	14.5	3.2
-15	Justice Hill	BAL	RB5	8	7	33	14.8	3
-16	Devin Singletary	BUF	RB6	6	5	35	15.4	3.9
-17	Damien Harris	NE	RB7	10	7	25	15.8	3.5
-18	Andy Isabella	ARI	WR8	12	9	38	15.9	3.9
-19	Mecole Hardman	KC	WR9	12	9	31	16.3	5.1
-20	Hakeem Butler	ARI	WR10	12	12	31	19.7	3.3
-21	Diontae Johnson	PIT	WR11	7	19	28	23.5	2.8
-22	Irv Smith Jr.	MIN	TE3	12	19	35	24.4	3.2
-23	Alexander Mattison	MIN	RB8	12	18	35	26.8	5.1
-24	Miles Boykin	BAL	WR12	8	19	42	27.1	5.7
-25	Dwayne Haskins	WAS	QB2	10	10	44	27.2	5.3
-26	Terry McLaurin	WAS	WR13	10	13	45	28.4	6.3
-27	Jace Sternberger	GB	TE4	11	21	55	29.8	8.2
-28	Jalen Hurd	SF	WR14	4	19	50	30.8	8.8
-29	Benny Snell Jr.	PIT	RB9	7	15	50	32.2	6.3
-30	Kelvin Harmon	WAS	WR15	10	21	44	32.5	7.2
-31	Ryquell Armstead	JAC	RB10	10	24	66	35.8	9.6
-32	Darwin Thompson	KC	RB11	12	24	52	35.8	7.8
-33	Bryce Love	WAS	RB12	10	20	49	36.5	6.5
-34	Dexter Williams	GB	RB13	11	21	58	36.6	7.4
-35	KeeSean Johnson	ARI	WR16	12	27	58	36.9	8.2
-36	Trayveon Williams	CIN	RB14	9	22	42	37.3	3.4
-37	Daniel Jones	NYG	QB3	11	26	50	38.1	4.1
-38	Drew Lock	DEN	QB4	10	27	51	38.5	7.9
-39	Rodney Anderson	CIN	RB15	9	23	59	39.5	9.5
-40	Tony Pollard	DAL	RB16	8	21	46	36.7	7
-41	Riley Ridley	CHI	WR17	6	23	60	41.7	9.9
-42	Gary Jennings	SEA	WR18	11	22	74	43.6	13.3
-43	Mike Weber	DAL	RB17	8	25	58	46.6	7.2
-44	Preston Williams	MIA	WR19	5	27	58	42.9	9.6
-45	Josh Oliver	JAC	TE5	10	27	51	45.5	4.3
-46	Myles Gaskin	MIA	RB18	5	23	64	49.9	8.9
-47	Hunter Renfrow	OAK	WR20	6	38	55	46.3	5.4
-48	Emanuel Hall	CHI	WR21	6	28	60	49	9.6
-49	Darius Slayton	NYG	WR22	11	32	81	51.1	13.3
-50	Dawson Knox	BUF	TE6	6	37	62	47.1	6.6
-51	Will Grier	CAR	QB5	7	36	67	53	8.1
-52	Travis Homer	SEA	RB19	11	30	70	53.8	11
-53	Kahale Warring	HOU	TE7	10	41	70	52.7	8.8
-54	Jakobi Meyers	NE	WR23	10	28	68	45	13.2
-55	Jordan Scarlett	CAR	RB20	7	36	68	56.1	9.6
-56	Bruce Anderson	TB	RB21	7	22	67	50.9	11.3
-57	Caleb Wilson	ARI	TE8	12	45	75	61.3	7.3
-58	Elijah Holyfield	CAR	RB22	7	24	64	57	6.1
-59	Jarrett Stidham	NE	QB6	10	37	70	57.1	7.3
-60	Qadree Ollison	ATL	RB23	9	33	56	44.4	7.7
-61	DaMarkus Lodge	TB	WR24	7	30	82	56.3	15.6
-62	David Sills	BUF	WR25	6	36	81	63.7	10.9
-63	Foster Moreau	OAK	TE9	6	42	56	50.4	5
-64	Karan Higdon	HOU	RB24	10	29	64	51.2	8.1
-66	Ryan Finley	CIN	QB7	9	55	83	65.2	9.3
-67	Alex Barnes	TEN	RB26	11	43	66	60	7.1
-68	Ty Johnson	DET	RB27	5	31	93	60.4	21.7
-69	Lil'Jordan Humphrey	NO	WR26	9	32	78	61.4	12
-70	Terry Godwin	CAR	WR27	7	43	79	61.4	13
-71	Devine Ozigbo	NO	RB28	9	38	72	53.5	13.4
-72	Alize Mack	NO	TE10	9	49	95	68.4	19.9
-73	Dillon Mitchell	MIN	WR28	12	40	85	68.6	15.4
-74	Antoine Wesley	BAL	WR29	8	40	88	69.8	14.4
-75	Jazz Ferguson	SEA	WR30	11	50	85	66.5	12.7
-76	Greg Dortch	NYJ	WR31	4	46	86	74	8.9
-77	Emmanuel Butler	NO	WR32	9	51	68	59.7	6.9
-79	Drew Sample	CIN	TE11	9	60	89	70.8	11.5
-80	Damarea Crockett	HOU	RB30	10	43	91	71	18.8
-81	Kaden Smith	SF	TE12	4	43	94	77.2	14.6
-82	Tyree Jackson	BUF	QB8	6	67	79	73.5	4.8
-83	Stanley Morgan Jr.	CIN	WR33	9	58	83	67.3	11.1
-84	Gardner Minshew	JAC	QB9	10	65	74	69.3	3.7
-85	Anthony Johnson	TB	WR34	7	62	87	78.3	9.7
-86	Kerrith Whyte	CHI	RB31	6	48	92	80	18.5
-87	Wes Hills	ARI	RB32	12	49	96	75.7	19.7
-88	Ashton Dulin	IND	WR35	6	67	88	77.3	8.6
-89	C.J. Conrad	NYG	TE13	11	69	95	80	11
-90	Clayton Thorson	PHI	QB10	10	52	93	72.5	20.5
-91	Jalin Moore	NYJ	RB33	4	75	98	83.7	10.2
-92	Dax Raymond	CHI	TE14	6	75	97	85.3	9
-93	Easton Stick	LAC	QB11	12	80	91	85.7	4.5
-94	Tyre Brady	JAC	WR36	10	73	88	80.5	7.5
-95	Keelan Doss	OAK	WR37	6	77	84	80.5	3.5
-96	Cody Thompson	KC	WR38	12	70	92	81	11
-97	Trevon Wesco	NYJ	TE15	4	76	94	88	8.5
-98	Darrin Hall	GB	RB34	11	74	95	84.5	10.5
-99	Brett Rypien	DEN	QB12	10	86	96	90.3	4.2
-100	Penny Hart	IND	WR39	6	79	99	89	10
-101	Isaac Nauta	DET	TE16	5	87	97	92	5
+Rank	Rookies	Team	Pos	Bye	Age	Best	Worst	Avg	Std Dev
+1	Josh Jacobs	OAK	RB1	6	21	1	4	1.1	0.3
+2	David Montgomery	CHI	RB2	6	22	2	4	2.3	0.5
+3	Miles Sanders	PHI	RB3	10	22	1	4	2.9	0.3
+4	N'Keal Harry	NE	WR1	10	21	1	13	4.6	1.8
+5	A.J. Brown	TEN	WR2	11	22	5	12	7.1	2.1
+6	D.K. Metcalf	SEA	WR3	11	21	4	14	7.7	2.8
+7	T.J. Hockenson	DET	TE1	5	22	6	13	9.4	1.8
+8	Darrell Henderson	LAR	RB4	9	22	4	14	9.6	1.5
+9	Marquise Brown	BAL	WR4	8	22	5	15	9.9	2.4
+10	Parris Campbell	IND	WR5	6	22	5	18	10	2.4
+11	Kyler Murray	ARI	QB1	12	22	5	19	10.4	2.6
+12	Justice Hill	BAL	RB5	8	21	5	19	12.4	4.1
+13	Devin Singletary	BUF	RB6	6	21	4	18	12.6	4.6
+14	Noah Fant	DEN	TE2	10	21	11	22	13.1	2.4
+15	Deebo Samuel	SF	WR6	4	23	6	18	13.3	3.5
+16	J.J. Arcega-Whiteside	PHI	WR7	10	22	7	23	15.3	4.1
+17	Damien Harris	NE	RB7	10	22	10	26	16.6	2.6
+18	Andy Isabella	ARI	WR8	12	22	12	33	16.7	1.6
+19	Mecole Hardman	KC	WR9	12	21	15	29	19.4	3.4
+20	Miles Boykin	BAL	WR10	8	22	17	32	21.6	1.3
+21	Irv Smith Jr.	MIN	TE3	12	21	20	27	23.6	2.3
+22	Darwin Thompson	KC	RB8	12	22	10	33	23.7	3.6
+23	Terry McLaurin	WAS	WR11	10	23	21	29	25.4	2.4
+24	Hakeem Butler	ARI	WR12	12	23	19	36	25.6	5.5
+25	Jalen Hurd	SF	WR13	4	23	20	30	25.7	2.4
+26	Diontae Johnson	PIT	WR14	7	23	21	37	26.6	2.6
+27	Dwayne Haskins	WAS	QB2	10	22	21	35	26.6	2.7
+28	Alexander Mattison	MIN	RB9	12	21	17	32	27	3
+29	Jace Sternberger	GB	TE4	11	23	18	35	27.6	3.4
+30	Tony Pollard	DAL	RB10	8	22	15	46	29.3	9.2
+31	Preston Williams	MIA	WR15	5	22	14	58	31.3	4.4
+32	Daniel Jones	NYG	QB3	11	22	26	40	33	3.9
+33	KeeSean Johnson	ARI	WR16	12	22	24	50	34.4	6.9
+34	Kelvin Harmon	WAS	WR17	10	22	25	44	35	5.3
+35	Rodney Anderson	CIN	RB11	9		29	60	37.1	4.8
+36	Benny Snell Jr.	PIT	RB12	7	21	30	50	37.4	3.8
+37	Ryquell Armstead	JAC	RB13	10	22	32	53	37.9	2.4
+38	Bryce Love	WAS	RB14	10	22	34	47	39.1	2.8
+39	Dexter Williams	GB	RB15	11		34	51	39.6	2.2
+40	Riley Ridley	CHI	WR18	6	22	30	61	40.9	7.4
+41	Trayveon Williams	CIN	RB16	9	21	38	64	42.1	4.2
+42	Drew Lock	DEN	QB4	10	22	36	46	42.3	3.1
+43	Gary Jennings	SEA	WR19	11	22	29	78	44.1	8.1
+44	Josh Oliver	JAC	TE5	10	22	36	57	46.1	4.8
+45	Myles Gaskin	MIA	RB17	5	22	39	65	47	2.4
+46	Hunter Renfrow	OAK	WR20	6	23	34	52	48.3	2.5
+47	Jakobi Meyers	NE	WR21	10		21	64	40.2	11.4
+48	Mike Weber	DAL	RB18	8	22	35	63	51.6	5.3
+49	Dawson Knox	BUF	TE6	6	22	36	66	51.7	6.8
+50	Emanuel Hall	TB	WR22	7	22	37	62	53.1	4.3
+51	Darius Slayton	NYG	WR23	11	22	37	84	53	15.5
+52	Will Grier	CAR	QB5	7	24	47	61	54.3	4.7
+53	Jordan Scarlett	CAR	RB19	7	23	44	71	55.7	10.5
+54	Bruce Anderson	TB	RB20	7		29	61	47.4	10.8
+55	Elijah Holyfield	CAR	RB21	7		47	71	56.7	8.8
+56	Karan Higdon	HOU	RB22	10	22	34	60	49	9.5
+57	Kahale Warring	HOU	TE7	10	22	42	73	57.2	12.5
+58	David Sills	BUF	WR24	6		55	63	58.8	3.2
+59	Qadree Ollison	ATL	RB23	9	22	40	69	51.8	10.2
+60	Jarrett Stidham	NE	QB6	10	23	38	69	52.8	9.9
+61	DaMarkus Lodge	TB	WR25	7	22	49	66	55.4	5.7
+62	Caleb Wilson	ARI	TE8	12	23	59	70	63.3	4.1
+63	Devine Ozigbo	NO	RB24	9	22	40	60	48.3	7.4
+64	Damarea Crockett	HOU	RB25	10	21	43	69	54	11.4
+65	Travis Homer	SEA	RB26	11	21	51	84	68.7	8.7
+66	Lil'Jordan Humphrey	NO	WR26	9	21	51	59	55.8	2.9
+67	Alex Barnes	TEN	RB27	11	22	57	74	66.2	5.6
+68	Jazz Ferguson	SEA	WR27	11	22	49	83	61	13.7
+69	James Williams	Washington State	RB28		23	54	78	61	9.8
+70	Foster Moreau	OAK	TE9	6		54	76	61.5	8.5
+71	Greg Dortch	NYJ	WR28	4	21	60	75	65.8	5.8
+72	Ryan Finley	CIN	QB7	9	24	56	81	66.3	9.4
+73	Alize Mack	NO	TE10	9	22	52	91	68.5	14.8
+74	Ty Johnson	DET	RB29	5	21	54	65	60.3	4.6
+75	Anthony Johnson	TB	WR29	7		49	83	64.7	14
+76	Antoine Wesley	BAL	WR30	8		58	76	65	7.9
+77	Terry Godwin	CAR	WR31	7	22	56	77	69.3	9.5
+78	Emmanuel Butler	NO	WR32	9	23	48	72	60	12
+79	Kerrith Whyte	CHI	RB30	6	22	48	92	75.3	19.5
+80	Kaden Smith	SF	TE11	4	22	59	87	75.7	12
+81	Dillon Mitchell	MIN	WR33	12		56	74	65	9
+82	Tyree Jackson	BUF	QB8	6	21	68	82	76.7	6.2
+83	Keelan Doss	OAK	WR34	6		67	67	67	0
+84	Wes Hills	ARI	RB31	12	24	54	99	79.3	18.8
+85	Gardner Minshew	JAC	QB9	10	23	66	79	72.5	6.5
+86	Clayton Thorson	PHI	QB10	10	23	53	94	73.5	20.5
+87	Ashton Dulin	IND	WR35	6		68	80	74	6
+88	Drew Sample	CIN	TE12	9	23	65	98	84.3	14.1
+89	Brett Rypien	DEN	QB11	10	23	71	96	83.5	12.5
+90	Jalin Moore	NYJ	RB32	4	23	79	88	83.5	4.5
+91	Stanley Morgan Jr.	CIN	WR36	9	22	82	86	84	2
+92	C.J. Conrad	NYG	TE13	11		73	97	85	12
+93	Isaac Nauta	DET	TE14	5	22	88	89	88.5	0.5
+94	Easton Stick	LAC	QB12	12	23	87	102	94.5	7.5
+95	Trevon Wesco	NYJ	TE15	4	23	91	95	93	2
+96	Tyre Brady	JAC	WR37	10	24	89	101	95	6
+97	Dax Raymond	CHI	TE16	6		97	100	98.5	1.5

@@ -13,7 +13,6 @@ class LoadUtils {
     static String mflDraftResourcePath(String year) { "/ff/mfl/data/$year/draft.json" }
     static String fpDynastyRankingsPprResourcePath(String year) { "/ff/fantasypros/data/$year/dynasty_rankings_ppr.csv" }
     static String fpRookieRankingsPprResourcePath(String year) { "/ff/fantasypros/data/$year/rookie_rankings_ppr.csv" }
-    static String fpRedraftRankingsPprResourcePath(String year) { "/ff/fantasypros/data/$year/redraft_rankings_ppr.csv" }
     static String fpRedraftRankingsHalfPprResourcePath(String year) { "/ff/fantasypros/data/$year/redraft_rankings_half_ppr.csv" }
 
     private static final JsonSlurper jsonSlurper = new JsonSlurper()
