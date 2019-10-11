@@ -1,7 +1,7 @@
 {
     "version": "1.0",
     "players": {
-        "timestamp": "1566995805",
+        "timestamp": "1567098628",
         "player": [
             {
                 "draft_year": "1970",
@@ -33597,7 +33597,7 @@
                 "height": "72",
                 "jersey": "27",
                 "sportsdata_id": "aaa9228d-7399-4b53-a2e7-259438bd2959",
-                "team": "IND",
+                "team": "NYJ",
                 "cbs_id": "1998926"
             },
             {
@@ -40441,7 +40441,7 @@
                 "id": "13810",
                 "draft_team": "LAR",
                 "birthdate": "795762000",
-                "name": "Joseph, Sebastian",
+                "name": "Joseph-Day, Sebastian",
                 "draft_pick": "21",
                 "college": "Rutgers",
                 "rotowire_id": "12993",
@@ -50110,6 +50110,24 @@
             },
             {
                 "draft_year": "2019",
+                "status": "R",
+                "stats_id": "32162",
+                "position": "RB",
+                "stats_global_id": "835062",
+                "weight": "226",
+                "id": "14512",
+                "draft_team": "FA",
+                "birthdate": "788245200",
+                "name": "Turner, Xavier",
+                "college": "Tarleton State",
+                "rotowire_id": "14042",
+                "height": "70",
+                "jersey": "41",
+                "sportsdata_id": "91671654-f27f-498a-b3ed-7bf006ee3f2b",
+                "team": "ARI"
+            },
+            {
+                "draft_year": "2019",
                 "birthdate": "900738000",
                 "draft_team": "FA",
                 "status": "R",
@@ -50441,6 +50459,25 @@
                 "sportsdata_id": "5c424ecf-07c8-471e-a400-8d5f834af2e0",
                 "team": "MIA",
                 "cbs_id": "2139562"
+            },
+            {
+                "draft_year": "2019",
+                "status": "R",
+                "stats_id": "32187",
+                "position": "WR",
+                "stats_global_id": "877596",
+                "weight": "190",
+                "id": "14613",
+                "draft_team": "FA",
+                "birthdate": "859784400",
+                "name": "Sims, Steven",
+                "college": "Kansas",
+                "rotowire_id": "14055",
+                "height": "70",
+                "jersey": "15",
+                "sportsdata_id": "4a213e4e-b0ba-4124-833e-33c528bd5908",
+                "team": "WAS",
+                "cbs_id": "3116703"
             },
             {
                 "draft_year": "2019",

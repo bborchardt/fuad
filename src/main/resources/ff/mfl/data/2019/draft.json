@@ -6,11 +6,11 @@
             "draftPick": [
                 {
                     "timestamp": "",
-                    "franchise": "0007",
+                    "franchise": "0009",
                     "round": "01",
                     "player": "",
                     "pick": "01",
-                    "comments": "[Pick traded from Room for Ron Mexico.] "
+                    "comments": "[Pick traded from Room for Ron Mexico.\nPick traded from Wide Left.] "
                 },
                 {
                     "timestamp": "",
@@ -30,11 +30,11 @@
                 },
                 {
                     "timestamp": "",
-                    "franchise": "0009",
+                    "franchise": "0007",
                     "round": "01",
                     "player": "",
                     "pick": "04",
-                    "comments": ""
+                    "comments": "[Pick traded from Golden Ratio.] "
                 },
                 {
                     "timestamp": "",
@@ -325,7 +325,7 @@
                     "comments": ""
                 }
             ],
-            "round1DraftOrder": "0007,0010,0010,0009,0002,0004,0007,0001,0003,0008,"
+            "round1DraftOrder": "0009,0010,0010,0007,0002,0004,0007,0001,0003,0008,"
         }
     },
     "version": "1.0",

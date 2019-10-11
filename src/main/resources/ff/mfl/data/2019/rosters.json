@@ -177,24 +177,6 @@
                         "salary": "0.01"
                     },
                     {
-                        "contractYear": "2",
-                        "status": "ROSTER",
-                        "id": "7813",
-                        "salary": "7"
-                    },
-                    {
-                        "contractYear": "1",
-                        "status": "ROSTER",
-                        "id": "10413",
-                        "salary": "2"
-                    },
-                    {
-                        "contractYear": "0",
-                        "status": "ROSTER",
-                        "id": "11668",
-                        "salary": "0.01"
-                    },
-                    {
                         "contractYear": "1",
                         "status": "ROSTER",
                         "id": "12156",
@@ -732,12 +714,6 @@
                         "salary": "0.01"
                     },
                     {
-                        "contractYear": "1",
-                        "status": "ROSTER",
-                        "id": "10695",
-                        "salary": "23"
-                    },
-                    {
                         "contractYear": "0",
                         "status": "ROSTER",
                         "id": "11747",
@@ -849,18 +825,6 @@
                         "status": "ROSTER",
                         "id": "8930",
                         "salary": "0.01"
-                    },
-                    {
-                        "contractYear": "2",
-                        "status": "ROSTER",
-                        "id": "10708",
-                        "salary": "37"
-                    },
-                    {
-                        "contractYear": "1",
-                        "status": "ROSTER",
-                        "id": "9118",
-                        "salary": "21"
                     },
                     {
                         "contractYear": "3",
