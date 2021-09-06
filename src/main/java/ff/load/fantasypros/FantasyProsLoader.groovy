@@ -20,11 +20,11 @@ class FantasyProsLoader {
             try {
                 if (!started) {
                     List<String> headings = line.split('\t')
-                    overallRankIndex = headings.indexOf('Rank')
-                    playerNameIndex = [headings.indexOf('Player'), headings.indexOf('Overall'), headings.indexOf('Rookies')].max()
-                    teamIndex = headings.indexOf('Team')
-                    positionAndRankIndex = headings.indexOf('Pos')
-                    byeIndex = headings.indexOf('Bye')
+                    overallRankIndex = [headings.indexOf('Rank'), headings.indexOf('RK')].max()
+                    playerNameIndex = [headings.indexOf('Player'), headings.indexOf('Overall'), headings.indexOf('Rookies'), headings.indexOf('PLAYER NAME')].max()
+                    teamIndex = [headings.indexOf('Team'), headings.indexOf('TEAM')].max()
+                    positionAndRankIndex = [headings.indexOf('Pos'), headings.indexOf('POS')].max()
+                    byeIndex = [headings.indexOf('Bye'), headings.indexOf('BYE')].max()
                     started = true
                 } else {
                     List<String> vals = line.split('\t')

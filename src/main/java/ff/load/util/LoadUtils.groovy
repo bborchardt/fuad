@@ -4,7 +4,7 @@ import groovy.json.JsonSlurper
 
 class LoadUtils {
 
-    public static final List<String> YEARS = ['2017', '2018', '2019', '2020']
+    public static final List<String> YEARS = ['2017', '2018', '2019', '2020', '2021']
 
     static String mflOwnersResourcePath(String year) { "/ff/mfl/data/$year/owners.json" }
     static String mflLeagueResourcePath(String year) { "/ff/mfl/data/$year/league.json" }

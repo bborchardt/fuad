@@ -1,0 +1,256 @@
+{
+    "version": "1.0",
+    "league": {
+        "currentWaiverType": "BBID_FCFS",
+        "playerLimitUnit": "LEAGUE",
+        "taxiSquad": "0",
+        "endWeek": "16",
+        "maxWaiverRounds": "8",
+        "draft_kind": "email",
+        "lockout": "No",
+        "defaultTradeExpirationDays": "7",
+        "nflPoolStartWeek": "1",
+        "franchises": {
+            "count": "8",
+            "franchise": [
+                {
+                    "icon": "https://www53.myfantasyleague.com/fflnetdynamic2020/48571_franchise_icon0001.jpg",
+                    "division": "01",
+                    "name": "100% A Dick",
+                    "waiverSortOrder": "8",
+                    "logo": "https://www53.myfantasyleague.com/fflnetdynamic2020/48571_franchise_logo0001.jpg",
+                    "bbidAvailableBalance": "999999.00",
+                    "salaryCapAmount": "",
+                    "id": "0001"
+                },
+                {
+                    "icon": "https://www53.myfantasyleague.com/fflnetdynamic2019/48571_franchise_icon0002.jpg",
+                    "division": "01",
+                    "name": "Pete\u2019s Team",
+                    "waiverSortOrder": "7",
+                    "logo": "https://www53.myfantasyleague.com/fflnetdynamic2019/48571_franchise_logo0002.jpg",
+                    "bbidAvailableBalance": "999999.00",
+                    "salaryCapAmount": "",
+                    "id": "0002"
+                },
+                {
+                    "icon": "https://www53.myfantasyleague.com/fflnetdynamic2015/15599_franchise_icon0010.gif",
+                    "division": "00",
+                    "name": "Fitz & the Tantrums",
+                    "waiverSortOrder": "6",
+                    "logo": "https://www53.myfantasyleague.com/fflnetdynamic2015/15599_franchise_logo0010.gif",
+                    "bbidAvailableBalance": "999999.00",
+                    "salaryCapAmount": "",
+                    "id": "0003"
+                },
+                {
+                    "icon": "https://www64.myfantasyleague.com/fflnetdynamic2010/47266_franchise_icon0004.jpg",
+                    "abbrev": "SCS",
+                    "division": "01",
+                    "name": "Smooth City Styles!",
+                    "waiverSortOrder": "5",
+                    "logo": "https://www64.myfantasyleague.com/fflnetdynamic2010/47266_franchise_logo0004.jpg",
+                    "bbidAvailableBalance": "999999.00",
+                    "salaryCapAmount": "",
+                    "id": "0004"
+                },
+                {
+                    "icon": "https://www53.myfantasyleague.com/fflnetdynamic2016/48571_franchise_icon0009.jpg",
+                    "division": "00",
+                    "name": "Golden Ratio",
+                    "waiverSortOrder": "4",
+                    "logo": "https://www53.myfantasyleague.com/fflnetdynamic2016/48571_franchise_logo0009.jpg",
+                    "bbidAvailableBalance": "999999.00",
+                    "salaryCapAmount": "",
+                    "id": "0005"
+                },
+                {
+                    "icon": "https://www53.myfantasyleague.com/fflnetdynamic2020/48571_franchise_icon0006.jpg",
+                    "division": "00",
+                    "name": "We Made a Kicker",
+                    "waiverSortOrder": "3",
+                    "logo": "https://www.moviedash.com/editorials/7376/michael-myers-vs-jason-voorhees/",
+                    "bbidAvailableBalance": "999999.00",
+                    "salaryCapAmount": "",
+                    "id": "0006"
+                },
+                {
+                    "icon": "https://www53.myfantasyleague.com/fflnetdynamic2020/48571_franchise_icon0007.jpg",
+                    "division": "01",
+                    "name": "Mahomes Alone ",
+                    "waiverSortOrder": "2",
+                    "logo": "https://www53.myfantasyleague.com/fflnetdynamic2020/48571_franchise_logo0007.jpg",
+                    "bbidAvailableBalance": "999999.00",
+                    "salaryCapAmount": "",
+                    "id": "0007"
+                },
+                {
+                    "icon": "https://media.tenor.com/images/77091c9904f632688a828ebbff0d8fe4/tenor.gif",
+                    "abbrev": "NOTADICK",
+                    "division": "00",
+                    "name": "Not 100% A Dick",
+                    "waiverSortOrder": "1",
+                    "logo": "https://wtfbabe.files.wordpress.com/2015/01/guardians-of-the-galaxy-35-did-they-say-dick-wtf-watch-the-film-saint-pauly.jpg?w=648&h=270",
+                    "bbidAvailableBalance": "999999.00",
+                    "salaryCapAmount": "",
+                    "id": "0008"
+                }
+            ]
+        },
+        "standingsSort": "PCT,PTS,H2H,DIVPCT,OPP_PTS,PWR,VICTORY_POINTS,LAST_WEEK_POINTS,",
+        "draftPlayerPool": "Rookie",
+        "id": "48571",
+        "nflPoolType": "Confidence",
+        "history": {
+            "league": [
+                {
+                    "url": "https://www53.myfantasyleague.com/2021/home/48571",
+                    "year": "2021"
+                },
+                {
+                    "url": "http://www98.myfantasyleague.com/2008/home/75574",
+                    "year": "2008"
+                },
+                {
+                    "url": "http://www98.myfantasyleague.com/2009/home/20649",
+                    "year": "2009"
+                },
+                {
+                    "url": "http://www64.myfantasyleague.com/2010/home/47266",
+                    "year": "2010"
+                },
+                {
+                    "url": "http://www61.myfantasyleague.com/2011/home/28981",
+                    "year": "2011"
+                },
+                {
+                    "url": "http://www53.myfantasyleague.com/2012/home/36718",
+                    "year": "2012"
+                },
+                {
+                    "url": "http://www53.myfantasyleague.com/2013/home/34866",
+                    "year": "2013"
+                },
+                {
+                    "url": "http://www53.myfantasyleague.com/2014/home/43294",
+                    "year": "2014"
+                },
+                {
+                    "url": "http://www53.myfantasyleague.com/2015/home/15599",
+                    "year": "2015"
+                },
+                {
+                    "url": "http://www53.myfantasyleague.com/2016/home/48571",
+                    "year": "2016"
+                },
+                {
+                    "url": "http://www53.myfantasyleague.com/2017/home/48571",
+                    "year": "2017"
+                },
+                {
+                    "url": "http://www53.myfantasyleague.com/2018/home/48571",
+                    "year": "2018"
+                },
+                {
+                    "url": "http://www53.myfantasyleague.com/2019/home/48571",
+                    "year": "2019"
+                },
+                {
+                    "url": "https://www53.myfantasyleague.com/2020/home/48571",
+                    "year": "2020"
+                }
+            ]
+        },
+        "rosterSize": "80",
+        "name": "Fuad Reveiz Fan Club Dynasty League",
+        "bbidSeasonLimit": "999999",
+        "draftTimer": "OFF",
+        "rosterLimits": {
+            "position": [
+                {
+                    "name": "QB",
+                    "limit": "0-0"
+                },
+                {
+                    "name": "RB",
+                    "limit": "0-0"
+                },
+                {
+                    "name": "WR",
+                    "limit": "0-0"
+                },
+                {
+                    "name": "TE",
+                    "limit": "0-0"
+                },
+                {
+                    "name": "PK",
+                    "limit": "0-0"
+                }
+            ]
+        },
+        "bbidIncrement": "1",
+        "includeIRWithSalary": "100",
+        "mobileAlerts": "",
+        "draftLimitHours": "48:00",
+        "starters": {
+            "count": "8",
+            "position": [
+                {
+                    "name": "QB",
+                    "limit": "1"
+                },
+                {
+                    "name": "RB",
+                    "limit": "1-2"
+                },
+                {
+                    "name": "WR",
+                    "limit": "2-4"
+                },
+                {
+                    "name": "TE",
+                    "limit": "1-2"
+                },
+                {
+                    "name": "PK",
+                    "limit": "1"
+                }
+            ]
+        },
+        "nflPoolEndWeek": "16",
+        "bestLineup": "No",
+        "precision": "2",
+        "lastRegularSeasonWeek": "14",
+        "survivorPool": "Yes",
+        "bbidTiebreaker": "SORT",
+        "usesContractYear": "1",
+        "injuredReserve": "25",
+        "bbidConditional": "Yes",
+        "salaryCapAmount": "250",
+        "startWeek": "1",
+        "survivorPoolStartWeek": "1",
+        "survivorPoolEndWeek": "16",
+        "bbidFCFSCharge": "",
+        "rostersPerPlayer": "1",
+        "h2h": "YES",
+        "usesSalaries": "1",
+        "bbidMinimum": "1",
+        "divisions": {
+            "count": "2",
+            "division": [
+                {
+                    "name": "West",
+                    "id": "00"
+                },
+                {
+                    "name": "Central",
+                    "id": "01"
+                }
+            ]
+        },
+        "baseURL": "https://www53.myfantasyleague.com",
+        "loadRosters": "email_draft"
+    },
+    "encoding": "utf-8"
+}
