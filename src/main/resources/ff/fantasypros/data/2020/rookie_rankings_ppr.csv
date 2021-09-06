@@ -1,0 +1,74 @@
+Rank	Tier	WSID	Rookies	Team	Pos	Bye	Age	Best	Worst	Avg	Std Dev
+1	undefined		Clyde Edwards-Helaire	KC	RB1	10	21	1	2	1	0
+2	undefined		Jonathan Taylor	IND	RB2	7	21	1	5	2	0
+3	undefined		J.K. Dobbins	BAL	RB3	8	21	3	6	4	1
+4	undefined		CeeDee Lamb	DAL	WR1	10	21	3	7	4.4	1.4
+5	undefined		D'Andre Swift	DET	RB4	5	21	2	6	4.5	0.5
+6	undefined		Cam Akers	LAR	RB5	9	21	3	10	6.5	1.9
+7	undefined		Jerry Jeudy	DEN	WR2	8	21	4	11	6.9	1.9
+8	undefined		Jalen Reagor	PHI	WR3	9	21	6	13	8.5	1.4
+9	undefined		Justin Jefferson	MIN	WR4	7	21	7	14	9.5	1.5
+10	undefined		Henry Ruggs III	LV	WR5	6	21	8	15	10.5	1.6
+11	undefined		Tee Higgins	CIN	WR6	9	21	7	22	12.7	2.9
+12	undefined		Michael Pittman Jr.	IND	WR7	7	22	9	22	13.9	2.5
+13	undefined		Denzel Mims	NYJ	WR8	11	22	11	21	15	2.9
+14	undefined		Brandon Aiyuk	SF	WR9	11	22	9	21	15.6	2.3
+15	undefined		Laviska Shenault Jr.	JAC	WR10	7	21	9	25	15.8	2
+16	undefined		Joe Burrow	CIN	QB1	9	23	8	26	16.4	2.9
+17	undefined		Antonio Gibson	WAS	RB6	8	22	10	23	17.2	2.5
+18	undefined		Bryan Edwards	LV	WR11	6	21	11	23	17.2	3.4
+19	undefined		Ke'Shawn Vaughn	TB	RB7	13	23	7	29	18.6	6
+20	undefined		Zack Moss	BUF	RB8	11	22	12	28	19.1	2.8
+21	undefined		Tua Tagovailoa	MIA	QB2	11	22	16	29	19.8	1.6
+22	undefined		A.J. Dillon	GB	RB9	5	22	11	33	20.5	4.8
+23	undefined		Chase Claypool	PIT	WR12	8	22	18	45	24.4	3.9
+24	undefined		Justin Herbert	LAC	QB3	10	22	21	38	26.2	3.2
+25	undefined		KJ Hamler	DEN	WR13	8	21	19	39	26.5	4.4
+26	undefined		Anthony McFarland Jr.	PIT	RB10	8	22	17	39	27.9	5.2
+27	undefined		Darrynton Evans	TEN	RB11	7	22	20	41	28.6	3.6
+28	undefined		Van Jefferson	LAR	WR14	9	24	18	47	29.8	7
+29	undefined		Devin Duvernay	BAL	WR15	8	22	26	42	31	5.5
+30	undefined		Joshua Kelley	LAC	RB12	10	22	9	37	28.9	5.5
+31	undefined		Cole Kmet	CHI	TE1	11	21	24	46	32.9	5.3
+32	undefined		Adam Trautman	NO	TE2	6	23	26	39	33.3	3.8
+33	undefined		Antonio Gandy-Golden	WAS	WR16	8	22	27	43	34	3.1
+34	undefined		Eno Benjamin	ARI	RB13	8	21	25	46	36.3	4
+35	undefined		Lynn Bowden Jr.	LV	RB14	6	22	19	49	36.5	8.9
+36	undefined		Devin Asiasi	NE	TE3	6	23	28	51	37.4	6.5
+37	undefined		Jordan Love	GB	QB4	5	21	25	44	37.7	4.2
+38	undefined		Jalen Hurts	PHI	QB5	9	22	24	45	37.9	4
+39	undefined		Lamical Perine	NYJ	RB15	11	22	25	44	37.9	4.5
+40	undefined		Tyler Johnson	TB	WR17	13	22	30	48	39	4.2
+41	undefined		DeeJay Dallas	SEA	RB16	6	21	30	51	38.3	5.5
+42	undefined		Donovan Peoples-Jones	CLE	WR18	9	21	27	46	41.2	3.9
+43	undefined		Albert Okwuegbunam	DEN	TE4	8	22	29	56	44.2	6.5
+44	undefined		Quintez Cephus	DET	WR19	5	22	33	54	42.1	6.8
+45	undefined		Gabriel Davis	BUF	WR20	11	21	31	54	42.8	7.8
+46	undefined		Brycen Hopkins	LAR	TE5	9	23	31	70	47.9	9.2
+47	undefined		Joe Reed	LAC	WR21	10	22	37	63	47.6	8.3
+48	undefined		Darnell Mooney	CHI	WR22	11	22	35	54	46.5	3.9
+49	undefined		Collin Johnson	JAC	WR23	7	22	45	59	51.9	4.5
+50	undefined		Hunter Bryant	DET	TE6	5		31	86	53.1	15.5
+51	undefined		Harrison Bryant	CLE	TE7	9	22	36	68	53.3	7.4
+52	undefined		Jacob Eason	IND	QB6	7	22	34	66	52	7.3
+53	undefined		James Proche	BAL	WR24	8	23	37	57	48	6.4
+54	undefined		Thaddeus Moss	LSU	TE8		22	30	87	53.2	18.6
+55	undefined		John Hightower	PHI	WR25	9	24	43	61	49.8	6
+56	undefined		Jake Fromm	BUF	QB7	11	22	36	67	51	9.9
+57	undefined		Isaiah Hodgins	BUF	WR26	11	21	47	56	51.2	3.2
+58	undefined		Dalton Keene	NE	TE9	6	21	40	56	48	6.3
+59	undefined		Quez Watkins	PHI	WR27	9	22	40	61	53.8	5
+60	undefined		Michael Warren II	PHI	RB17	9		44	58	51	5
+61	undefined		James Robinson	JAC	RB18	7	22	46	64	54.6	7.1
+62	undefined		Isaiah Coulter	HOU	WR28	8	21	48	53	50.7	2.1
+63	undefined		Jauan Jennings	SF	WR29	11	23	50	63	56.3	5.4
+64	undefined		Josiah Deguara	GB	TE10	5	23	41	80	57.3	16.5
+65	undefined		K.J. Hill	LAC	WR30	10	22	50	64	59	4.2
+66	undefined		Raymond Calais	TB	RB19	13	22	46	73	59.3	11
+67	undefined		Marquez Callaway	NO	WR31	6	22	53	53	53	0
+68	undefined		Dalton Keene	FA	DT1			47	61	54	7
+69	undefined		Salvon Ahmed	MIA	RB20	11	21	56	59	57.5	1.5
+70	undefined		Stephen Sullivan	SEA	TE11	6	23	51	71	61	10
+71	undefined		J.J. Taylor	NE	RB21	6		57	66	61.5	4.5
+72	undefined		JaMycal Hasty	SF	RB22	11	23	62	65	64	1.4
+73	undefined		Rico Dowdle	DAL	RB23	10		58	75	66.5	8.5

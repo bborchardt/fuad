@@ -100,4 +100,34 @@ class FuadLoaderSpec extends Specification {
         data.rookieRanks[0].player.name == 'Josh Jacobs'
         data.rookieRanks[0].draft == new Draft(1, 24)
     }
+
+    def "2020 fuad loader"() {
+        when:
+        FuadData data = new FuadLoader().loadData('2020')
+        def mflPlayer = data.mflData.playerByNameMap['Saquon Barkley']
+        def fuadPlayer = data.playerByNameMap['Saquon Barkley']
+
+        then:
+        data.mflData.franchiseByIdMap.size() == 10
+        mflPlayer == new MflPlayer(
+                new Player('Saquon Barkley', 'NYG', 'RB'),
+                new Contract(3, 5),
+                '13604',
+                false,
+                new Draft(1, 2)
+        )
+        fuadPlayer == new FuadPlayer(
+                new Player('Saquon Barkley', 'NYG', 'RB'),
+                new Rank(2, 2),
+                new Rank(2, 2),
+                null,
+                new Contract(3, 5),
+                '13604',
+                false,
+                '11',
+                new Draft(1, 2)
+        )
+        data.rookieRanks[0].player.name == 'Clyde Edwards-Helaire'
+        data.rookieRanks[0].draft == new Draft(1, 32)
+    }
 }
