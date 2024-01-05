@@ -31,6 +31,7 @@ class FantasyProsLoaderSpec extends Specification {
                  'David Johnson'    : new FpRankedPlayer(new Player('David Johnson', 'ARI', 'RB'), new Rank(13, 7), '12')],
                 ['Christian McCaffrey': new FpRankedPlayer(new Player('Christian McCaffrey', 'CAR', 'RB'), new Rank(1, 1), '13'),
                  'Saquon Barkley'     : new FpRankedPlayer(new Player('Saquon Barkley', 'NYG', 'RB'), new Rank(2, 2), '11')],
+                []
         ]
     }
 
@@ -56,6 +57,7 @@ class FantasyProsLoaderSpec extends Specification {
                  'David Johnson'    : new FpRankedPlayer(new Player('David Johnson', 'ARI', 'RB'), new Rank(5, 5), '12')],
                 ['Christian McCaffrey': new FpRankedPlayer(new Player('Christian McCaffrey', 'CAR', 'RB'), new Rank(1, 1), '13'),
                  'Saquon Barkley'     : new FpRankedPlayer(new Player('Saquon Barkley', 'NYG', 'RB'), new Rank(2, 2), '11')],
+                []
         ]
     }
 
@@ -81,6 +83,7 @@ class FantasyProsLoaderSpec extends Specification {
                  'Justice Hill': new FpRankedPlayer(new Player('Justice Hill', 'BAL', 'RB'), new Rank(12, 5), '8')],
                 ['Clyde Edwards-Helaire': new FpRankedPlayer(new Player('Clyde Edwards-Helaire', 'KC', 'RB'), new Rank(1, 1), '10'),
                  'Jonathan Taylor'      : new FpRankedPlayer(new Player('Jonathan Taylor', 'IND', 'RB'), new Rank(2, 2), '7')],
+                []
         ]
     }
 }

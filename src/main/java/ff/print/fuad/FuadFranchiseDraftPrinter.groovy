@@ -28,11 +28,11 @@ class FuadFranchiseDraftPrinter {
         } else {
             println franchises*.ownerName.join(joiner) + joiner
         }
-        prettyPrintPositionRows(7, 'QB', franchises)
+        prettyPrintPositionRows(8, 'QB', franchises)
         prettyPrintPositionRows(14, 'RB', franchises)
-        prettyPrintPositionRows(14, 'WR', franchises)
-        prettyPrintPositionRows(7, 'TE', franchises)
-        prettyPrintPositionRows(4, 'PK', franchises)
+        prettyPrintPositionRows(18, 'WR', franchises)
+        prettyPrintPositionRows(10, 'TE', franchises)
+        prettyPrintPositionRows(6, 'PK', franchises)
     }
 
     private prettyPrintPositionRows(int maxRows, String position, Collection<MflFranchise> franchises) {

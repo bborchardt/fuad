@@ -1,5 +1,6 @@
 package ff.load.util
 
+import groovy.transform.Immutable
 import spock.lang.Specification
 import spock.lang.Unroll
 
