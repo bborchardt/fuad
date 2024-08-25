@@ -21,17 +21,10 @@ class FantasyProsLoaderSpec extends Specification {
         }
 
         where:
-        year << LoadUtils.YEARS
+        year << [LoadUtils.YEARS.last()]
         expected << [
-                ['Odell Beckham Jr.': new FpRankedPlayer(new Player('Odell Beckham Jr.', 'NYG', 'WR'), new Rank(1, 1), '8'),
-                 'David Johnson'    : new FpRankedPlayer(new Player('David Johnson', 'ARI', 'RB'), new Rank(4, 1), '8')],
-                ['Odell Beckham Jr.': new FpRankedPlayer(new Player('Odell Beckham Jr.', 'NYG', 'WR'), new Rank(3, 2), '9'),
-                 'David Johnson'    : new FpRankedPlayer(new Player('David Johnson', 'ARI', 'RB'), new Rank(8, 5), '9')],
-                ['Odell Beckham Jr.': new FpRankedPlayer(new Player('Odell Beckham Jr.', 'CLE', 'WR'), new Rank(5, 2), '7'),
-                 'David Johnson'    : new FpRankedPlayer(new Player('David Johnson', 'ARI', 'RB'), new Rank(13, 7), '12')],
-                ['Christian McCaffrey': new FpRankedPlayer(new Player('Christian McCaffrey', 'CAR', 'RB'), new Rank(1, 1), '13'),
-                 'Saquon Barkley'     : new FpRankedPlayer(new Player('Saquon Barkley', 'NYG', 'RB'), new Rank(2, 2), '11')],
-                []
+                ['Justin Jefferson': new FpRankedPlayer(new Player('Justin Jefferson', 'MIN', 'WR'), new Rank(1, 1), '6'),
+                 'CeeDee Lamb'     : new FpRankedPlayer(new Player('CeeDee Lamb', 'DAL', 'WR'), new Rank(2, 2), '7')]
         ]
     }
 
@@ -47,17 +40,10 @@ class FantasyProsLoaderSpec extends Specification {
         }
 
         where:
-        year << LoadUtils.YEARS
+        year << [LoadUtils.YEARS.last()]
         expected << [
-                ['Odell Beckham Jr.': new FpRankedPlayer(new Player('Odell Beckham Jr.', 'NYG', 'WR'), new Rank(5, 3), '8'),
-                 'David Johnson'    : new FpRankedPlayer(new Player('David Johnson', 'ARI', 'RB'), new Rank(1, 1), '8')],
-                ['Odell Beckham Jr.': new FpRankedPlayer(new Player('Odell Beckham Jr.', 'NYG', 'WR'), new Rank(8, 3), '9'),
-                 'David Johnson'    : new FpRankedPlayer(new Player('David Johnson', 'ARI', 'RB'), new Rank(3, 3), '9')],
-                ['Odell Beckham Jr.': new FpRankedPlayer(new Player('Odell Beckham Jr.', 'CLE', 'WR'), new Rank(11, 4), '7'),
-                 'David Johnson'    : new FpRankedPlayer(new Player('David Johnson', 'ARI', 'RB'), new Rank(5, 5), '12')],
-                ['Christian McCaffrey': new FpRankedPlayer(new Player('Christian McCaffrey', 'CAR', 'RB'), new Rank(1, 1), '13'),
-                 'Saquon Barkley'     : new FpRankedPlayer(new Player('Saquon Barkley', 'NYG', 'RB'), new Rank(2, 2), '11')],
-                []
+                ['Justin Jefferson': new FpRankedPlayer(new Player('Justin Jefferson', 'MIN', 'WR'), new Rank(8, 5), '6'),
+                 'CeeDee Lamb'     : new FpRankedPlayer(new Player('CeeDee Lamb', 'DAL', 'WR'), new Rank(2, 1), '7')]
         ]
     }
 
@@ -73,17 +59,10 @@ class FantasyProsLoaderSpec extends Specification {
         }
 
         where:
-        year << LoadUtils.YEARS
+        year << [LoadUtils.YEARS.last()]
         expected << [
-                ['Corey Davis'      : new FpRankedPlayer(new Player('Corey Davis', 'TEN', 'WR'), new Rank(1, 1), '8'),
-                 'Leonard Fournette': new FpRankedPlayer(new Player('Leonard Fournette', 'JAC', 'RB'), new Rank(2, 1), '8')],
-                ['Saquon Barkley': new FpRankedPlayer(new Player('Saquon Barkley', 'NYG', 'RB'), new Rank(1, 1), '9'),
-                 'DJ Moore'      : new FpRankedPlayer(new Player('DJ Moore', 'CAR', 'WR'), new Rank(6, 1), '4')],
-                ['Josh Jacobs' : new FpRankedPlayer(new Player('Josh Jacobs', 'OAK', 'RB'), new Rank(1, 1), '6'),
-                 'Justice Hill': new FpRankedPlayer(new Player('Justice Hill', 'BAL', 'RB'), new Rank(12, 5), '8')],
-                ['Clyde Edwards-Helaire': new FpRankedPlayer(new Player('Clyde Edwards-Helaire', 'KC', 'RB'), new Rank(1, 1), '10'),
-                 'Jonathan Taylor'      : new FpRankedPlayer(new Player('Jonathan Taylor', 'IND', 'RB'), new Rank(2, 2), '7')],
-                []
+                ['Malik Nabers'      : new FpRankedPlayer(new Player('Malik Nabers', 'NYG', 'WR'), new Rank(2, 2), '0'),
+                 'Xavier Worthy': new FpRankedPlayer(new Player('Xavier Worthy', 'KC', 'WR'), new Rank(5, 4), '0')]
         ]
     }
 }

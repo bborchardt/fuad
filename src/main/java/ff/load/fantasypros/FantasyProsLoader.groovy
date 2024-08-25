@@ -24,7 +24,7 @@ class FantasyProsLoader {
                     playerNameIndex = [headings.indexOf('Player'), headings.indexOf('Overall'), headings.indexOf('Rookies'), headings.indexOf('PLAYER NAME')].max()
                     teamIndex = [headings.indexOf('Team'), headings.indexOf('TEAM')].max()
                     positionAndRankIndex = [headings.indexOf('Pos'), headings.indexOf('POS')].max()
-                    byeIndex = [headings.indexOf('Bye'), headings.indexOf('BYE')].max()
+                    byeIndex = [headings.indexOf('Bye'), headings.indexOf('BYE'), headings.indexOf('BYE WEEK')].max()
                     started = true
                 } else {
                     List<String> vals = line.split('\t')
@@ -41,7 +41,10 @@ class FantasyProsLoader {
                         if (position == 'K') {
                             position = 'PK'
                         }
-                        String bye = vals[byeIndex + offset].trim()
+                        String bye = '0'
+                        if(byeIndex >= 0) {
+                            bye = vals[byeIndex + offset].trim()
+                        }
                         rankedPlayers[playerName] = new FpRankedPlayer(new Player(playerName, team, position), new Rank(overallRank, positionRank), bye)
                     } else {
                         overallRankOffset++

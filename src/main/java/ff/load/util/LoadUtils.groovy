@@ -18,12 +18,12 @@ class LoadUtils {
     private static final JsonSlurper jsonSlurper = new JsonSlurper()
 
     static Object loadJsonResource(String resourcePath) {
-        def stream = getClass().getResourceAsStream(resourcePath)
+        def stream = LoadUtils.class.getResourceAsStream(resourcePath)
         jsonSlurper.parse(stream)
     }
 
     static List<String> loadCsvResource(String resourcePath) {
-        def stream = getClass().getResourceAsStream(resourcePath)
+        def stream = LoadUtils.class.getResourceAsStream(resourcePath)
         stream.readLines()
     }
 

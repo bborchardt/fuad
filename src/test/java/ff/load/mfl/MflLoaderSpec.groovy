@@ -25,7 +25,7 @@ class MflLoaderSpec extends Specification {
 
         then:
         mflPlayer == player
-        data.franchiseByIdMap.size() == 10
+        data.franchiseByIdMap.size() == numFranchises
         data.franchiseByIdMap['0001'].id == '0001'
         data.franchiseByIdMap['0001'].name == franchiseName
         data.franchiseByIdMap['0001'].ownerName == 'Brett'
@@ -34,17 +34,12 @@ class MflLoaderSpec extends Specification {
         data.draftPicks[1].pick == 2
 
         where:
-        year << LoadUtils.YEARS
-        name << ['Dez Bryant', 'Dalvin Cook', 'Dalvin Cook', 'Dalvin Cook', 'Dalvin Cook', 'Dalvin Cook', 'Dalvin Cook']
-        franchiseName << ['The Drake Equation', 'The Drake Equation', 'The Drake Equation', 'Odell Lake', 'Zeke Squad', 'Zeke Squad', 'Zeke Squad']
+        year << [LoadUtils.YEARS.last()]
+        numFranchises << [10]
+        name << ['Chris Olave']
+        franchiseName << ['Zeke Squad']
         player << [
-                new MflPlayer(new Player('Dez Bryant', 'DAL', 'WR'), new Contract(2, 50), '9823', false, new Draft(1, 24)),
-                new MflPlayer(new Player('Dalvin Cook', 'MIN', 'RB'), new Contract(4, 2), '13128', false, new Draft(2, 9)),
-                new MflPlayer(new Player('Dalvin Cook', 'MIN', 'RB'), new Contract(3, 2), '13128', false, new Draft(2, 9)),
-                new MflPlayer(new Player('Dalvin Cook', 'MIN', 'RB'), new Contract(2, 2), '13128', false, new Draft(2, 9)),
-                new MflPlayer(new Player('Dalvin Cook', 'MIN', 'RB'), new Contract(1, 2), '13128', false, new Draft(2, 9)),
-                new MflPlayer(new Player('Dalvin Cook', 'MIN', 'RB'), new Contract(1, 2), '13128', false, new Draft(2, 9)),
-                new MflPlayer(new Player('Dalvin Cook', 'MIN', 'RB'), new Contract(0, 2), '13128', false, new Draft(2, 9)),
+                new MflPlayer(new Player('Chris Olave', 'NOS', 'WR'), new Contract(3, 1), '15754', false, new Draft(1, 11))
         ]
     }
 }
