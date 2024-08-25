@@ -1,0 +1,42 @@
+{
+  "owners": [
+    {
+      "franchiseId": "0001",
+      "name": "Brett"
+    },
+    {
+      "franchiseId": "0002",
+      "name": "Pete"
+    },
+    {
+      "franchiseId": "0003",
+      "name": "Troy"
+    },
+    {
+      "franchiseId": "0004",
+      "name": "Jeff"
+    },
+    {
+      "franchiseId": "0005",
+      "name": "Brian"
+    },
+    {
+      "franchiseId": "0006",
+      "name": "Mike"
+    },
+    {
+      "franchiseId": "0007",
+      "name": "Nate"
+    },
+    {
+      "franchiseId": "0008",
+      "name": "Chris"
+    },
+    { "franchiseId": "0009",
+      "name": "Franz"
+    },
+    { "franchiseId": "0010",
+      "name": "Matthew"
+    }
+  ]
+}

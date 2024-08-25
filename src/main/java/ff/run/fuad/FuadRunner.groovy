@@ -7,6 +7,7 @@ import ff.print.fuad.FuadFranchiseDraftPrinter
 import ff.print.fuad.FuadRankingsDraftPrinter
 import ff.print.fuad.FuadRookieDraftPrinter
 import groovy.util.logging.Slf4j
+import groovy.cli.commons.CliBuilder
 
 @Slf4j
 class FuadRunner {
