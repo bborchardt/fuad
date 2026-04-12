@@ -39,7 +39,7 @@ class MflLoaderSpec extends Specification {
         name << ['Chris Olave']
         franchiseName << ['Zeke Squad']
         player << [
-                new MflPlayer(new Player('Chris Olave', 'NOS', 'WR'), new Contract(3, 1), '15754', false, new Draft(1, 11))
+                new MflPlayer(new Player('Chris Olave', 'NOS', 'WR'), new Contract(2, 1), '15754', false, new Draft(1, 11))
         ]
     }
 }

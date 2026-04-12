@@ -23,8 +23,10 @@ class FantasyProsLoaderSpec extends Specification {
         where:
         year << [LoadUtils.YEARS.last()]
         expected << [
-                ['Justin Jefferson': new FpRankedPlayer(new Player('Justin Jefferson', 'MIN', 'WR'), new Rank(1, 1), '6'),
-                 'CeeDee Lamb'     : new FpRankedPlayer(new Player('CeeDee Lamb', 'DAL', 'WR'), new Rank(2, 2), '7')]
+                ['Justin Jefferson' : new FpRankedPlayer(new Player('Justin Jefferson', 'MIN', 'WR'),
+                        new Rank(2, 2), '0'),
+                 'Amon-Ra St. Brown': new FpRankedPlayer(new Player('Amon-Ra St. Brown', 'DET', 'WR'),
+                         new Rank(10, 7), '0')]
         ]
     }
 
@@ -42,8 +44,10 @@ class FantasyProsLoaderSpec extends Specification {
         where:
         year << [LoadUtils.YEARS.last()]
         expected << [
-                ['Justin Jefferson': new FpRankedPlayer(new Player('Justin Jefferson', 'MIN', 'WR'), new Rank(8, 5), '6'),
-                 'CeeDee Lamb'     : new FpRankedPlayer(new Player('CeeDee Lamb', 'DAL', 'WR'), new Rank(2, 1), '7')]
+                ['Justin Jefferson': new FpRankedPlayer(new Player('Justin Jefferson', 'MIN', 'WR'),
+                        new Rank(5, 2), '6'),
+                 'CeeDee Lamb'     : new FpRankedPlayer(new Player('CeeDee Lamb', 'DAL', 'WR'),
+                         new Rank(6, 3), '10')]
         ]
     }
 
@@ -61,8 +65,10 @@ class FantasyProsLoaderSpec extends Specification {
         where:
         year << [LoadUtils.YEARS.last()]
         expected << [
-                ['Malik Nabers'      : new FpRankedPlayer(new Player('Malik Nabers', 'NYG', 'WR'), new Rank(2, 2), '0'),
-                 'Xavier Worthy': new FpRankedPlayer(new Player('Xavier Worthy', 'KC', 'WR'), new Rank(5, 4), '0')]
+                ['Omarion Hampton': new FpRankedPlayer(new Player('Omarion Hampton', 'LAC', 'RB'),
+                        new Rank(3, 2), '0'),
+                 'Travis Hunter'  : new FpRankedPlayer(new Player('Travis Hunter', 'JAC', 'WR'),
+                         new Rank(5, 2), '0')]
         ]
     }
 }

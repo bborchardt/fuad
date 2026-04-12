@@ -26,18 +26,16 @@
     },
     {
       "franchiseId": "0007",
-      "name": "Nate"
+      "name": "Quinlan"
     },
     {
       "franchiseId": "0008",
       "name": "Chris"
     },
-    {
-      "franchiseId": "0009",
+    { "franchiseId": "0009",
       "name": "Franz"
     },
-    {
-      "franchiseId": "0010",
+    { "franchiseId": "0010",
       "name": "Matthew"
     }
   ]

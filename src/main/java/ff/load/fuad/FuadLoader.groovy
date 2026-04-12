@@ -85,8 +85,8 @@ class FuadLoader {
 
     private List<FuadPlayer> rankedList(Map<String, FuadPlayer> playerMap, String position) {
         playerMap.values().findAll { p ->
-            p.player.position.toUpperCase() == position && p.dynastyRank
-        }.sort { it.dynastyRank.positionRank }
+            p.player.position.toUpperCase() == position && p.redraftRank
+        }.sort { it.redraftRank.positionRank }
     }
 
     private List<FuadPlayer> rankedRookieList(Map<String, FuadPlayer> playerMap) {

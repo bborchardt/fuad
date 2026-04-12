@@ -27,7 +27,8 @@ class FuadRankingsDraftPrinter {
     private void printRank(FuadPlayer player) {
         if(player) {
             int redraftRank = player.redraftRank?.positionRank ?: 999
-            print "$player.dynastyRank.positionRank\t$redraftRank\t$player.player.name\t$player.player.team/$player.bye\t"
+            int dynastyRank = player.dynastyRank?.positionRank ?: 999
+            print "$dynastyRank\t$redraftRank\t$player.player.name\t$player.player.team/$player.bye\t"
             if(player.rookie) {
                 print "Rookie"
             } else {
