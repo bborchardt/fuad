@@ -9,5 +9,6 @@ class MflFranchise {
     String id
     String name
     String ownerName
+    String division
     List<MflPlayer> players
 }

@@ -27,7 +27,7 @@ class MflLoader {
         }
         List franchiseData = LoadUtils.loadJsonResource(leagueResource).league.franchises.franchise
         Map<String, HashMap<String, String>> initialFranchiseMap = franchiseData.collectEntries { f ->
-            [(f.id): [id: f.id, name: f.name, ownerName: ownerData[f.id], players: []]]
+            [(f.id): [id: f.id, name: f.name, ownerName: ownerData[f.id], division: f.division, players: []]]
         }
 
         List rosterData = LoadUtils.loadJsonResource(rostersResource).rosters.franchise

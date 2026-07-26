@@ -1,11 +1,15 @@
 package ff.run.fuad
 
 import ff.data.fuad.FuadData
+import ff.data.mfl.MflData
 import ff.load.fuad.FuadLoader
+import ff.load.mfl.MflLoader
 import ff.load.util.LoadUtils
 import ff.print.fuad.FuadFranchiseDraftPrinter
 import ff.print.fuad.FuadRankingsDraftPrinter
 import ff.print.fuad.FuadRookieDraftPrinter
+import ff.print.fuad.FuadSchedulePrinter
+import ff.schedule.fuad.FuadScheduleGenerator
 import groovy.util.logging.Slf4j
 import groovy.cli.commons.CliBuilder
 
@@ -15,7 +19,8 @@ class FuadRunner {
     private static final String TYPE_FRANCHISE_PROJECTIONS = 'franchise_projections'
     private static final String TYPE_RANKINGS = 'rankings'
     private static final String TYPE_ROOKIES = 'rookies'
-    private static final List<String> TYPES = [TYPE_FRANCHISES, TYPE_FRANCHISE_PROJECTIONS, TYPE_RANKINGS, TYPE_ROOKIES]
+    private static final String TYPE_SCHEDULE = 'schedule'
+    private static final List<String> TYPES = [TYPE_FRANCHISES, TYPE_FRANCHISE_PROJECTIONS, TYPE_RANKINGS, TYPE_ROOKIES, TYPE_SCHEDULE]
 
     static void main(String[] args) {
         try {
@@ -33,15 +38,27 @@ class FuadRunner {
                 if (!TYPES.contains(type)) {
                     throw new IllegalArgumentException("Invalid type: $type")
                 }
-                FuadData fuadData = new FuadLoader().loadData(year)
-                if (TYPE_FRANCHISES == type) {
-                    new FuadFranchiseDraftPrinter(fuadData, false).print()
-                } else if (TYPE_FRANCHISE_PROJECTIONS == type) {
-                    new FuadFranchiseDraftPrinter(fuadData, true).print()
-                } else if (TYPE_RANKINGS == type) {
-                    new FuadRankingsDraftPrinter(fuadData).print()
-                } else if (TYPE_ROOKIES == type) {
-                    new FuadRookieDraftPrinter(fuadData).print()
+                if (TYPE_SCHEDULE == type) {
+                    MflData mflData = new MflLoader().loadData(
+                            LoadUtils.mflPlayersResourcePath(year),
+                            LoadUtils.mflOwnersResourcePath(year),
+                            LoadUtils.mflLeagueResourcePath(year),
+                            LoadUtils.mflRostersResourcePath(year),
+                            LoadUtils.mflDraftResourcePath(year)
+                    )
+                    def matchups = new FuadScheduleGenerator().generate(mflData.franchiseByIdMap.values())
+                    new FuadSchedulePrinter(matchups).print()
+                } else {
+                    FuadData fuadData = new FuadLoader().loadData(year)
+                    if (TYPE_FRANCHISES == type) {
+                        new FuadFranchiseDraftPrinter(fuadData, false).print()
+                    } else if (TYPE_FRANCHISE_PROJECTIONS == type) {
+                        new FuadFranchiseDraftPrinter(fuadData, true).print()
+                    } else if (TYPE_RANKINGS == type) {
+                        new FuadRankingsDraftPrinter(fuadData).print()
+                    } else if (TYPE_ROOKIES == type) {
+                        new FuadRookieDraftPrinter(fuadData).print()
+                    }
                 }
             } else {
                 Runtime.getRuntime().exit(-1)
