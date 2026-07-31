@@ -4,6 +4,9 @@
 # Maven
 target/
 
+# Generated reports
+reports/
+
 # Intellij
 *.iml
 .idea/

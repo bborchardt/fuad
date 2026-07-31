@@ -4,7 +4,7 @@ import ff.print.fuad.PrintableList
 
 class MultiListPrinter {
 
-    void printLists(PrintableList... lists) {
+    void printLists(PrintWriter out, PrintableList... lists) {
         int numRows = lists*.list*.size().max()
         (0..numRows-1).each { i ->
             for(int j = 0; j < lists.size(); j++) {
@@ -12,9 +12,9 @@ class MultiListPrinter {
                 def element = list.list.size() > i ? list.list[i] : null
                 list.printer(element)
                 if(j < lists.size() - 1)
-                print '\t\t'
+                out.print '\t\t'
             }
-            println()
+            out.println()
         }
     }
 }

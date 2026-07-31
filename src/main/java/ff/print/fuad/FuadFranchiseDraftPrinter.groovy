@@ -16,32 +16,32 @@ class FuadFranchiseDraftPrinter {
         this.printProjections = printProjections
     }
 
-    void print() {
-        prettyPrintFranchiseRows()
+    void print(PrintWriter out) {
+        prettyPrintFranchiseRows(out)
     }
 
-    private prettyPrintFranchiseRows() {
+    private prettyPrintFranchiseRows(PrintWriter out) {
         Collection<MflFranchise> franchises = fuadData.mflData.franchiseByIdMap.values()
         String joiner = '\t\t$\tYrs\t\t'
         if(franchises.find { it.ownerName == null }) {
-            println franchises*.name.join(joiner) + joiner
+            out.println franchises*.name.join(joiner) + joiner
         } else {
-            println franchises*.ownerName.join(joiner) + joiner
+            out.println franchises*.ownerName.join(joiner) + joiner
         }
-        prettyPrintPositionRows(8, 'QB', franchises)
-        prettyPrintPositionRows(14, 'RB', franchises)
-        prettyPrintPositionRows(18, 'WR', franchises)
-        prettyPrintPositionRows(10, 'TE', franchises)
-        prettyPrintPositionRows(6, 'PK', franchises)
+        prettyPrintPositionRows(out, 8, 'QB', franchises)
+        prettyPrintPositionRows(out, 14, 'RB', franchises)
+        prettyPrintPositionRows(out, 18, 'WR', franchises)
+        prettyPrintPositionRows(out, 10, 'TE', franchises)
+        prettyPrintPositionRows(out, 6, 'PK', franchises)
     }
 
-    private prettyPrintPositionRows(int maxRows, String position, Collection<MflFranchise> franchises) {
+    private prettyPrintPositionRows(PrintWriter out, int maxRows, String position, Collection<MflFranchise> franchises) {
         List<List<MflPlayer>> playersByFranchise = franchises*.players.collect { List<MflPlayer> players ->
             players.findAll { it.player.position == position }
                     .sort { a, b -> getRedraftRank(a) <=> getRedraftRank(b) }
         }
         (0..maxRows-1).each { i ->
-            println playerRow(playersByFranchise*.getAt(i))
+            out.println playerRow(playersByFranchise*.getAt(i))
         }
     }
 

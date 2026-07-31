@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 # Builds the project and invokes FuadRunner, forwarding all arguments.
 #
+# Reports are written to <out>/<year>/<type>.tsv (schedule.csv), defaulting to reports/<year>.
+#
 # Usage:
-#   ./generate_report.sh -t <franchises|franchise_projections|rankings|rookies> [-y <year>]
+#   ./generate_report.sh -t <franchises|franchise_projections|rankings|rookies|schedule|all> [-y <year>] [-o <dir>]
 #
 # Examples:
 #   ./generate_report.sh -t rankings
 #   ./generate_report.sh -t rookies -y 2024
+#   ./generate_report.sh -t all
 set -euo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

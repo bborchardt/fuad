@@ -10,9 +10,9 @@ class FuadSchedulePrinter {
         this.matchups = matchups
     }
 
-    void print() {
+    void print(PrintWriter out) {
         matchups.sort { it.week }.each { m ->
-            println "${String.format('%02d', m.week)},$m.franchiseId1,$m.franchiseId2"
+            out.println "${String.format('%02d', m.week)},$m.franchiseId1,$m.franchiseId2"
         }
     }
 }

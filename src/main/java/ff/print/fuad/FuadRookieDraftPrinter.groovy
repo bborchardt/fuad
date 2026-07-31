@@ -13,31 +13,31 @@ class FuadRookieDraftPrinter {
         this.fuadData = fuadData
     }
 
-    void print() {
-        new MultiListPrinter().printLists(
-                new PrintableList(fuadData.rookieRanks, this.&printRank),
-                new PrintableList(fuadData.mflData.draftPicks, this.&printPick),
+    void print(PrintWriter out) {
+        new MultiListPrinter().printLists(out,
+                new PrintableList(fuadData.rookieRanks, this.&printRank.curry(out)),
+                new PrintableList(fuadData.mflData.draftPicks, this.&printPick.curry(out)),
         )
     }
 
-    private void printRank(FuadPlayer player) {
+    private void printRank(PrintWriter out, FuadPlayer player) {
         if (player) {
             String overallRank = "${((9 + player.rookieRank.overallRank) / 10).toInteger()}.${player.rookieRank.overallRank % 10 ?: 10}"
             String draftPick = player.draft ? "$player.draft.round.$player.draft.pick" : '?'
             String positionAndRank = "$player.player.position$player.rookieRank.positionRank"
-            print "$overallRank\t$player.player.name\t$positionAndRank\t$draftPick\t$player.player.team"
+            out.print "$overallRank\t$player.player.name\t$positionAndRank\t$draftPick\t$player.player.team"
         } else {
-            print '\t\t\t'
+            out.print '\t\t\t'
         }
     }
 
-    private void printPick(MflDraftPick pick) {
+    private void printPick(PrintWriter out, MflDraftPick pick) {
         if (pick) {
             String franchiseName = pick.franchise.ownerName ?: pick.franchise.name
             def shortName = franchiseName.split(' ')[0]
-            print "$pick.round.$pick.pick\t$shortName"
+            out.print "$pick.round.$pick.pick\t$shortName"
         } else {
-            print '\t'
+            out.print '\t'
         }
     }
 

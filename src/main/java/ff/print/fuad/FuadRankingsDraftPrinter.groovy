@@ -14,36 +14,37 @@ class FuadRankingsDraftPrinter {
         this.fuadData = fuadData
     }
 
-    void print() {
-        new MultiListPrinter().printLists(
-                new PrintableList(fuadData.qbRanks.findAll { p -> !p.contract }, this.&printRank),
-                new PrintableList(fuadData.rbRanks.findAll { p -> !p.contract }, this.&printRank),
-                new PrintableList(fuadData.wrRanks.findAll { p -> !p.contract }, this.&printRank),
-                new PrintableList(fuadData.teRanks.findAll { p -> !p.contract }, this.&printRank),
-                new PrintableList(fuadData.pkRanks.findAll { p -> !p.contract }, this.&printRank),
+    void print(PrintWriter out) {
+        def printRank = this.&printRank.curry(out)
+        new MultiListPrinter().printLists(out,
+                new PrintableList(fuadData.qbRanks.findAll { p -> !p.contract }, printRank),
+                new PrintableList(fuadData.rbRanks.findAll { p -> !p.contract }, printRank),
+                new PrintableList(fuadData.wrRanks.findAll { p -> !p.contract }, printRank),
+                new PrintableList(fuadData.teRanks.findAll { p -> !p.contract }, printRank),
+                new PrintableList(fuadData.pkRanks.findAll { p -> !p.contract }, printRank),
         )
     }
 
-    private void printRank(FuadPlayer player) {
+    private void printRank(PrintWriter out, FuadPlayer player) {
         if(player) {
             int redraftRank = player.redraftRank?.positionRank ?: 999
             int dynastyRank = player.dynastyRank?.positionRank ?: 999
-            print "$dynastyRank\t$redraftRank\t$player.player.name\t$player.player.team/$player.bye\t"
+            out.print "$dynastyRank\t$redraftRank\t$player.player.name\t$player.player.team/$player.bye\t"
             if(player.rookie) {
-                print "Rookie"
+                out.print "Rookie"
             } else {
                 MflFranchise franchise = fuadData.mflData.franchiseByIdMap.values().find { f ->
                     f.players.find { fp -> fp.player.name == player.player.name } != null
                 }
                 String franchiseName = franchise?.ownerName ?: franchise?.name
                 String shortName = franchiseName ? franchiseName.split(' ')[0] : 'UFA'
-                print "$shortName"
+                out.print "$shortName"
             }
-            print '\t'
-            print PlayerSalaryCalculator.projectedSalary(player)
-            print '\t'
+            out.print '\t'
+            out.print PlayerSalaryCalculator.projectedSalary(player)
+            out.print '\t'
         } else {
-            print "\t\t\t\t\t\t"
+            out.print "\t\t\t\t\t\t"
         }
     }
 

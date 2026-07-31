@@ -20,14 +20,20 @@ class FuadRunner {
     private static final String TYPE_RANKINGS = 'rankings'
     private static final String TYPE_ROOKIES = 'rookies'
     private static final String TYPE_SCHEDULE = 'schedule'
+    private static final String TYPE_ALL = 'all'
     private static final List<String> TYPES = [TYPE_FRANCHISES, TYPE_FRANCHISE_PROJECTIONS, TYPE_RANKINGS, TYPE_ROOKIES, TYPE_SCHEDULE]
+
+    private static final String DEFAULT_OUTPUT_DIR = 'reports'
 
     static void main(String[] args) {
         try {
             def cli = new CliBuilder(usage: 'FuadRunner [options]', width: 120, stopAtNonOption: false,
                     header: "Executed with args: $args")
             cli.y(longOpt: 'year', args: 1, argName: 'year', required: false, 'The year, defaults to most recent.')
-            cli.t(longOpt: 'type', args: 1, argName: 'type', required: true, "The type of sheet to generate: $TYPES")
+            cli.t(longOpt: 'type', args: 1, argName: 'type', required: true,
+                    "The type of sheet to generate: ${TYPES + TYPE_ALL}")
+            cli.o(longOpt: 'out', args: 1, argName: 'dir', required: false,
+                    "The directory to write reports to, defaults to $DEFAULT_OUTPUT_DIR.")
             def options = cli.parse(args)
             if (options != null) {
                 String year = options.year ?: LoadUtils.YEARS.last()
@@ -35,30 +41,21 @@ class FuadRunner {
                     throw new IllegalArgumentException("Invalid year: $year")
                 }
                 String type = options.type
-                if (!TYPES.contains(type)) {
+                if (!TYPES.contains(type) && TYPE_ALL != type) {
                     throw new IllegalArgumentException("Invalid type: $type")
                 }
-                if (TYPE_SCHEDULE == type) {
-                    MflData mflData = new MflLoader().loadData(
-                            LoadUtils.mflPlayersResourcePath(year),
-                            LoadUtils.mflOwnersResourcePath(year),
-                            LoadUtils.mflLeagueResourcePath(year),
-                            LoadUtils.mflRostersResourcePath(year),
-                            LoadUtils.mflDraftResourcePath(year)
-                    )
-                    def matchups = new FuadScheduleGenerator().generate(mflData.franchiseByIdMap.values())
-                    new FuadSchedulePrinter(matchups).print()
-                } else {
-                    FuadData fuadData = new FuadLoader().loadData(year)
-                    if (TYPE_FRANCHISES == type) {
-                        new FuadFranchiseDraftPrinter(fuadData, false).print()
-                    } else if (TYPE_FRANCHISE_PROJECTIONS == type) {
-                        new FuadFranchiseDraftPrinter(fuadData, true).print()
-                    } else if (TYPE_RANKINGS == type) {
-                        new FuadRankingsDraftPrinter(fuadData).print()
-                    } else if (TYPE_ROOKIES == type) {
-                        new FuadRookieDraftPrinter(fuadData).print()
-                    }
+                List<String> types = TYPE_ALL == type ? TYPES : [type]
+                File outputDir = new File(options.out ?: DEFAULT_OUTPUT_DIR, year)
+                outputDir.mkdirs()
+
+                // Loading is the expensive part, so do it once no matter how many reports are written.
+                FuadData fuadData = types.any { it != TYPE_SCHEDULE } ? new FuadLoader().loadData(year) : null
+                MflData mflData = types.contains(TYPE_SCHEDULE) ? (fuadData?.mflData ?: loadMflData(year)) : null
+
+                types.each { String t ->
+                    File file = new File(outputDir, fileName(t))
+                    file.withPrintWriter { out -> printReport(t, out, fuadData, mflData) }
+                    println "Wrote $file"
                 }
             } else {
                 Runtime.getRuntime().exit(-1)
@@ -67,5 +64,35 @@ class FuadRunner {
             log.error('Error running FuadRunner.', ex)
             Runtime.getRuntime().exit(-1)
         }
+    }
+
+    /** The schedule is comma separated for MFL to import; every other report is pasted into a spreadsheet. */
+    private static String fileName(String type) {
+        TYPE_SCHEDULE == type ? "${type}.csv" : "${type}.tsv"
+    }
+
+    private static void printReport(String type, PrintWriter out, FuadData fuadData, MflData mflData) {
+        if (TYPE_SCHEDULE == type) {
+            def matchups = new FuadScheduleGenerator().generate(mflData.franchiseByIdMap.values())
+            new FuadSchedulePrinter(matchups).print(out)
+        } else if (TYPE_FRANCHISES == type) {
+            new FuadFranchiseDraftPrinter(fuadData, false).print(out)
+        } else if (TYPE_FRANCHISE_PROJECTIONS == type) {
+            new FuadFranchiseDraftPrinter(fuadData, true).print(out)
+        } else if (TYPE_RANKINGS == type) {
+            new FuadRankingsDraftPrinter(fuadData).print(out)
+        } else if (TYPE_ROOKIES == type) {
+            new FuadRookieDraftPrinter(fuadData).print(out)
+        }
+    }
+
+    private static MflData loadMflData(String year) {
+        new MflLoader().loadData(
+                LoadUtils.mflPlayersResourcePath(year),
+                LoadUtils.mflOwnersResourcePath(year),
+                LoadUtils.mflLeagueResourcePath(year),
+                LoadUtils.mflRostersResourcePath(year),
+                LoadUtils.mflDraftResourcePath(year)
+        )
     }
 }

@@ -11,17 +11,12 @@ class FuadSchedulePrinterSpec extends Specification {
                 new FuadMatchup(2, '0002', '0003'),
                 new FuadMatchup(1, '0006', '0004'),
         ]
-        ByteArrayOutputStream out = new ByteArrayOutputStream()
-        PrintStream original = System.out
+        StringWriter out = new StringWriter()
 
         when:
-        System.out = new PrintStream(out)
-        new FuadSchedulePrinter(matchups).print()
+        new FuadSchedulePrinter(matchups).print(new PrintWriter(out))
 
         then:
         out.toString().readLines() == ['01,0006,0004', '02,0002,0003']
-
-        cleanup:
-        System.out = original
     }
 }
