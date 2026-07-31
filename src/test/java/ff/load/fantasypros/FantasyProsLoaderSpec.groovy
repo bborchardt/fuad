@@ -23,10 +23,10 @@ class FantasyProsLoaderSpec extends Specification {
         where:
         year << [LoadUtils.YEARS.last()]
         expected << [
-                ['Justin Jefferson' : new FpRankedPlayer(new Player('Justin Jefferson', 'MIN', 'WR'),
-                        new Rank(2, 2), '0'),
-                 'Amon-Ra St. Brown': new FpRankedPlayer(new Player('Amon-Ra St. Brown', 'DET', 'WR'),
-                         new Rank(10, 7), '0')]
+                ["Ja'Marr Chase"   : new FpRankedPlayer(new Player("Ja'Marr Chase", 'CIN', 'WR'),
+                        new Rank(4, 1), '0'),
+                 'Justin Jefferson': new FpRankedPlayer(new Player('Justin Jefferson', 'MIN', 'WR'),
+                         new Rank(16, 5), '0')]
         ]
     }
 
@@ -44,10 +44,10 @@ class FantasyProsLoaderSpec extends Specification {
         where:
         year << [LoadUtils.YEARS.last()]
         expected << [
-                ['Justin Jefferson': new FpRankedPlayer(new Player('Justin Jefferson', 'MIN', 'WR'),
-                        new Rank(5, 2), '6'),
-                 'CeeDee Lamb'     : new FpRankedPlayer(new Player('CeeDee Lamb', 'DAL', 'WR'),
-                         new Rank(6, 3), '10')]
+                ["Ja'Marr Chase"   : new FpRankedPlayer(new Player("Ja'Marr Chase", 'CIN', 'WR'),
+                        new Rank(9, 1), '6'),
+                 'Justin Jefferson': new FpRankedPlayer(new Player('Justin Jefferson', 'MIN', 'WR'),
+                         new Rank(22, 6), '6')]
         ]
     }
 
@@ -65,10 +65,25 @@ class FantasyProsLoaderSpec extends Specification {
         where:
         year << [LoadUtils.YEARS.last()]
         expected << [
-                ['Omarion Hampton': new FpRankedPlayer(new Player('Omarion Hampton', 'LAC', 'RB'),
-                        new Rank(3, 2), '0'),
-                 'Travis Hunter'  : new FpRankedPlayer(new Player('Travis Hunter', 'JAC', 'WR'),
-                         new Rank(5, 2), '0')]
+                ['Jeremiyah Love': new FpRankedPlayer(new Player('Jeremiyah Love', 'ARI', 'RB'),
+                        new Rank(1, 1), '0'),
+                 'Carnell Tate'  : new FpRankedPlayer(new Player('Carnell Tate', 'TEN', 'WR'),
+                         new Rank(3, 1), '0')]
         ]
+    }
+
+    def "quoted comma separated loading"() {
+        when:
+        Map<String, FpRankedPlayer> players = new FantasyProsLoader().loadRankedPlayers([
+                '"RK",TIERS,"PLAYER NAME",TEAM,"POS","BYE WEEK","ECR VS. ADP"',
+                '"1",1,"Josh Allen",BUF,"QB1","7","0"',
+                '"2",1,"Brown, Marvin",CIN,"WR1","6","+3"',
+                '"3",2,"Hollywood Brown",PHI,"WR2","10","-1"'
+        ])
+
+        then:
+        players['Josh Allen'] == new FpRankedPlayer(new Player('Josh Allen', 'BUF', 'QB'), new Rank(1, 1), '7')
+        players['Marvin Brown'] == new FpRankedPlayer(new Player('Marvin Brown', 'CIN', 'WR'), new Rank(2, 1), '6')
+        players['Marquise Brown'] == new FpRankedPlayer(new Player('Marquise Brown', 'PHI', 'WR'), new Rank(3, 2), '10')
     }
 }

@@ -11,6 +11,12 @@ import ff.load.util.LoadUtils
 
 class FuadLoader {
 
+    /**
+     * Rookies ranked past this are deep enough that MFL may not carry them at all, so treat only the ones
+     * above it as a data problem worth failing on.
+     */
+    private static final int DRAFTABLE_ROOKIE_RANK = 80
+
     FuadData loadData(String year) {
         Map<String, FuadPlayer> playerMap = [:]
         MflData mflData = new MflLoader().loadData(
@@ -40,7 +46,9 @@ class FuadLoader {
 
         Collection<FpRankedPlayer> unmatchedDynasty = upperDynastyRankedPlayers.values().findAll {it.player.position != 'DST' && it.rank.overallRank < 300 }
         Collection<FpRankedPlayer> unmatchedRedraft = upperRedraftRankedPlayers.values().findAll {it.player.position != 'DST' && it.rank.overallRank < 300 }
-        Collection<FpRankedPlayer> unmatchedRookie = upperRookieRankedPlayers.values().findAll {it.player.team != 'FA'}
+        Collection<FpRankedPlayer> unmatchedRookie = upperRookieRankedPlayers.values().findAll {
+            it.player.team != 'FA' && it.rank.overallRank < DRAFTABLE_ROOKIE_RANK
+        }
         if(unmatchedDynasty || unmatchedRedraft || unmatchedRookie) {
             println "unmatched dynasty: $unmatchedDynasty"
             println "unmatched redraft: $unmatchedRedraft"

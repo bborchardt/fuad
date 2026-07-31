@@ -4,7 +4,7 @@ import groovy.json.JsonSlurper
 
 class LoadUtils {
 
-    public static final List<String> YEARS = ['2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025']
+    public static final List<String> YEARS = ['2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025', '2026']
 
     static String mflOwnersResourcePath(String year) { "/ff/mfl/data/$year/owners.json" }
     static String mflLeagueResourcePath(String year) { "/ff/mfl/data/$year/league.json" }
@@ -14,6 +14,15 @@ class LoadUtils {
     static String fpDynastyRankingsPprResourcePath(String year) { "/ff/fantasypros/data/$year/dynasty_rankings_ppr.csv" }
     static String fpRookieRankingsPprResourcePath(String year) { "/ff/fantasypros/data/$year/rookie_rankings_ppr.csv" }
     static String fpRedraftRankingsHalfPprResourcePath(String year) { "/ff/fantasypros/data/$year/redraft_rankings_half_ppr.csv" }
+
+    /**
+     * Players fantasypros lists under a nickname that MFL lists under a given name, keyed by the
+     * fantasypros spelling. Nicknames share no prefix with the given name, so no amount of fuzzy
+     * matching pairs them up.
+     */
+    private static final Map<String, String> NAME_ALIASES = ['Hollywood Brown': 'Marquise Brown']
+
+    static String aliasedName(String name) { NAME_ALIASES[name] ?: name }
 
     private static final JsonSlurper jsonSlurper = new JsonSlurper()
 
