@@ -8,6 +8,10 @@ import ff.load.util.LoadUtils
 class FantasyProsLoader {
 
     Map<String, FpRankedPlayer> loadRankedPlayers(String resource) {
+        loadRankedPlayers(LoadUtils.loadCsvResource(resource))
+    }
+
+    Map<String, FpRankedPlayer> loadRankedPlayers(List<String> lines) {
         boolean started = false
         Map<String, FpRankedPlayer> rankedPlayers = [:]
         int overallRankOffset = 0
@@ -16,7 +20,7 @@ class FantasyProsLoader {
         int teamIndex = -1
         int positionAndRankIndex = -1
         int byeIndex = -1
-        LoadUtils.loadCsvResource(resource).each { line ->
+        lines.each { line ->
             try {
                 if (!started) {
                     List<String> headings = line.split('\t')

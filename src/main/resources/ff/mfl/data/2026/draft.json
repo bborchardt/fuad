@@ -1,0 +1,414 @@
+{
+    "version": "1.0",
+    "draftResults": {
+        "draftUnit": {
+            "draftType": "SAME",
+            "unit": "LEAGUE",
+            "round1DraftOrder": "0003,0010,0006,0008,0002,0007,0009,0005,0001,0004,",
+            "draftPick": [
+                {
+                    "comments": "",
+                    "pick": "01",
+                    "franchise": "0003",
+                    "player": "",
+                    "timestamp": "",
+                    "round": "01"
+                },
+                {
+                    "franchise": "0010",
+                    "pick": "02",
+                    "comments": "",
+                    "player": "",
+                    "round": "01",
+                    "timestamp": ""
+                },
+                {
+                    "player": "",
+                    "comments": "",
+                    "pick": "03",
+                    "franchise": "0006",
+                    "timestamp": "",
+                    "round": "01"
+                },
+                {
+                    "player": "",
+                    "comments": "",
+                    "pick": "04",
+                    "franchise": "0008",
+                    "timestamp": "",
+                    "round": "01"
+                },
+                {
+                    "player": "",
+                    "franchise": "0002",
+                    "pick": "05",
+                    "comments": "",
+                    "round": "01",
+                    "timestamp": ""
+                },
+                {
+                    "player": "",
+                    "pick": "06",
+                    "comments": "",
+                    "franchise": "0007",
+                    "timestamp": "",
+                    "round": "01"
+                },
+                {
+                    "timestamp": "",
+                    "round": "01",
+                    "player": "",
+                    "comments": "",
+                    "pick": "07",
+                    "franchise": "0009"
+                },
+                {
+                    "timestamp": "",
+                    "round": "01",
+                    "player": "",
+                    "comments": "",
+                    "pick": "08",
+                    "franchise": "0005"
+                },
+                {
+                    "player": "",
+                    "comments": "",
+                    "pick": "09",
+                    "franchise": "0001",
+                    "timestamp": "",
+                    "round": "01"
+                },
+                {
+                    "franchise": "0004",
+                    "pick": "10",
+                    "comments": "",
+                    "player": "",
+                    "round": "01",
+                    "timestamp": ""
+                },
+                {
+                    "pick": "01",
+                    "comments": "",
+                    "franchise": "0003",
+                    "player": "",
+                    "timestamp": "",
+                    "round": "02"
+                },
+                {
+                    "round": "02",
+                    "timestamp": "",
+                    "player": "",
+                    "franchise": "0010",
+                    "comments": "",
+                    "pick": "02"
+                },
+                {
+                    "player": "",
+                    "comments": "",
+                    "pick": "03",
+                    "franchise": "0006",
+                    "timestamp": "",
+                    "round": "02"
+                },
+                {
+                    "timestamp": "",
+                    "round": "02",
+                    "pick": "04",
+                    "comments": "",
+                    "franchise": "0008",
+                    "player": ""
+                },
+                {
+                    "comments": "",
+                    "pick": "05",
+                    "franchise": "0002",
+                    "player": "",
+                    "timestamp": "",
+                    "round": "02"
+                },
+                {
+                    "player": "",
+                    "franchise": "0007",
+                    "pick": "06",
+                    "comments": "",
+                    "round": "02",
+                    "timestamp": ""
+                },
+                {
+                    "timestamp": "",
+                    "round": "02",
+                    "player": "",
+                    "comments": "[Pick traded from Cool Runnings.] ",
+                    "pick": "07",
+                    "franchise": "0007"
+                },
+                {
+                    "player": "",
+                    "franchise": "0005",
+                    "comments": "",
+                    "pick": "08",
+                    "round": "02",
+                    "timestamp": ""
+                },
+                {
+                    "player": "",
+                    "pick": "09",
+                    "comments": "",
+                    "franchise": "0001",
+                    "timestamp": "",
+                    "round": "02"
+                },
+                {
+                    "player": "",
+                    "franchise": "0004",
+                    "pick": "10",
+                    "comments": "",
+                    "round": "02",
+                    "timestamp": ""
+                },
+                {
+                    "timestamp": "",
+                    "round": "03",
+                    "comments": "",
+                    "pick": "01",
+                    "franchise": "0003",
+                    "player": ""
+                },
+                {
+                    "timestamp": "",
+                    "round": "03",
+                    "player": "",
+                    "comments": "",
+                    "pick": "02",
+                    "franchise": "0010"
+                },
+                {
+                    "comments": "",
+                    "pick": "03",
+                    "franchise": "0006",
+                    "player": "",
+                    "timestamp": "",
+                    "round": "03"
+                },
+                {
+                    "player": "",
+                    "franchise": "0008",
+                    "pick": "04",
+                    "comments": "",
+                    "round": "03",
+                    "timestamp": ""
+                },
+                {
+                    "player": "",
+                    "franchise": "0007",
+                    "pick": "05",
+                    "comments": "[Pick traded from So your saying there\u2019s a chance?.] ",
+                    "round": "03",
+                    "timestamp": ""
+                },
+                {
+                    "franchise": "0007",
+                    "pick": "06",
+                    "comments": "",
+                    "player": "",
+                    "round": "03",
+                    "timestamp": ""
+                },
+                {
+                    "player": "",
+                    "franchise": "0009",
+                    "pick": "07",
+                    "comments": "",
+                    "round": "03",
+                    "timestamp": ""
+                },
+                {
+                    "round": "03",
+                    "timestamp": "",
+                    "franchise": "0005",
+                    "comments": "",
+                    "pick": "08",
+                    "player": ""
+                },
+                {
+                    "timestamp": "",
+                    "round": "03",
+                    "comments": "",
+                    "pick": "09",
+                    "franchise": "0001",
+                    "player": ""
+                },
+                {
+                    "timestamp": "",
+                    "round": "03",
+                    "comments": "",
+                    "pick": "10",
+                    "franchise": "0004",
+                    "player": ""
+                },
+                {
+                    "round": "04",
+                    "timestamp": "",
+                    "player": "",
+                    "franchise": "0003",
+                    "comments": "",
+                    "pick": "01"
+                },
+                {
+                    "round": "04",
+                    "timestamp": "",
+                    "franchise": "0010",
+                    "pick": "02",
+                    "comments": "",
+                    "player": ""
+                },
+                {
+                    "round": "04",
+                    "timestamp": "",
+                    "player": "",
+                    "franchise": "0006",
+                    "pick": "03",
+                    "comments": ""
+                },
+                {
+                    "round": "04",
+                    "timestamp": "",
+                    "player": "",
+                    "franchise": "0002",
+                    "comments": "[Pick traded from Not 100% A Dick.] ",
+                    "pick": "04"
+                },
+                {
+                    "round": "04",
+                    "timestamp": "",
+                    "player": "",
+                    "franchise": "0002",
+                    "comments": "",
+                    "pick": "05"
+                },
+                {
+                    "comments": "",
+                    "pick": "06",
+                    "franchise": "0007",
+                    "player": "",
+                    "timestamp": "",
+                    "round": "04"
+                },
+                {
+                    "pick": "07",
+                    "comments": "",
+                    "franchise": "0009",
+                    "player": "",
+                    "timestamp": "",
+                    "round": "04"
+                },
+                {
+                    "pick": "08",
+                    "comments": "",
+                    "franchise": "0005",
+                    "player": "",
+                    "timestamp": "",
+                    "round": "04"
+                },
+                {
+                    "timestamp": "",
+                    "round": "04",
+                    "player": "",
+                    "comments": "",
+                    "pick": "09",
+                    "franchise": "0001"
+                },
+                {
+                    "timestamp": "",
+                    "round": "04",
+                    "player": "",
+                    "pick": "10",
+                    "comments": "",
+                    "franchise": "0004"
+                },
+                {
+                    "round": "05",
+                    "timestamp": "",
+                    "player": "",
+                    "franchise": "0003",
+                    "comments": "",
+                    "pick": "01"
+                },
+                {
+                    "timestamp": "",
+                    "round": "05",
+                    "player": "",
+                    "pick": "02",
+                    "comments": "",
+                    "franchise": "0010"
+                },
+                {
+                    "timestamp": "",
+                    "round": "05",
+                    "pick": "03",
+                    "comments": "",
+                    "franchise": "0006",
+                    "player": ""
+                },
+                {
+                    "player": "",
+                    "franchise": "0008",
+                    "pick": "04",
+                    "comments": "",
+                    "round": "05",
+                    "timestamp": ""
+                },
+                {
+                    "player": "",
+                    "franchise": "0002",
+                    "comments": "",
+                    "pick": "05",
+                    "round": "05",
+                    "timestamp": ""
+                },
+                {
+                    "timestamp": "",
+                    "round": "05",
+                    "comments": "[Pick traded from The Kittle Engine That Could.] ",
+                    "pick": "06",
+                    "franchise": "0001",
+                    "player": ""
+                },
+                {
+                    "timestamp": "",
+                    "round": "05",
+                    "player": "",
+                    "comments": "",
+                    "pick": "07",
+                    "franchise": "0009"
+                },
+                {
+                    "timestamp": "",
+                    "round": "05",
+                    "player": "",
+                    "pick": "08",
+                    "comments": "",
+                    "franchise": "0005"
+                },
+                {
+                    "round": "05",
+                    "timestamp": "",
+                    "player": "",
+                    "franchise": "0001",
+                    "pick": "09",
+                    "comments": ""
+                },
+                {
+                    "round": "05",
+                    "timestamp": "",
+                    "player": "",
+                    "franchise": "0004",
+                    "pick": "10",
+                    "comments": ""
+                }
+            ],
+            "static_url": "https://www44.myfantasyleague.com/fflnetdynamic2026/48571_LEAGUE_draft_results.xml"
+        }
+    },
+    "encoding": "utf-8"
+}

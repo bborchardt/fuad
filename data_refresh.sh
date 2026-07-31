@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Builds the project and invokes DataRefresh, forwarding all arguments.
-# Fetches the latest MFL data for the given year and writes it into
-# src/main/resources/ff/mfl/data/<year>.
+# Fetches the latest MFL data for the given year into src/main/resources/ff/mfl/data/<year>
+# and the latest fantasypros rankings into src/main/resources/ff/fantasypros/data/<year>.
+#
+# The fantasypros refresh needs FANTASYPROS_API_KEY, read from .env if present.
 #
 # Usage:
 #   ./data_refresh.sh <year>
@@ -12,6 +14,13 @@ set -euo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$DIR"
+
+if [[ -f .env ]]; then
+    set -a
+    # shellcheck disable=SC1091
+    source .env
+    set +a
+fi
 
 CLASSPATH_FILE="target/classpath.txt"
 
