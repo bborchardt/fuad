@@ -15,5 +15,5 @@ See [docs/DATA.md](docs/DATA.md) for what each data file is, how the league's ex
 show up in it, and which seasons needed repair.
 
 See [docs/LEAGUE_RULES.md](docs/LEAGUE_RULES.md) for what the rules were in each season — starting
-requirements, salary cap, roster limits and scoring — all of which have changed, and none of which a
-projection can assume is constant across years.
+requirements, salary cap, roster limits, franchise tag prices and scoring — all of which have changed, and
+none of which a projection can assume is constant across years.

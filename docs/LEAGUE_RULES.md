@@ -1,11 +1,13 @@
 # League rules by season
 
 What the league's settings actually were in each year of collected data: how many players a team starts,
-how large a roster it may carry, and how players score. All three have changed, and a salary projection
-built across seasons is comparing different games unless it accounts for them.
+how large a roster it may carry, what it costs to franchise a player, and how players score. All of these
+have changed, and a salary projection built across seasons is comparing different games unless it accounts
+for them.
 
 The starting requirements and the salary cap come from each season's `league.json`, the scoring from each
-season's `rules.json`. Max roster size is in neither and is derived; see below.
+season's `rules.json`. Max roster size and the franchise salary are in neither: the first is a bylaw the
+site does not hold, the second is derived from the prior season's salaries. Both are covered below.
 
 ## Summary
 
@@ -21,6 +23,9 @@ season's `rules.json`. Max roster size is in neither and is derived; see below.
 | 2024 | 10 | $300 | 10 | yes | 30 | 4.5pt pass TD, 1/30 yd |
 | 2025 | 10 | $300 | 10 | yes | 30 | 4.5pt pass TD, 1/30 yd |
 | 2026 | 10 | $300 | 10 | yes | 30 | as 2023, plus **TE premium** and extended FG tiers |
+
+Each team may also franchise one free agent at a rule-set price, which changes every year; see
+[The franchise tag](#the-franchise-tag).
 
 Three of these move together in a way worth noticing: the league devalued quarterback scoring in **2021**,
 then added a second quarterback slot and raised the cap by 20% in **2022**, then partly restored passing
@@ -87,6 +92,213 @@ enforced. Treat 23 as known for 2021-2026 and unknown before.
 Pre-auction rosters routinely exceed it — 2022's reach 36, and 2026's currently reach 37 — and end-of-year
 rosters do too, since in-season pickups push past it. Only the week 1 snapshot reflects a complied-with
 roster, so `rosters_post_draft.json` is the file to check a roster-size assumption against.
+
+## The franchise tag
+
+Each team may franchise **one** free agent, keeping them out of the auction by signing them at the average
+of the top five salaries at that player's position the previous season, rounded to the nearest dollar.
+Another team may bid on a franchised player, but only by compensating with rookie draft picks. That is
+enough friction to make it uncommon rather than unheard of: six of the 46 confirmed tags were bid away.
+
+This matters for a salary model more than it might seem. A tagged player's price is **set by rule, not by
+bidding**, and tags land almost exclusively on the most expensive players in the auction — exactly the
+observations with the most leverage on a fitted curve. **46 of the 609 signings are confirmed tags**,
+including most of the top-end quarterback and wide receiver prices in the data. Treat them as fixed points,
+not as evidence of what the market pays.
+
+The tag is also common, not rare: in a typical season half to three quarters of the league uses it.
+
+`FranchiseSalaryCalculator` computes the values below from the previous season's end-of-year rosters.
+`FranchiseTagIdentifier` works out which signings they priced, and the two specs assert both.
+
+### Franchise salary by season
+
+The price of tagging a player at each position, coming into that season's auction:
+
+The average is rounded to the nearest dollar. An average of five salaries lands on a fifth of a dollar and
+never on a half, so no tie-breaking rule is needed and none of the values below is ambiguous.
+
+| Season | QB | RB | WR | TE | PK |
+| --- | --- | --- | --- | --- | --- |
+| 2018 | 41 | 47 | 91 | 29 | 1 |
+| 2019 | 42 | 42 | 94 | 25 | 1 |
+| 2020 | 28 | 30 | 98 | 24 | 3 |
+| 2021 | 23 | 40 | 92 | 23 | 2 |
+| 2022 | 33 | 43 | 94 | 21 | 2 |
+| 2023 | 36 | 52 | 82 | 21 | 3 |
+| 2024 | 45 | 61 | 71 | 38 | 4 |
+| 2025 | 47 | 64 | 61 | 32 | 3 |
+| 2026 | 66 | 60 | 61 | 24 | 3 |
+
+2017 has no value because it would need 2016 salaries, which predate the data. Which of these were actually
+paid, and by whom, is in [Confirmed tags](#confirmed-tags) below.
+
+**2026's quarterback tag is 66**, up 40% in a year and the highest any tag has ever been at any position.
+That is one contract's doing: Lamar Jackson at 100 in 2025, well clear of the 55 behind him. Any team
+weighing a quarterback tag this offseason is paying for that outlier.
+
+### Identifying a tag
+
+Nothing in the league data flags a tag, so all of them are inferred. Two things give them away.
+
+An **uncontested** tag is a team re-signing its own expiring player, for one year, at exactly the franchise
+salary. That price is set by rule rather than bid, and it stands out sharply. Across 2018-2025 there are
+172 same-team one-year re-signings of an expiring player; the distribution of what they paid relative to
+their position's franchise salary is:
+
+| Salary minus rate | -8 | -7 | -6 | -3 | -1 | **0** | +2 | +7 | +8 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Signings | 1 | 1 | 2 | 3 | 2 | **42** | 1 | 1 | 1 |
+
+Every other value in that range holds nothing. **42 signings land exactly on the rate against a background
+of 0.75 per neighbouring dollar**, so an exact hit is roughly fifty times likelier to be a tag than a
+coincidence, and about one of the 42 is expected to be chance.
+
+A **contested** tag is a player signed away by another team, which the league only allows against
+compensation in rookie draft picks. That leaves a first round pick moving from the signing team to the team
+that held the player, with nothing coming back. Six appear in the data, and each one matches exactly one
+player who changed hands in that auction. Contested tags are **not** restricted to one year — the winning
+team writes its own contract, and the six run from one year to five.
+
+What no method recovers is a tag that was bid up and kept, or bid away without the compensation being
+recorded as a trade; both look like an ordinary expensive auction win. The lever against them is that a
+team gets one tag, so an above-rate signing by a team that already tagged someone was not a tag. That rules
+out 22 of the 35 above-rate signings and leaves 13 unresolvable candidates.
+
+`FranchiseTagIdentifier` implements this and reports one of three statuses: `CONFIRMED` for a tag priced by
+the rule or paid for with a pick, `UNCERTAIN` where a team holds more signings at its rate than it has
+tags, and `CANDIDATE` for an above-rate signing that the one-per-team rule cannot rule out.
+
+### Tags by season
+
+| Season | Teams | Confirmed | Uncertain | Candidates | Confidence |
+| --- | --- | --- | --- | --- | --- |
+| 2018 | 10 | 9 | 0 | 0 | High |
+| 2019 | 10 | 3 | 0 | 3 | **Low, likely incomplete** |
+| 2020 | 10 | 3 | 2 | 1 | Medium |
+| 2021 | 8 | 5 | 0 | 2 | High |
+| 2022 | 8 | 6 | 0 | 1 | High |
+| 2023 | 9 | 7 | 0 | 3 | Medium-high |
+| 2024 | 10 | 6 | 0 | 0 | High |
+| 2025 | 10 | 7 | 0 | 3 | High, confirmed by the league |
+
+2017 is absent because a franchise salary for it would need 2016 salaries, which predate the data.
+
+The strongest evidence that this is reading the league correctly is a test it was never constrained to
+pass: **the one-tag-per-team limit holds in every season**, and in 2018 nine tags land on nine different
+teams. Nothing in the method enforces that across teams, and coincidences would have broken it.
+
+**2025 is confirmed against the league's own record.** The commissioner named Lamar Jackson, Jalen Hurts,
+Joe Burrow, Patrick Mahomes and CeeDee Lamb; the method recovers all five, plus Jahmyr Gibbs and Saquon
+Barkley, whose omission was recall rather than absence.
+
+**2019 is the weak season.** Three tags in a ten-team league, the year after nine, is not credible. Odell
+Beckham at 100 and Davante Adams at 115 both look like tags bid away without a recorded pick trade. Treat
+2019 as a floor rather than a count.
+
+**2023 and 2024 record no first round pick trades at all**, so a contested tag in either season would be
+invisible. Their confirmed counts are uncontested tags only.
+
+### Confirmed tags
+
+| Season | Player | Pos | Salary | Rate | Basis |
+| --- | --- | --- | --- | --- | --- |
+| 2018 | DeAndre Hopkins | WR | 91 | 91 | exact |
+| 2018 | Julio Jones | WR | 91 | 91 | exact |
+| 2018 | Antonio Brown | WR | 91 | 91 | exact |
+| 2018 | Tom Brady | QB | 41 | 41 | exact |
+| 2018 | Drew Brees | QB | 41 | 41 | exact |
+| 2018 | Travis Kelce | TE | 29 | 29 | exact |
+| 2018 | Zach Ertz | TE | 29 | 29 | exact |
+| 2018 | Rob Gronkowski | TE | 29 | 29 | exact |
+| 2018 | Le'Veon Bell | RB | 85 | 47 | bid away, 0010 to 0005 |
+| 2019 | DeAndre Hopkins | WR | 94 | 94 | exact |
+| 2019 | Antonio Brown | WR | 94 | 94 | exact |
+| 2019 | Le'Veon Bell | RB | 43 | 42 | bid away, 0008 to 0004 |
+| 2020 | Davante Adams | WR | 98 | 98 | exact |
+| 2020 | Aaron Jones | RB | 30 | 30 | exact |
+| 2020 | Ezekiel Elliott | RB | 42 | 30 | bid away, 0008 to 0001 |
+| 2021 | Tyreek Hill | WR | 92 | 92 | exact |
+| 2021 | Derrick Henry | RB | 40 | 40 | exact |
+| 2021 | Travis Kelce | TE | 23 | 23 | exact |
+| 2021 | Tom Brady | QB | 23 | 23 | exact |
+| 2021 | Dak Prescott | QB | 38 | 23 | bid away, 0006 to 0002 |
+| 2022 | Cooper Kupp | WR | 94 | 94 | exact |
+| 2022 | Davante Adams | WR | 94 | 94 | exact |
+| 2022 | Derrick Henry | RB | 43 | 43 | exact |
+| 2022 | Lamar Jackson | QB | 33 | 33 | exact |
+| 2022 | Patrick Mahomes | QB | 33 | 33 | exact |
+| 2022 | Joe Mixon | RB | 55 | 43 | bid away, 0005 to 0008 |
+| 2023 | Cooper Kupp | WR | 82 | 82 | exact |
+| 2023 | Davante Adams | WR | 82 | 82 | exact |
+| 2023 | Stefon Diggs | WR | 82 | 82 | exact |
+| 2023 | Austin Ekeler | RB | 52 | 52 | exact |
+| 2023 | Christian McCaffrey | RB | 52 | 52 | exact |
+| 2023 | Lamar Jackson | QB | 36 | 36 | exact |
+| 2023 | Patrick Mahomes | QB | 36 | 36 | exact |
+| 2024 | Tyreek Hill | WR | 71 | 71 | exact |
+| 2024 | Christian McCaffrey | RB | 61 | 61 | exact |
+| 2024 | Jahmyr Gibbs | RB | 61 | 61 | exact |
+| 2024 | Lamar Jackson | QB | 45 | 45 | exact |
+| 2024 | Patrick Mahomes | QB | 45 | 45 | exact |
+| 2024 | Travis Kelce | TE | 38 | 38 | exact |
+| 2025 | CeeDee Lamb | WR | 61 | 61 | exact |
+| 2025 | Jahmyr Gibbs | RB | 64 | 64 | exact |
+| 2025 | Saquon Barkley | RB | 64 | 64 | exact |
+| 2025 | Jalen Hurts | QB | 47 | 47 | exact |
+| 2025 | Joe Burrow | QB | 47 | 47 | exact |
+| 2025 | Patrick Mahomes | QB | 47 | 47 | exact |
+| 2025 | Lamar Jackson | QB | 100 | 47 | bid away, 0006 to 0001 |
+
+Two patterns worth carrying into a model. Tags **cluster by position within a season** — three wide
+receivers in 2023, three tight ends in 2018, three quarterbacks in 2025 — because the tag is a bargain
+exactly when a position's market has run ahead of last year's top five, so several teams reach the same
+conclusion at once. And **usage tracks the superflex change**: one quarterback tag in 2018-2021, then
+Mahomes and Jackson every year from 2022, then four of the seven 2025 tags.
+
+### Uncertain and candidate tags
+
+Two 2020 signings on franchise 0010 both sit exactly on their rate — Russell Wilson at 28 and Austin Ekeler
+at 30 — and a team has only one tag, so exactly one of them is a coincidence and nothing distinguishes
+them. These are the expected one-in-42. Both are recorded `UNCERTAIN` and neither should be treated as a
+fixed point.
+
+The 13 `CANDIDATE` signings are above their rate on a team that tagged nobody else, so they could be a tag
+bid up or won without a recorded pick trade, or simply an expensive auction:
+
+| Season | Player | Pos | Salary | Rate | Multiple |
+| --- | --- | --- | --- | --- | --- |
+| 2019 | Odell Beckham | WR | 100 | 94 | 1.06x |
+| 2019 | Travis Kelce | TE | 35 | 25 | 1.40x |
+| 2019 | Zach Ertz | TE | 33 | 25 | 1.32x |
+| 2020 | Todd Gurley | RB | 43 | 30 | 1.43x |
+| 2021 | Stefon Diggs | WR | 100 | 92 | 1.09x |
+| 2021 | Russell Wilson | QB | 30 | 23 | 1.30x |
+| 2022 | Christian McCaffrey | RB | 60 | 43 | 1.40x |
+| 2023 | Josh Allen | QB | 65 | 36 | 1.81x |
+| 2023 | Travis Kelce | TE | 50 | 21 | 2.38x |
+| 2023 | Kirk Cousins | QB | 40 | 36 | 1.11x |
+| 2025 | Justin Jefferson | WR | 80 | 61 | 1.31x |
+| 2025 | Baker Mayfield | QB | 70 | 47 | 1.49x |
+| 2025 | Jordan Love | QB | 52 | 47 | 1.11x |
+
+Some of these are mutually exclusive: 2023's three all belong to franchise 0005 and 2025's Jefferson and
+Love both to 0003, so at most one of each group is a tag.
+
+### Cautions when re-deriving this
+
+- **Round the franchise salary before matching.** An earlier pass of this analysis compared against the
+  unrounded average and concluded the tag went unused before 2021. It found nothing in 2018 because the
+  rate was 91.40 and 29.20 while the signings were at 91 and 29. Rounding turns up 42 exact matches.
+- **Kickers are noise.** The PK rate sits at or within a dollar or two of the $1 minimum every season, so
+  ordinary cheap kicker signings hit it by coincidence — five did in 2018 alone. `FranchiseTagIdentifier`
+  excludes the position outright.
+- **Read positions from the season the salary was paid in.** Using a recent `players.json` for an old
+  season silently drops everyone who has since retired, which is precisely where the top five sits — it
+  moves the 2021 tight end rate from 23 to 17 and breaks the Kelce match.
+- **The tagging team is the one holding the expiring contract**, not the one that ends up with the player.
+  Lamar Jackson was tagged by 0006 in 2025 and signed by 0001, who already had a tag of their own on Jalen
+  Hurts. Counting him against 0001 would look like a rule violation.
 
 ## Scoring
 
@@ -164,6 +376,21 @@ were each committed a year or more after their season, so they carry the same ri
 here because they agree with the seasons either side of them.
 
 **Roster maximums are derived, not sourced**, except 2025's. See the reasoning above.
+
+**Franchise salaries are computed, and the computation is confirmed by the data.** 42 signings across eight
+seasons come in at exactly the top-five average for their position, against a background of fewer than one
+per neighbouring dollar. A rule stated independently and a spike that sharp is about as much confirmation
+as this data can give.
+
+**Which tags were used is inferred, and 2025 is the only season checked against the league's own record.**
+The method recovers all of 2025 and passes the one-tag-per-team test in every season, but 2019 in
+particular is likely undercounted, and any contested tag whose compensation was not recorded as a trade is
+invisible everywhere. Per-season confidence is in [Tags by season](#tags-by-season).
+
+**The average is taken over the prior season's end-of-year salaries**, which the data now settles. The two
+bases agree everywhere except 2020 RB, where end-of-year gives 30 and post-draft 27 — and both 2020 running
+back tags, Aaron Jones and Austin Ekeler, signed at exactly 30. One season decides it, but it decides it
+cleanly.
 
 **The message board is nearly all gone.** Only the 2025 board still exists; every earlier year returns
 "Board doesn't exist." So the 2025 rule proposals thread is the only surviving discussion of a rule change,

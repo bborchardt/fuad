@@ -15,6 +15,10 @@ class LoadUtils {
     /** Rosters at the close of the season, which the next year's pre draft rosters are rolled over from. */
     static String mflEndOfYearRostersResourcePath(String year) { "/ff/mfl/data/$year/rosters_end_of_year.json" }
     static String mflDraftResourcePath(String year) { "/ff/mfl/data/$year/draft.json" }
+    /** Every move made that season, including the pick compensation that marks a contested franchise tag. */
+    static String mflTransactionsResourcePath(String year) { "/ff/mfl/data/$year/transactions.json" }
+    /** That season's scoring rules, which changed in 2021, 2023 and 2026. See docs/LEAGUE_RULES.md. */
+    static String mflRulesResourcePath(String year) { "/ff/mfl/data/$year/rules.json" }
     static String fpDynastyRankingsPprResourcePath(String year) { "/ff/fantasypros/data/$year/dynasty_rankings_ppr.csv" }
     static String fpRookieRankingsPprResourcePath(String year) { "/ff/fantasypros/data/$year/rookie_rankings_ppr.csv" }
     static String fpRedraftRankingsHalfPprResourcePath(String year) { "/ff/fantasypros/data/$year/redraft_rankings_half_ppr.csv" }
