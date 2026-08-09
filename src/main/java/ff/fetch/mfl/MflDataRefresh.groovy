@@ -25,9 +25,9 @@ class MflDataRefresh implements Runnable {
 
         println baseUrl
 
-        new File("$resourcePath/draft.json").text = new JsonOutput().prettyPrint(new URL("$baseUrl&TYPE=draftResults&L=$leagueId").text)
-        new File("$resourcePath/league.json").text = new JsonOutput().prettyPrint(new URL("$baseUrl&TYPE=league&L=$leagueId").text)
-        new File("$resourcePath/players.json").text = new JsonOutput().prettyPrint(new URL("$baseUrl&TYPE=players&DETAILS=1").text)
-        new File("$resourcePath/rosters.json").text = new JsonOutput().prettyPrint(new URL("$baseUrl&TYPE=rosters&L=$leagueId").text)
+        new File("$resourcePath/draft.json").text = new JsonOutput().prettyPrint(FetchUtils.fetchText("$baseUrl&TYPE=draftResults&L=$leagueId"))
+        new File("$resourcePath/league.json").text = new JsonOutput().prettyPrint(FetchUtils.fetchText("$baseUrl&TYPE=league&L=$leagueId"))
+        new File("$resourcePath/players.json").text = new JsonOutput().prettyPrint(FetchUtils.fetchText("$baseUrl&TYPE=players&DETAILS=1"))
+        new File("$resourcePath/rosters.json").text = new JsonOutput().prettyPrint(FetchUtils.fetchText("$baseUrl&TYPE=rosters&L=$leagueId"))
     }
 }

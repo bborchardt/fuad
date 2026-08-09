@@ -10,17 +10,24 @@ class LoadUtils {
     static String mflLeagueResourcePath(String year) { "/ff/mfl/data/$year/league.json" }
     static String mflPlayersResourcePath(String year) { "/ff/mfl/data/$year/players.json" }
     static String mflRostersResourcePath(String year) { "/ff/mfl/data/$year/rosters.json" }
+    /** Rosters as of week 1, holding the contracts signed in that year's auction rather than wiped ones. */
+    static String mflPostDraftRostersResourcePath(String year) { "/ff/mfl/data/$year/rosters_post_draft.json" }
+    /** Rosters at the close of the season, which the next year's pre draft rosters are rolled over from. */
+    static String mflEndOfYearRostersResourcePath(String year) { "/ff/mfl/data/$year/rosters_end_of_year.json" }
     static String mflDraftResourcePath(String year) { "/ff/mfl/data/$year/draft.json" }
     static String fpDynastyRankingsPprResourcePath(String year) { "/ff/fantasypros/data/$year/dynasty_rankings_ppr.csv" }
     static String fpRookieRankingsPprResourcePath(String year) { "/ff/fantasypros/data/$year/rookie_rankings_ppr.csv" }
     static String fpRedraftRankingsHalfPprResourcePath(String year) { "/ff/fantasypros/data/$year/redraft_rankings_half_ppr.csv" }
 
     /**
-     * Players fantasypros lists under a nickname that MFL lists under a given name, keyed by the
-     * fantasypros spelling. Nicknames share no prefix with the given name, so no amount of fuzzy
-     * matching pairs them up.
+     * Players who show up under a nickname sharing no prefix with their given name, which no amount of
+     * fuzzy matching pairs up. Applied to both sources, since it is not only fantasypros that uses the
+     * nickname: MFL called Marquise Brown Hollywood in 2024 and Marquise in every other year.
      */
-    private static final Map<String, String> NAME_ALIASES = ['Hollywood Brown': 'Marquise Brown']
+    private static final Map<String, String> NAME_ALIASES = [
+            'Hollywood Brown': 'Marquise Brown',
+            'Dee Eskridge'   : "D'Wayne Eskridge"
+    ]
 
     static String aliasedName(String name) { NAME_ALIASES[name] ?: name }
 

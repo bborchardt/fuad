@@ -18,7 +18,7 @@ class MflLoader {
                 .collectEntries() { p ->
             Draft draft = p.draft_pick ? new Draft(p.draft_round.toInteger(), p.draft_pick.toInteger()) : null
             boolean rookie = p.status == 'R'
-            [(p.id): [player: new Player(name: LoadUtils.nameFirstThenLast(p.name), team: p.team, position: p.position),
+            [(p.id): [player: new Player(name: LoadUtils.aliasedName(LoadUtils.nameFirstThenLast(p.name)), team: p.team, position: p.position),
                       id    : p.id, rookie: rookie, draft: draft]]
         }
 
