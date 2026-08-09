@@ -21,7 +21,7 @@ class PreDraftRebuild {
         File endOfYear = new File("$FetchUtils.baseResourceFilePath/ff/mfl/data/${year - 1}/rosters_end_of_year.json")
         if (!endOfYear.exists()) {
             System.err.println "No end of year rosters for ${year - 1} at $endOfYear. " +
-                    "Run roster_snapshot_refresh.sh ${year - 1} first."
+                    "Run season_history_refresh.sh ${year - 1} first."
             Runtime.getRuntime().exit(-1)
         }
         File preDraft = new File("$FetchUtils.baseResourceFilePath/ff/mfl/data/$year/rosters.json")

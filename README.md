@@ -5,7 +5,7 @@ consensus rankings.
 
 ```
 ./data_refresh.sh <year>                       # pull this year's league and rankings data
-./roster_snapshot_refresh.sh <year> ...        # pull roster snapshots for completed seasons
+./season_history_refresh.sh <year> ...         # pull snapshots and transactions for completed seasons
 ./generate_report.sh -t all [-y <year>]        # write reports to reports/<year>
 ```
 

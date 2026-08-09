@@ -13,11 +13,16 @@ Under `src/main/resources/ff/mfl/data/<year>`:
 | `rosters.json` | Before that season's auction | **No** |
 | `rosters_post_draft.json` | Week 1, after the auction, before in season pickups | Yes |
 | `rosters_end_of_year.json` | The close of the season | Yes |
+| `transactions.json` | Every move made that season | Yes |
 | `players.json`, `league.json`, `owners.json`, `draft.json` | When last refreshed | Yes |
 
 MFL keeps one live copy of each season and moves it forward in place, so only `rosters.json` is
 irrecoverable: by the time a season is over, the site no longer knows what its rosters looked like before
-the auction. The other two are snapshots of a finished season and can be refetched at any time.
+the auction. Everything else is a record of a finished season and can be refetched at any time.
+
+The transaction log matters more than it looks. Rosters only show where players ended up, so a move that a
+later move undid leaves no trace in them at all. Both expansion drafts are in the log as commissioner
+roster loads, which is how the 2023 one was reconstructed.
 
 Under `src/main/resources/ff/fantasypros/data/<year>`: `dynasty_rankings_ppr.csv`,
 `redraft_rankings_half_ppr.csv`, `rookie_rankings_ppr.csv`. Through 2025 these are tab separated with
@@ -79,8 +84,8 @@ join goes wrong: Brian's 0009 and Franz's 0009 are different teams.
 ### 2023, expansion to 9
 
 Franz was added in slot 0009, filled by an expansion draft off other rosters plus extra rookie picks. That
-year's `rosters.json` was taken **before** the expansion draft, so franchise 0009 has no `player` key at
-all, an empty roster. Anything reading rosters has to tolerate that shape.
+year's `rosters.json` was taken **before** the expansion draft, so franchise 0009 sat on an empty roster
+while its 25 players still counted against the teams that lost them. That has been repaired; see below.
 
 The schedule generator requires equal size divisions, so `-t schedule` cannot run for 2023 and fails with
 `Schedule generation requires equal-size divisions, found sizes 4 and 5`. Under `-t all` the other four
@@ -88,9 +93,11 @@ reports are written first and only the schedule fails.
 
 ### 2024, expansion to 10
 
-Matthew was added in slot 0010, again by expansion draft. Unlike 2023, that year's `rosters.json` was taken
-**after** the expansion draft: 0010 already holds 26 players, three from each existing franchise and two
-from 0003. Those 26 show as franchise moves against 2023's end of year rosters.
+Matthew was added in slot 0010, again by expansion draft. That year's `rosters.json` was taken **after**
+the expansion draft: 0010 already holds 26 players, three from each existing franchise and two from 0003.
+Those 26 show as franchise moves against 2023's end of year rosters.
+
+This is the convention both expansion seasons now follow.
 
 ## Repairs
 
@@ -105,7 +112,7 @@ Since the real snapshot cannot be refetched, the file was derived from `2021/ros
 `MflPreDraftRosterBuilder`, applying the rollover rule above:
 
 ```
-./roster_snapshot_refresh.sh 2021
+./season_history_refresh.sh 2021
 java -cp "target/classes:$(cat target/classpath.txt)" ff.run.PreDraftRebuild 2022
 ```
 
@@ -116,6 +123,33 @@ team holding that contract. Offseason releases, retirements and trades between t
 auction are not in it. Every other season's `rosters.json` loses a handful of players that way, 1 to 19 per
 year, so 2022 likely overstates rosters by roughly that much and may attribute a few players to the team
 that held them in December rather than the one that took them into the auction.
+
+### 2023 expansion draft, applied
+
+`2023/rosters.json` was a real snapshot, just taken a few weeks before 2024's equivalent was: 0009 was
+still empty and its 25 players still sat on the eight rosters that were about to lose them. Season over
+season that made the same league event visible in one year and invisible in the next.
+
+`MflExpansionDraftBuilder` moved the selections onto 0009, carrying each contract across untouched:
+
+```
+./season_history_refresh.sh 2023
+java -cp "target/classes:$(cat target/classpath.txt)" ff.run.ExpansionDraftRebuild 2023 0009
+```
+
+Roster sizes went from 27-31 per team with an empty 0009, to 23-28 with 25 on 0009, which is the shape 2024
+has. The player set and every contract are unchanged; only which franchise holds them moved. Six of the 25
+carry wiped contracts, inherited by 0009 as its own expiring players to re-sign or lose in the auction, and
+four of those six it did re-sign.
+
+**The selections come from the transaction log, not the week 1 rosters.** Only 22 of the 25 were on 0009 at
+week 1: it drafted Jalen Tolbert, Taysom Hill and Brandon McManus on August 31 and released all three in the
+following week, so rosters alone undercount the expansion draft by three and no comparison of snapshots can
+recover them.
+
+One difference this does not address: Jameson Williams was traded from 0003 to 0004 the day before the
+expansion draft, and the pre draft snapshot predates it. The repair moves expansion selections only, so
+that trade is still missing from 2023's pre draft rosters.
 
 ## Player names
 
@@ -129,16 +163,16 @@ Current entries: Hollywood Brown to Marquise Brown, Dee Eskridge to D'Wayne Eskr
 ## Refreshing
 
 ```
-./data_refresh.sh <year>                  # this year's MFL and fantasypros data, plus last season's snapshots
-./roster_snapshot_refresh.sh <year> ...   # both snapshots for completed seasons, safe to rerun on old years
+./data_refresh.sh <year>                 # this year's MFL and fantasypros data, plus last season's record
+./season_history_refresh.sh <year> ...   # snapshots and transactions for completed seasons
 ```
 
-`roster_snapshot_refresh.sh` never touches `rosters.json`, so it cannot overwrite an irrecoverable pre draft
-snapshot with today's state. It refuses to write a season whose contracts are still wiped, since that means
-the auction has not been entered yet.
+`season_history_refresh.sh` never touches `rosters.json`, so it cannot overwrite an irrecoverable pre draft
+snapshot with today's state, and it is safe to rerun on old years. It refuses to write rosters for a season
+whose contracts are still wiped, since that means the auction has not been entered yet.
 
 **2026 is at that point now**: its auction has not been run, so it has no snapshots. Collect them with
-`./roster_snapshot_refresh.sh 2026` once the season's contracts are in, which will also let 2026 signings
+`./season_history_refresh.sh 2026` once the season's contracts are in, which will also let 2026 signings
 join the dataset.
 
 Seasons before 2020 redirect to `http`, which `HttpURLConnection` will not follow from an `https` request

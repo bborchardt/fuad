@@ -1,20 +1,22 @@
 #!/usr/bin/env bash
-# Builds the project and invokes RosterSnapshotRefresh, forwarding all arguments.
-# Fetches, for each given completed season, both roster snapshots into
+# Builds the project and invokes SeasonHistoryRefresh, forwarding all arguments.
+# Fetches, for each given completed season, the record of that season into
 # src/main/resources/ff/mfl/data/<year>:
 #   rosters_post_draft.json   week 1, holding what players were signed for in that year's auction
 #   rosters_end_of_year.json  the season's final rosters, which the next year's pre draft rosters come from
+#   transactions.json         every move made that season, including the commissioner's expansion drafts
 #
-# Unlike data_refresh.sh this only writes those two files, so it is safe to run for past years: it will not
-# overwrite the pre draft snapshot in rosters.json, which the league site cannot serve after the fact.
+# Unlike data_refresh.sh this writes none of the files that cannot be refetched, so it is safe to run for
+# past years: it will not overwrite the pre draft snapshot in rosters.json.
 #
-# A year is skipped if its auction has not been entered yet, since its contracts are still wiped to 0.01.
+# A year's rosters are skipped if its auction has not been entered yet, since its contracts are still
+# wiped to 0.01.
 #
 # Usage:
-#   ./roster_snapshot_refresh.sh <year> [<year> ...]
+#   ./season_history_refresh.sh <year> [<year> ...]
 #
 # Example:
-#   ./roster_snapshot_refresh.sh 2017 2018 2019
+#   ./season_history_refresh.sh 2017 2018 2019
 set -euo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -30,4 +32,4 @@ else
     ./mvnw -q compile
 fi
 
-java -cp "target/classes:$(cat "$CLASSPATH_FILE")" ff.run.RosterSnapshotRefresh "$@"
+java -cp "target/classes:$(cat "$CLASSPATH_FILE")" ff.run.SeasonHistoryRefresh "$@"

@@ -1,0 +1,1252 @@
+{
+    "encoding": "utf-8",
+    "transactions": {
+        "transaction": [
+            {
+                "timestamp": "1708839410",
+                "franchise": "0005",
+                "activated": "16204,12652,",
+                "deactivated": "",
+                "type": "IR"
+            },
+            {
+                "timestamp": "1708802061",
+                "franchise": "0008",
+                "activated": "14779,13113,16178,13154,",
+                "deactivated": "",
+                "type": "IR"
+            },
+            {
+                "transaction": "|14800,",
+                "type": "FREE_AGENT",
+                "franchise": "0008",
+                "timestamp": "1708799930"
+            },
+            {
+                "timestamp": "1708799862",
+                "franchise": "0008",
+                "transaction": "|11679,",
+                "type": "FREE_AGENT"
+            },
+            {
+                "transaction": "|15255,",
+                "type": "FREE_AGENT",
+                "franchise": "0005",
+                "timestamp": "1708787782"
+            },
+            {
+                "timestamp": "1708787254",
+                "transaction": "|16164,",
+                "type": "FREE_AGENT",
+                "franchise": "0005"
+            },
+            {
+                "transaction": "|16154,",
+                "type": "FREE_AGENT",
+                "franchise": "0005",
+                "timestamp": "1708786778"
+            },
+            {
+                "transaction": "|15289,",
+                "type": "FREE_AGENT",
+                "franchise": "0008",
+                "timestamp": "1708716736"
+            },
+            {
+                "timestamp": "1708716726",
+                "franchise": "0008",
+                "transaction": "|15283,",
+                "type": "FREE_AGENT"
+            },
+            {
+                "type": "FREE_AGENT",
+                "transaction": "|15240,",
+                "franchise": "0008",
+                "timestamp": "1708716715"
+            },
+            {
+                "timestamp": "1708489862",
+                "transaction": "|15694,",
+                "type": "FREE_AGENT",
+                "franchise": "0001"
+            },
+            {
+                "type": "FREE_AGENT",
+                "transaction": "|14838,",
+                "franchise": "0001",
+                "timestamp": "1708489854"
+            },
+            {
+                "type": "FREE_AGENT",
+                "transaction": "|15746,",
+                "franchise": "0001",
+                "timestamp": "1708489807"
+            },
+            {
+                "franchise": "0002",
+                "transaction": "|16180,",
+                "type": "FREE_AGENT",
+                "timestamp": "1703619695"
+            },
+            {
+                "transaction": "|14017,",
+                "type": "FREE_AGENT",
+                "franchise": "0002",
+                "timestamp": "1703619659"
+            },
+            {
+                "timestamp": "1703612288",
+                "transaction": "|12650,",
+                "type": "FREE_AGENT",
+                "franchise": "0004"
+            },
+            {
+                "timestamp": "1703612271",
+                "franchise": "0004",
+                "transaction": "|15293,",
+                "type": "FREE_AGENT"
+            },
+            {
+                "timestamp": "1703611907",
+                "franchise": "0004",
+                "type": "FREE_AGENT",
+                "transaction": "|13156,"
+            },
+            {
+                "franchise": "0004",
+                "type": "FREE_AGENT",
+                "transaction": "|11232,",
+                "timestamp": "1703611891"
+            },
+            {
+                "timestamp": "1703440800",
+                "franchise": "",
+                "transaction": "",
+                "type": "LOCK_ALL_PLAYERS"
+            },
+            {
+                "timestamp": "1703136068",
+                "franchise": "0008",
+                "transaction": "13403,|13134,",
+                "type": "FREE_AGENT"
+            },
+            {
+                "transaction": "",
+                "type": "UNLOCK_ALL_PLAYERS",
+                "franchise": "",
+                "timestamp": "1703134800"
+            },
+            {
+                "timestamp": "1703134800",
+                "type": "BBID_WAIVER",
+                "transaction": "9064,|1|",
+                "franchise": "0008"
+            },
+            {
+                "timestamp": "1703134800",
+                "franchise": "",
+                "transaction": "",
+                "type": "BBID_AUTO_PROCESS_WAIVERS"
+            },
+            {
+                "timestamp": "1703080597",
+                "activated": "",
+                "franchise": "0008",
+                "type": "IR",
+                "deactivated": "16178,"
+            },
+            {
+                "timestamp": "1702836000",
+                "franchise": "",
+                "transaction": "",
+                "type": "LOCK_ALL_PLAYERS"
+            },
+            {
+                "activated": "12263,",
+                "franchise": "0008",
+                "type": "IR",
+                "deactivated": "",
+                "timestamp": "1702771054"
+            },
+            {
+                "franchise": "0008",
+                "transaction": "|16163,",
+                "type": "FREE_AGENT",
+                "timestamp": "1702771054"
+            },
+            {
+                "timestamp": "1702667899",
+                "type": "FREE_AGENT",
+                "transaction": "14358,|",
+                "franchise": "0008"
+            },
+            {
+                "franchise": "",
+                "transaction": "",
+                "type": "UNLOCK_ALL_PLAYERS",
+                "timestamp": "1702530000"
+            },
+            {
+                "franchise": "0004",
+                "activated": "15319,",
+                "deactivated": "",
+                "type": "IR",
+                "timestamp": "1702506574"
+            },
+            {
+                "timestamp": "1702413538",
+                "activated": "",
+                "franchise": "0008",
+                "type": "IR",
+                "deactivated": "14779,"
+            },
+            {
+                "timestamp": "1702231200",
+                "type": "LOCK_ALL_PLAYERS",
+                "transaction": "",
+                "franchise": ""
+            },
+            {
+                "timestamp": "1702230986",
+                "franchise": "0005",
+                "type": "FREE_AGENT",
+                "transaction": "16222,|"
+            },
+            {
+                "franchise": "0006",
+                "activated": "14143,",
+                "deactivated": "",
+                "type": "IR",
+                "timestamp": "1702230671"
+            },
+            {
+                "timestamp": "1701925200",
+                "transaction": "",
+                "type": "UNLOCK_ALL_PLAYERS",
+                "franchise": ""
+            },
+            {
+                "timestamp": "1701833274",
+                "activated": "",
+                "franchise": "0005",
+                "type": "IR",
+                "deactivated": "16204,"
+            },
+            {
+                "franchise": "",
+                "type": "LOCK_ALL_PLAYERS",
+                "transaction": "",
+                "timestamp": "1701626400"
+            },
+            {
+                "timestamp": "1701625872",
+                "deactivated": "",
+                "type": "IR",
+                "franchise": "0006",
+                "activated": "15987,"
+            },
+            {
+                "timestamp": "1701438142",
+                "franchise": "0003",
+                "activated": "11247,",
+                "deactivated": "",
+                "type": "IR"
+            },
+            {
+                "timestamp": "1701320400",
+                "type": "UNLOCK_ALL_PLAYERS",
+                "transaction": "",
+                "franchise": ""
+            },
+            {
+                "timestamp": "1701185738",
+                "activated": "",
+                "franchise": "0004",
+                "type": "IR",
+                "deactivated": "16215,"
+            },
+            {
+                "timestamp": "1701021600",
+                "franchise": "",
+                "type": "LOCK_ALL_PLAYERS",
+                "transaction": ""
+            },
+            {
+                "timestamp": "1701020533",
+                "deactivated": "",
+                "type": "IR",
+                "franchise": "0003",
+                "activated": "15710,"
+            },
+            {
+                "franchise": "0006",
+                "activated": "",
+                "deactivated": "13671,",
+                "type": "IR",
+                "timestamp": "1701013920"
+            },
+            {
+                "timestamp": "1700753794",
+                "type": "FREE_AGENT",
+                "transaction": "16195,|",
+                "franchise": "0005"
+            },
+            {
+                "timestamp": "1700721865",
+                "franchise": "0008",
+                "type": "FREE_AGENT",
+                "transaction": "13121,|15734,"
+            },
+            {
+                "franchise": "",
+                "type": "UNLOCK_ALL_PLAYERS",
+                "transaction": "",
+                "timestamp": "1700715600"
+            },
+            {
+                "timestamp": "1700690237",
+                "type": "IR",
+                "deactivated": "12652,",
+                "activated": "",
+                "franchise": "0005"
+            },
+            {
+                "activated": "",
+                "franchise": "0007",
+                "type": "IR",
+                "deactivated": "10700,14075,9694,",
+                "timestamp": "1700616883"
+            },
+            {
+                "type": "IR",
+                "deactivated": "",
+                "activated": "15331,",
+                "franchise": "0004",
+                "timestamp": "1700418793"
+            },
+            {
+                "timestamp": "1700418793",
+                "type": "FREE_AGENT",
+                "transaction": "|15239,",
+                "franchise": "0004"
+            },
+            {
+                "franchise": "",
+                "transaction": "",
+                "type": "LOCK_ALL_PLAYERS",
+                "timestamp": "1700416800"
+            },
+            {
+                "transaction": "15369,|13403,",
+                "type": "FREE_AGENT",
+                "franchise": "0009",
+                "timestamp": "1700363647"
+            },
+            {
+                "deactivated": "",
+                "type": "IR",
+                "franchise": "0008",
+                "activated": "15271,",
+                "timestamp": "1700347838"
+            },
+            {
+                "timestamp": "1700228558",
+                "deactivated": "",
+                "type": "IR",
+                "franchise": "0004",
+                "activated": "16203,"
+            },
+            {
+                "timestamp": "1700182722",
+                "activated": "14836,",
+                "franchise": "0003",
+                "type": "IR",
+                "deactivated": ""
+            },
+            {
+                "timestamp": "1700110800",
+                "franchise": "",
+                "type": "UNLOCK_ALL_PLAYERS",
+                "transaction": ""
+            },
+            {
+                "transaction": "16178,|1|",
+                "type": "BBID_WAIVER",
+                "franchise": "0008",
+                "timestamp": "1700110800"
+            },
+            {
+                "franchise": "",
+                "transaction": "",
+                "type": "BBID_AUTO_PROCESS_WAIVERS",
+                "timestamp": "1700110800"
+            },
+            {
+                "franchise": "0008",
+                "activated": "",
+                "deactivated": "13113,",
+                "type": "IR",
+                "timestamp": "1700106712"
+            },
+            {
+                "timestamp": "1699812000",
+                "franchise": "",
+                "type": "LOCK_ALL_PLAYERS",
+                "transaction": ""
+            },
+            {
+                "timestamp": "1699580476",
+                "franchise": "0001",
+                "transaction": "12625,|",
+                "type": "FREE_AGENT"
+            },
+            {
+                "franchise": "0001",
+                "transaction": "16441,|",
+                "type": "FREE_AGENT",
+                "timestamp": "1699580268"
+            },
+            {
+                "type": "FREE_AGENT",
+                "transaction": "14861,|",
+                "franchise": "0001",
+                "timestamp": "1699580185"
+            },
+            {
+                "franchise": "0001",
+                "transaction": "11947,|",
+                "type": "FREE_AGENT",
+                "timestamp": "1699580085"
+            },
+            {
+                "deactivated": "14059,16152,",
+                "type": "IR",
+                "franchise": "0001",
+                "activated": "",
+                "timestamp": "1699579816"
+            },
+            {
+                "franchise": "0006",
+                "type": "FREE_AGENT",
+                "transaction": "13172,|",
+                "timestamp": "1699573912"
+            },
+            {
+                "franchise": "0006",
+                "activated": "",
+                "deactivated": "14799,",
+                "type": "IR",
+                "timestamp": "1699573480"
+            },
+            {
+                "timestamp": "1699506000",
+                "type": "UNLOCK_ALL_PLAYERS",
+                "transaction": "",
+                "franchise": ""
+            },
+            {
+                "franchise": "0007",
+                "type": "BBID_WAIVER",
+                "transaction": "12476,|5|",
+                "timestamp": "1699506000"
+            },
+            {
+                "franchise": "",
+                "transaction": "",
+                "type": "BBID_AUTO_PROCESS_WAIVERS",
+                "timestamp": "1699506000"
+            },
+            {
+                "deactivated": "15319,",
+                "type": "IR",
+                "franchise": "0004",
+                "activated": "14056,",
+                "timestamp": "1699456931"
+            },
+            {
+                "timestamp": "1699362550",
+                "franchise": "0009",
+                "type": "FREE_AGENT",
+                "transaction": "|16158,"
+            },
+            {
+                "franchise": "",
+                "transaction": "",
+                "type": "LOCK_ALL_PLAYERS",
+                "timestamp": "1699207200"
+            },
+            {
+                "type": "FREE_AGENT",
+                "transaction": "16154,|14861,",
+                "franchise": "0005",
+                "timestamp": "1699207149"
+            },
+            {
+                "timestamp": "1699140903",
+                "deactivated": "12263,",
+                "type": "IR",
+                "franchise": "0008",
+                "activated": ""
+            },
+            {
+                "transaction": "13424,|15972,",
+                "type": "FREE_AGENT",
+                "franchise": "0008",
+                "timestamp": "1698963412"
+            },
+            {
+                "type": "IR",
+                "deactivated": "13418,",
+                "activated": "",
+                "franchise": "0003",
+                "timestamp": "1698932295"
+            },
+            {
+                "timestamp": "1698897600",
+                "franchise": "",
+                "transaction": "",
+                "type": "UNLOCK_ALL_PLAYERS"
+            },
+            {
+                "timestamp": "1698897600",
+                "transaction": "15239,|1|11760,",
+                "type": "BBID_WAIVER",
+                "franchise": "0004"
+            },
+            {
+                "timestamp": "1698897600",
+                "transaction": "",
+                "type": "BBID_AUTO_PROCESS_WAIVERS",
+                "franchise": ""
+            },
+            {
+                "timestamp": "1698865979",
+                "activated": "",
+                "franchise": "0006",
+                "type": "IR",
+                "deactivated": "15987,14143,"
+            },
+            {
+                "franchise": "",
+                "type": "LOCK_ALL_PLAYERS",
+                "transaction": "",
+                "timestamp": "1698598800"
+            },
+            {
+                "deactivated": "15710,11247,",
+                "type": "IR",
+                "franchise": "0003",
+                "activated": "",
+                "timestamp": "1698430138"
+            },
+            {
+                "franchise": "",
+                "type": "UNLOCK_ALL_PLAYERS",
+                "transaction": "",
+                "timestamp": "1698292800"
+            },
+            {
+                "timestamp": "1698292800",
+                "franchise": "0006",
+                "transaction": "11387,|1|",
+                "type": "BBID_WAIVER"
+            },
+            {
+                "type": "BBID_AUTO_PROCESS_WAIVERS",
+                "transaction": "",
+                "franchise": "",
+                "timestamp": "1698292800"
+            },
+            {
+                "timestamp": "1698252622",
+                "activated": "",
+                "franchise": "0006",
+                "type": "IR",
+                "deactivated": "15797,"
+            },
+            {
+                "timestamp": "1697994000",
+                "franchise": "",
+                "transaction": "",
+                "type": "LOCK_ALL_PLAYERS"
+            },
+            {
+                "timestamp": "1697909204",
+                "franchise": "0004",
+                "activated": "",
+                "deactivated": "15331,",
+                "type": "IR"
+            },
+            {
+                "timestamp": "1697834868",
+                "franchise": "0008",
+                "transaction": "|13608,",
+                "type": "FREE_AGENT"
+            },
+            {
+                "franchise1_gave_up": "FP_0008_2024_4,FP_0006_2024_4,",
+                "timestamp": "1697833766",
+                "franchise2_gave_up": "12175,",
+                "franchise2": "0002",
+                "type": "TRADE",
+                "franchise": "0008",
+                "expires": "1697918400"
+            },
+            {
+                "timestamp": "1697688000",
+                "franchise": "",
+                "transaction": "",
+                "type": "UNLOCK_ALL_PLAYERS"
+            },
+            {
+                "timestamp": "1697688000",
+                "type": "BBID_WAIVER",
+                "transaction": "15972,|1|",
+                "franchise": "0008"
+            },
+            {
+                "timestamp": "1697688000",
+                "franchise": "",
+                "transaction": "",
+                "type": "BBID_AUTO_PROCESS_WAIVERS"
+            },
+            {
+                "timestamp": "1697389200",
+                "franchise": "",
+                "type": "LOCK_ALL_PLAYERS",
+                "transaction": ""
+            },
+            {
+                "franchise": "0008",
+                "transaction": "15734,|",
+                "type": "FREE_AGENT",
+                "timestamp": "1697326056"
+            },
+            {
+                "franchise": "0009",
+                "type": "FREE_AGENT",
+                "transaction": "14067,|",
+                "timestamp": "1697252343"
+            },
+            {
+                "type": "IR",
+                "deactivated": "15271,",
+                "activated": "",
+                "franchise": "0008",
+                "timestamp": "1697250177"
+            },
+            {
+                "timestamp": "1697149986",
+                "franchise": "0005",
+                "transaction": "11647,|16193,",
+                "type": "FREE_AGENT"
+            },
+            {
+                "timestamp": "1697147574",
+                "transaction": "|11225,",
+                "type": "FREE_AGENT",
+                "franchise": "0003"
+            },
+            {
+                "timestamp": "1697147412",
+                "transaction": "11228,|",
+                "type": "FREE_AGENT",
+                "franchise": "0003"
+            },
+            {
+                "franchise": "0003",
+                "transaction": "13910,|",
+                "type": "FREE_AGENT",
+                "timestamp": "1697147050"
+            },
+            {
+                "timestamp": "1697125946",
+                "activated": "",
+                "franchise": "0003",
+                "type": "IR",
+                "deactivated": "14836,"
+            },
+            {
+                "timestamp": "1697083200",
+                "transaction": "",
+                "type": "UNLOCK_ALL_PLAYERS",
+                "franchise": ""
+            },
+            {
+                "timestamp": "1696784400",
+                "franchise": "",
+                "transaction": "",
+                "type": "LOCK_ALL_PLAYERS"
+            },
+            {
+                "timestamp": "1696536646",
+                "franchise": "0006",
+                "type": "FREE_AGENT",
+                "transaction": "15987,|"
+            },
+            {
+                "type": "FREE_AGENT",
+                "transaction": "16414,|",
+                "franchise": "0004",
+                "timestamp": "1696515293"
+            },
+            {
+                "franchise": "0004",
+                "type": "FREE_AGENT",
+                "transaction": "16390,|14857,",
+                "timestamp": "1696515243"
+            },
+            {
+                "type": "UNLOCK_ALL_PLAYERS",
+                "transaction": "",
+                "franchise": "",
+                "timestamp": "1696478400"
+            },
+            {
+                "transaction": "15799,|2|",
+                "type": "BBID_WAIVER",
+                "franchise": "0004",
+                "timestamp": "1696478400"
+            },
+            {
+                "franchise": "",
+                "transaction": "",
+                "type": "BBID_AUTO_PROCESS_WAIVERS",
+                "timestamp": "1696478400"
+            },
+            {
+                "timestamp": "1696420555",
+                "type": "IR",
+                "deactivated": "16151,",
+                "activated": "",
+                "franchise": "0006"
+            },
+            {
+                "timestamp": "1696179600",
+                "type": "LOCK_ALL_PLAYERS",
+                "transaction": "",
+                "franchise": ""
+            },
+            {
+                "timestamp": "1696178405",
+                "deactivated": "16203,",
+                "type": "IR",
+                "franchise": "0004",
+                "activated": ""
+            },
+            {
+                "timestamp": "1695873600",
+                "type": "UNLOCK_ALL_PLAYERS",
+                "transaction": "",
+                "franchise": ""
+            },
+            {
+                "franchise": "0004",
+                "transaction": "13119,|1|15239,",
+                "type": "BBID_WAIVER",
+                "timestamp": "1695873600"
+            },
+            {
+                "timestamp": "1695873600",
+                "franchise": "0002",
+                "transaction": "16080,|2|15714,",
+                "type": "BBID_WAIVER"
+            },
+            {
+                "type": "BBID_AUTO_PROCESS_WAIVERS",
+                "transaction": "",
+                "franchise": "",
+                "timestamp": "1695873600"
+            },
+            {
+                "deactivated": "13154,",
+                "type": "IR",
+                "franchise": "0008",
+                "activated": "",
+                "timestamp": "1695770324"
+            },
+            {
+                "timestamp": "1695574800",
+                "franchise": "",
+                "transaction": "",
+                "type": "LOCK_ALL_PLAYERS"
+            },
+            {
+                "type": "FREE_AGENT",
+                "transaction": "13168,|",
+                "franchise": "0006",
+                "timestamp": "1695328140"
+            },
+            {
+                "timestamp": "1695322454",
+                "franchise": "0008",
+                "transaction": "16163,|",
+                "type": "FREE_AGENT"
+            },
+            {
+                "franchise": "",
+                "transaction": "",
+                "type": "UNLOCK_ALL_PLAYERS",
+                "timestamp": "1695268800"
+            },
+            {
+                "timestamp": "1695268800",
+                "type": "BBID_WAIVER",
+                "transaction": "16409,|1|",
+                "franchise": "0003"
+            },
+            {
+                "timestamp": "1695268800",
+                "franchise": "0008",
+                "transaction": "13138,|2|",
+                "type": "BBID_WAIVER"
+            },
+            {
+                "timestamp": "1695268800",
+                "transaction": "15301,|2|",
+                "type": "BBID_WAIVER",
+                "franchise": "0006"
+            },
+            {
+                "transaction": "15713,|8|12625,",
+                "type": "BBID_WAIVER",
+                "franchise": "0004",
+                "timestamp": "1695268800"
+            },
+            {
+                "type": "BBID_AUTO_PROCESS_WAIVERS",
+                "transaction": "",
+                "franchise": "",
+                "timestamp": "1695268800"
+            },
+            {
+                "activated": "",
+                "franchise": "0004",
+                "type": "IR",
+                "deactivated": "13610,",
+                "timestamp": "1695244702"
+            },
+            {
+                "timestamp": "1694970000",
+                "franchise": "",
+                "transaction": "",
+                "type": "LOCK_ALL_PLAYERS"
+            },
+            {
+                "franchise": "0005",
+                "type": "FREE_AGENT",
+                "transaction": "16342,|13672,",
+                "timestamp": "1694968009"
+            },
+            {
+                "franchise": "0005",
+                "type": "FREE_AGENT",
+                "transaction": "16286,|15369,",
+                "timestamp": "1694964206"
+            },
+            {
+                "activated": "",
+                "franchise": "0003",
+                "type": "IR",
+                "deactivated": "7836,",
+                "timestamp": "1694733795"
+            },
+            {
+                "franchise": "0003",
+                "type": "FREE_AGENT",
+                "transaction": "14807,|",
+                "timestamp": "1694733752"
+            },
+            {
+                "franchise": "0003",
+                "transaction": "15710,|",
+                "type": "FREE_AGENT",
+                "timestamp": "1694733734"
+            },
+            {
+                "franchise": "0004",
+                "transaction": "15239,|15758,",
+                "type": "FREE_AGENT",
+                "timestamp": "1694666059"
+            },
+            {
+                "timestamp": "1694664000",
+                "franchise": "",
+                "type": "UNLOCK_ALL_PLAYERS",
+                "transaction": ""
+            },
+            {
+                "transaction": "13418,|4|",
+                "type": "BBID_WAIVER",
+                "franchise": "0003",
+                "timestamp": "1694664000"
+            },
+            {
+                "timestamp": "1694664000",
+                "franchise": "",
+                "type": "BBID_AUTO_PROCESS_WAIVERS",
+                "transaction": ""
+            },
+            {
+                "deactivated": "14800,",
+                "type": "IR",
+                "franchise": "0008",
+                "activated": "",
+                "timestamp": "1694635676"
+            },
+            {
+                "type": "LOCK_ALL_PLAYERS",
+                "transaction": "",
+                "franchise": "",
+                "timestamp": "1694365200"
+            },
+            {
+                "timestamp": "1694128911",
+                "transaction": "|12176,",
+                "type": "FREE_AGENT",
+                "franchise": "0002"
+            },
+            {
+                "timestamp": "1694128694",
+                "type": "FREE_AGENT",
+                "transaction": "|15258,",
+                "franchise": "0002"
+            },
+            {
+                "franchise": "0002",
+                "transaction": "|15709,",
+                "type": "FREE_AGENT",
+                "timestamp": "1694128642"
+            },
+            {
+                "timestamp": "1694128595",
+                "transaction": "|14873,",
+                "type": "FREE_AGENT",
+                "franchise": "0002"
+            },
+            {
+                "transaction": "14847,|",
+                "type": "FREE_AGENT",
+                "franchise": "0003",
+                "timestamp": "1694113966"
+            },
+            {
+                "franchise": "0003",
+                "transaction": "14122,|",
+                "type": "FREE_AGENT",
+                "timestamp": "1694113772"
+            },
+            {
+                "timestamp": "1694113746",
+                "transaction": "8851,|",
+                "type": "FREE_AGENT",
+                "franchise": "0003"
+            },
+            {
+                "timestamp": "1694113584",
+                "type": "FREE_AGENT",
+                "transaction": "13753,|",
+                "franchise": "0003"
+            },
+            {
+                "franchise": "0003",
+                "type": "FREE_AGENT",
+                "transaction": "11225,|",
+                "timestamp": "1694113527"
+            },
+            {
+                "timestamp": "1694113454",
+                "transaction": "13289,|",
+                "type": "FREE_AGENT",
+                "franchise": "0003"
+            },
+            {
+                "timestamp": "1694113424",
+                "franchise": "0003",
+                "type": "FREE_AGENT",
+                "transaction": "13793,|"
+            },
+            {
+                "transaction": "",
+                "type": "UNLOCK_ALL_PLAYERS",
+                "franchise": "",
+                "timestamp": "1694059200"
+            },
+            {
+                "timestamp": "1694059200",
+                "type": "BBID_WAIVER",
+                "transaction": "13675,|1|",
+                "franchise": "0003"
+            },
+            {
+                "timestamp": "1694059200",
+                "transaction": "10738,|2|14839,",
+                "type": "BBID_WAIVER",
+                "franchise": "0007"
+            },
+            {
+                "timestamp": "1694059200",
+                "franchise": "",
+                "transaction": "",
+                "type": "BBID_AUTO_PROCESS_WAIVERS"
+            },
+            {
+                "timestamp": "1694004306",
+                "franchise": "0009",
+                "transaction": "|15788,",
+                "type": "FREE_AGENT"
+            },
+            {
+                "franchise": "0009",
+                "type": "FREE_AGENT",
+                "transaction": "|16178,11947,16163,13424,",
+                "timestamp": "1693924999"
+            },
+            {
+                "expires": "1694494800",
+                "franchise": "0008",
+                "type": "TRADE",
+                "franchise2": "0006",
+                "franchise2_gave_up": "FP_0006_2024_4,",
+                "timestamp": "1693923323",
+                "franchise1_gave_up": ""
+            },
+            {
+                "timestamp": "1693792942",
+                "franchise": "0008",
+                "type": "FREE_AGENT",
+                "transaction": "|16333,"
+            },
+            {
+                "timestamp": "1693779342",
+                "franchise": "0007",
+                "type": "FREE_AGENT",
+                "transaction": "|12630,"
+            },
+            {
+                "transaction": "|14081,",
+                "type": "FREE_AGENT",
+                "franchise": "0005",
+                "timestamp": "1693696069"
+            },
+            {
+                "timestamp": "1693681292",
+                "type": "FREE_AGENT",
+                "transaction": "|16216,",
+                "franchise": "0001"
+            },
+            {
+                "franchise": "0004",
+                "activated": "",
+                "deactivated": "14056,",
+                "type": "IR",
+                "timestamp": "1693512835"
+            },
+            {
+                "timestamp": "1693504466",
+                "franchise": "",
+                "transaction": "",
+                "by_commish": "1",
+                "type": "LOCK_ALL_PLAYERS"
+            },
+            {
+                "franchise": "0001",
+                "type": "TRADE",
+                "expires": "1694106000",
+                "by_commish": "1",
+                "franchise1_gave_up": "DP_3_5,",
+                "franchise2": "0002",
+                "franchise2_gave_up": "DP_3_2,",
+                "timestamp": "1693503767"
+            },
+            {
+                "franchise": "0007",
+                "activated": "",
+                "deactivated": "15840,",
+                "type": "IR",
+                "timestamp": "1693497120"
+            },
+            {
+                "type": "LOAD_ROSTERS",
+                "by_commish": "1",
+                "transaction": "14867,13604,13403,|",
+                "franchise": "0009",
+                "timestamp": "1693496927"
+            },
+            {
+                "type": "LOAD_ROSTERS",
+                "transaction": "15742,|",
+                "by_commish": "1",
+                "franchise": "0008",
+                "timestamp": "1693496865"
+            },
+            {
+                "franchise": "0007",
+                "type": "LOAD_ROSTERS",
+                "transaction": "|",
+                "by_commish": "1",
+                "timestamp": "1693496783"
+            },
+            {
+                "type": "LOAD_ROSTERS",
+                "transaction": "13772,11150,13671,|",
+                "by_commish": "1",
+                "franchise": "0006",
+                "timestamp": "1693496674"
+            },
+            {
+                "timestamp": "1693496575",
+                "type": "LOAD_ROSTERS",
+                "by_commish": "1",
+                "transaction": "15369,12652,11671,14081,|",
+                "franchise": "0005"
+            },
+            {
+                "franchise": "0004",
+                "type": "LOAD_ROSTERS",
+                "by_commish": "1",
+                "transaction": "11938,|",
+                "timestamp": "1693496407"
+            },
+            {
+                "type": "LOAD_ROSTERS",
+                "transaction": "11247,7836,|13403,",
+                "by_commish": "1",
+                "franchise": "0003",
+                "timestamp": "1693496290"
+            },
+            {
+                "timestamp": "1693496220",
+                "type": "LOAD_ROSTERS",
+                "by_commish": "1",
+                "transaction": "15290,11674,14798,14842,14805,13192,13139,|13604,",
+                "franchise": "0002"
+            },
+            {
+                "timestamp": "1693494075",
+                "transaction": "9431,14059,13850,|14867,",
+                "by_commish": "1",
+                "type": "LOAD_ROSTERS",
+                "franchise": "0001"
+            },
+            {
+                "franchise": "0009",
+                "type": "LOAD_ROSTERS",
+                "transaction": "14071,14208,14852,15759,12620,15779,14223,14138,15715,15766,13635,12186,15692,15329,15788,15288,12678,15768,13424,14079,11947,15749,|",
+                "by_commish": "1",
+                "timestamp": "1693493944"
+            },
+            {
+                "franchise": "0008",
+                "transaction": "15693,15979,|13772,14244,14223,14138,11947,13424,11150,13850,",
+                "by_commish": "1",
+                "type": "LOAD_ROSTERS",
+                "timestamp": "1693493750"
+            },
+            {
+                "timestamp": "1693493605",
+                "by_commish": "1",
+                "transaction": "14977,10700,13630,12676,13633,9694,11761,13632,13303,|5848,8742,10738,14842,14805,10312,11938,12186,15369,15699,13639,",
+                "type": "LOAD_ROSTERS",
+                "franchise": "0007"
+            },
+            {
+                "type": "LOAD_ROSTERS",
+                "by_commish": "1",
+                "transaction": "|12930,12151,12140,13427,13635,14813,15766,15692,14847,12437,",
+                "franchise": "0006",
+                "timestamp": "1693493364"
+            },
+            {
+                "transaction": "14861,15255,|13633,14208,14977,9686,10700,13138,15779,15749,",
+                "by_commish": "1",
+                "type": "LOAD_ROSTERS",
+                "franchise": "0005",
+                "timestamp": "1693493221"
+            },
+            {
+                "timestamp": "1693493038",
+                "type": "LOAD_ROSTERS",
+                "by_commish": "1",
+                "transaction": "12625,11760,|11674,14079,15759,15329,11247,",
+                "franchise": "0004"
+            },
+            {
+                "transaction": "13909,|11671,13192,14852,14071,13671,15715,14059,14861,9431,",
+                "by_commish": "1",
+                "type": "LOAD_ROSTERS",
+                "franchise": "0003",
+                "timestamp": "1693492854"
+            },
+            {
+                "by_commish": "1",
+                "transaction": "13590,15698,|11678,13606,12678,12620,13793,15768,15720,12610,",
+                "type": "LOAD_ROSTERS",
+                "franchise": "0002",
+                "timestamp": "1693492723"
+            },
+            {
+                "timestamp": "1693492489",
+                "type": "LOAD_ROSTERS",
+                "by_commish": "1",
+                "transaction": "13832,13133,13680,|9099,13630,13590,12676,12625,13726,15288,8930,15788,12141,13303,13898,8851,",
+                "franchise": "0001"
+            },
+            {
+                "expires": "1694048400",
+                "franchise": "0001",
+                "type": "TRADE",
+                "franchise2": "0002",
+                "timestamp": "1693448288",
+                "franchise2_gave_up": "DP_3_2,",
+                "franchise1_gave_up": "DP_3_4,"
+            },
+            {
+                "franchise": "0004",
+                "franchise1_gave_up": "12626,",
+                "type": "TRADE",
+                "expires": "1694044800",
+                "franchise2": "0003",
+                "timestamp": "1693440981",
+                "franchise2_gave_up": "15756,"
+            },
+            {
+                "timestamp": "1693434886",
+                "franchise": "0003",
+                "type": "FREE_AGENT",
+                "transaction": "|15296,"
+            },
+            {
+                "timestamp": "1693434875",
+                "franchise": "0003",
+                "type": "FREE_AGENT",
+                "transaction": "|13909,"
+            },
+            {
+                "transaction": "|14837,",
+                "type": "FREE_AGENT",
+                "franchise": "0003",
+                "timestamp": "1693434863"
+            },
+            {
+                "timestamp": "1693434854",
+                "franchise": "0003",
+                "type": "FREE_AGENT",
+                "transaction": "|13129,"
+            },
+            {
+                "transaction": "|15034,",
+                "type": "FREE_AGENT",
+                "franchise": "0003",
+                "timestamp": "1693434847"
+            },
+            {
+                "franchise": "0006",
+                "transaction": "|14789,",
+                "type": "FREE_AGENT",
+                "timestamp": "1692568850"
+            }
+        ]
+    },
+    "version": "1.0"
+}
