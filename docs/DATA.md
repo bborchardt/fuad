@@ -14,11 +14,21 @@ Under `src/main/resources/ff/mfl/data/<year>`:
 | `rosters_post_draft.json` | Week 1, after the auction, before in season pickups | Yes |
 | `rosters_end_of_year.json` | The close of the season | Yes |
 | `transactions.json` | Every move made that season | Yes |
-| `players.json`, `league.json`, `owners.json`, `draft.json` | When last refreshed | Yes |
+| `rules.json` | That season's scoring rules | Yes |
+| `players.json`, `owners.json`, `draft.json` | When last refreshed | Yes |
+| `league.json` | When last refreshed | **No** (see below) |
 
-MFL keeps one live copy of each season and moves it forward in place, so only `rosters.json` is
-irrecoverable: by the time a season is over, the site no longer knows what its rosters looked like before
-the auction. Everything else is a record of a finished season and can be refetched at any time.
+MFL keeps one live copy of each season and moves it forward in place, so `rosters.json` is irrecoverable:
+by the time a season is over, the site no longer knows what its rosters looked like before the auction.
+
+`league.json` is worse, because refetching it appears to work. It holds the starting requirements and the
+salary cap, and the site does not keep those per season — refetching 2021's today reports the $300 cap and
+superflex lineup the league only adopted in 2022, in place of the $250 and single quarterback the
+contemporaneous file records. The committed file is the record. See
+[LEAGUE_RULES.md](LEAGUE_RULES.md#provenance).
+
+Everything else is a genuine record of a finished season and can be refetched at any time. `rules.json` in
+particular is period correct, verified against the league's own recorded scores.
 
 The transaction log matters more than it looks. Rosters only show where players ended up, so a move that a
 later move undid leaves no trace in them at all. Both expansion drafts are in the log as commissioner
@@ -167,8 +177,9 @@ Current entries: Hollywood Brown to Marquise Brown, Dee Eskridge to D'Wayne Eskr
 ./season_history_refresh.sh <year> ...   # snapshots and transactions for completed seasons
 ```
 
-`season_history_refresh.sh` never touches `rosters.json`, so it cannot overwrite an irrecoverable pre draft
-snapshot with today's state, and it is safe to rerun on old years. It refuses to write rosters for a season
+`season_history_refresh.sh` never touches `rosters.json` or `league.json`, so it cannot overwrite an
+irrecoverable pre draft snapshot or a season's starting requirements with today's state, and it is safe to
+rerun on old years. It refuses to write rosters for a season
 whose contracts are still wiped, since that means the auction has not been entered yet.
 
 **2026 is at that point now**: its auction has not been run, so it has no snapshots. Collect them with
