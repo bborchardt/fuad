@@ -23,6 +23,8 @@ class LoadUtils {
     static String mflProjectedScoresResourcePath(String year) { "/ff/mfl/data/$year/projected_scores.json" }
     /** Weekly scoring a finished season actually produced, under that season's rules. */
     static String mflPlayerScoresResourcePath(String year) { "/ff/mfl/data/$year/player_scores.json" }
+    /** Raw weekly statistics, so any season can be restated under any rules. See docs/PROJECTION.md. */
+    static String nflverseStatsResourcePath(String year) { "/ff/nflverse/data/$year/player_stats.tsv" }
     static String fpDynastyRankingsPprResourcePath(String year) { "/ff/fantasypros/data/$year/dynasty_rankings_ppr.csv" }
     static String fpRookieRankingsPprResourcePath(String year) { "/ff/fantasypros/data/$year/rookie_rankings_ppr.csv" }
     static String fpRedraftRankingsHalfPprResourcePath(String year) { "/ff/fantasypros/data/$year/redraft_rankings_half_ppr.csv" }
@@ -40,6 +42,10 @@ class LoadUtils {
     static String aliasedName(String name) { NAME_ALIASES[name] ?: name }
 
     private static final JsonSlurper jsonSlurper = new JsonSlurper()
+
+    static String loadTextResource(String resourcePath) {
+        LoadUtils.class.getResourceAsStream(resourcePath).getText('UTF-8')
+    }
 
     static Object loadJsonResource(String resourcePath) {
         def stream = LoadUtils.class.getResourceAsStream(resourcePath)
