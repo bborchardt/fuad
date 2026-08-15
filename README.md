@@ -9,10 +9,14 @@ consensus rankings.
 ./generate_report.sh -t all [-y <year>]        # write reports to reports/<year>
 ```
 
-Report types: `franchises`, `franchise_projections`, `rankings`, `rookies`, `schedule`, or `all`.
+Report types: `franchises`, `franchise_projections`, `rankings`, `rookies`, `salaries`, `schedule`, or `all`.
 
 See [docs/DATA.md](docs/DATA.md) for what each data file is, how the league's expansions and contractions
 show up in it, and which seasons needed repair.
+
+See [docs/PROJECTION.md](docs/PROJECTION.md) for how the `salaries` report prices an auction: consensus
+ranks for order, league-scored projections for the curve, corrected for what a rank really delivers, priced
+against the cap the league has left, and settled against the franchise tags it expects to be used.
 
 See [docs/LEAGUE_RULES.md](docs/LEAGUE_RULES.md) for what the rules were in each season — starting
 requirements, salary cap, roster limits, franchise tag prices and scoring — all of which have changed, and
