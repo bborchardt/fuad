@@ -249,7 +249,9 @@ class StrategyCheck {
         File file = new File(path)
         Map<String, Map<String, String>> rows = null
         if (file.exists()) {
-            List<String> lines = file.readLines()
+            // A report may open with commentary — which team it is for, what its roster already scores —
+            // before the single table that is the report proper.
+            List<String> lines = file.readLines().dropWhile { it.startsWith('#') || !it.trim() }
             if (lines) {
                 List<String> headings = lines[0].split('\t', -1) as List
                 rows = [:]

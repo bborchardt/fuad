@@ -27,6 +27,15 @@ class StarterRequirements {
         this.teams = teams
     }
 
+    /** How many at each position a single team must start, before any flex is allocated. */
+    Map<String, Integer> perTeamMinimums() { new LinkedHashMap<>(minimums) }
+
+    /** The most a single team may start at each position, which is what caps its flex. */
+    Map<String, Integer> perTeamMaximums() { new LinkedHashMap<>(maximums) }
+
+    /** Slots a single team fields each week. */
+    int perTeamStarters() { startersPerTeam }
+
     /** Read the ranges out of a season's league.json, which holds them as "1" or "1-2". */
     static StarterRequirements fromLeague(Map league, int teams) {
         Map starters = league.league.starters as Map

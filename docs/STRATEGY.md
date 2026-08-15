@@ -63,6 +63,8 @@ for something, that something is now a column:
 | how wide outcomes run | `PTSLOW` / `PTSHIGH` | the raw multipliers in the points curve |
 | how many players a team must buy | `MINSIGN` / `MAXSIGN` / `ROOKIES` on `teams` | the 23/30 roster bylaw |
 | what a team can spend | `FREECAP`, `EXPOSURE`, `EXP/CAP` on `teams` | the cap and the spend rate |
+| what a player adds to **my** lineup | `ADDEXP` / `ADDHIND` on `roster_<id>` | a lineup worked out by hand |
+| whether a third at a position is worth it | `ADD1`-`ADD4` on `roster_depth_<id>` | the same, but harder |
 
 `PTSLOW` and `PTSHIGH` carry a caveat worth restating, because the whole point of the boundary is not to
 assume things the model does not know: **the range is the position's, scaled to the player.** Two players
@@ -71,6 +73,40 @@ and a plan that treats it as though it does has smuggled in a belief the model d
 
 If a plan needs something not in this table, that is a column the board is missing. Add it to the model,
 where it can be tested, rather than working it out in the plan, where it cannot.
+
+## The roster reports
+
+`./generate_report.sh -t roster -f 0001` writes two files. They answer the question the auction board
+cannot: the board prices a player against a league-wide replacement, which is nobody's actual alternative,
+and a team holding one quarterback is not choosing between the same things as a team holding four.
+
+**`roster_<id>.tsv`** — every available player by what he adds to *this* team's starting lineup, in points.
+
+**`roster_depth_<id>.tsv`** — what the 1st, 2nd, 3rd and 4th best available at each position would add,
+taken in turn.
+
+Two columns, because the lineup can be set two ways and neither is true:
+
+- `ADDEXP` — starters chosen on preseason ranks, then whatever the season gives. Nobody knows in advance.
+- `ADDHIND` — starters chosen knowing how the season turned out. Nobody is still guessing by week four.
+
+The truth is bracketed rather than picked. The split is also readable in itself: **`ADDEXP` is what bye
+coverage is worth, `ADDHIND − ADDEXP` is what optionality is worth.** A spare a lineup would never reach
+for on preseason ranks shows nothing in the first column and everything in the second.
+
+Both are **points, never dollars** — the most this team would rationally pay, against `PRICE` for what he
+will cost. Comparing them is the reader's job, and the reason to run this at all.
+
+Two things not to misread:
+
+**The per-player marginals do not add up.** Each is measured against the roster as it stands, so they are
+all the value of being the *first* signing at that position. Brett's board shows a first quarterback worth
+170 and a second worth 155; signing both is not worth 325. That is what `roster_depth` is for — the same
+board puts the third quarterback at 22 and the fourth at nothing.
+
+**A team is evaluated, never optimised.** Nothing here recommends a roster or solves for one under the cap.
+It says what a roster scores; which players to buy stays a judgement, made against prices the model is
+least confident about at exactly the top of the board where the money is.
 
 ## Running the check
 

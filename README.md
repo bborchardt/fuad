@@ -7,10 +7,13 @@ consensus rankings.
 ./data_refresh.sh <year>                       # pull this year's league and rankings data
 ./season_history_refresh.sh <year> ...         # pull snapshots and transactions for completed seasons
 ./generate_report.sh -t all [-y <year>]        # write reports to reports/<year>
+./generate_report.sh -t roster -f <id>         # what each player adds to one team's lineup
 ./check_strategy.sh <plan.md>                  # hold a plan to the board it was written from
 ```
 
 Report types: `franchises`, `franchise_projections`, `rankings`, `rookies`, `salaries`, `teams`, `schedule`, or `all`.
+`roster` is separate: it answers for one named team rather than for the league, so it takes `-f` and is not
+part of `all`.
 
 See [docs/DATA.md](docs/DATA.md) for what each data file is, how the league's expansions and contractions
 show up in it, and which seasons needed repair.

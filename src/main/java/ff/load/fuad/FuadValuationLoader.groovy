@@ -11,6 +11,7 @@ import ff.load.util.LoadUtils
 import ff.projection.AuctionValuation
 import ff.projection.ByeWeeks
 import ff.projection.FranchiseSalaryCalculator
+import ff.projection.LineupValue
 import ff.projection.PointsCurve
 import ff.projection.StarterRequirements
 
@@ -60,8 +61,37 @@ class FuadValuationLoader {
     private static final Map<String, Integer> ROSTERED_DEPTH =
             [QB: 30, RB: 45, WR: 50, TE: 25, PK: 12].asImmutable()
 
+    /**
+     * The curve, built once per loader.
+     *
+     * Nine seasons of statistics are read and restated to make it, which is much the most expensive thing
+     * here, and the salaries, teams and roster reports all want the same one.
+     */
+    private PointsCurve curve
+
+    private final Map<String, List<PlayerValuation>> valuationsByYear = [:]
+
+    PointsCurve curve() {
+        curve ?: (curve = PointsCurve.of(realisedByRank()))
+    }
+
+    /**
+     * How a roster's lineup scores, for reports that ask what a player adds to one team rather than to the
+     * market. Shares the curve and the byes the board was priced from, so the two are answers about the
+     * same season.
+     */
+    LineupValue lineups(String year) {
+        Map league = LoadUtils.loadJsonResource(LoadUtils.mflLeagueResourcePath(year)) as Map
+        int teams = (league.league.franchises.franchise as List).size()
+        new LineupValue(curve(), byeWeeks(year, league.league.lastRegularSeasonWeek as String as int),
+                StarterRequirements.fromLeague(league, teams), MAX_ROSTER)
+    }
+
     List<PlayerValuation> valuations(String year, FuadData fuadData) {
-        PointsCurve curve = PointsCurve.of(realisedByRank())
+        if (valuationsByYear.containsKey(year)) {
+            return valuationsByYear[year]
+        }
+        PointsCurve curve = curve()
 
         Map league = LoadUtils.loadJsonResource(LoadUtils.mflLeagueResourcePath(year)) as Map
         int teams = (league.league.franchises.franchise as List).size()
@@ -73,8 +103,8 @@ class FuadValuationLoader {
                 LoadUtils.loadJsonResource(LoadUtils.mflEndOfYearRostersResourcePath(priorYear)) as Map,
                 LoadUtils.loadJsonResource(LoadUtils.mflPlayersResourcePath(priorYear)) as Map)
 
-        AuctionValuation.value(curve, requirements, available(year, fuadData), franchiseSalary,
-                freeCap(year, league), slotsToFill(year, teams), byes)
+        valuationsByYear[year] = AuctionValuation.value(curve, requirements, available(year, fuadData),
+                franchiseSalary, freeCap(year, league), slotsToFill(year, teams), byes)
     }
 
     /**

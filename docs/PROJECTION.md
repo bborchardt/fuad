@@ -237,6 +237,11 @@ reader who knows the league is not.
   will go to, and that gap is widest at the very top. A desperate buyer with cap to spend is averaged into
   a league-wide rate rather than identified. Treat the top of the board as a walk-away number, and `-t
   teams` as the stopgap; pricing at the highest bidder needs an auction simulation.
+- **Prices are still per player, so nothing on this board sees a roster.** Two players are priced
+  identically whether they cover each other's byes or share one, and a spare at a position a team already
+  starts two of is priced as though it were his first. `-t roster` answers that separately, in points and
+  for one named team; see [STRATEGY.md](STRATEGY.md#the-roster-reports). It is deliberately not fed back
+  into price, which is a league-wide clearing rate and would stop being one.
 - **The spread cannot tell volatility from disagreement.** It is realised variation, so a genuinely erratic
   player and one the consensus simply misjudged look identical. For pricing that is the right total, but it
   means the model has no notion of a safe pick versus a risky one — which is why `PTSLOW` and `PTSHIGH` are
