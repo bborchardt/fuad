@@ -48,24 +48,6 @@ class FuadSalaryProjectionPrinter {
                     v.franchiseTagged ? 'TAG' : ''
             ].join('\t'))
         }
-        printSummary(out)
-    }
-
-    /** Totals worth eyeballing before trusting a board: what it thinks the auction costs, and who is out of it. */
-    private void printSummary(PrintWriter out) {
-        List<PlayerValuation> tagged = valuations.findAll { it.franchiseTagged }
-        int bid = valuations.findAll { !it.franchiseTagged }.sum { it.salary } as int
-        out.println()
-        out.println(['', '', "${valuations.size()} players priced", '', '', '', '', '',
-                     bid + (tagged.sum { it.salary } ?: 0)].join('\t'))
-        out.println(['', '', "${tagged.size()} expected to be franchised", '', '', '', '', '',
-                     tagged.sum { it.salary } ?: 0].join('\t'))
-        out.println(['', '', "${valuations.count { it.edgeBand == 'BARGAIN' }} bargains, " +
-                "${valuations.count { it.edgeBand == 'OVERPRICED' }} overpriced"].join('\t'))
-        tagged.groupBy { it.franchiseId }.sort { it.key }.each { franchise, held ->
-            out.println(['', '', "  ${ownerName(franchise)}", held*.playerName.join(', '), '', '', '',
-                         held.sum { it.salary }].join('\t'))
-        }
     }
 
     private String holder(PlayerValuation v) { ownerName(v.franchiseId) }
