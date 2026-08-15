@@ -5,12 +5,12 @@ import ff.fetch.mfl.MflRulesRefresh
 import ff.fetch.mfl.MflTransactionsRefresh
 import ff.fetch.mfl.MflWeeklyScoresRefresh
 import ff.fetch.mfl.RosterSnapshot
-import ff.fetch.mfl.ScoreKind
+import ff.fetch.nflverse.NflverseStatsRefresh
 
 /**
- * Collect the record of a completed season: both roster snapshots, the transaction log and the scoring
- * rules. Unlike {@link DataRefresh} this writes nothing that cannot be refetched, so it cannot overwrite
- * the pre draft rosters in rosters.json with today's state.
+ * Collect the record of a completed season: both roster snapshots, the transaction log, the scoring rules,
+ * what the league scored, and the raw statistics behind it. Unlike {@link DataRefresh} this writes nothing
+ * that cannot be refetched, so it cannot overwrite the pre draft rosters in rosters.json with today's state.
  *
  * It also leaves league.json alone, which matters for the same reason: the league site does not keep that
  * one period correct. Refetching 2021's today reports the salary cap and superflex lineup the league only
@@ -31,7 +31,9 @@ class SeasonHistoryRefresh {
                 new MflRosterSnapshotRefresh(Integer.parseInt(year), LEAGUE_ID, HOST, snapshot) as Runnable
             } + [new MflTransactionsRefresh(Integer.parseInt(year), LEAGUE_ID, HOST) as Runnable,
                  new MflRulesRefresh(Integer.parseInt(year), LEAGUE_ID, HOST) as Runnable,
-                 new MflWeeklyScoresRefresh(Integer.parseInt(year), LEAGUE_ID, HOST, ScoreKind.ACTUAL) as Runnable]
+                 new MflWeeklyScoresRefresh(Integer.parseInt(year), LEAGUE_ID, HOST) as Runnable,
+                 // Not the league site at all, and the one thing here every expected point is built from.
+                 new NflverseStatsRefresh(Integer.parseInt(year)) as Runnable]
             refreshes.each { refresh ->
                 try {
                     refresh.run()

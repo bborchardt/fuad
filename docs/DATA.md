@@ -16,7 +16,6 @@ Under `src/main/resources/ff/mfl/data/<year>`:
 | `transactions.json` | Every move made that season | Yes |
 | `rules.json` | That season's scoring rules | Yes |
 | `player_scores.json` | What players scored each week, under that season's rules | Yes |
-| `projected_scores.json` | What players were projected to score each week | **No** (see below) |
 | `players.json`, `owners.json`, `draft.json` | When last refreshed | Yes |
 | `league.json` | When last refreshed | **No** (see below) |
 
@@ -29,13 +28,35 @@ superflex lineup the league only adopted in 2022, in place of the $250 and singl
 contemporaneous file records. The committed file is the record. See
 [LEAGUE_RULES.md](LEAGUE_RULES.md#provenance).
 
-`projected_scores.json` is the third of these. The site keeps one projection per week and rewrites it as
-the season goes, so pulled afterwards it is hindsight rather than forecast: summed over 2025 its
-projections correlate 0.95 with what actually happened. It has to be captured before the season starts.
-See [PROJECTION.md](PROJECTION.md#provenance).
+There used to be a third, `projected_scores.json`, which had to be captured before a season started because
+the site rewrites its projections as the season goes — summed over 2025 they correlate 0.95 with what
+actually happened, which no forecast does. Nothing is priced off projections any more, so it has been
+deleted rather than left to rot. See [PROJECTION.md](PROJECTION.md).
 
 Everything else is a genuine record of a finished season and can be refetched at any time. `rules.json` in
 particular is period correct, verified against the league's own recorded scores.
+
+Under `src/main/resources/ff/nflverse/data/<year>`, 2017 onwards: `player_stats.tsv`, the raw weekly
+statistics every expected point is now built from.
+
+| | |
+| --- | --- |
+| Source | nflverse-data release `stats_player`, one file per season, 1999 onwards under one schema |
+| Collected by | `./season_history_refresh.sh <year>`, alongside that season's league record |
+| Kept | 17 scoring columns, weeks 1-14 of the regular season, at QB, RB, WR and TE |
+| Size | about 1.9MB for nine seasons, from 8MB and 150 columns a season published |
+
+Statistics rather than fantasy points, because the league has scored four different ways since 2017 and a
+season scored under its own rules cannot be compared with one scored under another's. `ScoringRules` takes
+the rules as a parameter, so any season can be restated under the rules being priced. Points computed by
+anyone else are points under somebody else's rules.
+
+Two things to know about the extract:
+
+- nflverse writes a player's **current** name into every season he ever played, so Robby Anderson is
+  "Robbie Chosen" as far back as 2017. That is what the alias map is for; see [Player names](#player-names).
+- `position` comes from the roster and is occasionally not the one he plays. Travis Hunter is a `CB` in
+  2025, so the QB/RB/WR/TE filter drops his receiving, and his ranked season comes back as a zero.
 
 The transaction log matters more than it looks. Rosters only show where players ended up, so a move that a
 later move undid leaves no trace in them at all. Both expansion drafts are in the log as commissioner
@@ -171,11 +192,20 @@ that trade is still missing from 2023's pre draft rosters.
 ## Player names
 
 `LoadUtils.NAME_ALIASES` maps nicknames that share no prefix with the given name, which no amount of fuzzy
-matching pairs up. It is applied to **both** sources, because it is not only fantasypros that uses the
+matching pairs up. It is applied to **every** source, because it is not only fantasypros that uses the
 nickname: MFL called Marquise Brown "Hollywood" in 2024 and "Marquise" in every other year, so aliasing one
 side only would fix one season and break another.
 
-Current entries: Hollywood Brown to Marquise Brown, Dee Eskridge to D'Wayne Eskridge.
+Current entries: Hollywood Brown to Marquise Brown, Dee Eskridge to D'Wayne Eskridge, Robbie Chosen to
+Robby Anderson.
+
+The last is nflverse's doing rather than a nickname: it backdates a player's current name over his whole
+career, and Robby Anderson changed his in 2022. Without the alias his 2018, 2019 and 2021 seasons look like
+ranked players who never took the field, which is a mistake with teeth — an unmatched name and a season
+lost to injury are indistinguishable, and both score zero. Everything else is matched on an exact name
+first, then on progressively shorter prefixes of first and last name, with each statistics line claimed at
+most once so the specific matches are made before the loose ones can go wrong. That is what tells Gabe from
+Gabriel and Kenny from Kenneth.
 
 ## Refreshing
 
@@ -184,10 +214,10 @@ Current entries: Hollywood Brown to Marquise Brown, Dee Eskridge to D'Wayne Eskr
 ./season_history_refresh.sh <year> ...   # snapshots and transactions for completed seasons
 ```
 
-`season_history_refresh.sh` never touches `rosters.json`, `league.json` or `projected_scores.json`, so it
-cannot overwrite an irrecoverable pre draft snapshot, a season's starting requirements or a genuine
-forecast with today's state, and it is safe to rerun on old years. It refuses to write rosters for a season
-whose contracts are still wiped, since that means the auction has not been entered yet.
+`season_history_refresh.sh` never touches `rosters.json` or `league.json`, so it cannot overwrite an
+irrecoverable pre draft snapshot or a season's starting requirements with today's state, and it is safe to
+rerun on old years. It refuses to write rosters for a season whose contracts are still wiped, since that
+means the auction has not been entered yet.
 
 **2026 is at that point now**: its auction has not been run, so it has no snapshots. Collect them with
 `./season_history_refresh.sh 2026` once the season's contracts are in, which will also let 2026 signings

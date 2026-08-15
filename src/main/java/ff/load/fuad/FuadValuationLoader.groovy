@@ -1,11 +1,15 @@
 package ff.load.fuad
 
 import ff.data.PlayerValuation
+import ff.data.fantasypros.FpRankedPlayer
 import ff.data.fuad.FuadData
 import ff.data.fuad.FuadPlayer
-import ff.load.mfl.MflWeeklyScoresLoader
+import ff.load.fantasypros.FantasyProsLoader
+import ff.load.nflverse.NflverseStatsLoader
+import ff.load.nflverse.ScoringRules
 import ff.load.util.LoadUtils
 import ff.projection.AuctionValuation
+import ff.projection.ByeWeeks
 import ff.projection.FranchiseSalaryCalculator
 import ff.projection.PointsCurve
 import ff.projection.StarterRequirements
@@ -13,16 +17,39 @@ import ff.projection.StarterRequirements
 /**
  * Assemble everything an auction valuation needs for a season and run it.
  *
- * Four things have to come together: what the league is projected to score, what a consensus rank has
- * historically been worth, which players are up for auction, and how much cap the league has left. See
- * docs/PROJECTION.md.
+ * Three things have to come together: what a consensus rank has historically been worth, which players are
+ * up for auction, and how much cap the league has left. See docs/PROJECTION.md.
  */
 class FuadValuationLoader {
 
-    /** Seasons whose scoring matches the current rules closely enough to measure realisation against. */
-    private static final List<String> REALISED_SEASONS = ['2023', '2024', '2025'].asImmutable()
+    /**
+     * Finished seasons the curve is built from, every one nflverse statistics are held for.
+     *
+     * Pooled flat rather than weighted towards the recent ones. Restating 2017-19 and 2022-24 under a single
+     * rule set leaves them within a few per cent at every position, so there is no era left to correct for,
+     * and nine seasons is what gives a rank about 45 observations instead of 15.
+     */
+    private static final List<String> REALISED_SEASONS =
+            (2017..2025).collect { it as String }.asImmutable()
 
     private static final List<String> POSITIONS = ['QB', 'RB', 'WR', 'TE', 'PK'].asImmutable()
+
+    /**
+     * Positions the statistics carry, which are the ones a curve can be built for.
+     *
+     * Kicking is not in the nflverse data and is not worth adding: kickers have taken under one per cent of
+     * the auction in every season on record, so they price out at the minimum bid either way.
+     */
+    private static final List<String> SCORED_POSITIONS = ['QB', 'RB', 'WR', 'TE'].asImmutable()
+
+    /**
+     * Prefix lengths tried in turn when a ranked name has no exact match in the statistics.
+     *
+     * Longest first, and a name is taken out of the pool once it is claimed, so the specific matches are
+     * made before the loose ones get a chance to go wrong. This is what tells Gabe from Gabriel and Kenny
+     * from Kenneth. A rank left unmatched after all three is scored as a zero, not dropped.
+     */
+    private static final List<Integer> MATCH_LENGTHS = [10, 5, 3].asImmutable()
 
     private static final String WIPED_SALARY = '0.01'
 
@@ -34,18 +61,12 @@ class FuadValuationLoader {
             [QB: 30, RB: 45, WR: 50, TE: 25, PK: 12].asImmutable()
 
     List<PlayerValuation> valuations(String year, FuadData fuadData) {
-        Map players = LoadUtils.loadJsonResource(LoadUtils.mflPlayersResourcePath(year)) as Map
-        Map<String, String> positionById = (players.players.player as List<Map>)
-                .collectEntries { [(it.id as String): it.position as String] }
-
-        PointsCurve curve = PointsCurve.of(
-                MflWeeklyScoresLoader.weeklyScores(LoadUtils.mflProjectedScoresResourcePath(year)),
-                positionById,
-                realisedByRank())
+        PointsCurve curve = PointsCurve.of(realisedByRank())
 
         Map league = LoadUtils.loadJsonResource(LoadUtils.mflLeagueResourcePath(year)) as Map
         int teams = (league.league.franchises.franchise as List).size()
         StarterRequirements requirements = StarterRequirements.fromLeague(league, teams)
+        ByeWeeks byes = byeWeeks(year, league.league.lastRegularSeasonWeek as String as int)
 
         String priorYear = (year as int) - 1 as String
         Map<String, Integer> franchiseSalary = FranchiseSalaryCalculator.franchiseSalaries(
@@ -53,7 +74,7 @@ class FuadValuationLoader {
                 LoadUtils.loadJsonResource(LoadUtils.mflPlayersResourcePath(priorYear)) as Map)
 
         AuctionValuation.value(curve, requirements, available(year, fuadData), franchiseSalary,
-                freeCap(year, league), slotsToFill(year, teams))
+                freeCap(year, league), slotsToFill(year, teams), byes)
     }
 
     /**
@@ -114,26 +135,84 @@ class FuadValuationLoader {
     }
 
     /**
-     * What players actually scored, indexed by the consensus rank they held before that season.
+     * What players actually scored, restated under the rules being priced and indexed by the consensus rank
+     * they held before that season.
      *
-     * Indexing by rank rather than by player is deliberate. The league site rewrites its projections as a
-     * season goes, so comparing a finished season's projections against its results measures hindsight, not
-     * accuracy. A preseason rank cannot be revised after the fact, so this comparison stays honest.
+     * Indexing by rank rather than by player is what the whole model rests on. A ranking is a judgement
+     * about who is better, which is what consensus is for; how much scoring that judgement has been worth is
+     * a question only finished seasons can answer. Nothing here is a forecast of a particular player, so
+     * nothing here can be dragged around by one source's opinion of one man.
+     *
+     * A preseason rank also cannot be revised after the fact, which a projection can. That is what keeps
+     * this honest where comparing a finished season's projections against its own results would only
+     * measure hindsight.
      */
     private Map<String, Map<Integer, List<BigDecimal>>> realisedByRank() {
         Map<String, Map<Integer, List<BigDecimal>>> realised = [:].withDefault { [:].withDefault { [] } }
         REALISED_SEASONS.each { String season ->
-            Map<String, BigDecimal> totals = MflWeeklyScoresLoader.seasonTotals(
-                    MflWeeklyScoresLoader.weeklyScores(LoadUtils.mflPlayerScoresResourcePath(season)))
-            FuadData seasonData = new FuadLoader().loadData(season)
-            seasonData.playerByNameMap.values().each { FuadPlayer player ->
-                BigDecimal scored = totals[player.mflId]
-                if (scored != null && player.redraftRank && POSITIONS.contains(player.player.position)) {
-                    realised[player.player.position][player.redraftRank.positionRank] << scored
+            Map<String, BigDecimal> scored = NflverseStatsLoader.seasonPoints(season, ScoringRules.CURRENT)
+                    .collectEntries { String name, BigDecimal points -> [(LoadUtils.aliasedName(name)): points] }
+            Set<String> unclaimed = NflverseStatsLoader.played(season).collect { LoadUtils.aliasedName(it) } as Set
+            ranked(season).each { FpRankedPlayer player ->
+                if (SCORED_POSITIONS.contains(player.player.position)) {
+                    String name = claim(unclaimed, player.player.name)
+                    realised[player.player.position][player.rank.positionRank] <<
+                            (name ? scored[name] : 0.0 as BigDecimal)
                 }
             }
         }
         realised
+    }
+
+    /**
+     * The statistics line belonging to a ranked player, or null where he has none at all.
+     *
+     * Null means he scored nothing and has to be carried as a zero rather than dropped. Ten ranked seasons
+     * inside the depth this league rosters never happened — Andrew Luck's 2017 shoulder, Le'Veon Bell's
+     * 2018 holdout, Gus Edwards' 2021 knee, Joe Mixon's 2025 foot — and they are exactly the seasons that
+     * busted hardest. Leaving them out biases every curve upward and cuts off the left tail that a bench is
+     * priced against.
+     *
+     * Which is why the name matching has to be careful before it gives up: a name that failed to match looks
+     * identical to a season that never happened, and quietly becomes a zero that never was.
+     */
+    private static String claim(Set<String> unclaimed, String name) {
+        if (unclaimed.remove(name)) {
+            return name
+        }
+        for (int length : MATCH_LENGTHS) {
+            List<String> matches = unclaimed
+                    .findAll { LoadUtils.isNameMatch(it.toUpperCase(), name.toUpperCase(), length) }.toList()
+            if (matches.size() == 1) {
+                unclaimed.remove(matches.first())
+                return matches.first()
+            }
+            if (matches.size() > 1) {
+                return null
+            }
+        }
+        null
+    }
+
+    /**
+     * Which week each rank is off, over the whole ranked pool rather than only the players up for auction.
+     *
+     * Replacement level is the best player a team would not otherwise start, so it needs the byes of the
+     * players doing the replacing as much as of the players being priced. Taken from the same consensus
+     * ranking the order comes from, since a bye is a fact of the schedule and not an opinion about anybody.
+     */
+    private static ByeWeeks byeWeeks(String year, int lastWeek) {
+        Map<String, Map<Integer, Integer>> byes = [:].withDefault { [:] }
+        ranked(year).each { FpRankedPlayer player ->
+            if (POSITIONS.contains(player.player.position) && player.bye?.isInteger()) {
+                byes[player.player.position][player.rank.positionRank] = player.bye as int
+            }
+        }
+        new ByeWeeks(byes, lastWeek)
+    }
+
+    private static Collection<FpRankedPlayer> ranked(String year) {
+        new FantasyProsLoader().loadRankedPlayers(LoadUtils.fpRedraftRankingsHalfPprResourcePath(year)).values()
     }
 
     /** Cap space not already committed to contracts still running. */

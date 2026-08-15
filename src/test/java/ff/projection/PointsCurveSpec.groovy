@@ -5,76 +5,96 @@ import spock.lang.Specification
 import java.math.RoundingMode
 
 /**
- * The curve keeps the projection's shape and the consensus ranking's order, then corrects both for what a
- * rank has historically been worth. See docs/PROJECTION.md.
+ * The curve takes its order from the consensus ranking and its level from what those ranks have historically
+ * been worth. Nothing about a particular player enters it. See docs/PROJECTION.md.
  */
 class PointsCurveSpec extends Specification {
 
-    /** Three players at one position, projected 100, 60 and 20 a season over two weeks. */
-    private static Map<Integer, Map<String, BigDecimal>> projections() {
-        [1: [a: 50.0, b: 30.0, c: 10.0],
-         2: [a: 50.0, b: 30.0, c: 10.0]]
+    /** Nine seasons of one position, rank k scoring exactly 300 - 5k every time. */
+    private static Map<Integer, List<BigDecimal>> steady() {
+        (1..30).collectEntries { int rank -> [(rank): (1..9).collect { (300 - rank * 5) as BigDecimal }] }
     }
 
-    private static Map<String, String> positions() { [a: 'WR', b: 'WR', c: 'WR'] }
-
-    def "orders slots by projected total, so rank one is the best projection"() {
+    def "levels a rank at what the ranks around it have actually scored"() {
         given:
-        PointsCurve curve = PointsCurve.of(projections(), positions(), [:])
+        PointsCurve curve = PointsCurve.of([WR: steady()])
 
-        expect:
-        curve.depth('WR') == 3
-        curve.weeklyPoints('WR', 1).values().sum() == 100.0
-        curve.weeklyPoints('WR', 2).values().sum() == 60.0
-        curve.weeklyPoints('WR', 3).values().sum() == 20.0
+        expect: 'the middle of the range, where a rank has neighbours either side, comes back exactly'
+        curve.seasonPoints('WR', 15) == 225.0
+        curve.depth('WR') == 30
     }
 
-    def "leaves projections alone when there is too little realised scoring to fit"() {
-        given: 'only three ranks of history, below the minimum the fit requires'
-        Map realised = [WR: [1: [10.0], 2: [10.0], 3: [10.0]]]
+    def "smooths towards the ranks it has, so the ends pull inward"() {
+        given:
+        PointsCurve curve = PointsCurve.of([WR: steady()])
 
-        expect:
-        PointsCurve.of(projections(), positions(), realised).weeklyPoints('WR', 1).values().sum() == 100.0
+        expect: 'rank one has only lower ranks to average against, so it lands below its own 295'
+        curve.seasonPoints('WR', 1) < 295.0
+        curve.seasonPoints('WR', 1) > 280.0
     }
 
-    def "scales a position down when a rank has historically scored below its projection"() {
-        given: 'thirty ranks that each realised exactly half of what was projected'
-        Map<Integer, Map<String, BigDecimal>> projected = [1: (1..30).collectEntries { [("p$it".toString()): (300 - it * 5) as BigDecimal] }]
-        Map<String, String> pos = (1..30).collectEntries { [("p$it".toString()): 'WR'] }
-        Map realised = [WR: (1..30).collectEntries { [(it): [((300 - it * 5) / 2) as BigDecimal]] }]
+    def "reports nothing where too few seasons have held a rank to say anything"() {
+        given: 'one season, so five smoothed ranks yield five observations against a minimum of six'
+        Map realised = [WR: (1..3).collectEntries { [(it): [100.0 as BigDecimal]] }]
+
+        expect:
+        PointsCurve.of(realised).seasonPoints('WR', 1) == 0.0
+        PointsCurve.of(realised).positions() == [] as Set
+    }
+
+    def "counts a ranked season that never happened as a zero, which is what pulls a curve down"() {
+        given: 'the same nine seasons, but two of every rank lost entirely'
+        Map<Integer, List<BigDecimal>> withBusts = steady().collectEntries { int rank, List<BigDecimal> scored ->
+            [(rank): scored.take(7) + [0.0 as BigDecimal, 0.0 as BigDecimal]]
+        }
+
+        expect: 'seven ninths of the level, exactly, rather than the untouched level a dropped zero gives'
+        PointsCurve.of([WR: withBusts]).seasonPoints('WR', 15)
+                .setScale(1, RoundingMode.HALF_UP) == 175.0
+    }
+
+    def "spreads a season evenly over the weeks that are played, and none over the bye"() {
+        given:
+        PointsCurve curve = PointsCurve.of([WR: steady()])
+        Map<Integer, BigDecimal> weekly = curve.weeklyPoints('WR', 15, 7, 14)
+
+        expect: 'the season is intact to the rounding of one division, and none of it falls on the bye'
+        weekly[7] == 0.0
+        ((weekly.values().sum() as BigDecimal) - 225.0).abs() < 0.001
+        weekly[1] == weekly[14]
+        weekly.size() == 14
+    }
+
+    def "spreads over the whole season when a rank has no bye recorded"() {
+        given:
+        Map<Integer, BigDecimal> weekly = PointsCurve.of([WR: steady()]).weeklyPoints('WR', 15, null, 14)
+
+        expect:
+        weekly.size() == 14
+        weekly.values().every { it > 0 }
+        ((weekly.values().sum() as BigDecimal) - 225.0).abs() < 0.001
+    }
+
+    def "outcome multipliers average one, so carrying the spread moves no expected points"() {
+        given: 'ranks that realise anywhere from nothing to half again as much as expected'
+        Map<Integer, List<BigDecimal>> uneven = (1..30).collectEntries { int rank ->
+            BigDecimal expected = (300 - rank * 5) as BigDecimal
+            [(rank): [expected, expected * 0.5, expected * 1.5, 0.0 as BigDecimal] * 2]
+        }
 
         when:
-        PointsCurve curve = PointsCurve.of(projected, pos, realised)
+        List<Double> multipliers = PointsCurve.of([WR: uneven]).outcomeMultipliers('WR')
 
-        then: 'the exponent is one, because halving every rank does not change the shape'
-        // Not exactly one: the ranks at either end have neighbours on one side only, which tilts the
-        // smoothed fit very slightly.
-        Math.abs(curve.fits.WR[1] - 1.0d) < 0.05d
+        then:
+        multipliers.size() >= 20
+        Math.abs(multipliers.sum() / multipliers.size() - 1.0d) < 0.001d
 
-        and: 'a rank in the middle comes back halved, its neighbours averaging out either side'
-        curve.weeklyPoints('WR', 15).values().sum().setScale(0, RoundingMode.HALF_UP) == 113
-
-        and: 'the top rank comes back a shade under half, having only lower ranks to smooth against'
-        curve.weeklyPoints('WR', 1).values().sum() < 148.0
-        curve.weeklyPoints('WR', 1).values().sum() > 138.0
+        and: 'the lost seasons are in there as zeros, which is the left tail a bench is priced against'
+        multipliers.count { it == 0.0d } == multipliers.size() / 4
     }
 
-    def "flattens a position whose projected curve is steeper than what it realises"() {
-        given: 'realised scoring compressed towards the middle, so the top falls further than the bottom'
-        Map<Integer, Map<String, BigDecimal>> projected = [1: (1..30).collectEntries { [("p$it".toString()): (300 - it * 5) as BigDecimal] }]
-        Map<String, String> pos = (1..30).collectEntries { [("p$it".toString()): 'RB'] }
-        Map realised = [RB: (1..30).collectEntries { [(it): [Math.sqrt((300 - it * 5) * 150) as BigDecimal]] }]
-
-        when:
-        PointsCurve curve = PointsCurve.of(projected, pos, realised)
-
-        then: 'the fitted exponent is below one, which is what flattening means'
-        curve.fits.RB[1] < 0.9d
-        curve.weeklyPoints('RB', 1).values().sum() < 295.0
-    }
-
-    def "reports nothing for a rank deeper than the projections go"() {
+    def "reports nothing for a rank deeper than the record goes"() {
         expect:
-        PointsCurve.of(projections(), positions(), [:]).weeklyPoints('WR', 9) == [:]
+        PointsCurve.of([WR: steady()]).weeklyPoints('WR', 90, null, 14) == [:]
     }
 }

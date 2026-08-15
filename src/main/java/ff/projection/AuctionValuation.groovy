@@ -110,20 +110,21 @@ class AuctionValuation {
      * @param available      players up for auction: id to [name, position, rank, franchiseId]
      * @param franchiseSalary  the franchise tag price at each position
      * @param freeCap        cap space the league has left after contracts already running
+     * @param byes           when each rank is off, which is what makes replacement move week to week
      */
     static List<PlayerValuation> value(PointsCurve curve, StarterRequirements requirements,
                                        Map<String, List> available, Map<String, Integer> franchiseSalary,
-                                       BigDecimal freeCap, int slotsToFill) {
+                                       BigDecimal freeCap, int slotsToFill, ByeWeeks byes) {
         Map<String, Integer> starters = requirements.startersByPosition(
                 curve.positions().collectEntries { String position ->
-                    [(position): (1..curve.depth(position)).collect { seasonPoints(curve, position, it) }]
+                    [(position): (1..curve.depth(position)).collect { curve.seasonPoints(position, it) }]
                 })
-        Map<String, Map<Integer, BigDecimal>> replacement = replacementByPosition(curve, starters)
+        Map<String, Map<Integer, BigDecimal>> replacement = replacementByPosition(curve, starters, byes)
 
         Set<String> tagged = []
         List<PlayerValuation> valuations = []
         for (int i = 0; i < MAX_TAG_ITERATIONS; i++) {
-            valuations = price(curve, replacement, available, franchiseSalary, freeCap, slotsToFill, tagged)
+            valuations = price(curve, replacement, available, franchiseSalary, freeCap, slotsToFill, tagged, byes)
             Set<String> next = predictTags(valuations)
             if (next == tagged) {
                 break
@@ -147,7 +148,8 @@ class AuctionValuation {
 
     private static List<PlayerValuation> price(PointsCurve curve, Map<String, Map<Integer, BigDecimal>> replacement,
                                                Map<String, List> available, Map<String, Integer> franchiseSalary,
-                                               BigDecimal freeCap, int slotsToFill, Set<String> tagged) {
+                                               BigDecimal freeCap, int slotsToFill, Set<String> tagged,
+                                               ByeWeeks byes) {
         // Tagged players never reach the bidding, and their price leaves the pot with them.
         BigDecimal spentOnTags = available.findAll { id, p -> tagged.contains(id) }
                 .collect { id, p -> franchiseSalary[p[1] as String] ?: 0 }
@@ -158,7 +160,7 @@ class AuctionValuation {
         // whether tagging them was worth it, and it is the only thing that can: their actual cost is the
         // tag price, which compared against itself would make every tag look pointless and none stable.
         Map<String, BigDecimal> vor = available.collectEntries { String id, List p ->
-            [(id): expectedValueOverReplacement(curve, replacement, p[1] as String, p[2] as int)]
+            [(id): expectedValueOverReplacement(curve, replacement, p[1] as String, p[2] as int, byes)]
         }
         Map<String, BigDecimal> priceShares = steepen(calibrate(vor, available), available)
 
@@ -198,7 +200,7 @@ class AuctionValuation {
                     playerName: p[0] as String,
                     position: position,
                     positionRank: rank,
-                    points: seasonPoints(curve, position, rank),
+                    points: curve.seasonPoints(position, rank),
                     valueOverReplacement: vor[id] ?: 0.0,
                     value: worth,
                     marketSalary: market,
@@ -285,8 +287,8 @@ class AuctionValuation {
      */
     static BigDecimal expectedValueOverReplacement(PointsCurve curve,
                                                    Map<String, Map<Integer, BigDecimal>> replacement,
-                                                   String position, int rank) {
-        Map<Integer, BigDecimal> weekly = curve.weeklyPoints(position, rank)
+                                                   String position, int rank, ByeWeeks byes) {
+        Map<Integer, BigDecimal> weekly = curve.weeklyPoints(position, rank, byes.of(position, rank), byes.lastWeek)
         Map<Integer, BigDecimal> against = replacement[position] ?: [:]
         List<Double> outcomes = curve.outcomeMultipliers(position)
         if (!weekly) {
@@ -311,11 +313,12 @@ class AuctionValuation {
 
     /** For each week, the points of the best player at a position who would not be started that week. */
     private static Map<String, Map<Integer, BigDecimal>> replacementByPosition(PointsCurve curve,
-                                                                               Map<String, Integer> starters) {
+                                                                               Map<String, Integer> starters,
+                                                                               ByeWeeks byes) {
         curve.positions().collectEntries { String position ->
             Map<Integer, List<BigDecimal>> weekly = [:].withDefault { [] }
             (1..curve.depth(position)).each { int rank ->
-                curve.weeklyPoints(position, rank).each { int week, BigDecimal points ->
+                curve.weeklyPoints(position, rank, byes.of(position, rank), byes.lastWeek).each { int week, BigDecimal points ->
                     if (points > 0) {
                         weekly[week] << points
                     }
@@ -327,9 +330,5 @@ class AuctionValuation {
                 [(week): sorted.size() > started ? sorted[started] : 0.0 as BigDecimal]
             }]
         }
-    }
-
-    private static BigDecimal seasonPoints(PointsCurve curve, String position, int rank) {
-        (curve.weeklyPoints(position, rank).values().sum() ?: 0.0) as BigDecimal
     }
 }

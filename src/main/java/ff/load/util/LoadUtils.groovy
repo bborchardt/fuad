@@ -19,8 +19,6 @@ class LoadUtils {
     static String mflTransactionsResourcePath(String year) { "/ff/mfl/data/$year/transactions.json" }
     /** That season's scoring rules, which changed in 2021, 2023 and 2026. See docs/LEAGUE_RULES.md. */
     static String mflRulesResourcePath(String year) { "/ff/mfl/data/$year/rules.json" }
-    /** Weekly projections under league scoring, collected before the season and never after it. */
-    static String mflProjectedScoresResourcePath(String year) { "/ff/mfl/data/$year/projected_scores.json" }
     /** Weekly scoring a finished season actually produced, under that season's rules. */
     static String mflPlayerScoresResourcePath(String year) { "/ff/mfl/data/$year/player_scores.json" }
     /** Raw weekly statistics, so any season can be restated under any rules. See docs/PROJECTION.md. */
@@ -31,12 +29,17 @@ class LoadUtils {
 
     /**
      * Players who show up under a nickname sharing no prefix with their given name, which no amount of
-     * fuzzy matching pairs up. Applied to both sources, since it is not only fantasypros that uses the
+     * fuzzy matching pairs up. Applied to every source, since it is not only fantasypros that uses the
      * nickname: MFL called Marquise Brown Hollywood in 2024 and Marquise in every other year.
+     *
+     * nflverse is the awkward one, because it writes a player's <i>current</i> name into every season he
+     * ever played. Robby Anderson is Robbie Chosen throughout, including in seasons finished years before he
+     * changed his name, so three of his seasons come back as ranked players who never took the field.
      */
     private static final Map<String, String> NAME_ALIASES = [
             'Hollywood Brown': 'Marquise Brown',
-            'Dee Eskridge'   : "D'Wayne Eskridge"
+            'Dee Eskridge'   : "D'Wayne Eskridge",
+            'Robbie Chosen'  : 'Robby Anderson'
     ]
 
     static String aliasedName(String name) { NAME_ALIASES[name] ?: name }

@@ -24,38 +24,60 @@ None of that could price 2026's tight end premium either, since no season with t
 
 ## The chain
 
-### 1. Order from consensus, curve from projections
+### 1. Order from consensus, level from history
 
-`PointsCurve` takes the **order** from the FantasyPros consensus and the **shape** from the league site's
-own projections. The player consensus ranks WR1 is valued at whatever the best projected wide receiver is
-worth, whether or not the projection agrees they are the same player.
+`PointsCurve` takes the **order** from the FantasyPros consensus and the **level** from what those ranks
+have historically been worth. The player consensus ranks WR1 is valued at what preseason WR1s have actually
+scored, restated under the rules being priced.
 
-The split is deliberate. A ranking is a judgement about who is better, which is what expert consensus is
-for and all it gives you. A projection carries the gaps between one rank and the next, which a ranking
-cannot express, and it carries them under this league's scoring — so the 2026 tight end premium and the
-one-point-per-30-yards passing rule are already in the numbers. The projection never gets to decide who is
-good.
+The split is deliberate, and one half of it is a judgement while the other is a fact. A ranking is a
+judgement about who is better, which is what expert consensus is for and all it gives you. What that
+judgement has been worth is a question only finished seasons can answer. **No projection of any particular
+player enters anywhere.**
 
-### 2. Corrected for what a rank actually delivers
+That is a change from the model this replaces, which took its shape from the league site's projections. It
+had to go, because it made the level of every rank somebody's opinion of this year's specific players: MFL
+projected Patrick Mahomes at 318 points while consensus ranked him QB14, and the whole rank went with him,
+which showed up as a free lunch in a roster analysis. The rank is now levelled at 194 points, which is what
+QB14s have actually done.
 
-Projections assume a full healthy season. Ranks do not survive one. Comparing three finished seasons of
-actual scoring, indexed by the consensus rank each player held **before** that season, against the
-projection curve:
+The one thing about a particular player the curve is willing to know is his bye week. That is a fact of the
+schedule rather than an opinion about him, and it is carried for the whole ranked pool, because replacement
+level in a week six teams are off depends on who else is playing.
 
-| rank 1 vs rank 24 | QB | RB | WR | TE |
+### 2. Nine seasons, pooled flat, absences included
+
+The record runs 2017-2025, from raw nflverse statistics rather than anyone's fantasy points, because the
+league has scored four different ways since 2017 and a season scored under its own rules says nothing about
+what a rank is worth today. `ScoringRules` restates every season under the rules being priced.
+
+Pooled flat rather than weighted towards recent seasons. Restating 2017-19 and 2022-24 under one rule set
+brings the eras to within a few per cent at every position — QB 1.07, RB 1.00, WR 0.99, TE 1.00 — so there
+is no era effect left to correct for, and the quarterback figure is noise. Nine seasons gives a rank about
+**45 observations against 15** from three, which is what the smoothing has to work with: two ranks either
+side are averaged in, and a rank with fewer than six observations behind it is not levelled at all.
+
+**Ranked seasons that never happened are in the sample as zeros.** 46 of them across the 2,187 observations
+that carry money, and 10 inside the depth the league actually rosters — Andrew Luck's 2017 shoulder,
+Le'Veon Bell's 2018 holdout, Gus Edwards' 2021 knee, Joe Mixon's 2025 foot. They are exactly the seasons
+that busted hardest, so dropping them biases every curve upward and cuts off the left tail a bench is
+priced against.
+
+Which is why the name matching between the rankings and the statistics has to be careful before it gives
+up: **an unmatched name and a season lost to injury are indistinguishable, and both score zero.** Names are
+matched exactly first, then on progressively shorter prefixes, with each statistics line claimed at most
+once. See [DATA.md](DATA.md#player-names).
+
+What that produces at the top of each position, in points over the fourteen week regular season:
+
+| | QB | RB | WR | TE |
 | --- | --- | --- | --- | --- |
-| Realised | 1.74x | 1.26x | 1.30x | 2.10x |
-| Projected | 1.46x | 1.70x | 1.62x | 1.93x |
+| Rank 1 | 239 | 170 | 176 | 166 |
+| Rank 6 | 217 | 187 | 161 | 112 |
+| Rank 24 | 157 | 110 | 121 | 76 |
 
-Projections run 20-40% above realised scoring, and are too steep at running back and wide receiver while
-being too flat at quarterback and tight end. The correction is fitted per position on log scales,
-`actual = e^a · projected^b`, which takes out the optimism and the steepness together. Two numbers per
-position is about all three seasons will carry.
-
-It is smoothed over two ranks either side before fitting, and only ranks projected above a quarter of the
-position's best are fitted at all. Without both, the fit is dragged flat by deep noisy ranks and puts the
-best wide receiver at 113 points against a 237-point projection. Per-rank means are hopeless on their own:
-the fifth ranked quarterback averages 108 points across three seasons and the eighth averages 237.
+RB1 below RB3 and RB6 is not a bug. The consensus best running back busts harder than the ones behind him,
+often enough over nine seasons to show up in the average.
 
 **Indexing by rank, not by player, is what keeps this honest.** See [Provenance](#provenance).
 
@@ -67,11 +89,13 @@ the minimums and four are flex. Allocating the flex greedily across the league g
 
 | | QB | RB | WR | TE | PK |
 | --- | --- | --- | --- | --- | --- |
-| Started league-wide | 20 | 30 | 30 | 10 | 10 |
+| Started league-wide | 20 | 26 | 31 | 13 | 10 |
 
-Tight end draws no flex at all — the third best tight end is worth less than the thirty-first best running
-back. Superflex, meanwhile, means 20 of about 50 usable quarterbacks start, which pushes quarterback
-replacement very high and compresses what the best ones are worth over it.
+Tight end now draws three flex spots, where against the projection curve it drew none. The 2026 premium
+gives the position a point a reception and history says the best tight ends have been worth 166 points, a
+shade under the best receivers, so the third best tight end on a roster now beats the deep running backs he
+used to lose to. Superflex, meanwhile, means 20 of about 50 usable quarterbacks start, which pushes
+quarterback replacement very high and compresses what the best ones are worth over it.
 
 Replacement is then taken **per week**, as the best player at that position who would not be started *that
 week*. A team fields a lineup every week, so on a week when six teams are on bye its alternative is worse
@@ -80,29 +104,40 @@ league's total value onto quarterbacks and running backs.
 
 ### 3b. Outcome spread, which is what a bench is worth
 
-Value over replacement at a player's projection is `max(0, E[X] - replacement)`. What a roster spot is
+Value over replacement at a player's expected points is `max(0, E[X] - replacement)`. What a roster spot is
 actually worth is `E[max(0, X - replacement)]`, because a player only has to be started in the weeks he is
 good. The second is never smaller, and the gap is widest at replacement level — exactly where a bench sits:
 
 | | Rank | `E[max(0,X-r)]` | `max(0,E[X]-r)` | Missed |
 | --- | --- | --- | --- | --- |
-| QB | 10 | 42 | 14 | +28 |
-| WR | 30 | 21 | 0 | +21 |
-| RB | 30 | 28 | 11 | +17 |
-| RB | 48 | 10 | 0 | +10 |
+| QB | 10 | 55 | 34 | +21 |
+| WR | 38 | 18 | 0 | +18 |
+| WR | 30 | 17 | 0 | +17 |
+| RB | 30 | 16 | 0 | +16 |
+| RB | 48 | 7 | 0 | +7 |
 
-The spread is real: realised points at a given preseason rank vary with a coefficient of variation around
-0.45, and players nominally below replacement still clear it often — WR38 does 43% of the time.
+The spread is real: realised points at a given preseason rank vary with a coefficient of variation of 0.49
+to 0.57 by position, and players nominally below replacement still clear it often — WR38 does 45% of the
+time.
 
 So a season is replayed against **every realised-over-expected ratio the position has produced**, and value
 over replacement averaged across them. Replacement itself stays at its expectation, being the best of
 whoever is left rather than one player's season.
 
 **The distribution is used as observed, not fitted.** It is badly lopsided: almost all the variance is a
-left tail of seasons lost to injury, down to zero at quarterback, while the upside stops around 1.6 to 1.9
-times expectation. Fitting a lognormal to that variance mirrors the left tail into a right one and invents
-multipliers above three, which prices the bench as if every deep player might become a star. That attempt
-put 71 players above a dollar but flattened the whole board and collapsed the tag count to three.
+left tail of seasons lost to injury, reaching zero at every position, while the upside stops around 1.9 to
+2.0 times expectation at the 95th percentile. Fitting a lognormal to that variance mirrors the left tail
+into a right one and invents multipliers above three, which prices the bench as if every deep player might
+become a star. That attempt put 71 players above a dollar but flattened the whole board and collapsed the
+tag count to three.
+
+**Only ranks levelled above a quarter of the position's best contribute to it.** Not because the deep ranks
+are uninteresting but because a ratio taken against a very small number is not a ratio of the same thing.
+The consensus ranks receivers 140 deep, and by the bottom of that list a rank is levelled at three or four
+points a season, so one player who turns out to be a starter comes back as sixteen times expectation. Those
+are not seasons that beat their expectation, they are seasons the consensus was not really making a claim
+about. Letting them in invents exactly the multipliers above three the distribution is kept empirical to
+avoid, and it showed: the top of the board fell to $64 and every price flattened towards it.
 
 ### 4. Dollars from a known pot
 
@@ -155,30 +190,34 @@ player costs the tag price by definition, and comparing that against itself make
 A tagged player's `MARKET` is the price he would have fetched **had his own team not tagged him, with every
 other team's tag still standing**. That puts him back in the bidding and puts the money his team would have
 spent tagging him back in the pot. Getting this wrong is expensive: pricing him at a rate set by a pool he
-had been removed from, against a pot his tag had already left, inflated Ja'Marr Chase from $163 to $178,
-because once the tagged are gone the top of the board is a large share of what remains.
+had been removed from, against a pot his tag had already left, inflated Ja'Marr Chase by a quarter, because
+once the tagged are gone the top of the board is a large share of what remains.
 
 ## What it produces for 2026
 
-105 players priced, $1,873 total. The highest `MARKET` price is Ja'Marr Chase at $97,
-which no one pays because he is tagged at $61.
+105 players priced, $1,878 total. The highest `PRICE` is Ja'Marr Chase at $79, which no one pays because he
+is tagged at $61.
 
 | | Model 2026 | Actual 2025 |
 | --- | --- | --- |
-| Top price | $97 | $100 |
-| Players above $1 | 68 | 70 |
-| Teams tagging | 7 | 7 |
+| Top price | $79 | $100 |
+| Players above $1 | 70 | 70 |
+| Teams tagging | 9 | 7 |
 
-Position shares land between pure value over replacement and the market, which is what `MARKET_WEIGHT` of
-0.5 asks for:
+Position shares are the ones the league actually spends, since `MARKET_WEIGHT` is 1.0:
 
 | | QB | RB | WR | TE |
 | --- | --- | --- | --- | --- |
-| Model | 24.5% | 37.8% | 30.8% | 6.9% |
-| Market | 21.2% | 30.6% | 38.5% | 8.9% |
+| Model | 23.3% | 33.0% | 34.0% | 9.7% |
+| Calibration | 23.3% | 33.0% | 34.4% | 9.3% |
 
-Ten tags are predicted, one per team, led by Ja'Marr Chase at a $61 tag against a market price well above
-it.
+Nine tags are predicted, one per team, led by Ja'Marr Chase at a $61 tag against a $79 market price.
+
+Against the projection-based model this replaces, the board came down and spread out. The top price fell
+from $97 to $79 and the whole board flattened towards the middle, which is the direction the change
+predicts: dropping absences had biased every level upward, and counting them widens the outcome spread,
+which is worth most to the players nearest replacement and nothing to the ones far above it. The tag count
+fell from ten to nine, against five to nine observed.
 
 ## Team context
 
@@ -212,7 +251,7 @@ reader who knows the league is not.
   longer deals go to players with better dynasty-than-redraft ranks, but cost *less* per year, since the
   expensive win-now players take one-year deals. Redraft rank predicts salary better than dynasty rank
   (-0.627 against -0.558). The dynasty gap is not yet used.
-- **Ten of ten teams are predicted to tag**, at the high end of the observed 5-to-9. 2026's tag prices are
+- **Nine of ten teams are predicted to tag**, at the high end of the observed 5-to-9. 2026's tag prices are
   low against the market because they are computed from 2025 salaries.
 - **The calibration is fitted on three seasons.** Positional shares swing hard year to year, and dropping
   2022 as a transition year buys accuracy at the cost of a thinner sample.
@@ -222,6 +261,16 @@ reader who knows the league is not.
   number rather than a forecast. This is the piece the auction simulation would have supplied.
 - **The market price of a tagged player is never tested.** It is a counterfactual for a player who will not
   reach the auction, and no observed price can confirm or refute it — see below.
+- **Kickers have no curve at all.** The nflverse statistics carry no kicking, so no rank at the position can
+  be levelled and every kicker prices at the minimum bid. The league has spent under 1% of its auction on
+  them in every season on record, and in 2026 none reaches the board at all, so this costs nothing yet.
+- **The curve is only as good as the ranking it is indexed by.** A season is attributed to whatever rank the
+  consensus gave that player, so a year the consensus was collectively wrong about is levelled into the
+  rank, not identified as an error. That is the right total for pricing and no help at all in spotting one.
+- **Two ranked seasons a year or so go missing to source quirks rather than to injury.** nflverse takes a
+  player's position from the roster, so Travis Hunter is a `CB` in 2025 and his receiving never enters. A
+  player the extract does not carry is indistinguishable from one who never played, and scores zero either
+  way. See [DATA.md](DATA.md).
 
 ## Value and price are separate numbers
 
@@ -243,8 +292,8 @@ superflex starts twenty quarterbacks and so sets a high replacement. This belong
 value: it describes behaviour, not worth.
 
 The split immediately shows what the blend was hiding. This league **overpays for receivers and underpays
-for running backs**: Ja'Marr Chase is worth $80 and priced at $114, while Christian McCaffrey is worth $73
-and priced at $64.
+for running backs**: Ja'Marr Chase is worth $58 and priced at $79, while Christian McCaffrey is worth $62
+and priced at $69.
 
 ## Who is in the pool, and who is not
 
@@ -292,36 +341,37 @@ answer is always no, and `RFRCOST` shows what the right to match costs an outsid
 The caveat: acquisition price assumes the incumbent values him the same as the league does, which is least
 true exactly when it matters — a team with no starting quarterback will overpay to keep one.
 
-## Why the top of the board exceeds anything ever paid
+## Why the top of the board is not testable against what has been paid
 
-The largest auction price in the record is $100. The model puts Chase at $163. Both can be true, because
-**the observed prices are censored by the tag**: the best players are tagged at the positional average of
-last year's top five and never reach open bidding, so the auction has essentially never had to price a
-top-five player. The one time it nearly did, Lamar Jackson in 2025, the winning team paid $100 *and* gave up
-a first round pick, so even that understates what he cost.
+The largest auction price in the record is $100 and the model's top price is $79, which looks like
+agreement and is not evidence of any. **The observed prices are censored by the tag**: the best players are
+tagged at the positional average of last year's top five and never reach open bidding, so the auction has
+essentially never had to price a top-five player. The one time it nearly did, Lamar Jackson in 2025, the
+winning team paid $100 *and* gave up a first round pick, so even that understates what he cost.
 
-Some of the gap is genuinely the model: prices at the very top are willingness to pay rather than clearing
-prices, and the board is too concentrated overall, putting 94% of the pot in its top 40 against 87% in
-2025. But the rest is a real edge the rules create, and it is why the model expects all ten teams to tag.
+Against the projection curve the top of the board ran to $163 and put 94% of the pot in its top 40. On
+history it runs to $79 and puts 86%, against 87% in 2025, so the concentration is now in line with the
+record. The top prices remain willingness to pay rather than clearing prices — an auction settles at what
+the *second* bidder will go to — and the tag keeps the question unanswerable either way.
 
 ## Provenance
 
-**Projections are only a forecast if collected before the season.** The league site keeps one projection per
-week and rewrites it as the season goes, so a week 8 projection pulled in December was made knowing who got
-hurt in week 3. Summed across 2025, its projections correlate **0.95** with what actually happened —
-impossible for a forecast. Week 1 projections, which were genuinely made in advance, correlate 0.17 to 0.65.
+**A preseason rank cannot be revised after the fact.** That is the whole reason the curve is indexed by
+rank rather than by player, and it is what lets nine finished seasons be used as evidence about a season
+nobody has played.
 
-Two consequences, both load-bearing:
+A projection has no such protection. The league site keeps one projection per week and rewrites it as the
+season goes, so a week 8 projection pulled in December was made knowing who got hurt in week 3: summed
+across 2025, its projections correlate **0.95** with what actually happened, which is impossible for a
+forecast. Week 1 projections, genuinely made in advance, correlate 0.17 to 0.65. Comparing a finished
+season's projections against its own results therefore measures hindsight and nothing else.
 
-- `projected_scores.json` must be captured **before the season** and never refetched afterwards. This puts
-  it in the same category as `rosters.json` and `league.json`: refetchable in the sense that the request
-  succeeds, but wrong. `MflWeeklyScoresRefresh` refuses to overwrite projections once week 1 and week 14
-  stop resembling each other, which is the signature of in-season revision.
-- The realisation correction can never compare a finished season's projections against its results, because
-  that measures hindsight. It compares **realised scoring against preseason consensus rank**, which cannot
-  be revised after the fact.
+The model used to depend on those projections for the level of every rank, which made `projected_scores.json`
+a file that had to be captured before a season and never refetched — refetchable in the sense that the
+request succeeds, but wrong. Nothing reads projections now, so the file and the guard that protected it are
+both gone. What replaces them is `player_stats.tsv`, raw statistics from nflverse that can be refetched at
+any time and restated under any rules, and `redraft_rankings_half_ppr.csv`, the preseason consensus each
+season's ranks are read from.
 
-`player_scores.json` has no such problem and is refetchable at any time.
-
-Both are collected by `./data_refresh.sh <year>` for the coming season and
-`./season_history_refresh.sh <year>` for finished ones.
+Both are collected by `./season_history_refresh.sh <year>` for finished seasons, and
+`./data_refresh.sh <year>` collects the coming season's rankings and rosters.
