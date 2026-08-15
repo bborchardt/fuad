@@ -143,16 +143,14 @@ because once the tagged are gone the top of the board is a large share of what r
 
 ## What it produces for 2026
 
-100 players priced, $1,919 total against a $1,950 pot. The highest `MARKET` price is Ja'Marr Chase at $97,
+105 players priced, $1,873 total. The highest `MARKET` price is Ja'Marr Chase at $97,
 which no one pays because he is tagged at $61.
 
 | | Model 2026 | Actual 2025 |
 | --- | --- | --- |
 | Top price | $97 | $100 |
-| Players above $1 | 65 | 70 |
-| Top 10 share | 30% | 33% |
-| Top 40 share | 83% | 87% |
-| Teams tagging | 5 | 7 |
+| Players above $1 | 68 | 70 |
+| Teams tagging | 7 | 7 |
 
 Position shares land between pure value over replacement and the market, which is what `MARKET_WEIGHT` of
 0.5 asks for:
@@ -167,6 +165,8 @@ it.
 
 ## Known limits
 
+- **Rookie pricing is a flat allowance, not a model.** Early first round picks do go above the minimum, and
+  none of that shape is captured — only the league-wide total and the roster spots.
 - **The spread cannot tell volatility from disagreement.** It is realised variation, so a genuinely erratic
   player and one the consensus simply misjudged look identical. For pricing that is the right total, but it
   means the model has no notion of a safe pick versus a risky one.
@@ -205,6 +205,32 @@ value: it describes behaviour, not worth.
 The split immediately shows what the blend was hiding. This league **overpays for receivers and underpays
 for running backs**: Ja'Marr Chase is worth $80 and priced at $114, while Christian McCaffrey is worth $73
 and priced at $64.
+
+## Who is in the pool, and who is not
+
+Three groups, treated differently.
+
+**Expiring contracts** are restricted free agents: 111 of them in 2026. Their team may match.
+
+**Unrostered veterans** are unrestricted, and go to the highest bid. They are cut off at roughly the depth
+the league actually rosters (QB 30, RB 45, WR 50, TE 25), since deeper players are never signed and would
+only dilute the board. Historically 7 to 22 veterans a year are signed from outside the pre-auction
+rosters. **They are the only players on whom a positive edge is available**, for the reason in the next
+section.
+
+**Rookies are excluded entirely.** They are drafted separately after the auction and cannot be bid on. Two
+simple allowances stand in for them, both checked against the record by `AuctionValuationSpec`:
+
+- **Roster spots**: five rounds times teams. Nearly every pick is kept — 38, 46, 52 and 49 rookies rostered
+  at week 1 across 2022-2025, against 40, 45, 50 and 50 picks.
+- **Budget**: 3.5% of the pot, taken off the top. Rookie prices are set by rule off the previous year's
+  positional prices and come out very low: $42, $52, $69 and $76 for the whole league, which is 3.0% to
+  4.0% of the auction pot.
+
+That leaves the spots the auction has to fill, as `teams x 30 - under contract - 5 x teams`. It predicts
+what the league actually signs closely: 65 against 71 in 2022, 90 against 93 in 2023, 103 against 96 in
+2024, and 92 against 92 in 2025. A dollar is reserved per **spot**, not per player on the board, since the
+pool holds everyone who could be bid on and only the spots get filled.
 
 ## Restricted free agency, and why bargains are unavailable
 

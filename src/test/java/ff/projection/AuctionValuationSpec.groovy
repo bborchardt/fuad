@@ -59,6 +59,50 @@ class AuctionValuationSpec extends Specification {
         SUPERFLEX_SEASONS.every { spendRate(it) > 0.65 && spendRate(it) < 0.90 }
     }
 
+    private static int rookiesRostered(String season) {
+        Map<String, String> status = (LoadUtils.loadJsonResource(
+                LoadUtils.mflPlayersResourcePath(season)).players.player as List)
+                .collectEntries { [(it.id as String): (it.status ?: '') as String] }
+        byPlayer(LoadUtils.mflPostDraftRostersResourcePath(season)).keySet().count { status[it] == 'R' }
+    }
+
+    private static int teams(String season) {
+        (LoadUtils.loadJsonResource(LoadUtils.mflLeagueResourcePath(season))
+                .league.franchises.franchise as List).size()
+    }
+
+    def "five rounds times teams is what the rookie draft actually puts on rosters"() {
+        expect: 'within a couple of picks every season, since rookies are almost always kept'
+        SUPERFLEX_SEASONS.every {
+            Math.abs(rookiesRostered(it) - AuctionValuation.ROOKIE_ROUNDS * teams(it)) <= 3
+        }
+    }
+
+    def "rookies cost about the share of the pot the model reserves for them"() {
+        given:
+        List<BigDecimal> shares = SUPERFLEX_SEASONS.collect { String season ->
+            Map<String, String> status = (LoadUtils.loadJsonResource(
+                    LoadUtils.mflPlayersResourcePath(season)).players.player as List)
+                    .collectEntries { [(it.id as String): (it.status ?: '') as String] }
+            Map<String, List> postDraft = byPlayer(LoadUtils.mflPostDraftRostersResourcePath(season))
+            BigDecimal onRookies = postDraft.findAll { id, held -> status[id] == 'R' }
+                    .collect { id, held -> held[1] as BigDecimal }.sum() ?: 0.0
+            Map league = LoadUtils.loadJsonResource(LoadUtils.mflLeagueResourcePath(season)) as Map
+            onRookies / (spendRate(season) * capSpace(season, league))
+        }
+
+        expect:
+        (shares.sum() / shares.size() - AuctionValuation.ROOKIE_BUDGET_SHARE).abs() < 0.01
+    }
+
+    private static BigDecimal capSpace(String season, Map league) {
+        Map<String, List> preDraft = byPlayer(LoadUtils.mflRostersResourcePath(season))
+        int teams = (league.league.franchises.franchise as List).size()
+        BigDecimal committed = preDraft.values().findAll { it[1] != new BigDecimal(WIPED_SALARY) }
+                .collect { it[1] as BigDecimal }.sum() ?: 0.0
+        (league.league.salaryCapAmount as String as BigDecimal) * teams - committed
+    }
+
     def "the market shares are what the superflex seasons actually paid each position"() {
         given:
         Map<String, BigDecimal> paid = [:].withDefault { 0.0 as BigDecimal }

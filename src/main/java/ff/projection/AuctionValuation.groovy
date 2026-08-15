@@ -63,6 +63,24 @@ class AuctionValuation {
     static final BigDecimal TAGGED_AVAILABILITY = 0.13
 
     /**
+     * Share of the pot that goes on rookies, who are drafted separately after the auction.
+     *
+     * Their prices are set by rule off the previous year's positional prices, and they come out very low:
+     * the whole league spent $42, $52, $69 and $76 on them across 2022-2025, which is 3.0% to 4.0% of the
+     * auction pot each year. That money is committed before any bidding and has to come off the top.
+     */
+    static final BigDecimal ROOKIE_BUDGET_SHARE = 0.035
+
+    /**
+     * Roster spots the rookie draft fills, as rounds times teams.
+     *
+     * Five rounds, and the picks are free to drop, but nearly all are kept: 38, 46, 52 and 49 rookies were
+     * rostered at week 1 across 2022-2025 against 40, 45, 50 and 50 picks. Close enough to treat every
+     * pick as a roster spot the auction does not have to fill.
+     */
+    static final int ROOKIE_ROUNDS = 5
+
+    /**
      * Share of free cap the league spends at auction, the mean of the four superflex seasons.
      *
      * Counted over distinct players. The week 1 snapshots repeat a handful of roster rows verbatim, same
@@ -83,7 +101,7 @@ class AuctionValuation {
      */
     static List<PlayerValuation> value(PointsCurve curve, StarterRequirements requirements,
                                        Map<String, List> available, Map<String, Integer> franchiseSalary,
-                                       BigDecimal freeCap) {
+                                       BigDecimal freeCap, int slotsToFill) {
         Map<String, Integer> starters = requirements.startersByPosition(
                 curve.positions().collectEntries { String position ->
                     [(position): (1..curve.depth(position)).collect { seasonPoints(curve, position, it) }]
@@ -93,7 +111,7 @@ class AuctionValuation {
         Set<String> tagged = []
         List<PlayerValuation> valuations = []
         for (int i = 0; i < MAX_TAG_ITERATIONS; i++) {
-            valuations = price(curve, replacement, available, franchiseSalary, freeCap, tagged)
+            valuations = price(curve, replacement, available, franchiseSalary, freeCap, slotsToFill, tagged)
             Set<String> next = predictTags(valuations)
             if (next == tagged) {
                 break
@@ -117,7 +135,7 @@ class AuctionValuation {
 
     private static List<PlayerValuation> price(PointsCurve curve, Map<String, Map<Integer, BigDecimal>> replacement,
                                                Map<String, List> available, Map<String, Integer> franchiseSalary,
-                                               BigDecimal freeCap, Set<String> tagged) {
+                                               BigDecimal freeCap, int slotsToFill, Set<String> tagged) {
         // Tagged players never reach the bidding, and their price leaves the pot with them.
         BigDecimal spentOnTags = available.findAll { id, p -> tagged.contains(id) }
                 .collect { id, p -> franchiseSalary[p[1] as String] ?: 0 }
@@ -133,12 +151,16 @@ class AuctionValuation {
         Map<String, BigDecimal> priceShares = steepen(calibrate(vor, available), available)
 
         // What the auction pays, once the tagged are gone and their tag prices have left the pot with them.
-        BigDecimal pot = freeCap * SPEND_RATE - spentOnTags
-        BigDecimal biddingRate = clearingRate(pot, bidFor.keySet(), priceShares)
+        // Rookies never reach the auction, but their contracts and their roster spots are spoken for, so
+        // both come off before anything is priced.
+        BigDecimal pot = freeCap * SPEND_RATE * (1.0 - ROOKIE_BUDGET_SHARE) - spentOnTags
+        int slots = Math.max(1, slotsToFill - tagged.size())
+        BigDecimal biddingRate = clearingRate(pot, slots, bidFor.keySet(), priceShares)
         BigDecimal biddingShare = (bidFor.keySet().collect { priceShares[it] ?: 0.0 }.sum() ?: 0.0) as BigDecimal
 
         // Value is the same money divided by worth alone, with no regard for how this league behaves.
-        BigDecimal valueRate = clearingRate(freeCap * SPEND_RATE, available.keySet(), vor)
+        BigDecimal valueRate = clearingRate(freeCap * SPEND_RATE * (1.0 - ROOKIE_BUDGET_SHARE),
+                slotsToFill, available.keySet(), vor)
 
         available.collect { String id, List p ->
             String position = p[1] as String
@@ -151,7 +173,7 @@ class AuctionValuation {
             // very best by a quarter: after the tagged are gone the top of the board is a large share of
             // what is left.
             BigDecimal rate = tagged.contains(id) && biddingShare + share > 0 ?
-                    (pot + (franchiseSalary[position] ?: 0) - (bidFor.size() + 1)) / (biddingShare + share) :
+                    (pot + (franchiseSalary[position] ?: 0) - (slots + 1)) / (biddingShare + share) :
                     biddingRate
             int market = Math.max(1, (1 + rate * share) as int)
             int worth = Math.max(1, (1 + valueRate * (vor[id] ?: 0.0)) as int)
@@ -205,10 +227,17 @@ class AuctionValuation {
         }
     }
 
-    /** Dollars per unit of value, once every player in the pool has been reserved their minimum bid. */
-    private static BigDecimal clearingRate(BigDecimal pot, Set<String> pool, Map<String, BigDecimal> shares) {
+    /**
+     * Dollars per unit of value, once each roster spot still to be filled has been reserved its minimum bid.
+     *
+     * Reserved per spot rather than per player in the pool, since the pool holds everyone who could be bid
+     * on and only the spots actually get filled. Charging a dollar for every name on the board would take
+     * hundreds off the pot for players nobody signs.
+     */
+    private static BigDecimal clearingRate(BigDecimal pot, int slots, Set<String> pool,
+                                           Map<String, BigDecimal> shares) {
         BigDecimal totalShare = (pool.collect { shares[it] ?: 0.0 }.sum() ?: 0.0) as BigDecimal
-        totalShare > 0 ? (pot - pool.size()) / totalShare : 0.0
+        totalShare > 0 ? (pot - slots) / totalShare : 0.0
     }
 
     /** Pull each position's slice of value towards the slice the league has historically bought. */
