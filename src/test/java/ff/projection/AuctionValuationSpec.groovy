@@ -9,7 +9,11 @@ import spock.lang.Specification
  */
 class AuctionValuationSpec extends Specification {
 
-    private static final List<String> SUPERFLEX_SEASONS = ['2022', '2023', '2024', '2025']
+    /**
+     * The seasons the model calibrates against: superflex, and after the league had repriced for it. 2022
+     * was the first superflex year and still bid like the old one, so it is excluded. See docs/PROJECTION.md.
+     */
+    private static final List<String> SUPERFLEX_SEASONS = ['2023', '2024', '2025']
 
     private static final String WIPED_SALARY = '0.01'
 

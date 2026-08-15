@@ -29,9 +29,21 @@ import ff.data.PlayerValuation
  */
 class AuctionValuation {
 
-    /** Share of the pot each position has taken historically, 2022-2025, the superflex era. */
+    /**
+     * Share of the pot each position has taken since the league repriced, 2023-2025.
+     *
+     * 2022 is deliberately excluded. Superflex arrived that year and the league had not adjusted to it yet:
+     * wide receivers took 56.2% of the auction against 30.4% to 37.8% in every season since, and
+     * quarterbacks 13.9% against 16.7% to 29.8%. Averaging it in drags wide receiver up by four points of
+     * the pot and holds quarterback down.
+     *
+     * The repricing is real and not a stock of old contracts running off. Money already committed tells the
+     * same story from the other side: quarterback contracts have gone 16% to 30% of committed salary since
+     * 2022 and running back 43% to 20%, while wide receiver has stayed flat around 36-42%. Nothing is
+     * expiring away, the league is simply paying for different positions.
+     */
     static final Map<String, BigDecimal> MARKET_SHARE =
-            [QB: 0.212, RB: 0.306, WR: 0.385, TE: 0.089, PK: 0.009].asImmutable() as Map<String, BigDecimal>
+            [QB: 0.233, RB: 0.330, WR: 0.344, TE: 0.093, PK: 0.009].asImmutable() as Map<String, BigDecimal>
 
     /** 0 leaves value over replacement alone, 1 forces the historical shares exactly. */
     static final BigDecimal MARKET_WEIGHT = 1.0
@@ -39,7 +51,7 @@ class AuctionValuation {
     /**
      * How much steeper this league's prices run than value, within a position.
      *
-     * Fitted as `price ~ value^gamma` across historical signings by consensus rank. Above one the market
+     * Fitted as `price ~ value^gamma` across signings by consensus rank, over the same repriced seasons. Above one the market
      * pays more for the best at a position and less for the rest than their value warrants; below one it
      * spreads money more evenly than value does. Quarterback is much the steepest, which is the league
      * paying a premium for an elite starter that value over replacement will not produce on its own, since
@@ -48,7 +60,7 @@ class AuctionValuation {
      * This belongs to price and never to value: it is a description of behaviour, not of worth.
      */
     static final Map<String, BigDecimal> PRICE_STEEPNESS =
-            [QB: 1.43, RB: 1.21, WR: 1.00, TE: 0.84, PK: 1.00].asImmutable() as Map<String, BigDecimal>
+            [QB: 1.44, RB: 1.13, WR: 1.07, TE: 1.51, PK: 1.00].asImmutable() as Map<String, BigDecimal>
 
     /**
      * How often a tier of expiring contract has actually changed hands, 2022-2025.

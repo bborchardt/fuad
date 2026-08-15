@@ -119,10 +119,27 @@ over replacement, so **prices sum to the money available**.
 
 ### 5. Pulled towards how this league actually bids
 
-Pure value over replacement puts 42% of the pot on running backs where the league has spent 31%, and 26% on
-wide receivers where it has spent 39%. `MARKET_WEIGHT` sets how far to trust the theory against the record;
-it is 0.5, because four seasons of shares are noisy enough — quarterback's share alone has ranged from
-13.8% to 29.6% — that neither deserves the whole vote.
+Value over replacement puts far more of the pot on running backs than this league spends, and far less on
+wide receivers, so prices are scaled to the shares the league actually pays.
+
+**Calibrated on 2023-2025, not on 2022.** Superflex arrived in 2022 and the league had not adjusted to it:
+wide receivers took **56.2%** of that auction against 30.4% to 37.8% in every season since, and
+quarterbacks 13.9% against 16.7% to 29.8%. Averaging that year in drags wide receiver up by four points of
+the pot and holds quarterback down, which showed up as top receivers priced above anything the league has
+ever paid.
+
+| Share of auction spend | QB | RB | WR | TE |
+| --- | --- | --- | --- | --- |
+| 2022 (excluded) | 13.9% | 22.3% | **56.2%** | 7.6% |
+| 2023 | 21.8% | 27.3% | 37.8% | 13.1% |
+| 2024 | 16.7% | 42.5% | 30.4% | 10.4% |
+| 2025 | 29.8% | 29.8% | 34.9% | 5.5% |
+| **Calibration** | **23.3%** | **33.0%** | **34.4%** | **9.3%** |
+
+The repricing is real, and it is not a stock of old contracts running off. Money already committed says the
+same thing from the other side: quarterback contracts have gone from 16% to 30% of committed salary since
+2022 and running back from 43% to 20%, while **wide receiver has stayed flat at 36-42%**. Nothing is
+expiring away; the league is simply buying different positions.
 
 ### 6. Franchise tags, iterated to a fixed point
 
@@ -176,7 +193,8 @@ it.
   (-0.627 against -0.558). The dynasty gap is not yet used.
 - **Ten of ten teams are predicted to tag**, at the high end of the observed 5-to-9. 2026's tag prices are
   low against the market because they are computed from 2025 salaries.
-- **The calibration is fitted on four seasons.** Positional shares swing hard year to year.
+- **The calibration is fitted on three seasons.** Positional shares swing hard year to year, and dropping
+  2022 as a transition year buys accuracy at the cost of a thinner sample.
 - **Top-end prices are ceilings, not clearing prices.** Value over replacement is the most a rational team
   would pay, but an auction clears at what the *second* bidder will go to, and that gap is widest at the
   very top. Nothing here models per-team budgets or bidding, so treat the top of the board as a walk-away
@@ -197,7 +215,8 @@ They answer different questions and blending them answered neither. The board re
   of two noisy estimates and a precise figure would overstate the resolution.
 
 Within-position steepness is fitted per position as `price ~ value^gamma` over historical signings by
-consensus rank: **QB 1.43, RB 1.21, WR 1.00, TE 0.84**. Quarterback is much the steepest, which is the
+consensus rank over the same seasons: **QB 1.44, RB 1.13, WR 1.07, TE 1.51**. Tight end is the fragile one
+— it swings on a handful of signings a year and moved from 0.84 to 1.51 when 2022 came out. Quarterback is much the steepest, which is the
 league paying an elite-starter premium that value over replacement will not produce on its own, since
 superflex starts twenty quarterbacks and so sets a high replacement. This belongs to price and never to
 value: it describes behaviour, not worth.
