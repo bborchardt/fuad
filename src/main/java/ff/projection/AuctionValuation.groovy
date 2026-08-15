@@ -18,11 +18,10 @@ import ff.data.PlayerValuation
  * signed is reserved a dollar, and what is left is shared out in proportion to value over replacement.
  * Prices therefore sum to the money available, which no curve fitted player by player will do.
  *
- * <b>Then it is pulled towards how this league actually bids.</b> Pure value over replacement puts 42 per
- * cent of the pot on running backs where the league has historically spent 31, and 26 per cent on wide
- * receivers where it has spent 39. {@link #MARKET_WEIGHT} decides how far to trust the theory against the
- * record; halfway, by default, because four seasons of shares are noisy enough that neither deserves the
- * whole vote.
+ * <b>Then it is pulled towards how this league actually bids.</b> Pure value over replacement puts far more
+ * of the pot on running backs than this league spends, and far less on wide receivers.
+ * {@link #MARKET_WEIGHT} decides how far to trust the theory against the record; it is 1.0, so the
+ * positional shares in {@link #MARKET_SHARE} are forced exactly.
  *
  * Franchise tags are settled last and change the answer, so the whole thing is iterated. See
  * docs/PROJECTION.md.

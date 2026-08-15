@@ -4,11 +4,12 @@
 # Reports are written to <out>/<year>/<type>.tsv (schedule.csv), defaulting to reports/<year>.
 #
 # Usage:
-#   ./generate_report.sh -t <franchises|franchise_projections|rankings|rookies|schedule|all> [-y <year>] [-o <dir>]
+#   ./generate_report.sh -t <franchises|franchise_projections|rankings|rookies|salaries|teams|schedule|all> [-y <year>] [-o <dir>]
 #
 # Examples:
 #   ./generate_report.sh -t rankings
 #   ./generate_report.sh -t rookies -y 2024
+#   ./generate_report.sh -t salaries -y 2026
 #   ./generate_report.sh -t all
 set -euo pipefail
 

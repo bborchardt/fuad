@@ -74,7 +74,7 @@ What that produces at the top of each position, in points over the fourteen week
 | --- | --- | --- | --- | --- |
 | Rank 1 | 239 | 170 | 176 | 166 |
 | Rank 6 | 217 | 187 | 161 | 112 |
-| Rank 24 | 157 | 110 | 121 | 76 |
+| Rank 24 | 157 | 110 | 124 | 76 |
 
 RB1 below RB3 and RB6 is not a bug. The consensus best running back busts harder than the ones behind him,
 often enough over nine seasons to show up in the average.

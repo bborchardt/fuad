@@ -28,10 +28,8 @@ superflex lineup the league only adopted in 2022, in place of the $250 and singl
 contemporaneous file records. The committed file is the record. See
 [LEAGUE_RULES.md](LEAGUE_RULES.md#provenance).
 
-There used to be a third, `projected_scores.json`, which had to be captured before a season started because
-the site rewrites its projections as the season goes — summed over 2025 they correlate 0.95 with what
-actually happened, which no forecast does. Nothing is priced off projections any more, so it has been
-deleted rather than left to rot. See [PROJECTION.md](PROJECTION.md).
+The site's projections are not collected at all, because it rewrites them as the season goes and nothing is
+priced off them. See [PROJECTION.md](PROJECTION.md#provenance).
 
 Everything else is a genuine record of a finished season and can be refetched at any time. `rules.json` in
 particular is period correct, verified against the league's own recorded scores.
