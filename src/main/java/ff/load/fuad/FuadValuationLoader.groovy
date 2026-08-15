@@ -26,6 +26,13 @@ class FuadValuationLoader {
 
     private static final String WIPED_SALARY = '0.01'
 
+    /** A full roster, from the league bylaws. See docs/LEAGUE_RULES.md. */
+    private static final int MAX_ROSTER = 30
+
+    /** How deep at each position the league actually rosters, which bounds who is worth pricing. */
+    private static final Map<String, Integer> ROSTERED_DEPTH =
+            [QB: 30, RB: 45, WR: 50, TE: 25, PK: 12].asImmutable()
+
     List<PlayerValuation> valuations(String year, FuadData fuadData) {
         Map players = LoadUtils.loadJsonResource(LoadUtils.mflPlayersResourcePath(year)) as Map
         Map<String, String> positionById = (players.players.player as List<Map>)
@@ -46,10 +53,37 @@ class FuadValuationLoader {
                 LoadUtils.loadJsonResource(LoadUtils.mflPlayersResourcePath(priorYear)) as Map)
 
         AuctionValuation.value(curve, requirements, available(year, fuadData), franchiseSalary,
-                freeCap(year, league))
+                freeCap(year, league), slotsToFill(year, teams))
     }
 
-    /** Players whose contracts have expired, with the consensus rank they carry into the auction. */
+    /**
+     * Roster spots the auction has to fill: what a full roster holds, less contracts still running and less
+     * the spots the rookie draft takes.
+     *
+     * Checks out against what the league has actually signed. 2022 predicts 65 against 71 signings, 2023
+     * 90 against 93, 2024 103 against 96, and 2025 92 against 92.
+     */
+    private static int slotsToFill(String year, int teams) {
+        Map rosters = LoadUtils.loadJsonResource(LoadUtils.mflRostersResourcePath(year)) as Map
+        int underContract = (rosters.rosters.franchise as List<Map>).sum { Map franchise ->
+            def held = franchise.player ?: []
+            ((held instanceof List ? held : [held]) as List<Map>).count { it.salary != WIPED_SALARY }
+        } as int
+        Math.max(1, teams * MAX_ROSTER - underContract - AuctionValuation.ROOKIE_ROUNDS * teams)
+    }
+
+    /**
+     * Everyone who can be bid on: players whose contracts have expired, and players nobody holds.
+     *
+     * The two are not the same kind of free agent. An expiring contract is restricted, so its team may
+     * match; a player nobody holds is unrestricted and simply goes to the highest bid. Only the second can
+     * ever be a bargain, which is reason enough to carry them.
+     *
+     * Rookies are left out entirely. They are drafted separately after the auction and cannot be bid on,
+     * and their cost and roster spots are taken off the top instead. Unrostered veterans are cut off at
+     * roughly the depth the league rosters, since the rest would never be signed and would only dilute the
+     * board.
+     */
     private Map<String, List> available(String year, FuadData fuadData) {
         Map rosters = LoadUtils.loadJsonResource(LoadUtils.mflRostersResourcePath(year)) as Map
         Map<String, String> franchiseByPlayer = [:]
@@ -61,9 +95,18 @@ class FuadValuationLoader {
                 }
             }
         }
+        Set<String> rostered = (rosters.rosters.franchise as List<Map>).collectMany { Map franchise ->
+            def held = franchise.player ?: []
+            ((held instanceof List ? held : [held]) as List<Map>).collect { it.id as String }
+        } as Set
+
         fuadData.playerByNameMap.values().findAll { FuadPlayer player ->
-            franchiseByPlayer.containsKey(player.mflId) && player.redraftRank &&
-                    POSITIONS.contains(player.player.position)
+            if (!player.redraftRank || !POSITIONS.contains(player.player.position) || player.rookie) {
+                return false
+            }
+            franchiseByPlayer.containsKey(player.mflId) ||
+                    (!rostered.contains(player.mflId) &&
+                            player.redraftRank.positionRank <= ROSTERED_DEPTH[player.player.position])
         }.collectEntries { FuadPlayer player ->
             [(player.mflId): [player.player.name, player.player.position,
                               player.redraftRank.positionRank, franchiseByPlayer[player.mflId]]]
