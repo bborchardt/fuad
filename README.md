@@ -7,6 +7,7 @@ consensus rankings.
 ./data_refresh.sh <year>                       # pull this year's league and rankings data
 ./season_history_refresh.sh <year> ...         # pull snapshots and transactions for completed seasons
 ./generate_report.sh -t all [-y <year>]        # write reports to reports/<year>
+./check_strategy.sh <plan.md>                  # hold a plan to the board it was written from
 ```
 
 Report types: `franchises`, `franchise_projections`, `rankings`, `rookies`, `salaries`, `teams`, `schedule`, or `all`.
@@ -21,3 +22,7 @@ against the cap the league has left, and settled against the franchise tags it e
 See [docs/LEAGUE_RULES.md](docs/LEAGUE_RULES.md) for what the rules were in each season — starting
 requirements, salary cap, roster limits, franchise tag prices and scoring — all of which have changed, and
 none of which a projection can assume is constant across years.
+
+See [docs/STRATEGY.md](docs/STRATEGY.md) for the rule a draft plan follows: it reasons from the reports and
+from nothing behind them, so it cannot drift off a stale board or argue a premium the model has already
+priced in. Plans live in `strategy/`, which is not committed.

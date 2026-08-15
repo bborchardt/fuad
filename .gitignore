@@ -12,3 +12,5 @@ reports/
 .idea/
 
 .env
+# Strategy documents: the convention is tracked, the plans are not.
+strategy/

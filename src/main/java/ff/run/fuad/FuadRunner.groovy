@@ -57,10 +57,18 @@ class FuadRunner {
                 FuadData fuadData = types.any { it != TYPE_SCHEDULE } ? new FuadLoader().loadData(year) : null
                 MflData mflData = types.contains(TYPE_SCHEDULE) ? (fuadData?.mflData ?: loadMflData(year)) : null
 
-                types.each { String t ->
-                    File file = new File(outputDir, fileName(t))
-                    file.withPrintWriter { out -> printReport(t, year, out, fuadData, mflData) }
-                    println "Wrote $file"
+                List<String> written = []
+                try {
+                    types.each { String t ->
+                        File file = new File(outputDir, fileName(t))
+                        file.withPrintWriter { out -> printReport(t, year, out, fuadData, mflData) }
+                        written << t
+                        println "Wrote $file"
+                    }
+                } finally {
+                    // Stamp what was written even if a later report failed, as -t all does for 2023's
+                    // schedule, so the reports that did succeed are still attributable to a model.
+                    ReportManifest.stamp(outputDir, written)
                 }
             } else {
                 Runtime.getRuntime().exit(-1)
