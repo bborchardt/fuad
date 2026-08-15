@@ -7,7 +7,9 @@ import ff.load.mfl.MflLoader
 import ff.load.util.LoadUtils
 import ff.print.fuad.FuadFranchiseDraftPrinter
 import ff.print.fuad.FuadRankingsDraftPrinter
+import ff.load.fuad.FuadValuationLoader
 import ff.print.fuad.FuadRookieDraftPrinter
+import ff.print.fuad.FuadSalaryProjectionPrinter
 import ff.print.fuad.FuadSchedulePrinter
 import ff.schedule.fuad.FuadScheduleGenerator
 import groovy.util.logging.Slf4j
@@ -19,9 +21,10 @@ class FuadRunner {
     private static final String TYPE_FRANCHISE_PROJECTIONS = 'franchise_projections'
     private static final String TYPE_RANKINGS = 'rankings'
     private static final String TYPE_ROOKIES = 'rookies'
+    private static final String TYPE_SALARIES = 'salaries'
     private static final String TYPE_SCHEDULE = 'schedule'
     private static final String TYPE_ALL = 'all'
-    private static final List<String> TYPES = [TYPE_FRANCHISES, TYPE_FRANCHISE_PROJECTIONS, TYPE_RANKINGS, TYPE_ROOKIES, TYPE_SCHEDULE]
+    private static final List<String> TYPES = [TYPE_FRANCHISES, TYPE_FRANCHISE_PROJECTIONS, TYPE_RANKINGS, TYPE_ROOKIES, TYPE_SALARIES, TYPE_SCHEDULE]
 
     private static final String DEFAULT_OUTPUT_DIR = 'reports'
 
@@ -54,7 +57,7 @@ class FuadRunner {
 
                 types.each { String t ->
                     File file = new File(outputDir, fileName(t))
-                    file.withPrintWriter { out -> printReport(t, out, fuadData, mflData) }
+                    file.withPrintWriter { out -> printReport(t, year, out, fuadData, mflData) }
                     println "Wrote $file"
                 }
             } else {
@@ -71,7 +74,7 @@ class FuadRunner {
         TYPE_SCHEDULE == type ? "${type}.csv" : "${type}.tsv"
     }
 
-    private static void printReport(String type, PrintWriter out, FuadData fuadData, MflData mflData) {
+    private static void printReport(String type, String year, PrintWriter out, FuadData fuadData, MflData mflData) {
         if (TYPE_SCHEDULE == type) {
             def matchups = new FuadScheduleGenerator().generate(mflData.franchiseByIdMap.values())
             new FuadSchedulePrinter(matchups).print(out)
@@ -83,6 +86,9 @@ class FuadRunner {
             new FuadRankingsDraftPrinter(fuadData).print(out)
         } else if (TYPE_ROOKIES == type) {
             new FuadRookieDraftPrinter(fuadData).print(out)
+        } else if (TYPE_SALARIES == type) {
+            new FuadSalaryProjectionPrinter(fuadData, new FuadValuationLoader().valuations(year, fuadData))
+                    .print(out)
         }
     }
 
