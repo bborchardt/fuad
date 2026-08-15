@@ -1,0 +1,76 @@
+package ff.print.fuad
+
+import ff.data.PlayerValuation
+import ff.data.fuad.FuadData
+import ff.data.mfl.MflFranchise
+import ff.data.mfl.MflPlayer
+
+import java.math.RoundingMode
+
+/**
+ * What each team brings to the auction: what it has, what it needs, and what it can spend.
+ *
+ * Deliberately context rather than prices. The auction clears at the highest bidder, not the average one,
+ * so the outliers come from a particular team being thin at a position with money to fix it. Team state
+ * varies enormously — exposure against free cap has run from 0.30 to 1.92, and one team went into 2025 with
+ * twenty expiring players worth more than its whole budget and kept three of them.
+ *
+ * It is reported and not priced because it does not predict well enough to price. Across 29 team seasons
+ * the correlation between how stretched a team is and how much of its roster it keeps is +0.13, which is
+ * nothing. The situations are real one at a time and invisible on average, so this is the half of the
+ * problem worth handing to a human rather than a model.
+ */
+class FuadTeamContextPrinter {
+
+    private static final List<String> POSITIONS = ['QB', 'RB', 'WR', 'TE', 'PK'].asImmutable()
+
+    /** A full roster, from the league bylaws. See docs/LEAGUE_RULES.md. */
+    private static final int MAX_ROSTER = 30
+
+    private final FuadData fuadData
+    private final List<PlayerValuation> valuations
+    private final int salaryCap
+
+    FuadTeamContextPrinter(FuadData fuadData, List<PlayerValuation> valuations, int salaryCap) {
+        this.fuadData = fuadData
+        this.valuations = valuations
+        this.salaryCap = salaryCap
+    }
+
+    void print(PrintWriter out) {
+        Map<String, List<PlayerValuation>> expiringByTeam = valuations
+                .findAll { it.franchiseId }
+                .groupBy { it.franchiseId }
+
+        out.println((['TEAM', 'OWNER', 'ROSTER', 'SIGNED', 'EXPIRING', 'SLOTS', 'COMMITTED', 'FREECAP',
+                     'EXPOSURE', 'EXP/CAP', 'TAGS', 'TAGCOST'] +
+                POSITIONS.collect { "${it}SIGNED" }).join('\t'))
+        fuadData.mflData.franchiseByIdMap.sort { it.key }.each { String id, MflFranchise franchise ->
+            List<MflPlayer> signed = franchise.players.findAll { it.contract }
+            List<PlayerValuation> expiring = expiringByTeam[id] ?: []
+            int committed = signed.sum { it.contract.salary } as int ?: 0
+            int freeCap = salaryCap - committed
+            // What keeping every expiring player would cost: a tag price where one is expected, the market
+            // price otherwise. Against free cap it says how much of the roster the budget can actually hold.
+            int exposure = expiring.sum { it.salary } as int ?: 0
+            List<PlayerValuation> tagged = expiring.findAll { it.franchiseTagged }
+
+            out.println(([
+                    id,
+                    franchise.ownerName ?: franchise.name,
+                    franchise.players.size(),
+                    signed.size(),
+                    expiring.size(),
+                    Math.max(0, MAX_ROSTER - signed.size()),
+                    committed,
+                    freeCap,
+                    exposure,
+                    freeCap > 0 ? (exposure / freeCap as BigDecimal).setScale(2, RoundingMode.HALF_UP) : '',
+                    tagged.size(),
+                    tagged.sum { it.salary } ?: 0
+            ] + POSITIONS.collect { String position ->
+                signed.count { it.player.position == position }
+            }).join('\t'))
+        }
+    }
+}

@@ -10,6 +10,7 @@ import ff.print.fuad.FuadRankingsDraftPrinter
 import ff.load.fuad.FuadValuationLoader
 import ff.print.fuad.FuadRookieDraftPrinter
 import ff.print.fuad.FuadSalaryProjectionPrinter
+import ff.print.fuad.FuadTeamContextPrinter
 import ff.print.fuad.FuadSchedulePrinter
 import ff.schedule.fuad.FuadScheduleGenerator
 import groovy.util.logging.Slf4j
@@ -22,9 +23,10 @@ class FuadRunner {
     private static final String TYPE_RANKINGS = 'rankings'
     private static final String TYPE_ROOKIES = 'rookies'
     private static final String TYPE_SALARIES = 'salaries'
+    private static final String TYPE_TEAMS = 'teams'
     private static final String TYPE_SCHEDULE = 'schedule'
     private static final String TYPE_ALL = 'all'
-    private static final List<String> TYPES = [TYPE_FRANCHISES, TYPE_FRANCHISE_PROJECTIONS, TYPE_RANKINGS, TYPE_ROOKIES, TYPE_SALARIES, TYPE_SCHEDULE]
+    private static final List<String> TYPES = [TYPE_FRANCHISES, TYPE_FRANCHISE_PROJECTIONS, TYPE_RANKINGS, TYPE_ROOKIES, TYPE_SALARIES, TYPE_TEAMS, TYPE_SCHEDULE]
 
     private static final String DEFAULT_OUTPUT_DIR = 'reports'
 
@@ -89,7 +91,14 @@ class FuadRunner {
         } else if (TYPE_SALARIES == type) {
             new FuadSalaryProjectionPrinter(fuadData, new FuadValuationLoader().valuations(year, fuadData))
                     .print(out)
+        } else if (TYPE_TEAMS == type) {
+            new FuadTeamContextPrinter(fuadData, new FuadValuationLoader().valuations(year, fuadData),
+                    salaryCap(year)).print(out)
         }
+    }
+
+    private static int salaryCap(String year) {
+        LoadUtils.loadJsonResource(LoadUtils.mflLeagueResourcePath(year)).league.salaryCapAmount as int
     }
 
     private static MflData loadMflData(String year) {

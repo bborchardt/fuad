@@ -180,10 +180,31 @@ Position shares land between pure value over replacement and the market, which i
 Ten tags are predicted, one per team, led by Ja'Marr Chase at a $61 tag against a market price well above
 it.
 
+## Team context
+
+`-t teams` reports what each team brings to the auction: roster and contract counts, positions already
+signed, free cap, and **exposure** — what keeping every one of its expiring players would cost, against the
+cap it has to do it with.
+
+None of this moves a price, deliberately. An auction clears at the highest bidder rather than the average
+one, so the outliers come from one team being thin at a position with the money to fix it. Lamar Jackson's
+$100 in 2025 went to a team holding one quarterback under contract with $251 free, which spent $183 on the
+position and finished with five.
+
+It is reported rather than priced because it does not predict well enough to price. Team states differ
+enormously — exposure against free cap has run from 0.30 to 1.92, and one team went into 2025 with twenty
+expiring players worth more than its whole budget and kept three — but across 29 team seasons the
+correlation between how stretched a team is and how much of its roster it keeps is **+0.13**. Real one at a
+time, invisible on average. Turning that into a price adjustment would be fitting noise; handing it to a
+reader who knows the league is not.
+
 ## Known limits
 
 - **Rookie pricing is a flat allowance, not a model.** Early first round picks do go above the minimum, and
   none of that shape is captured — only the league-wide total and the roster spots.
+- **Nothing prices team need or budget.** Prices are a league-wide clearing rate, so a desperate buyer with
+  cap to spend is averaged in rather than identified. `-t teams` is the stopgap; pricing at the highest
+  bidder needs the auction simulation.
 - **The spread cannot tell volatility from disagreement.** It is realised variation, so a genuinely erratic
   player and one the consensus simply misjudged look identical. For pricing that is the right total, but it
   means the model has no notion of a safe pick versus a risky one.
