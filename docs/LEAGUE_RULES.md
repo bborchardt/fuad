@@ -113,10 +113,9 @@ The tag is also common, not rare: in a typical season half to three quarters of 
 
 ### Franchise salary by season
 
-The price of tagging a player at each position, coming into that season's auction:
-
-The average is rounded to the nearest dollar. An average of five salaries lands on a fifth of a dollar and
-never on a half, so no tie-breaking rule is needed and none of the values below is ambiguous.
+The price of tagging a player at each position, coming into that season's auction. The average is rounded
+to the nearest dollar; five salaries average to a fifth of a dollar and never to a half, so no tie-breaking
+rule is needed and none of the values below is ambiguous.
 
 | Season | QB | RB | WR | TE | PK |
 | --- | --- | --- | --- | --- | --- |
@@ -181,8 +180,6 @@ tags, and `CANDIDATE` for an above-rate signing that the one-per-team rule canno
 | 2023 | 9 | 7 | 0 | 3 | Medium-high |
 | 2024 | 10 | 6 | 0 | 0 | High |
 | 2025 | 10 | 7 | 0 | 3 | High, confirmed by the league |
-
-2017 is absent because a franchise salary for it would need 2016 salaries, which predate the data.
 
 The strongest evidence that this is reading the league correctly is a test it was never constrained to
 pass: **the one-tag-per-team limit holds in every season**, and in 2018 nine tags land on nine different
@@ -399,5 +396,5 @@ is at `https://www44.myfantasyleague.com/2025/mb/board_show.pl?bid=202548571` an
 
 ## Refreshing
 
-`rules.json` is fetched for the current year by `./data_refresh.sh <year>` and for completed seasons by
-`./season_history_refresh.sh <year> ...`, alongside the roster snapshots and transaction log.
+`rules.json` is collected by both refresh scripts, alongside the roster snapshots and transaction log.
+`league.json` is written by neither, for the reason above. See [DATA.md](DATA.md#refreshing).
