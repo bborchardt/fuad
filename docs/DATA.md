@@ -15,6 +15,8 @@ Under `src/main/resources/ff/mfl/data/<year>`:
 | `rosters_end_of_year.json` | The close of the season | Yes |
 | `transactions.json` | Every move made that season | Yes |
 | `rules.json` | That season's scoring rules | Yes |
+| `player_scores.json` | What players scored each week, under that season's rules | Yes |
+| `projected_scores.json` | What players were projected to score each week | **No** (see below) |
 | `players.json`, `owners.json`, `draft.json` | When last refreshed | Yes |
 | `league.json` | When last refreshed | **No** (see below) |
 
@@ -26,6 +28,11 @@ salary cap, and the site does not keep those per season — refetching 2021's to
 superflex lineup the league only adopted in 2022, in place of the $250 and single quarterback the
 contemporaneous file records. The committed file is the record. See
 [LEAGUE_RULES.md](LEAGUE_RULES.md#provenance).
+
+`projected_scores.json` is the third of these. The site keeps one projection per week and rewrites it as
+the season goes, so pulled afterwards it is hindsight rather than forecast: summed over 2025 its
+projections correlate 0.95 with what actually happened. It has to be captured before the season starts.
+See [PROJECTION.md](PROJECTION.md#provenance).
 
 Everything else is a genuine record of a finished season and can be refetched at any time. `rules.json` in
 particular is period correct, verified against the league's own recorded scores.
@@ -177,9 +184,9 @@ Current entries: Hollywood Brown to Marquise Brown, Dee Eskridge to D'Wayne Eskr
 ./season_history_refresh.sh <year> ...   # snapshots and transactions for completed seasons
 ```
 
-`season_history_refresh.sh` never touches `rosters.json` or `league.json`, so it cannot overwrite an
-irrecoverable pre draft snapshot or a season's starting requirements with today's state, and it is safe to
-rerun on old years. It refuses to write rosters for a season
+`season_history_refresh.sh` never touches `rosters.json`, `league.json` or `projected_scores.json`, so it
+cannot overwrite an irrecoverable pre draft snapshot, a season's starting requirements or a genuine
+forecast with today's state, and it is safe to rerun on old years. It refuses to write rosters for a season
 whose contracts are still wiped, since that means the auction has not been entered yet.
 
 **2026 is at that point now**: its auction has not been run, so it has no snapshots. Collect them with
