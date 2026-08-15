@@ -3,8 +3,11 @@ package ff.load.mfl
 import ff.load.util.LoadUtils
 
 /**
- * Read a season of weekly scores, projected or actual, as written by
- * {@link ff.fetch.mfl.MflWeeklyScoresRefresh}.
+ * Read what a finished season actually scored, as written by {@link ff.fetch.mfl.MflWeeklyScoresRefresh}.
+ *
+ * This is the league's own arithmetic, under whichever rules it used that year. Nothing is priced off it —
+ * the curve is restated from raw statistics so that seasons scored four different ways can be compared —
+ * but it remains the record of what the league itself paid points for.
  */
 class MflWeeklyScoresLoader {
 
