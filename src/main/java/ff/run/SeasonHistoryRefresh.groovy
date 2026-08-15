@@ -3,7 +3,9 @@ package ff.run
 import ff.fetch.mfl.MflRosterSnapshotRefresh
 import ff.fetch.mfl.MflRulesRefresh
 import ff.fetch.mfl.MflTransactionsRefresh
+import ff.fetch.mfl.MflWeeklyScoresRefresh
 import ff.fetch.mfl.RosterSnapshot
+import ff.fetch.mfl.ScoreKind
 
 /**
  * Collect the record of a completed season: both roster snapshots, the transaction log and the scoring
@@ -28,7 +30,8 @@ class SeasonHistoryRefresh {
             List<Runnable> refreshes = RosterSnapshot.values().collect { RosterSnapshot snapshot ->
                 new MflRosterSnapshotRefresh(Integer.parseInt(year), LEAGUE_ID, HOST, snapshot) as Runnable
             } + [new MflTransactionsRefresh(Integer.parseInt(year), LEAGUE_ID, HOST) as Runnable,
-                 new MflRulesRefresh(Integer.parseInt(year), LEAGUE_ID, HOST) as Runnable]
+                 new MflRulesRefresh(Integer.parseInt(year), LEAGUE_ID, HOST) as Runnable,
+                 new MflWeeklyScoresRefresh(Integer.parseInt(year), LEAGUE_ID, HOST, ScoreKind.ACTUAL) as Runnable]
             refreshes.each { refresh ->
                 try {
                     refresh.run()

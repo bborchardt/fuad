@@ -19,6 +19,10 @@ class LoadUtils {
     static String mflTransactionsResourcePath(String year) { "/ff/mfl/data/$year/transactions.json" }
     /** That season's scoring rules, which changed in 2021, 2023 and 2026. See docs/LEAGUE_RULES.md. */
     static String mflRulesResourcePath(String year) { "/ff/mfl/data/$year/rules.json" }
+    /** Weekly projections under league scoring, collected before the season and never after it. */
+    static String mflProjectedScoresResourcePath(String year) { "/ff/mfl/data/$year/projected_scores.json" }
+    /** Weekly scoring a finished season actually produced, under that season's rules. */
+    static String mflPlayerScoresResourcePath(String year) { "/ff/mfl/data/$year/player_scores.json" }
     static String fpDynastyRankingsPprResourcePath(String year) { "/ff/fantasypros/data/$year/dynasty_rankings_ppr.csv" }
     static String fpRookieRankingsPprResourcePath(String year) { "/ff/fantasypros/data/$year/rookie_rankings_ppr.csv" }
     static String fpRedraftRankingsHalfPprResourcePath(String year) { "/ff/fantasypros/data/$year/redraft_rankings_half_ppr.csv" }
