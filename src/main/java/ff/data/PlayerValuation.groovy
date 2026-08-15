@@ -13,8 +13,19 @@ class PlayerValuation {
     String position
     /** Consensus positional rank going into the season. */
     int positionRank
-    /** Expected points over the regular season, after the realisation correction. */
+    /** Expected points over the regular season: what this rank has historically been worth. */
     BigDecimal points
+    /**
+     * Points in a bad season and a good one, at the 10th and 90th percentile of realised outcomes.
+     *
+     * The spread is the <b>position's</b>, applied to this player's level: the ratios behind it are pooled
+     * across ranks, so every quarterback gets the same proportional range around his own expectation. It
+     * says how wide outcomes at this position run, never that this player is the risky one.
+     */
+    BigDecimal pointsLow
+    BigDecimal pointsHigh
+    /** The week this player is off, which decides how a set of players covers a season between them. */
+    Integer bye
     /** Points above the player who would start in their place, summed week by week. */
     BigDecimal valueOverReplacement
     /**

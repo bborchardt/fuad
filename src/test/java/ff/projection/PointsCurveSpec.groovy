@@ -93,6 +93,31 @@ class PointsCurveSpec extends Specification {
         multipliers.count { it == 0.0d } == multipliers.size() / 4
     }
 
+    def "reports the range a position's seasons run to, low below expectation and high above"() {
+        given: 'a quarter of seasons lost entirely, a quarter at half, a quarter half again as much'
+        Map<Integer, List<BigDecimal>> uneven = (1..30).collectEntries { int rank ->
+            BigDecimal expected = (300 - rank * 5) as BigDecimal
+            [(rank): [expected, expected * 0.5, expected * 1.5, 0.0 as BigDecimal] * 2]
+        }
+        PointsCurve curve = PointsCurve.of([WR: uneven])
+
+        expect:
+        curve.outcomePercentile('WR', 0.10) < 1.0
+        curve.outcomePercentile('WR', 0.90) > 1.0
+        curve.outcomePercentile('WR', 0.10) < curve.outcomePercentile('WR', 0.90)
+    }
+
+    def "falls back to expectation where a position has no spread to report"() {
+        given: 'three ranks over six seasons: enough to level a rank, too few to describe a distribution'
+        PointsCurve curve = PointsCurve.of(
+                [WR: (1..3).collectEntries { int rank -> [(rank): (1..6).collect { 200.0 as BigDecimal }] }])
+
+        expect: 'a range would be invented rather than measured, so none is claimed'
+        curve.outcomeMultipliers('WR') == []
+        curve.outcomePercentile('WR', 0.10) == 1.0
+        curve.outcomePercentile('WR', 0.90) == 1.0
+    }
+
     def "reports nothing for a rank deeper than the record goes"() {
         expect:
         PointsCurve.of([WR: steady()]).weeklyPoints('WR', 90, null, 14) == [:]

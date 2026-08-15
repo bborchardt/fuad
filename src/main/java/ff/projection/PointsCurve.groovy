@@ -114,6 +114,24 @@ class PointsCurve {
      */
     List<Double> outcomeMultipliers(String position) { multipliersByPosition[position] ?: [] }
 
+    /**
+     * The multiplier a given share of this position's seasons came in under.
+     *
+     * <b>It is a property of the position, not of the player.</b> The ratios are pooled across every rank
+     * that carries enough money to be a ratio of the same thing, so two players at the same position get
+     * the same spread around their own different levels. That is deliberate — realised variation cannot
+     * tell an erratic player from one the consensus misjudged — and it is why nothing here should be read
+     * as this player being the risky one.
+     */
+    BigDecimal outcomePercentile(String position, double percentile) {
+        List<Double> sorted = (multipliersByPosition[position] ?: []).sort()
+        if (!sorted) {
+            return 1.0
+        }
+        int index = (Math.ceil(percentile * sorted.size()) as int) - 1
+        sorted[Math.min(sorted.size() - 1, Math.max(0, index))] as BigDecimal
+    }
+
     private static List<BigDecimal> smoothed(Map<Integer, List<BigDecimal>> byRank, int rank) {
         ((rank - SMOOTHING_RADIUS)..(rank + SMOOTHING_RADIUS))
                 .collectMany { (byRank[it] ?: []) as List<BigDecimal> }

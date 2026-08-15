@@ -13,6 +13,10 @@ import java.math.RoundingMode
  * Tagged players are shown at the tag price rather than a bid price, because that is what their team will
  * pay. Their row is the answer to a different question from everyone else's: not what to bid, but who will
  * not be biddable.
+ *
+ * This is the whole permitted input to a draft plan, so it carries the things a plan would otherwise go
+ * behind it for: the bye week that decides how a set of players covers a season, and the range a position's
+ * seasons actually run to either side of expectation. See docs/STRATEGY.md.
  */
 class FuadSalaryProjectionPrinter {
 
@@ -25,7 +29,8 @@ class FuadSalaryProjectionPrinter {
     }
 
     void print(PrintWriter out) {
-        out.println(['POS', 'RANK', 'PLAYER', 'TEAM', 'HOLDER', 'PTS', 'VOR', 'VALUE', 'PRICE', 'COST', 'ACQUIRE',
+        out.println(['POS', 'RANK', 'PLAYER', 'TEAM', 'HOLDER', 'BYE', 'PTS', 'PTSLOW', 'PTSHIGH', 'VOR',
+                     'VALUE', 'PRICE', 'COST', 'ACQUIRE',
                      'EDGE', 'BAND', 'RFRCOST', 'AVAIL', 'TAG', 'FRANCHISED'].join('\t'))
         valuations.each { PlayerValuation v ->
             out.println([
@@ -34,7 +39,10 @@ class FuadSalaryProjectionPrinter {
                     v.playerName,
                     fuadData.playerByNameMap[v.playerName]?.player?.team ?: '',
                     holder(v),
+                    v.bye ?: '',
                     v.points.setScale(0, RoundingMode.HALF_UP),
+                    v.pointsLow.setScale(0, RoundingMode.HALF_UP),
+                    v.pointsHigh.setScale(0, RoundingMode.HALF_UP),
                     v.valueOverReplacement.setScale(0, RoundingMode.HALF_UP),
                     v.value,
                     v.marketSalary,

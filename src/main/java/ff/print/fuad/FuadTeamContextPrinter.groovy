@@ -4,6 +4,7 @@ import ff.data.PlayerValuation
 import ff.data.fuad.FuadData
 import ff.data.mfl.MflFranchise
 import ff.data.mfl.MflPlayer
+import ff.projection.AuctionValuation
 
 import java.math.RoundingMode
 
@@ -27,6 +28,15 @@ class FuadTeamContextPrinter {
     /** A full roster, from the league bylaws. See docs/LEAGUE_RULES.md. */
     private static final int MAX_ROSTER = 30
 
+    /**
+     * The smallest roster the league allows, from the same bylaw, stated for 2025 and unviolated since 2021.
+     *
+     * Reported rather than left to the reader because how many players a team <i>must</i> sign is half of
+     * what its budget means: a team with two spots to fill and one with nine are not in the same auction
+     * even on identical cap space.
+     */
+    private static final int MIN_ROSTER = 23
+
     private final FuadData fuadData
     private final List<PlayerValuation> valuations
     private final int salaryCap
@@ -42,8 +52,8 @@ class FuadTeamContextPrinter {
                 .findAll { it.franchiseId }
                 .groupBy { it.franchiseId }
 
-        out.println((['TEAM', 'OWNER', 'ROSTER', 'SIGNED', 'EXPIRING', 'SLOTS', 'COMMITTED', 'FREECAP',
-                     'EXPOSURE', 'EXP/CAP', 'TAGS', 'TAGCOST'] +
+        out.println((['TEAM', 'OWNER', 'ROSTER', 'SIGNED', 'EXPIRING', 'SLOTS', 'ROOKIES', 'MINSIGN',
+                      'MAXSIGN', 'COMMITTED', 'FREECAP', 'EXPOSURE', 'EXP/CAP', 'TAGS', 'TAGCOST'] +
                 POSITIONS.collect { "${it}SIGNED" }).join('\t'))
         fuadData.mflData.franchiseByIdMap.sort { it.key }.each { String id, MflFranchise franchise ->
             List<MflPlayer> signed = franchise.players.findAll { it.contract }
@@ -55,6 +65,11 @@ class FuadTeamContextPrinter {
             int exposure = expiring.sum { it.salary } as int ?: 0
             List<PlayerValuation> tagged = expiring.findAll { it.franchiseTagged }
 
+            // The rookie draft fills spots the auction then does not have to, so it comes off both ends of
+            // what a team has to buy. Rounds times one, as the model assumes league-wide; a team that has
+            // traded picks away will actually hold more or fewer than this.
+            int rookies = AuctionValuation.ROOKIE_ROUNDS
+
             out.println(([
                     id,
                     franchise.ownerName ?: franchise.name,
@@ -62,6 +77,9 @@ class FuadTeamContextPrinter {
                     signed.size(),
                     expiring.size(),
                     Math.max(0, MAX_ROSTER - signed.size()),
+                    rookies,
+                    Math.max(0, MIN_ROSTER - signed.size() - rookies),
+                    Math.max(0, MAX_ROSTER - signed.size() - rookies),
                     committed,
                     freeCap,
                     exposure,

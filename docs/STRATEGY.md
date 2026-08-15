@@ -45,12 +45,32 @@ does not price:
 ```
 <!-- source: salaries -->
 
-| PLAYER | PRICE | PTS | note |
-| --- | --- | --- | --- |
-| Kyler Murray | 21 | 174 | unrestricted, nobody can match |
+| PLAYER | PRICE | PTS | BYE | note |
+| --- | --- | --- | --- | --- |
+| Kyler Murray | 21 | 174 | 8 | unrestricted, nobody can match |
 ```
 
-`PLAYER` and `PRICE` and `PTS` are checked against `reports/2026/salaries.tsv`; `note` is not.
+`PLAYER`, `PRICE`, `PTS` and `BYE` are checked against `reports/2026/salaries.tsv`; `note` is not.
+
+## What the board carries
+
+The columns exist so that a plan never has to reach behind them. Where an earlier plan went to the model
+for something, that something is now a column:
+
+| Wanted | Column | Instead of |
+| --- | --- | --- |
+| how a set of players covers a season | `BYE` on `salaries` | the bye table inside the model |
+| how wide outcomes run | `PTSLOW` / `PTSHIGH` | the raw multipliers in the points curve |
+| how many players a team must buy | `MINSIGN` / `MAXSIGN` / `ROOKIES` on `teams` | the 23/30 roster bylaw |
+| what a team can spend | `FREECAP`, `EXPOSURE`, `EXP/CAP` on `teams` | the cap and the spend rate |
+
+`PTSLOW` and `PTSHIGH` carry a caveat worth restating, because the whole point of the boundary is not to
+assume things the model does not know: **the range is the position's, scaled to the player.** Two players
+at one position have the same proportional spread. It says nothing about which of them is the safer pick,
+and a plan that treats it as though it does has smuggled in a belief the model does not hold.
+
+If a plan needs something not in this table, that is a column the board is missing. Add it to the model,
+where it can be tested, rather than working it out in the plan, where it cannot.
 
 ## Running the check
 

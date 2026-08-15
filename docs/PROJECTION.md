@@ -210,6 +210,12 @@ Nine tags are predicted, one per team, led by Ja'Marr Chase at a $61 tag against
 signed, free cap, and **exposure** — what keeping every one of its expiring players would cost, against the
 cap it has to do it with.
 
+It also reports how many players a team must actually buy. `MINSIGN` and `MAXSIGN` are the roster bylaws
+(23 and 30) less what is already signed and less the five the rookie draft supplies, so a team with two
+spots to fill and one with nine are not read as being in the same auction on identical cap space. The
+rookie figure is rounds times one, as the model assumes league-wide; a team that has traded picks will hold
+more or fewer.
+
 None of this moves a price, deliberately. An auction clears at the highest bidder rather than the average
 one, so the outliers come from one team being thin at a position with the money to fix it. Lamar Jackson's
 $100 in 2025 went to a team holding one quarterback under contract with $251 free, which spent $183 on the
@@ -233,7 +239,8 @@ reader who knows the league is not.
   teams` as the stopgap; pricing at the highest bidder needs an auction simulation.
 - **The spread cannot tell volatility from disagreement.** It is realised variation, so a genuinely erratic
   player and one the consensus simply misjudged look identical. For pricing that is the right total, but it
-  means the model has no notion of a safe pick versus a risky one.
+  means the model has no notion of a safe pick versus a risky one — which is why `PTSLOW` and `PTSHIGH` are
+  a position's range scaled to a player, and must not be read as his own.
 - **Contract length is not modelled.** Length is chosen jointly with price rather than being an input:
   longer deals go to players with better dynasty-than-redraft ranks, but cost *less* per year, since the
   expensive win-now players take one-year deals. Redraft rank predicts salary better than dynasty rank
@@ -266,6 +273,17 @@ They answer different questions and blending them answered neither. The board re
 - `ACQUIRE` — what it takes to prise him off the team that holds him.
 - `EDGE` / `BAND` — `VALUE − PRICE`, banded rather than given to the dollar, because it is the difference
   of two noisy estimates and a precise figure would overstate the resolution.
+
+Alongside them the board carries what a plan needs in order to reason without going behind it:
+
+- `PTS` — expected points: what this rank has historically been worth, under the rules being priced.
+- `PTSLOW` / `PTSHIGH` — the same rank in a bad season and a good one, at the 10th and 90th percentile of
+  realised outcomes. **The spread belongs to the position, not to the player.** Every quarterback gets the
+  same proportional range around his own level, because realised variation cannot tell an erratic player
+  from one the consensus misjudged. A wide range means the position is wide; it never means this player is
+  the risky one.
+- `BYE` — the week he is off. A fact of the schedule rather than a judgement about him, and the one thing
+  about a particular player the model is willing to know.
 
 Within-position steepness is fitted per position as `price ~ value^gamma` over historical signings by
 consensus rank over the same seasons: **QB 1.44, RB 1.13, WR 1.07, TE 1.51**. Tight end is the fragile one

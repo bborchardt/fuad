@@ -48,6 +48,16 @@ class AuctionValuation {
     static final BigDecimal MARKET_WEIGHT = 1.0
 
     /**
+     * The percentiles of realised outcomes the board reports a player's range at.
+     *
+     * Reported so that a plan can weigh a bad season against a good one without reaching into the curve for
+     * the raw multipliers. Deliberately not the extremes: the left tail runs to zero at every position, so
+     * a minimum is the same number for everyone and says only that seasons are sometimes lost entirely.
+     */
+    static final double LOW_OUTCOME = 0.10
+    static final double HIGH_OUTCOME = 0.90
+
+    /**
      * How much steeper this league's prices run than value, within a position.
      *
      * Fitted as `price ~ value^gamma` across signings by consensus rank, over the same repriced seasons. Above one the market
@@ -200,6 +210,9 @@ class AuctionValuation {
                     position: position,
                     positionRank: rank,
                     points: curve.seasonPoints(position, rank),
+                    pointsLow: curve.seasonPoints(position, rank) * curve.outcomePercentile(position, LOW_OUTCOME),
+                    pointsHigh: curve.seasonPoints(position, rank) * curve.outcomePercentile(position, HIGH_OUTCOME),
+                    bye: byes.of(position, rank),
                     valueOverReplacement: vor[id] ?: 0.0,
                     value: worth,
                     marketSalary: market,
