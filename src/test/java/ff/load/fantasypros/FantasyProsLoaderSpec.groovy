@@ -24,9 +24,9 @@ class FantasyProsLoaderSpec extends Specification {
         year << [LoadUtils.YEARS.last()]
         expected << [
                 ["Ja'Marr Chase"   : new FpRankedPlayer(new Player("Ja'Marr Chase", 'CIN', 'WR'),
-                        new Rank(4, 1), '0'),
+                        new Rank(5, 1), '0'),
                  'Justin Jefferson': new FpRankedPlayer(new Player('Justin Jefferson', 'MIN', 'WR'),
-                         new Rank(16, 5), '0')]
+                         new Rank(17, 5), '0')]
         ]
     }
 
@@ -45,9 +45,9 @@ class FantasyProsLoaderSpec extends Specification {
         year << [LoadUtils.YEARS.last()]
         expected << [
                 ["Ja'Marr Chase"   : new FpRankedPlayer(new Player("Ja'Marr Chase", 'CIN', 'WR'),
-                        new Rank(9, 1), '6'),
+                        new Rank(8, 1), '6'),
                  'Justin Jefferson': new FpRankedPlayer(new Player('Justin Jefferson', 'MIN', 'WR'),
-                         new Rank(22, 6), '6')]
+                         new Rank(19, 6), '6')]
         ]
     }
 
