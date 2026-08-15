@@ -9,7 +9,7 @@ consensus rankings.
 ./generate_report.sh -t all [-y <year>]        # write reports to reports/<year>
 ```
 
-Report types: `franchises`, `franchise_projections`, `rankings`, `rookies`, `salaries`, `schedule`, or `all`.
+Report types: `franchises`, `franchise_projections`, `rankings`, `rookies`, `salaries`, `teams`, `schedule`, or `all`.
 
 See [docs/DATA.md](docs/DATA.md) for what each data file is, how the league's expansions and contractions
 show up in it, and which seasons needed repair.
