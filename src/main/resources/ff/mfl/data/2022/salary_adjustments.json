@@ -1,0 +1,232 @@
+{
+    "version": "1.0",
+    "encoding": "utf-8",
+    "salaryAdjustments": {
+        "salaryAdjustment": [
+            {
+                "timestamp": "1662297798",
+                "description": "Darrynton Evans (3yrs@1)",
+                "amount": "3",
+                "id": "0",
+                "franchise_id": "0005"
+            },
+            {
+                "id": "1",
+                "franchise_id": "0006",
+                "timestamp": "1662433452",
+                "amount": "13",
+                "description": "Nelson Agholor (1yrs@4) : Lynn Bowden (2yrs@1) : Jamison Crowder (1yrs@8) : Jacob Harris (3yrs@1) : D'Ernest Johnson (1yrs@1) : Tony Jones (1yrs@1)"
+            },
+            {
+                "franchise_id": "0005",
+                "id": "10",
+                "amount": "3",
+                "timestamp": "1664197096",
+                "description": "Adam Trautman (3yrs@1)"
+            },
+            {
+                "id": "11",
+                "franchise_id": "0007",
+                "timestamp": "1664197096",
+                "description": "Rodrigo Blankenship (1yrs@2)",
+                "amount": "1"
+            },
+            {
+                "id": "12",
+                "franchise_id": "0005",
+                "timestamp": "1664576851",
+                "description": "Cameron Brate (2yrs@1)",
+                "amount": "2"
+            },
+            {
+                "id": "13",
+                "franchise_id": "0002",
+                "timestamp": "1665088175",
+                "amount": "8",
+                "description": "Mecole Hardman (2yrs@10)"
+            },
+            {
+                "timestamp": "1665088175",
+                "amount": "1",
+                "description": "Kendrick Bourne (1yrs@1)",
+                "id": "14",
+                "franchise_id": "0006"
+            },
+            {
+                "id": "15",
+                "franchise_id": "0005",
+                "timestamp": "1665285287",
+                "description": "Calvin Ridley (1yrs@1)",
+                "amount": "1"
+            },
+            {
+                "franchise_id": "0003",
+                "id": "16",
+                "timestamp": "1666309450",
+                "description": "Sony Michel (1yrs@2) : Robert Woods (2yrs@4)",
+                "amount": "5"
+            },
+            {
+                "amount": "3",
+                "timestamp": "1666309450",
+                "description": "Russell Gage (3yrs@1)",
+                "id": "17",
+                "franchise_id": "0004"
+            },
+            {
+                "amount": "4",
+                "timestamp": "1666309450",
+                "description": "Chris Evans (4yrs@1)",
+                "franchise_id": "0006",
+                "id": "18"
+            },
+            {
+                "timestamp": "1666309450",
+                "description": "Kellen Mond (4yrs@1)",
+                "amount": "4",
+                "id": "19",
+                "franchise_id": "0007"
+            },
+            {
+                "id": "2",
+                "franchise_id": "0002",
+                "timestamp": "1662470538",
+                "amount": "5",
+                "description": "Antonio Brown (3yrs@1) : Ty'Son Williams (2yrs@1)"
+            },
+            {
+                "id": "20",
+                "franchise_id": "0003",
+                "timestamp": "1666835399",
+                "amount": "1",
+                "description": "Tyler Bass (1yrs@1)"
+            },
+            {
+                "amount": "8",
+                "timestamp": "1667137600",
+                "description": "Cordarrelle Patterson (2yrs@10)",
+                "id": "21",
+                "franchise_id": "0003"
+            },
+            {
+                "id": "22",
+                "franchise_id": "0006",
+                "amount": "1",
+                "timestamp": "1667137600",
+                "description": "Chris Boswell (1yrs@1)"
+            },
+            {
+                "franchise_id": "0008",
+                "id": "23",
+                "timestamp": "1668126042",
+                "amount": "3",
+                "description": "Bryan Edwards (3yrs@1)"
+            },
+            {
+                "amount": "1",
+                "timestamp": "1668814484",
+                "description": "Graham Gano (1yrs@1)",
+                "franchise_id": "0004",
+                "id": "24"
+            },
+            {
+                "id": "25",
+                "franchise_id": "0006",
+                "timestamp": "1670546537",
+                "description": "Jimmy Garoppolo (1yrs@1)",
+                "amount": "1"
+            },
+            {
+                "timestamp": "1670980294",
+                "amount": "3",
+                "description": "Jarvis Landry (1yrs@6)",
+                "id": "26",
+                "franchise_id": "0005"
+            },
+            {
+                "description": "Eno Benjamin (2yrs@1)",
+                "timestamp": "1670980294",
+                "amount": "2",
+                "id": "27",
+                "franchise_id": "0008"
+            },
+            {
+                "description": "Kenneth Gainwell (4yrs@1) : Van Jefferson (3yrs@1) : Julio Jones (2yrs@1) : Tim Patrick (3yrs@1) : Josh Reynolds (3yrs@1) : Aaron Rodgers (2yrs@33) : Darius Slayton (3yrs@1) : Michael Thomas (2yrs@15)",
+                "timestamp": "1677444913",
+                "amount": "57",
+                "franchise_id": "0004",
+                "id": "28"
+            },
+            {
+                "description": "Tyler Conklin (2yrs@1) : Allen Lazard (2yrs@4) : Terrace Marshall (5yrs@1) : Davis Mills (4yrs@1) : Kyle Philips (5yrs@1)",
+                "timestamp": "1677444913",
+                "amount": "20",
+                "franchise_id": "0005",
+                "id": "29"
+            },
+            {
+                "timestamp": "1662470538",
+                "amount": "7",
+                "description": "Joshua Kelley (3yrs@1) : Hunter Long (4yrs@1)",
+                "id": "3",
+                "franchise_id": "0005"
+            },
+            {
+                "id": "30",
+                "franchise_id": "0008",
+                "description": "Cordarrelle Patterson (1yrs@2) : Amari Rodgers (4yrs@1) : Trey Sermon (4yrs@1) : Jamaal Williams (1yrs@2) : Zach Wilson (4yrs@1)",
+                "timestamp": "1677444913",
+                "amount": "14"
+            },
+            {
+                "id": "31",
+                "franchise_id": "0005",
+                "amount": "5",
+                "timestamp": "1677445218",
+                "description": "Zonovan Knight (5yrs@1)"
+            },
+            {
+                "timestamp": "1662470538",
+                "amount": "1",
+                "description": "C.J. Uzomah (1yrs@1)",
+                "franchise_id": "0006",
+                "id": "4"
+            },
+            {
+                "amount": "2",
+                "timestamp": "1662470538",
+                "description": "Tyrod Taylor (1yrs@5)",
+                "id": "5",
+                "franchise_id": "0007"
+            },
+            {
+                "franchise_id": "0004",
+                "id": "6",
+                "description": "Odell Beckham (1yrs@5) : A.J. Green (1yrs@5) : Curtis Samuel (1yrs@5)",
+                "timestamp": "1662495865",
+                "amount": "6"
+            },
+            {
+                "amount": "2",
+                "timestamp": "1662497296",
+                "description": "Carson Wentz (1yr@1) : Daniel Jones (1yr@1)",
+                "id": "7",
+                "franchise_id": "0004"
+            },
+            {
+                "id": "8",
+                "franchise_id": "0002",
+                "timestamp": "1663341172",
+                "description": "Andy Isabella (2yrs@1) : Ke'Shawn Vaughn (3yrs@1)",
+                "amount": "5"
+            },
+            {
+                "amount": "4",
+                "timestamp": "1663700140",
+                "description": "Terrace Marshall (4yrs@1)",
+                "id": "9",
+                "franchise_id": "0005"
+            }
+        ]
+    }
+}

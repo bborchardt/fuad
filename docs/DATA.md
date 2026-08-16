@@ -15,6 +15,7 @@ Under `src/main/resources/ff/mfl/data/<year>`:
 | `rosters_end_of_year.json` | The close of the season | Yes |
 | `transactions.json` | Every move made that season | Yes |
 | `rules.json` | That season's scoring rules | Yes |
+| `salary_adjustments.json` | Every cut penalty charged that season | Yes |
 | `player_scores.json` | What players scored each week, under that season's rules | Yes |
 | `players.json`, `owners.json`, `draft.json` | When last refreshed | Yes |
 | `league.json` | When last refreshed | **No** (see below) |
@@ -59,6 +60,12 @@ Two things to know about the extract:
 The transaction log matters more than it looks. Rosters only show where players ended up, so a move that a
 later move undid leaves no trace in them at all. Both expansion drafts are in the log as commissioner
 roster loads, which is how the 2023 one was reconstructed.
+
+`salary_adjustments.json` is the only record of a rule that appears in no settings file. Every adjustment
+this league has ever made is a cut penalty, and each carries the contract it was charged for in its
+description — `Treylon Burks (2yrs@1)`, sometimes several to a row. That is what turned the cut penalty
+from an unverifiable bylaw into a rule checked against 384 charges. See
+[LEAGUE_RULES.md](LEAGUE_RULES.md#confirmed-against-every-penalty-ever-charged).
 
 Under `src/main/resources/ff/fantasypros/data/<year>`: `dynasty_rankings_ppr.csv`,
 `redraft_rankings_half_ppr.csv`, `rookie_rankings_ppr.csv`. Through 2025 these are tab separated with

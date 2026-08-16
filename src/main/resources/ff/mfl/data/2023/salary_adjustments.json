@@ -1,0 +1,190 @@
+{
+    "version": "1.0",
+    "salaryAdjustments": {
+        "salaryAdjustment": [
+            {
+                "timestamp": "1693435562",
+                "description": "Marquez Callaway (1yrs@1) : Leonard Fournette (1yrs@35) : KJ Hamler (2yrs@1) : Anthony Schwartz (2yrs@1)",
+                "amount": "19",
+                "id": "0",
+                "franchise_id": "0003"
+            },
+            {
+                "id": "1",
+                "franchise_id": "0007",
+                "timestamp": "1693851035",
+                "description": "Kenyan Drake (1yrs@6)",
+                "amount": "3"
+            },
+            {
+                "description": "Cordarrelle Patterson (1yrs@1)",
+                "timestamp": "1698276323",
+                "amount": "1",
+                "id": "10",
+                "franchise_id": "0003"
+            },
+            {
+                "description": "Donovan Peoples-Jones (3yrs@1)",
+                "timestamp": "1698276323",
+                "amount": "3",
+                "franchise_id": "0004",
+                "id": "11"
+            },
+            {
+                "timestamp": "1698276323",
+                "amount": "5",
+                "description": "Kayshon Boutte (5yrs@1)",
+                "franchise_id": "0005",
+                "id": "12"
+            },
+            {
+                "timestamp": "1698276323",
+                "amount": "2",
+                "description": "Rashaad Penny (1yrs@5)",
+                "franchise_id": "0008",
+                "id": "13"
+            },
+            {
+                "id": "14",
+                "franchise_id": "0004",
+                "amount": "5",
+                "timestamp": "1699580537",
+                "description": "Jimmy Garoppolo (2yrs@6)"
+            },
+            {
+                "id": "15",
+                "franchise_id": "0008",
+                "timestamp": "1699580537",
+                "amount": "1",
+                "description": "Jordan Mason (1yrs@1)"
+            },
+            {
+                "id": "16",
+                "franchise_id": "0009",
+                "timestamp": "1699580537",
+                "description": "Dorian Thompson-Robinson (1yrs@1)",
+                "amount": "1"
+            },
+            {
+                "id": "17",
+                "franchise_id": "0004",
+                "amount": "1",
+                "timestamp": "1701822010",
+                "description": "Zach Wilson (1yrs@1)"
+            },
+            {
+                "timestamp": "1701822010",
+                "description": "Keaontay Ingram (1yrs@1)",
+                "amount": "1",
+                "franchise_id": "0008",
+                "id": "18"
+            },
+            {
+                "franchise_id": "0009",
+                "id": "19",
+                "amount": "4",
+                "timestamp": "1701822010",
+                "description": "Younghoe Koo (2yrs@4)"
+            },
+            {
+                "timestamp": "1693851803",
+                "amount": "1",
+                "description": "Myles Gaskin (1yr@1)",
+                "franchise_id": "0005",
+                "id": "2"
+            },
+            {
+                "amount": "4",
+                "timestamp": "1703624449",
+                "description": "Evan Hull (3yrs@1) : Jeffery Wilson (1yrs@2)",
+                "id": "20",
+                "franchise_id": "0002"
+            },
+            {
+                "id": "21",
+                "franchise_id": "0004",
+                "timestamp": "1703624449",
+                "amount": "25",
+                "description": "Rashod Bateman (3yrs@1) : Tyler Boyd (2yrs@1) : DeAndre Hopkins (1yrs@20) : JuJu Smith-Schuster (3yrs@10)"
+            },
+            {
+                "franchise_id": "0008",
+                "id": "22",
+                "amount": "6",
+                "timestamp": "1703624449",
+                "description": "Zach Evans (5yrs@1) : D'Onta Foreman (1yrs@1)"
+            },
+            {
+                "timestamp": "1708489881",
+                "amount": "10",
+                "description": "Tyrion Davis-Price (4yrs@1) : Laviska Shenault (2yrs@1) : Malik Willis (4yrs@1)",
+                "id": "23",
+                "franchise_id": "0001"
+            },
+            {
+                "timestamp": "1710101480",
+                "description": "Tank Bigsby (5yrs@1) : Kenneth Gainwell (2yrs@3) : Jaren Hall (5yrs@1)",
+                "amount": "13",
+                "franchise_id": "0005",
+                "id": "24"
+            },
+            {
+                "id": "25",
+                "franchise_id": "0008",
+                "amount": "14",
+                "timestamp": "1710101480",
+                "description": "Odell Beckham (2yrs@1) : J.K. Dobbins (2yrs@3) : Trey Lance (3yrs@1) : Rondale Moore (3yrs@1) : Kadarius Toney (3yrs@1)"
+            },
+            {
+                "franchise_id": "0009",
+                "id": "3",
+                "timestamp": "1694021163",
+                "description": "Jalen Tolbert (4yrs@1)",
+                "amount": "4"
+            },
+            {
+                "timestamp": "1694100609",
+                "amount": "2",
+                "description": "Jalen Reagor (2yrs@1)",
+                "id": "4",
+                "franchise_id": "0007"
+            },
+            {
+                "description": "Michael Carter (1yrs@1) : Albert Okwuegbunam (2yrs@1) : DeVante Parker (1yrs@4) : Isaiah Spiller (1yrs@1)",
+                "timestamp": "1694129569",
+                "amount": "6",
+                "id": "5",
+                "franchise_id": "0002"
+            },
+            {
+                "timestamp": "1694721562",
+                "amount": "4",
+                "description": "David Bell (4yrs@1)",
+                "id": "6",
+                "franchise_id": "0004"
+            },
+            {
+                "franchise_id": "0005",
+                "id": "7",
+                "timestamp": "1695070795",
+                "description": "Mike Gesicki (1yrs@4) : Riley Patterson (1yrs@3)",
+                "amount": "4"
+            },
+            {
+                "id": "8",
+                "franchise_id": "0002",
+                "timestamp": "1695945008",
+                "description": "Zamir White (2yrs@1)",
+                "amount": "2"
+            },
+            {
+                "timestamp": "1695945008",
+                "description": "Ezekiel Elliott (2yrs@10) : Zach Wilson (1yrs@1)",
+                "amount": "9",
+                "franchise_id": "0004",
+                "id": "9"
+            }
+        ]
+    },
+    "encoding": "utf-8"
+}

@@ -108,11 +108,14 @@ minimum.
 
 ### The cut penalty
 
-Releasing a player costs the greater of, both measured over the years **remaining** on the contract and
-charged against the **current** year's cap:
+Releasing a player costs the greater of, both measured over the years **remaining** on the contract,
+rounded **up**, and charged against the **current** year's cap:
 
 - **40% of the dollars left on the contract**, and
 - **$1 per year remaining.**
+
+`CutPenalty` computes this and `CutPenaltySpec` asserts it against every penalty the league has ever
+charged.
 
 The floor is the part that is easy to miss, and it binds in exactly one place. Below $2.50 a year the 40%
 is worth less than a dollar, so the minimum takes over — which makes a cheap long contract proportionally
@@ -147,10 +150,39 @@ rather than an obligation that follows the team around — which is why a long d
 defensible bet and a long deal at $50 is not, and why the damage is a cash-flow problem rather than a
 structural one.
 
-**Provenance: this is the least verified rule in this file.** It is stated by the commissioner and is in
-neither `league.json` nor `rules.json`, which carry no cut or penalty fields at all, so it is a bylaw like
-the roster limits. Nothing in the exports records a release penalty being charged, so neither the rate nor
-the floor can be confirmed against the data the way the franchise salary can.
+### Confirmed against every penalty ever charged
+
+The rule is a bylaw, absent from both `league.json` and `rules.json`. But the league site keeps a
+`salaryAdjustments` export, and in this league every adjustment in its history is a cut penalty, carrying
+the contract it was charged for in its description:
+
+```
+Treylon Burks (2yrs@1)                              amount 2
+Roman Wilson (4yrs@1)                               amount 4
+DeAndre Hopkins (1yrs@20) : Tyler Boyd (2yrs@1)     amount 10
+```
+
+384 adjustments across 2017-2025, covering 615 individual releases — a single adjustment may batch several
+cuts made the same day, so the charge is the sum over the contracts named. **383 of the 384 come back
+exactly.** The one that does not is a six-cut batch in 2020 entered a dollar light, which is what a hand
+slip looks like.
+
+Both halves of the rule are needed, and neither carries the record alone:
+
+| Priced as | Adjustments reproduced exactly |
+| --- | --- |
+| 40% of remaining, no floor | 225 of 384 |
+| $1 per year remaining, no rate | 253 of 384 |
+| **the greater of the two** | **383 of 384** |
+
+The floor's threshold is confirmed from the other side too. It governs **460 of the 615 releases**, three
+quarters of them, and the salaries where it governs are exactly $1 and $2 — never $3 or more, which is what
+a cutover at $2.50 a year implies and nothing else does. 105 releases land on a fraction before rounding,
+and every one of them rounds up.
+
+**What is still unverified** is the clearing. Nothing in the export says a penalty expired rather than
+carried, since each adjustment is a single dated charge; that half rests on the commissioner's description
+alone.
 
 ### What it means for the model
 
@@ -441,6 +473,11 @@ were each committed a year or more after their season, so they carry the same ri
 here because they agree with the seasons either side of them.
 
 **Roster maximums are derived, not sourced**, except 2025's. See the reasoning above.
+
+**The cut penalty is a bylaw, and the arithmetic of it is confirmed.** It appears in no settings file, but
+`salary_adjustments.json` records every penalty ever charged and 383 of 384 come back exactly from the
+stated rule. The clearing at year end is the part still resting on the commissioner's word. See
+[Confirmed against every penalty ever charged](#confirmed-against-every-penalty-ever-charged).
 
 **Franchise salaries are computed, and the computation is confirmed by the data.** 42 signings across eight
 seasons come in at exactly the top-five average for their position, against a background of fewer than one

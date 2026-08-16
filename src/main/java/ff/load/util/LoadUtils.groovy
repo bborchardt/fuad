@@ -19,6 +19,9 @@ class LoadUtils {
     static String mflTransactionsResourcePath(String year) { "/ff/mfl/data/$year/transactions.json" }
     /** That season's scoring rules, which changed in 2021, 2023 and 2026. See docs/LEAGUE_RULES.md. */
     static String mflRulesResourcePath(String year) { "/ff/mfl/data/$year/rules.json" }
+
+    /** What releasing a player cost, which is the only record of the cut penalty. See docs/LEAGUE_RULES.md. */
+    static String mflSalaryAdjustmentsResourcePath(String year) { "/ff/mfl/data/$year/salary_adjustments.json" }
     /** Weekly scoring a finished season actually produced, under that season's rules. */
     static String mflPlayerScoresResourcePath(String year) { "/ff/mfl/data/$year/player_scores.json" }
     /** Raw weekly statistics, so any season can be restated under any rules. See docs/PROJECTION.md. */

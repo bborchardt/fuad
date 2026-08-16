@@ -1,0 +1,498 @@
+{
+    "encoding": "utf-8",
+    "version": "1.0",
+    "salaryAdjustments": {
+        "salaryAdjustment": [
+            {
+                "amount": "21",
+                "description": "Martellus Bennett (2yrs@25) : Charles Sims (1yrs@1)",
+                "id": "0",
+                "franchise_id": "0006",
+                "timestamp": "1535562860"
+            },
+            {
+                "id": "1",
+                "description": "Eric Decker (1yrs@15)",
+                "franchise_id": "0010",
+                "timestamp": "1535562860",
+                "amount": "6"
+            },
+            {
+                "timestamp": "1536142579",
+                "description": "Paul Richardson (1yrs@1) : Tajae Sharpe (3yrs@1)",
+                "franchise_id": "0009",
+                "id": "10",
+                "amount": "4"
+            },
+            {
+                "franchise_id": "0003",
+                "description": "Corey Coleman (3yrs@1)",
+                "id": "11",
+                "timestamp": "1536169715",
+                "amount": "3"
+            },
+            {
+                "amount": "2",
+                "timestamp": "1536233052",
+                "id": "12",
+                "description": "Ryan Succop (2yrs@1)",
+                "franchise_id": "0007"
+            },
+            {
+                "amount": "4",
+                "description": "Adam Shaheen (4yrs@1)",
+                "id": "13",
+                "franchise_id": "0010",
+                "timestamp": "1536233052"
+            },
+            {
+                "timestamp": "1536822093",
+                "id": "14",
+                "description": "Jaron Brown (2yrs@1) : Tyler Higbee (2yrs@1)",
+                "franchise_id": "0007",
+                "amount": "4"
+            },
+            {
+                "amount": "6",
+                "description": "Graham Gano (1yrs@1) : Donte Moncrief (1yrs@1) : Josh Reynolds (4yrs@1)",
+                "franchise_id": "0009",
+                "id": "15",
+                "timestamp": "1536822093"
+            },
+            {
+                "amount": "19",
+                "description": "Charles Clay (4yrs@9) : Taywan Taylor (4yrs@1)",
+                "id": "16",
+                "franchise_id": "0010",
+                "timestamp": "1536822093"
+            },
+            {
+                "timestamp": "1537029016",
+                "description": "Dan Bailey (1yrs@1)",
+                "id": "17",
+                "franchise_id": "0001",
+                "amount": "1"
+            },
+            {
+                "amount": "3",
+                "timestamp": "1537404304",
+                "description": "Josh Ferguson (3yrs@1)",
+                "id": "18",
+                "franchise_id": "0003"
+            },
+            {
+                "timestamp": "1537404304",
+                "franchise_id": "0008",
+                "description": "Ameer Abdullah (2yrs@4)",
+                "id": "19",
+                "amount": "4"
+            },
+            {
+                "timestamp": "1535648349",
+                "id": "2",
+                "description": "Dez Bryant (1yrs@50)",
+                "franchise_id": "0005",
+                "amount": "20"
+            },
+            {
+                "timestamp": "1537442577",
+                "id": "20",
+                "description": "Mike Davis (1yrs@2)",
+                "franchise_id": "0001",
+                "amount": "1"
+            },
+            {
+                "timestamp": "1537442577",
+                "id": "21",
+                "description": "Rishard Matthews (2yrs@1)",
+                "franchise_id": "0004",
+                "amount": "2"
+            },
+            {
+                "timestamp": "1537442577",
+                "id": "22",
+                "description": "Matt Bryant (1yrs@1)",
+                "franchise_id": "0007",
+                "amount": "1"
+            },
+            {
+                "timestamp": "1537484923",
+                "description": "Greg Zuerlein (1yrs@1)",
+                "id": "23",
+                "franchise_id": "0004",
+                "amount": "1"
+            },
+            {
+                "amount": "4",
+                "timestamp": "1537723963",
+                "description": "Wayne Gallman (4yrs@1)",
+                "franchise_id": "0003",
+                "id": "24"
+            },
+            {
+                "amount": "16",
+                "timestamp": "1537723963",
+                "description": "Jack Doyle (2yrs@19)",
+                "franchise_id": "0004",
+                "id": "25"
+            },
+            {
+                "amount": "1",
+                "franchise_id": "0008",
+                "description": "Austin Seferian-Jenkins (1yrs@1)",
+                "id": "26",
+                "timestamp": "1538049814"
+            },
+            {
+                "description": "Brandon Marshall (1yrs@6)",
+                "franchise_id": "0007",
+                "id": "27",
+                "timestamp": "1538099881",
+                "amount": "3"
+            },
+            {
+                "id": "28",
+                "description": "D.J. Chark (3yrs@1) : Pharoh Cooper (3yrs@1)",
+                "franchise_id": "0002",
+                "timestamp": "1538854627",
+                "amount": "6"
+            },
+            {
+                "franchise_id": "0008",
+                "description": "Carlos Henderson (4yrs@1)",
+                "id": "29",
+                "timestamp": "1538854627",
+                "amount": "4"
+            },
+            {
+                "amount": "4",
+                "franchise_id": "0004",
+                "description": "Teddy Bridgewater (1yrs@1) : Matt Forte (1yrs@1) : Kendall Wright (2yrs@2)",
+                "id": "3",
+                "timestamp": "1535738221"
+            },
+            {
+                "franchise_id": "0008",
+                "description": "Kelvin Benjamin (1yrs@39)",
+                "id": "30",
+                "timestamp": "1538932105",
+                "amount": "16"
+            },
+            {
+                "timestamp": "1539251200",
+                "description": "Brandon McManus (1yrs@1)",
+                "id": "31",
+                "franchise_id": "0001",
+                "amount": "1"
+            },
+            {
+                "amount": "9",
+                "id": "32",
+                "description": "Doug Martin (1yrs@22)",
+                "franchise_id": "0004",
+                "timestamp": "1539251200"
+            },
+            {
+                "amount": "2",
+                "timestamp": "1539251200",
+                "id": "33",
+                "description": "Chase Edmonds (2yrs@1)",
+                "franchise_id": "0007"
+            },
+            {
+                "amount": "6",
+                "description": "Leonte Carroo (3yrs@1) : Laquon Treadwell (3yrs@1)",
+                "id": "34",
+                "franchise_id": "0008",
+                "timestamp": "1539251200"
+            },
+            {
+                "amount": "2",
+                "franchise_id": "0009",
+                "description": "C.J. Anderson (1yrs@4)",
+                "id": "35",
+                "timestamp": "1539251200"
+            },
+            {
+                "amount": "1",
+                "id": "36",
+                "description": "Chris Boswell (1yrs@2)",
+                "franchise_id": "0010",
+                "timestamp": "1539251200"
+            },
+            {
+                "timestamp": "1539340289",
+                "description": "Mike Gillislee (1yrs@9)",
+                "franchise_id": "0006",
+                "id": "37",
+                "amount": "4"
+            },
+            {
+                "amount": "1",
+                "timestamp": "1539862273",
+                "description": "Matt Bryant (1yrs@1)",
+                "id": "38",
+                "franchise_id": "0001"
+            },
+            {
+                "timestamp": "1539862273",
+                "id": "39",
+                "description": "Pierre Garcon (1yrs@9)",
+                "franchise_id": "0004",
+                "amount": "4"
+            },
+            {
+                "amount": "7",
+                "timestamp": "1535744869",
+                "description": "Cameron Artis-Payne (2yrs@1) : Sammie Coates (1yrs@1) : Jeremy Hill (1yrs@1) : Wendell Smallwood (3yrs@1)",
+                "franchise_id": "0003",
+                "id": "4"
+            },
+            {
+                "amount": "4",
+                "franchise_id": "0001",
+                "description": "Ryan Fitzpatrick (1yrs@3) : Alfred Morris (1yrs@3)",
+                "id": "40",
+                "timestamp": "1540467364"
+            },
+            {
+                "amount": "1",
+                "id": "41",
+                "description": "Vernon Davis (1yrs@2)",
+                "franchise_id": "0008",
+                "timestamp": "1540467364"
+            },
+            {
+                "amount": "2",
+                "timestamp": "1540467364",
+                "description": "Bilal Powell (1yrs@4)",
+                "id": "42",
+                "franchise_id": "0009"
+            },
+            {
+                "amount": "2",
+                "timestamp": "1540495864",
+                "id": "43",
+                "description": "Jermaine Kearse (2yrs@2)",
+                "franchise_id": "0004"
+            },
+            {
+                "timestamp": "1540495864",
+                "description": "Cody Latimer (1yrs@1) : Ryan Succop (1yrs@1)",
+                "franchise_id": "0006",
+                "id": "44",
+                "amount": "2"
+            },
+            {
+                "description": "Corey Clement (1yrs@1) : Cameron Meredith (1yrs@12)",
+                "id": "45",
+                "franchise_id": "0003",
+                "timestamp": "1541104072",
+                "amount": "6"
+            },
+            {
+                "timestamp": "1541104072",
+                "description": "Randy Bullock (1yrs@1)",
+                "id": "46",
+                "franchise_id": "0004",
+                "amount": "1"
+            },
+            {
+                "amount": "1",
+                "description": "Jake Elliott (1yrs@1)",
+                "id": "47",
+                "franchise_id": "0008",
+                "timestamp": "1541104072"
+            },
+            {
+                "franchise_id": "0004",
+                "description": "Michael Roberts (3yrs@1)",
+                "id": "48",
+                "timestamp": "1541275620",
+                "amount": "3"
+            },
+            {
+                "timestamp": "1541679169",
+                "id": "49",
+                "description": "Sammie Coates (1yrs@1)",
+                "franchise_id": "0003",
+                "amount": "1"
+            },
+            {
+                "id": "5",
+                "description": "Martavis Bryant (1yrs@1)",
+                "franchise_id": "0001",
+                "timestamp": "1535839633",
+                "amount": "1"
+            },
+            {
+                "amount": "2",
+                "id": "50",
+                "description": "Tyler Kroft (2yrs@1)",
+                "franchise_id": "0004",
+                "timestamp": "1541679169"
+            },
+            {
+                "id": "51",
+                "description": "Chester Rogers (1yrs@1)",
+                "franchise_id": "0009",
+                "timestamp": "1541679169",
+                "amount": "1"
+            },
+            {
+                "description": "Justin Tucker (1yrs@1)",
+                "id": "52",
+                "franchise_id": "0003",
+                "timestamp": "1541726546",
+                "amount": "1"
+            },
+            {
+                "timestamp": "1542287090",
+                "description": "Joe Flacco (1yrs@1)",
+                "franchise_id": "0008",
+                "id": "53",
+                "amount": "1"
+            },
+            {
+                "description": "Jordan Thomas (1yrs@1)",
+                "franchise_id": "0003",
+                "id": "54",
+                "timestamp": "1542513100",
+                "amount": "1"
+            },
+            {
+                "amount": "1",
+                "timestamp": "1542513100",
+                "franchise_id": "0004",
+                "description": "Dustin Hopkins (1yrs@1)",
+                "id": "55"
+            },
+            {
+                "description": "Javorius Allen (1yrs@1)",
+                "franchise_id": "0008",
+                "id": "56",
+                "timestamp": "1542900381",
+                "amount": "1"
+            },
+            {
+                "amount": "1",
+                "id": "57",
+                "description": "Graham Gano (1yrs@1)",
+                "franchise_id": "0001",
+                "timestamp": "1543507528"
+            },
+            {
+                "franchise_id": "0008",
+                "description": "Matt LaCosse (1yrs@1)",
+                "id": "58",
+                "timestamp": "1543617582",
+                "amount": "1"
+            },
+            {
+                "amount": "4",
+                "timestamp": "1543678846",
+                "franchise_id": "0003",
+                "description": "Samaje Perine (4yrs@1)",
+                "id": "59"
+            },
+            {
+                "franchise_id": "0008",
+                "description": "DeAndre Washington (3yrs@1)",
+                "id": "6",
+                "timestamp": "1535896731",
+                "amount": "3"
+            },
+            {
+                "amount": "1",
+                "description": "Dan Bailey (1yrs@2)",
+                "id": "60",
+                "franchise_id": "0007",
+                "timestamp": "1544714090"
+            },
+            {
+                "amount": "2",
+                "timestamp": "1544714279",
+                "id": "62",
+                "description": "Kenny Stills (2yrs@1)",
+                "franchise_id": "0007"
+            },
+            {
+                "amount": "5",
+                "timestamp": "1545424800",
+                "id": "63",
+                "description": "Rashard Higgins (2yrs@1) : Jordan Wilkins (3yrs@1)",
+                "franchise_id": "0007"
+            },
+            {
+                "amount": "11",
+                "timestamp": "1546180390",
+                "description": "Jordan Akins (5yrs@1) : Matthew Stafford (1yrs@15)",
+                "id": "64",
+                "franchise_id": "0009"
+            },
+            {
+                "amount": "6",
+                "timestamp": "1546186188",
+                "franchise_id": "0009",
+                "description": "Andy Dalton (2yrs@7)",
+                "id": "65"
+            },
+            {
+                "timestamp": "1546287815",
+                "id": "66",
+                "description": "Hayden Hurst (5yrs@2) : DeVante Parker (2yrs@10) : Jonnu Smith (5yrs@1)",
+                "franchise_id": "0009",
+                "amount": "18"
+            },
+            {
+                "amount": "28",
+                "timestamp": "1546402848",
+                "description": "Jimmy Graham (2yrs@10) : Demaryius Thomas (2yrs@25)",
+                "franchise_id": "0008",
+                "id": "67"
+            },
+            {
+                "amount": "55",
+                "description": "Doug Baldwin (2yrs@60) : Donte Moncrief (5yrs@2) : Willie Snead (2yrs@1)",
+                "id": "68",
+                "franchise_id": "0004",
+                "timestamp": "1549416558"
+            },
+            {
+                "amount": "5",
+                "timestamp": "1549926048",
+                "id": "69",
+                "description": "Chris Warren (5yrs@1)",
+                "franchise_id": "0008"
+            },
+            {
+                "amount": "4",
+                "timestamp": "1535979364",
+                "description": "DeShone Kizer (4yrs@1)",
+                "franchise_id": "0008",
+                "id": "7"
+            },
+            {
+                "amount": "11",
+                "franchise_id": "0001",
+                "description": "Josh Gordon (4yrs@1) : Greg Olsen (1yrs@17)",
+                "id": "70",
+                "timestamp": "1550319071"
+            },
+            {
+                "amount": "4",
+                "id": "8",
+                "description": "Joe Williams (4yrs@1)",
+                "franchise_id": "0010",
+                "timestamp": "1536108919"
+            },
+            {
+                "timestamp": "1536142579",
+                "description": "Coby Fleener (2yrs@2) : Braxton Miller (3yrs@1) : Blair Walsh (1yrs@1) : Kevin White (2yrs@1) : Danny Woodhead (1yrs@5)",
+                "id": "9",
+                "franchise_id": "0002",
+                "amount": "10"
+            }
+        ]
+    }
+}

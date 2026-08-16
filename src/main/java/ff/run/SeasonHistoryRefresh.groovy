@@ -2,6 +2,7 @@ package ff.run
 
 import ff.fetch.mfl.MflRosterSnapshotRefresh
 import ff.fetch.mfl.MflRulesRefresh
+import ff.fetch.mfl.MflSalaryAdjustmentsRefresh
 import ff.fetch.mfl.MflTransactionsRefresh
 import ff.fetch.mfl.MflWeeklyScoresRefresh
 import ff.fetch.mfl.RosterSnapshot
@@ -9,7 +10,7 @@ import ff.fetch.nflverse.NflverseStatsRefresh
 
 /**
  * Collect the record of a completed season: both roster snapshots, the transaction log, the scoring rules,
- * what the league scored, and the raw statistics behind it. Unlike {@link DataRefresh} this writes nothing
+ * the salary adjustments, what the league scored, and the raw statistics behind it. Unlike {@link DataRefresh} this writes nothing
  * that cannot be refetched, so it cannot overwrite the pre draft rosters in rosters.json with today's state.
  *
  * It also leaves league.json alone, which matters for the same reason: the league site does not keep that
@@ -31,6 +32,7 @@ class SeasonHistoryRefresh {
                 new MflRosterSnapshotRefresh(Integer.parseInt(year), LEAGUE_ID, HOST, snapshot) as Runnable
             } + [new MflTransactionsRefresh(Integer.parseInt(year), LEAGUE_ID, HOST) as Runnable,
                  new MflRulesRefresh(Integer.parseInt(year), LEAGUE_ID, HOST) as Runnable,
+                 new MflSalaryAdjustmentsRefresh(Integer.parseInt(year), LEAGUE_ID, HOST) as Runnable,
                  new MflWeeklyScoresRefresh(Integer.parseInt(year), LEAGUE_ID, HOST) as Runnable,
                  // Not the league site at all, and the one thing here every expected point is built from.
                  new NflverseStatsRefresh(Integer.parseInt(year)) as Runnable]
