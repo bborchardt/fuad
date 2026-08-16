@@ -8,9 +8,9 @@ import spock.lang.Unroll
 /**
  * A ranking set that quietly loses a position is invisible until somebody needs that position.
  *
- * 2026's was fetched with {@code position=OP}, which is every offensive player and no kickers, and nothing
- * noticed until six teams needed a kicker and the board had none to show them. The fetcher now asks for
- * kickers separately; this is what stops the next one going the same way. See docs/DATA.md.
+ * These sets are downloaded by hand, and the export defaults to offensive players — so 2026's arrived with
+ * no kickers in it, and nothing noticed until six teams needed one and the board had none to show them.
+ * This is what stops the next download going the same way. See docs/DATA.md.
  */
 class RankingCoverageSpec extends Specification {
 
@@ -18,9 +18,8 @@ class RankingCoverageSpec extends Specification {
     private static final List<String> POSITIONS = ['QB', 'RB', 'WR', 'TE', 'PK'].asImmutable()
 
     /**
-     * 2026's kickers cannot be recovered: the API key has since dropped to the free tier, which truncates
-     * every set to ten players, and the fetcher refuses to overwrite good data with that. Remove this the
-     * moment a full set can be fetched again.
+     * 2026's set was downloaded without kickers. Re-download it with them included and delete this line —
+     * it is a record of a known gap, not a licence for the next one.
      */
     private static final List<String> MISSING_KICKERS = ['2026'].asImmutable()
 

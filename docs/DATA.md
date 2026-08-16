@@ -72,18 +72,18 @@ Under `src/main/resources/ff/fantasypros/data/<year>`: `dynasty_rankings_ppr.csv
 unquoted values; from 2026 they are comma separated with quoted values. `FantasyProsLoader` detects which
 from the header line and reads both.
 
-**2026's redraft ranking has no kickers, and cannot be repaired.** Every earlier year carries 33 to 45 of
-them; 2026 was the first fetched through the API rather than downloaded by hand, and it asked for
-`position=OP` — every offensive player, which excludes the position. The fetcher now asks for kickers
-separately, and `RankingCoverageSpec` asserts that every committed ranking set carries all five positions
-so the next one cannot go quietly. The 2026 file itself is stuck: the API key has since dropped to the free
-tier, which truncates every set to ten players, and `FantasyProsDataRefresh` refuses to overwrite good data
-with that.
+**These are downloaded by hand, and nothing fetches them.** There was briefly an API client; it is gone.
+The public key is limited to the first ten players of any ranking set, which is useless, and an automated
+path that silently returns a partial set is worse than no automated path at all.
 
-The consequence is small but real. Kickers have no curve and price at the minimum bid anyway, so no
-price is wrong — but six teams go into the 2026 auction needing one and the board lists none. `NEEDS` on
-`-t teams` still reports who is short. Fixing it needs either an upgraded API key or the kicker rankings
-downloaded by hand, the way every year through 2025 was.
+The thing to watch when downloading is that **the export defaults to offensive players and leaves kickers
+out**. 2026's redraft ranking has none — every year from 2021 to 2025 carries 33 to 45 — which nobody
+noticed until six teams needed a kicker and the board had none to show them. `RankingCoverageSpec` asserts
+every committed set carries all five positions so the next one cannot go quietly.
+
+The consequence is small but real. Kickers have no curve and price at the minimum bid anyway, so no price
+is wrong; `NEEDS` on `-t teams` still reports who is short. But the board cannot list a kicker to buy.
+Re-downloading 2026's redraft rankings with kickers included fixes it, and nothing else needs to change.
 
 ## The rollover rule
 
