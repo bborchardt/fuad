@@ -66,6 +66,7 @@ for something, that something is now a column:
 | what a player adds to **my** lineup | `ADDEXP` / `ADDHIND` on `roster_<id>` | a lineup worked out by hand |
 | whether a third at a position is worth it | `ADD1`-`ADD4` on `roster_depth_<id>` | the same, but harder |
 | a position I cannot field at all | `NEEDS` on `teams` | remembering to buy a kicker |
+| how long to sign someone for | `DYNRANK` beside `RANK` | the dynasty ranking, read separately |
 
 `PTSLOW` and `PTSHIGH` carry a caveat worth restating, because the whole point of the boundary is not to
 assume things the model does not know: **the range is the position's, scaled to the player.** Two players

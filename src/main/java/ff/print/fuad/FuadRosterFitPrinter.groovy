@@ -96,8 +96,8 @@ class FuadRosterFitPrinter {
 
     void print(PrintWriter out) {
         out.println(header())
-        out.println(['POS', 'RANK', 'PLAYER', 'HOLDER', 'BYE', 'PTS', 'ADDEXP', 'ADDHIND', 'PRICE',
-                     'ACQUIRE', 'AVAIL'].join('\t'))
+        out.println(['POS', 'RANK', 'DYNRANK', 'PLAYER', 'HOLDER', 'BYE', 'PTS', 'ADDEXP', 'ADDHIND',
+                     'PRICE', 'ACQUIRE', 'AVAIL'].join('\t'))
         List<LineupValue.Rostered> roster = roster()
 
         valuations.collect { PlayerValuation v ->
@@ -112,6 +112,7 @@ class FuadRosterFitPrinter {
             out.println([
                     v.position,
                     v.positionRank,
+                    v.dynastyRank ?: '',
                     v.playerName,
                     holder(v),
                     v.bye ?: '',

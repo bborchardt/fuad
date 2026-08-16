@@ -33,7 +33,7 @@ class BoardColumnsSpec extends Specification {
         StarterRequirements requirements = new StarterRequirements(
                 [WR: 2], [WR: 4], 3, 10)
         Map<String, List> available = (1..20).collectEntries { int rank ->
-            [("p$rank" as String): ["Player $rank" as String, 'WR', rank, null]]
+            [("p$rank" as String): ["Player $rank" as String, 'WR', rank, null, rank + 3]]
         }
         AuctionValuation.value(curve, requirements, available, [WR: 40], 300.0, 20, byes)
     }
@@ -45,6 +45,31 @@ class BoardColumnsSpec extends Specification {
         expect:
         valuations.find { it.positionRank == 3 }.bye == 9
         valuations.find { it.positionRank == 4 }.bye == null
+    }
+
+    def "carries the dynasty rank through without letting it touch a price"() {
+        given: 'every player ranked three worse for the long run than for this season'
+        List<PlayerValuation> valuations = value(new ByeWeeks([:], LAST_WEEK))
+
+        expect: 'it reaches the board'
+        valuations.find { it.positionRank == 5 }.dynastyRank == 8
+
+        and: 'and nothing is priced off it: value and price follow the redraft rank, which is monotone'
+        valuations.sort { it.positionRank }.collect { it.value } ==
+                valuations.sort { it.positionRank }.collect { it.value }.sort { -it }
+    }
+
+    def "leaves the dynasty rank empty where the ranking does not carry a player"() {
+        given:
+        PointsCurve curve = PointsCurve.of([WR: uneven()])
+
+        when: 'a pool whose entries stop at the franchise, as a caller that has no dynasty ranking would give'
+        List<PlayerValuation> valuations = AuctionValuation.value(curve,
+                new StarterRequirements([WR: 2], [WR: 4], 3, 10),
+                [p1: ['Player 1', 'WR', 2, null]], [WR: 40], 300.0, 20, new ByeWeeks([:], LAST_WEEK))
+
+        then: 'absent rather than invented'
+        valuations[0].dynastyRank == null
     }
 
     def "brackets every player between a bad season and a good one"() {
@@ -73,7 +98,7 @@ class BoardColumnsSpec extends Specification {
         given: 'three ranks over six seasons: enough to level a rank, too few to describe a distribution'
         PointsCurve curve = PointsCurve.of(
                 [WR: (1..3).collectEntries { int rank -> [(rank): (1..6).collect { 200.0 as BigDecimal }] }])
-        Map<String, List> available = [p1: ['Player 1', 'WR', 2, null]]
+        Map<String, List> available = [p1: ['Player 1', 'WR', 2, null, 5]]
 
         when:
         List<PlayerValuation> valuations = AuctionValuation.value(curve,

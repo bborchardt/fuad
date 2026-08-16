@@ -164,8 +164,12 @@ class FuadValuationLoader {
                     (!rostered.contains(player.mflId) &&
                             player.redraftRank.positionRank <= ROSTERED_DEPTH[player.player.position])
         }.collectEntries { FuadPlayer player ->
+            // The dynasty rank rides along to the board and is priced by nothing: a salary buys one
+            // season, and the model levels every rank on the redraft ranking alone. It is carried because
+            // a contract's length is decided at the same moment as its price. See docs/LEAGUE_RULES.md.
             [(player.mflId): [player.player.name, player.player.position,
-                              player.redraftRank.positionRank, franchiseByPlayer[player.mflId]]]
+                              player.redraftRank.positionRank, franchiseByPlayer[player.mflId],
+                              player.dynastyRank?.positionRank]]
         }
     }
 

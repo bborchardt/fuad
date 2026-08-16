@@ -116,7 +116,8 @@ class AuctionValuation {
     /**
      * @param curve          expected points by position and consensus rank
      * @param requirements   the league's starting requirements, which set replacement level
-     * @param available      players up for auction: id to [name, position, rank, franchiseId]
+     * @param available      players up for auction: id to [name, position, rank, franchiseId] and
+     *                       optionally a dynasty rank, which is carried to the board and never priced
      * @param franchiseSalary  the franchise tag price at each position
      * @param freeCap        cap space the league has left after contracts already running
      * @param byes           when each rank is off, which is what makes replacement move week to week
@@ -209,6 +210,7 @@ class AuctionValuation {
                     playerName: p[0] as String,
                     position: position,
                     positionRank: rank,
+                    dynastyRank: p.size() > 4 ? p[4] as Integer : null,
                     points: curve.seasonPoints(position, rank),
                     pointsLow: curve.seasonPoints(position, rank) * curve.outcomePercentile(position, LOW_OUTCOME),
                     pointsHigh: curve.seasonPoints(position, rank) * curve.outcomePercentile(position, HIGH_OUTCOME),

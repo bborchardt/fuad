@@ -11,8 +11,17 @@ class PlayerValuation {
     String playerId
     String playerName
     String position
-    /** Consensus positional rank going into the season. */
+    /** Consensus positional rank going into the season, from the redraft ranking the model is built on. */
     int positionRank
+    /**
+     * Consensus positional rank for the long run, or null where the dynasty ranking does not carry him.
+     *
+     * Reported and never priced. It says nothing about this season, which is what a salary buys, and the
+     * model deliberately levels every rank on the redraft ranking alone. It is here because the length of a
+     * contract is a second decision taken at the same moment as the price, and nothing else on the board
+     * speaks to it. See docs/LEAGUE_RULES.md#contract-length.
+     */
+    Integer dynastyRank
     /** Expected points over the regular season: what this rank has historically been worth. */
     BigDecimal points
     /**

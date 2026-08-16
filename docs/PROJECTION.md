@@ -250,10 +250,12 @@ reader who knows the league is not.
   player and one the consensus simply misjudged look identical. For pricing that is the right total, but it
   means the model has no notion of a safe pick versus a risky one — which is why `PTSLOW` and `PTSHIGH` are
   a position's range scaled to a player, and must not be read as his own.
-- **Contract length is not modelled.** Length is chosen jointly with price rather than being an input:
-  longer deals go to players with better dynasty-than-redraft ranks, but cost *less* per year, since the
-  expensive win-now players take one-year deals. Redraft rank predicts salary better than dynasty rank
-  (-0.627 against -0.558). The dynasty gap is not yet used.
+- **Contract length is not modelled.** A salary buys one season, and length is chosen jointly with price
+  rather than being an input. The record shows the shape the cut penalty implies: 87% of signings above $40
+  are one-year deals, against 70% at $1-2, and the dynasty-minus-redraft gap tracks length four times more
+  strongly at the cheap end (correlation 0.290 against 0.12-0.13 higher up). `DYNRANK` is carried on the
+  board so a plan can weigh this; nothing prices it. See
+  [LEAGUE_RULES.md](LEAGUE_RULES.md#contract-length).
 - **Nine of ten teams are predicted to tag**, at the high end of the observed 5-to-9. 2026's tag prices are
   low against the market because they are computed from 2025 salaries.
 - **The calibration is fitted on three seasons.** Positional shares swing hard year to year, and dropping
@@ -295,6 +297,11 @@ Alongside them the board carries what a plan needs in order to reason without go
   the risky one.
 - `BYE` — the week he is off. A fact of the schedule rather than a judgement about him, and the one thing
   about a particular player the model is willing to know.
+- `RANK` / `DYNRANK` — his consensus rank for this season, and for the long run. Everything above is built
+  on `RANK` alone, because a salary buys one season. `DYNRANK` is carried and never priced, for the second
+  decision taken at the same moment as the price: how many years to sign him for. Dynasty rank is the
+  better predictor of what a signing goes on to score over the following two seasons, at every price band —
+  but the top of the board cannot act on it, since a long deal there is unwritable under the cut penalty.
 
 Within-position steepness is fitted per position as `price ~ value^gamma` over historical signings by
 consensus rank over the same seasons: **QB 1.44, RB 1.13, WR 1.07, TE 1.51**. Tight end is the fragile one

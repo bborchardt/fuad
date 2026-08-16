@@ -25,7 +25,8 @@ site does not hold, the second is derived from the prior season's salaries. Both
 | 2026 | 10 | $300 | 10 | yes | 30 | as 2023, plus **TE premium** and extended FG tiers |
 
 Each team may also franchise one free agent at a rule-set price, which changes every year; see
-[The franchise tag](#the-franchise-tag).
+[The franchise tag](#the-franchise-tag). Contracts run one to five years and cost something to get out of;
+see [Contract length](#contract-length).
 
 Three of these move together in a way worth noticing: the league devalued quarterback scoring in **2021**,
 then added a second quarterback slot and raised the cap by 20% in **2022**, then partly restored passing
@@ -92,6 +93,60 @@ enforced. Treat 23 as known for 2021-2026 and unknown before.
 Pre-auction rosters routinely exceed it — 2022's reach 36, and 2026's currently reach 37 — and end-of-year
 rosters do too, since in-season pickups push past it. Only the week 1 snapshot reflects a complied-with
 roster, so `rosters_post_draft.json` is the file to check a roster-size assumption against.
+
+## Contract length
+
+A contract runs from one to **five** years, chosen by the signing team at the moment it bids. Both ends are
+used: across the 534 skill-position signings on record, 344 are one-year deals and 11 are five-year ones.
+
+| Years | 0 | 1 | 2 | 3 | 4 | 5 |
+| --- | --- | --- | --- | --- | --- | --- |
+| Signings | 48 | 344 | 78 | 46 | 7 | 11 |
+
+A `contractYear` of 0 is a deal that expires at the end of the season it was signed in; all 48 are at the $1
+minimum.
+
+### The cut penalty
+
+Releasing a player costs the greater of:
+
+- **40% of the dollars left on the contract**, charged against the **current** year's cap, and
+- **$1 per year of the contract.**
+
+The floor is the part that is easy to miss, and it binds in exactly one place. Below $2.50 a year the 40%
+is worth less than a dollar, so the minimum takes over — which makes a cheap long contract proportionally
+the most expensive thing in the league to get out of:
+
+| Contract | 40% of remaining | $1 per year | Penalty | As a multiple of the annual salary |
+| --- | --- | --- | --- | --- |
+| $1 × 5yr | $2 | **$5** | $5 | **5.0x** |
+| $2 × 5yr | $4 | **$5** | $5 | 2.5x |
+| $5 × 3yr | **$6** | $3 | $6 | 1.2x |
+| $50 × 1yr | **$20** | $1 | $20 | 0.4x |
+
+So the two ends of the board are constrained differently rather than one being free. A large salary cannot
+carry length, because 40% of a long deal on real money is crippling in the year it is eaten — which is why
+**87% of signings above $40 are one-year deals**. A minimum salary can carry length, but not for nothing: a
+five-year dollar player costs five dollars to walk away from, five times what he costs to keep for a year.
+That is a deliberate brake on hoarding long free lottery tickets, and it works — 22 of the 115 signings at
+$1-2 run three years or more, so teams write them, but not without thinking.
+
+**Provenance: this is the least verified rule in this file.** It is stated by the commissioner and is in
+neither `league.json` nor `rules.json`, which carry no cut or penalty fields at all, so it is a bylaw like
+the roster limits. Nothing in the exports records a release penalty being charged, so neither the rate nor
+the floor can be confirmed against the data the way the franchise salary can. One detail is genuinely
+open: whether "per year of the contract" counts the years **remaining** or the years **originally signed**.
+The two agree on a contract cut before it starts, which is the case the rule was quoted for, and diverge
+mid-contract. Treat the mid-contract number as unknown.
+
+### What it means for the model
+
+Nothing, directly: the model prices one season and contract length is not an input to it. See
+[PROJECTION.md](PROJECTION.md#known-limits).
+
+It is documented here because length is chosen jointly with price, and because it explains a shape the
+signings data shows plainly. It is also why `DYNRANK` is carried on the board: what a player is worth over
+five years is a different question from what he is worth this season, and only the second is priced.
 
 ## The franchise tag
 
