@@ -29,12 +29,13 @@ class FuadSalaryProjectionPrinter {
     }
 
     void print(PrintWriter out) {
-        out.println(['POS', 'RANK', 'DYNRANK', 'PLAYER', 'TEAM', 'HOLDER', 'BYE', 'PTS', 'PTSLOW',
+        out.println(['POS', 'TIER', 'RANK', 'DYNRANK', 'PLAYER', 'TEAM', 'HOLDER', 'BYE', 'PTS', 'PTSLOW',
                      'PTSHIGH', 'VOR', 'VALUE', 'PRICE', 'COST', 'ACQUIRE',
                      'EDGE', 'BAND', 'RFRCOST', 'AVAIL', 'TAG', 'FRANCHISED'].join('\t'))
         valuations.each { PlayerValuation v ->
             out.println([
                     v.position,
+                    v.tier,
                     v.positionRank,
                     v.dynastyRank ?: '',
                     v.playerName,

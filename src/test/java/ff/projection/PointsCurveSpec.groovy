@@ -107,6 +107,57 @@ class PointsCurveSpec extends Specification {
         curve.outcomePercentile('WR', 0.10) < curve.outcomePercentile('WR', 0.90)
     }
 
+    private static int tierCount(PointsCurve curve) {
+        (1..curve.depth('WR')).collect { curve.tier('WR', it) }.toSet().size()
+    }
+
+    def "separates every rank when the seasons behind them are tight"() {
+        given: 'rank k scores exactly 300 - 5k every year, so a rank is known almost precisely'
+        PointsCurve curve = PointsCurve.of([WR: steady()])
+
+        expect: 'the error is far smaller than the gap between ranks, so nothing needs grouping'
+        curve.standardError('WR', 15) < 2.0
+        tierCount(curve) == curve.depth('WR')
+    }
+
+    def "groups ranks it cannot tell apart when the seasons behind them scatter"() {
+        given: 'the same ranks, but realised anywhere from nothing to half again as much'
+        Map<Integer, List<BigDecimal>> uneven = (1..30).collectEntries { int rank ->
+            BigDecimal expected = (300 - rank * 5) as BigDecimal
+            [(rank): [expected, expected * 0.5, expected * 1.5, 0.0 as BigDecimal] * 2]
+        }
+        PointsCurve curve = PointsCurve.of([WR: uneven])
+
+        expect: 'error now swamps the gap between neighbouring ranks, so they collapse together'
+        curve.standardError('WR', 15) > 10.0
+        tierCount(curve) < curve.depth('WR') / 2
+
+        and: 'while ranks far enough apart still separate'
+        curve.tier('WR', 1) < curve.tier('WR', 30)
+    }
+
+    def "tiers follow the level and never the rank"() {
+        given: 'a curve with enough scatter to be non-monotone, which is the case that broke this'
+        Map<Integer, List<BigDecimal>> lumpy = (1..30).collectEntries { int rank ->
+            BigDecimal expected = (300 - rank * 5) as BigDecimal
+            [(rank): [expected * (rank % 4 == 0 ? 0.4 : 1.3), expected * 0.6, expected * 1.4,
+                      0.0 as BigDecimal] * 2]
+        }
+        PointsCurve curve = PointsCurve.of([WR: lumpy])
+        List<Integer> ranks = (1..curve.depth('WR')).toList()
+
+        expect: 'a rank levelling higher is never put in a worse tier than one levelling lower'
+        ranks.every { int a ->
+            ranks.every { int b ->
+                curve.seasonPoints('WR', a) <= curve.seasonPoints('WR', b) ||
+                        curve.tier('WR', a) <= curve.tier('WR', b)
+            }
+        }
+
+        and: 'the curve really is non-monotone here, so that invariant was worth asserting'
+        ranks.any { int r -> r < curve.depth('WR') && curve.seasonPoints('WR', r + 1) > curve.seasonPoints('WR', r) }
+    }
+
     def "falls back to expectation where a position has no spread to report"() {
         given: 'three ranks over six seasons: enough to level a rank, too few to describe a distribution'
         PointsCurve curve = PointsCurve.of(

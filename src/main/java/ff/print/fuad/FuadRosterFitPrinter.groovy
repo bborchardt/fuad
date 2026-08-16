@@ -96,7 +96,7 @@ class FuadRosterFitPrinter {
 
     void print(PrintWriter out) {
         out.println(header())
-        out.println(['POS', 'RANK', 'DYNRANK', 'PLAYER', 'HOLDER', 'BYE', 'PTS', 'ADDEXP', 'ADDHIND',
+        out.println(['POS', 'TIER', 'RANK', 'DYNRANK', 'PLAYER', 'HOLDER', 'BYE', 'PTS', 'ADDEXP', 'ADDHIND',
                      'PRICE', 'ACQUIRE', 'AVAIL'].join('\t'))
         List<LineupValue.Rostered> roster = roster()
 
@@ -111,6 +111,7 @@ class FuadRosterFitPrinter {
             LineupValue.Bracket added = row[1] as LineupValue.Bracket
             out.println([
                     v.position,
+                    v.tier,
                     v.positionRank,
                     v.dynastyRank ?: '',
                     v.playerName,

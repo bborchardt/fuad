@@ -308,6 +308,11 @@ Alongside them the board carries what a plan needs in order to reason without go
   the risky one.
 - `BYE` — the week he is off. A fact of the schedule rather than a judgement about him, and the one thing
   about a particular player the model is willing to know.
+- `TIER` — the band of ranks at this position the curve **cannot tell apart**, 1 being the best. Levels are
+  means of about 45 realised seasons and carry a standard error of ten points or so at quarterback, so the
+  curve resolves QB2 from QB17 and has no business resolving QB10 from QB14. Players sharing a tier are
+  ties: choose between them on price, bye or roster fit, never on the order they sit in. Compare only
+  within a position, and see [What a tier is for](#what-a-tier-is-for).
 - `RANK` / `DYNRANK` — his consensus rank for this season, and for the long run. Everything above is built
   on `RANK` alone, because a salary buys one season. `DYNRANK` is carried and never priced, for the second
   decision taken at the same moment as the price: how many years to sign him for. Dynasty rank is the
@@ -324,6 +329,43 @@ value: it describes behaviour, not worth.
 The split immediately shows what the blend was hiding. This league **overpays for receivers and underpays
 for running backs**: Ja'Marr Chase is worth $58 and priced at $79, while Christian McCaffrey is worth $62
 and priced at $69.
+
+## What a tier is for
+
+The board reports prices to the dollar off levels that are good to about ten points. Across the flat middle
+of a position that is a false precision, and it shows up as an ordering the evidence does not support.
+
+Quarterback in 2026 is the clearest case. The curve is nearly flat from QB6 to QB16 — a 15% span across ten
+ranks — and each level carries a standard error of ten to twelve points:
+
+| Rank | Levelled | Standard error |
+| --- | --- | --- |
+| 10 | 193.5 | ±10.2 |
+| 11 | 188.1 | ±10.7 |
+| 12 | 201.6 | ±10.5 |
+| 14 | 194.5 | ±11.0 |
+
+**QB14 lands a point above QB10 on estimates that are each ±11.** That is not a claim that the fourteenth
+quarterback is better than the tenth; it is the curve saying it cannot separate them, and rank 11 comes out
+lowest of the three only because two of its nine seasons collapsed to 54 and 12 points.
+
+Two things then amplify a point of noise into dollars, and both are worst at quarterback. Superflex starts
+20 of them, so replacement sits at QB20 and value is a small difference against a large number: 1 point on
+a 194-point season is 3% of a 61-point value over replacement. Then `PRICE_STEEPNESS` for QB, at 1.44, is
+the steepest of any position and stretches that again. Half a per cent of points becomes six per cent of
+price.
+
+`TIER` says so directly. Herbert, Mahomes, Lawrence and Stafford all come out tier 4, priced $38 down to
+$32, and the spread between them should be read as nothing at all.
+
+Tiers are built by walking the ranks **in order of level, not of rank**, grouping while a rank stays within
+one standard error of the best in its tier. Ordering by rank would put a boundary wherever the curve dips
+and recovers — it split Lawrence from Mahomes on a one-point difference, which is the fault this exists to
+remove. A tier is therefore a set of ranks rather than a range, and need not be contiguous.
+
+The flatness itself is real, and it is the most useful thing the model says about quarterbacks: it is why
+the mid tier costs half as much for a fifth fewer points. Trust the flat region; distrust the order inside
+it.
 
 ## Who is in the pool, and who is not
 

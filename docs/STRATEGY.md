@@ -67,6 +67,7 @@ for something, that something is now a column:
 | whether a third at a position is worth it | `ADD1`-`ADD4` on `roster_depth_<id>` | the same, but harder |
 | a position I cannot field at all | `NEEDS` on `teams` | remembering to buy a kicker |
 | how long to sign someone for | `DYNRANK` beside `RANK` | the dynasty ranking, read separately |
+| which price gaps are real | `TIER` | reading a $2 gap as a ranking |
 
 `PTSLOW` and `PTSHIGH` carry a caveat worth restating, because the whole point of the boundary is not to
 assume things the model does not know: **the range is the position's, scaled to the player.** Two players
@@ -75,6 +76,12 @@ and a plan that treats it as though it does has smuggled in a belief the model d
 
 If a plan needs something not in this table, that is a column the board is missing. Add it to the model,
 where it can be tested, rather than working it out in the plan, where it cannot.
+
+**Read `TIER` before reading `PRICE`.** The board quotes dollars off levels that are good to about ten
+points, so within a tier the ordering is noise and a plan that ranks players by price inside one has
+invented a distinction. Herbert, Mahomes, Lawrence and Stafford are all QB tier 4 in 2026, priced $38 to
+$32; nothing in the model says any of them is better than another. That is the tier where the price
+column is at its most misleading and the bye and availability columns at their most useful.
 
 ## The roster reports
 

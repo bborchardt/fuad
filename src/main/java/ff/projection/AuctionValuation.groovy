@@ -217,6 +217,7 @@ class AuctionValuation {
                     positionRank: rank,
                     dynastyRank: p.size() > 4 ? p[4] as Integer : null,
                     points: curve.seasonPoints(position, rank),
+                    tier: curve.tier(position, rank),
                     pointsLow: curve.seasonPoints(position, rank) * curve.outcomePercentile(position, LOW_OUTCOME),
                     pointsHigh: curve.seasonPoints(position, rank) * curve.outcomePercentile(position, HIGH_OUTCOME),
                     bye: byes.of(position, rank),
