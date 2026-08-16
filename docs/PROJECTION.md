@@ -135,6 +135,17 @@ Teams spend a fairly steady share of the cap they have free — 65% to 85% acros
 the four superflex seasons — so the pot is knowable before the auction. For 2026 that is $2,438 free
 against $1,950 expected spend.
 
+The fifth that goes unspent is deliberate, and it is why a model that assumed teams bid to the cap would
+price everything too high. Cap is what absorbs in-season signings, and it is what a team releasing a bad
+contract pays the penalty out of — charged to the current year and cleared at the end of it, so cap left
+over is also the mechanism by which a mistake is prevented from reaching next season. See
+[LEAGUE_RULES.md](LEAGUE_RULES.md#the-cut-penalty).
+
+Most of that reserve is never drawn on, which is what makes it insurance rather than a budget. In-season
+salary added between the week 1 and end-of-year rosters runs **0.3% to 2.3% of the league's cap**, a mean
+of about 1.2%, though 4 to 8 of the 8 to 10 teams add something every single season. Teams hold far more
+room than they use, every year, and go on holding it.
+
 That 80% is counted over **distinct players**. The week 1 snapshots repeat a handful of roster rows
 verbatim, same franchise and same salary, so summing rows rather than players double counts those
 contracts and puts the figure at 83%. `AuctionValuationSpec` recomputes this and the market shares from the

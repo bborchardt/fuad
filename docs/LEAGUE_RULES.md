@@ -137,9 +137,15 @@ So the two ends of the board are constrained differently rather than one being f
 carry length, because 40% of a long deal on real money is crippling in the year it is eaten — which is why
 **87% of signings above $40 are one-year deals**. A minimum salary can carry length, but not for nothing: a
 five-year dollar player costs five dollars to walk away from in the year you would most want to, five times
-what he costs to keep. The bill is largest exactly when a flyer has just failed and smallest once he has
-been carried long enough not to matter. That is a deliberate brake on hoarding long free lottery tickets,
-and it works as a brake rather than a bar — 22 of the 115 signings at $1-2 run three years or more.
+what he costs to keep. That is a deliberate brake on hoarding long free lottery tickets, and it works as a
+brake rather than a bar — 22 of the 115 signings at $1-2 run three years or more.
+
+**A penalty is charged once, to the current year, and clears at the end of it.** Nothing carries forward:
+there is no dead money in this league. That bounds what a bad contract can cost. The worst case for a
+five-year dollar player who fails immediately is $5 against one season's cap and a clean sheet the next,
+rather than an obligation that follows the team around — which is why a long deal at the minimum is a
+defensible bet and a long deal at $50 is not, and why the damage is a cash-flow problem rather than a
+structural one.
 
 **Provenance: this is the least verified rule in this file.** It is stated by the commissioner and is in
 neither `league.json` nor `rules.json`, which carry no cut or penalty fields at all, so it is a bylaw like

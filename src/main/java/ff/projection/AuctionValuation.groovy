@@ -104,10 +104,15 @@ class AuctionValuation {
     /**
      * Share of free cap the league spends at auction, the mean of the four superflex seasons.
      *
+     * The fifth held back is deliberate, not slack to be bid away. Cap is what pays for in-season signings,
+     * and what a team releasing a bad contract eats the penalty out of — charged to the current year and
+     * cleared at the end of it, so unspent cap is also how a mistake is stopped from reaching next season.
+     * A model assuming teams bid to the cap would price the whole board too high.
+     *
      * Counted over distinct players. The week 1 snapshots repeat a handful of roster rows verbatim, same
      * franchise and same salary, and summing rows rather than players counts those contracts twice and puts
      * this at 0.83. Cooper Kupp's 94 in 2022 is one of them. `AuctionValuationSpec` recomputes it from the
-     * committed seasons so it cannot drift.
+     * committed seasons so it cannot drift. See docs/LEAGUE_RULES.md.
      */
     static final BigDecimal SPEND_RATE = 0.80
 
