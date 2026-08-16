@@ -43,11 +43,32 @@ class PointsCurveSpec extends Specification {
         expect: 'the rate sees the difference a season total cannot: same points, half the football'
         curve.pointsPerGame('WR', 15) > curve.pointsPerGame('WR', 25)
 
-        and: 'and availability is held flat across the priced ranks rather than levelled rank by rank,'
-        curve.expectedGames('WR', 15) == curve.expectedGames('WR', 25)
+        and: 'while availability is smoothed widely enough to absorb one deviant rank almost entirely'
+        (curve.expectedGames('WR', 15) - 12.0).abs() < 1.0
+        (curve.expectedGames('WR', 15) - curve.expectedGames('WR', 25)).abs() < 0.5
 
         and: 'so the rank that played less is levelled above the one that played more'
         curve.seasonPoints('WR', 15) > curve.seasonPoints('WR', 25)
+    }
+
+    def "follows a real decline in availability instead of flattening it away"() {
+        given: 'a position with 20 starting jobs: full seasons to rank 20, then backups who rarely play'
+        Map<Integer, List<RealisedSeason>> byRank = (1..60).collectEntries { int rank ->
+            int games = rank <= 20 ? 12 : Math.max(2, 12 - (rank - 20) / 3 as int)
+            [(rank): (1..9).collect { new RealisedSeason(points: games * 10.0, games: games) }]
+        }
+        PointsCurve curve = PointsCurve.of([QB: byRank])
+
+        expect: 'the starters are held near a full season'
+        (curve.expectedGames('QB', 10) - 12.0).abs() < 1.0
+
+        and: 'and the fall past the last starting job is carried rather than smoothed flat'
+        curve.expectedGames('QB', 45) < curve.expectedGames('QB', 10) * 0.7
+
+        and: 'without a cliff anywhere: no single rank drops availability by a tenth of a game'
+        (21..55).every {
+            (curve.expectedGames('QB', it) - curve.expectedGames('QB', it + 1)).abs() < 0.5
+        }
     }
 
     def "a lost season is availability, not a rate of zero"() {

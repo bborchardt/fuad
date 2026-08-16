@@ -30,7 +30,7 @@ player enters anywhere.**
 
 Levelling on projections instead is the alternative, and it makes the level of every rank one source's
 opinion of this year's specific players. MFL projects Patrick Mahomes at 318 points where consensus ranks
-him QB14, so the whole rank goes with him; history levels QB14 at 183, which is what QB14s have actually
+him QB14, so the whole rank goes with him; history levels QB14 at 196, which is what QB14s have actually
 done.
 
 The one thing about a particular player the curve is willing to know is his bye week. That is a fact of the
@@ -64,9 +64,9 @@ game played:
 
 | | QB | RB | WR | TE |
 | --- | --- | --- | --- | --- |
-| Rank 1 | 214 | 167 | 164 | 146 |
-| Rank 6 | 192 | 163 | 145 | 106 |
-| Rank 24 | 152 | 103 | 114 | 70 |
+| Rank 1 | 245 | 188 | 184 | 162 |
+| Rank 6 | 221 | 179 | 161 | 116 |
+| Rank 24 | 154 | 109 | 122 | 75 |
 | | | | | |
 | Rank 1, per game | 20.1 | 16.3 | 15.6 | 14.4 |
 | Rank 6, per game | 18.1 | 15.9 | 13.8 | 10.4 |
@@ -92,20 +92,31 @@ talent. That is what made RB1 appear to be outplayed by RB5:
 He is not outplayed. He has the highest rate at the position, where the consensus puts him, and the fewest
 games of the top eight, which is what a bell cow's workload buys him.
 
-**Availability is held flat across the ranks that carry money.** How much football a player misses turns
-out to be almost unrelated to where he was ranked — the correlation between rank and games played is −0.04
-at running back, −0.09 at receiver and −0.14 at tight end — so estimating it rank by rank fits noise, and
-multiplying that noise back into the level undoes the whole point of the split. Levelled per rank, the
-curve came out *less* monotone than the season totals it replaced. Held flat, the improvement is large:
+**Availability is smoothed five times harder than the rate**, over ranks ±10 rather than ±2. How much
+football a player misses is nearly unrelated to where he was ranked — the correlation between rank and games
+played is −0.04 at running back, −0.09 at receiver and −0.14 at tight end — so a narrow window fits noise
+and multiplies it straight back into the level. At the rate's own radius the curve came out *less* monotone
+than the season totals it replaced:
 
 | Backward movement, as a share of the curve's range | QB | RB | WR | TE |
 | --- | --- | --- | --- | --- |
 | Levelling season totals | 23% | 32% | 45% | 25% |
-| Levelling rate × availability | **11%** | **12%** | **30%** | **19%** |
+| Availability at the rate's radius, ±2 | 24% | 44% | 83% | 35% |
+| **Availability smoothed at ±10** | **7%** | **11%** | **22%** | **13%** |
 
-Deep ranks keep their own figure, because there the drop is real rather than noise: quarterbacks ranked 25
-and worse average 8.4 games against 11.3 for the top 24, being backups who do not play rather than starters
-who get hurt. They price at the minimum bid either way.
+Smoothed, though, and not held flat, which was the first attempt. Quarterback is why: the league has 32
+starting jobs, so a quarterback ranked past about 26 is a backup who plays when somebody gets hurt.
+
+| QB rank | 1 | 20 | 24 | 26 | 30 | 34 |
+| --- | --- | --- | --- | --- | --- | --- |
+| games actually played | 11.9 | 11.2 | 10.7 | 10.1 | 9.1 | 7.1 |
+| a flat figure would use | 10.6 | 10.6 | 10.6 | 10.6 | 10.6 | 10.6 |
+
+Flat overstated the back of that range by half while understating the elite, and left a cliff wherever the
+flat region stopped — 10.6 games at QB34 against 6.0 at QB35, a 43% drop between neighbouring ranks. A wide
+window keeps what flattening was for and gives all of that back: it is more monotone at every position, and
+continuous everywhere. Receiver, where availability really is flat to rank 40 and beyond, is unaffected
+either way.
 
 A season lost entirely is `games = 0`. It carries no rate — a year that never happened is no evidence about
 form — and counts in the availability half, which is how the left tail a bench is priced against survives
@@ -121,21 +132,21 @@ the minimums and four are flex. Allocating the flex greedily across the league g
 
 | | QB | RB | WR | TE | PK |
 | --- | --- | --- | --- | --- | --- |
-| Started league-wide | 20 | 26 | 34 | 10 | 10 |
+| Started league-wide | 20 | 26 | 32 | 12 | 10 |
 
 Superflex means 20 of about 50 usable quarterbacks start, which pushes quarterback replacement very high
 and compresses what the best ones are worth over it. That much is decisive and stable.
 
-**The last three flex spots are not.** They fall to receivers here, but the comparison that decides them is
-between a league's 32nd to 34th receiver and its 11th to 13th tight end, and those are the same players:
+**The last few flex spots are not.** The comparison that decides them is between a league's 32nd to 34th
+receiver and its 11th to 13th tight end, and those are the same players:
 
 | | 11th | 12th | 13th |
 | --- | --- | --- | --- |
-| TE | 105 | 106 | 103 |
-| WR (32nd, 33rd, 34th) | 102 | 104 | 105 |
+| TE | 109 | 110 | 107 |
+| WR (32nd, 33rd, 34th) | 104 | 105 | 106 |
 
-Two or three points apart, against a standard error near ten. Levelling on season totals put those slots at
-tight end; levelling on rate and availability puts them at receiver; neither is a claim worth making, and
+A handful of points apart, against a standard error near eight. Small changes to the curve have moved these
+slots between the two positions more than once, and
 the honest reading is that the league starts about ten tight ends and about thirty-two receivers with the
 last few slots undetermined. It matters because replacement level follows from it — which is a caution
 about the tight end and deep receiver markets rather than about the top of the board.
@@ -272,13 +283,13 @@ tagged are gone the best player left is a large share of what remains.
 
 ## What it produces for 2026
 
-105 players priced, $1,878 total. The highest `PRICE` is Ja'Marr Chase at $90, which no one pays because he
+106 players priced, $1,872 total. The highest `PRICE` is Ja'Marr Chase at $90, which no one pays because he
 is tagged at $61.
 
 | | Model 2026 | Actual 2025 |
 | --- | --- | --- |
 | Top price | $90 | $100 |
-| Players above $1 | 69 | 70 |
+| Players above $1 | 72 | 70 |
 | Share of the pot in the top 40 | 89% | 87% |
 | Teams tagging | 9 | 7 |
 
@@ -286,7 +297,7 @@ Position shares are the ones the league actually spends, since `MARKET_WEIGHT` i
 
 | | QB | RB | WR | TE |
 | --- | --- | --- | --- | --- |
-| Model | 23.3% | 33.0% | 33.9% | 9.7% |
+| Model | 23.1% | 32.6% | 33.8% | 9.6% |
 | Calibration | 23.3% | 33.0% | 34.4% | 9.3% |
 
 Nine tags are predicted, one per team, led by Ja'Marr Chase at a $61 tag against a $90 market price.
@@ -422,23 +433,23 @@ level carries a standard error of nine to ten points:
 
 | Rank | Levelled | Standard error | Tier |
 | --- | --- | --- | --- |
-| 8 | 184.1 | ±9.3 | 3 |
-| 10 | 177.4 | ±8.6 | 4 |
-| 11 | 177.2 | ±9.2 | 4 |
-| 12 | 181.8 | ±8.9 | 4 |
-| 14 | 174.0 | ±10.2 | 4 |
+| 8 | 212.6 | ±7.7 | 4 |
+| 10 | 202.9 | ±7.4 | 5 |
+| 11 | 202.4 | ±7.3 | 5 |
+| 12 | 207.2 | ±7.8 | 4 |
+| 14 | 195.6 | ±8.8 | 5 |
 
-QB10 and QB11 are two tenths of a point apart on estimates carrying nine. That is not a claim about which
-is better; it is the curve saying it cannot separate them.
+QB10 and QB11 are half a point apart on estimates carrying seven. That is not a claim about which is
+better; it is the curve saying it cannot separate them.
 
 Two things then amplify a point of noise into dollars, and both are worst at quarterback. Superflex starts
 20 of them, so replacement sits at QB20 and value is a small difference against a large number. Then
 `PRICE_STEEPNESS` for QB, at 1.44, is the steepest of any position and stretches that again.
 
-`TIER` says so directly. Lawrence, Prescott and Mahomes all come out tier 4, priced $34, $34 and $31, and
+`TIER` says so directly. Lawrence, Prescott and Mahomes all come out tier 5, priced $34, $34 and $30, and
 the spread between them should be read as nothing at all.
 
-Splitting rate from availability shrank the errors — from ten to twelve points down to nine or ten — but
+Splitting rate from availability shrank the errors — from ten to twelve points down to seven or nine — but
 did not remove them, and it was never going to: the flatness across the middle of the position is a real
 feature of quarterback scoring, not an artefact. Fewer ranks now sit in one tier than before, and the ones
 that remain together genuinely belong together.

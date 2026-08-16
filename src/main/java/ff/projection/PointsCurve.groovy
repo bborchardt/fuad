@@ -42,6 +42,27 @@ class PointsCurve {
     private static final int SMOOTHING_RADIUS = 2
 
     /**
+     * Availability is smoothed five times harder than the rate, because it has far less to say by rank.
+     *
+     * How much football a player misses is nearly unrelated to where he was ranked — the correlation
+     * between rank and games played is -0.04 at running back, -0.09 at receiver, -0.14 at tight end — so a
+     * narrow window fits noise and multiplies it back into the level this split exists to take it out of.
+     * Smoothed at the rate's own radius, the curve came out less monotone than the season totals it
+     * replaced.
+     *
+     * <b>Smoothed, though, and not flattened.</b> Holding it constant across the ranks that carry money was
+     * the first attempt and it went wrong at quarterback, where availability is not flat at all: there are
+     * 32 starting jobs in the league, so a quarterback ranked past about 26 is a backup who plays when
+     * somebody gets hurt. Availability there falls from 10.7 games at rank 24 to 7.1 at rank 34, and a flat
+     * figure overstated the back of that range by half while understating the elite, whose own average is
+     * 11.9. It also left a cliff wherever the flat region ended — 10.63 games at QB34 against 6.02 at QB35.
+     *
+     * A wide window keeps what flattening was for and gives all of that back. It is less monotone at no
+     * position and more monotone at every one.
+     */
+    private static final int AVAILABILITY_SMOOTHING_RADIUS = 10
+
+    /**
      * Ranks levelled below this share of the position's best do not get a say in the outcome spread.
      *
      * Not because they are uninteresting but because a ratio taken against a very small number is not a
@@ -114,33 +135,30 @@ class PointsCurve {
             Map<Integer, BigDecimal> level = [:]
             Map<Integer, BigDecimal> error = [:]
             (1..deepest).each { int rank ->
-                List<RealisedSeason> around = smoothed(byRank, rank)
+                List<RealisedSeason> around = smoothed(byRank, rank, SMOOTHING_RADIUS)
                 // Availability counts every ranked season, including the ones that never happened. Rate
                 // counts only the seasons with football in them, a lost year being no evidence about form.
                 List<BigDecimal> observedRates = around.findAll { it.games > 0 }.collect { it.rate }
                 if (around.size() >= MINIMUM_OBSERVATIONS && observedRates.size() >= MINIMUM_OBSERVATIONS) {
+                    List<RealisedSeason> wider = smoothed(byRank, rank, AVAILABILITY_SMOOTHING_RADIUS)
                     BigDecimal meanRate = mean(observedRates)
-                    BigDecimal meanGames = mean(around.collect { it.games as BigDecimal })
+                    BigDecimal meanGames = mean(wider.collect { it.games as BigDecimal })
                     rate[rank] = meanRate
                     played[rank] = meanGames
                     level[rank] = meanRate * meanGames
-                    error[rank] = levelErrorOf(observedRates, around, meanRate, meanGames)
+                    error[rank] = levelErrorOf(observedRates, wider, meanRate, meanGames)
                 }
             }
             if (level) {
-                // Availability is flat across the ranks that carry money, so it is estimated once for the
-                // position rather than per rank. Levelling it rank by rank fits noise and puts it straight
-                // back into the product this split exists to take it out of.
-                Map<Integer, BigDecimal> flattened = flattenAvailability(byRank, level, played)
-                BigDecimal anchor = anchorTo(byRank, level, rate, flattened)
+                BigDecimal anchor = anchorTo(byRank, level, rate, played)
                 Map<Integer, BigDecimal> settled = level.collectEntries { int rank, BigDecimal points ->
-                    [(rank): rate[rank] * flattened[rank] * anchor]
+                    [(rank): rate[rank] * played[rank] * anchor]
                 }
                 Map<Integer, BigDecimal> settledError = error.collectEntries { int rank, BigDecimal e ->
                     [(rank): level[rank] > 0 ? e * settled[rank] / level[rank] : e]
                 }
                 rates[position] = rate
-                games[position] = flattened
+                games[position] = played
                 levels[position] = settled
                 errors[position] = settledError
                 tiers[position] = tiersOf(settled, settledError)
@@ -304,14 +322,14 @@ class PointsCurve {
     private static BigDecimal anchorTo(Map<Integer, List<RealisedSeason>> byRank,
                                        Map<Integer, BigDecimal> level,
                                        Map<Integer, BigDecimal> rate,
-                                       Map<Integer, BigDecimal> flattened) {
+                                       Map<Integer, BigDecimal> played) {
         int deepest = pricedDepthOf(level)
         List<Integer> priced = level.keySet().findAll { it <= deepest }.toList()
         if (!priced) {
             return 1.0
         }
         List<BigDecimal> observed = priced.collectMany { int rank -> (byRank[rank] ?: []).collect { it.points } }
-        List<BigDecimal> modelled = priced.collect { int rank -> rate[rank] * flattened[rank] }
+        List<BigDecimal> modelled = priced.collect { int rank -> rate[rank] * played[rank] }
         if (!observed || !modelled) {
             return 1.0
         }
@@ -320,40 +338,6 @@ class PointsCurve {
         built > 0 ? target / built : 1.0
     }
 
-    /**
-     * Hold availability flat across the ranks that carry money, and let it fall away below them.
-     *
-     * How many games a player misses is essentially unrelated to where the consensus ranked him: across
-     * nine seasons the correlation between rank and games played is -0.04 at running back, -0.09 at
-     * receiver and -0.14 at tight end. Estimating a separate figure for each rank therefore fits noise, and
-     * multiplying it into the level puts back exactly the scatter that splitting rate from availability was
-     * meant to remove — measured per rank the level came out <i>less</i> monotone than the season totals it
-     * replaced.
-     *
-     * Below the money the picture changes and the flat figure would be wrong. Quarterback is the clear
-     * case: ranks 1 to 24 average 11.3 games and ranks 25 and beyond only 8.4, because those are backups
-     * who do not play rather than starters who get hurt. Deep ranks keep their own estimate for that
-     * reason, and they price at the minimum bid either way.
-     */
-    private static Map<Integer, BigDecimal> flattenAvailability(Map<Integer, List<RealisedSeason>> byRank,
-                                                                Map<Integer, BigDecimal> level,
-                                                                Map<Integer, BigDecimal> played) {
-        int deepest = pricedDepthOf(level)
-        List<Integer> priced = level.keySet().findAll { it <= deepest }.toList()
-        if (!priced) {
-            return played
-        }
-        List<BigDecimal> observed = priced.collectMany { int rank ->
-            (byRank[rank] ?: []).collect { it.games as BigDecimal }
-        }
-        if (!observed) {
-            return played
-        }
-        BigDecimal flat = mean(observed)
-        played.collectEntries { int rank, BigDecimal own ->
-            [(rank): rank <= deepest ? flat : own.min(flat)]
-        }
-    }
 
     /**
      * The standard error of a level, propagated from the two halves it is a product of.
@@ -416,9 +400,9 @@ class PointsCurve {
         tiers
     }
 
-    private static List<RealisedSeason> smoothed(Map<Integer, List<RealisedSeason>> byRank, int rank) {
-        ((rank - SMOOTHING_RADIUS)..(rank + SMOOTHING_RADIUS))
-                .collectMany { (byRank[it] ?: []) as List<RealisedSeason> }
+    private static List<RealisedSeason> smoothed(Map<Integer, List<RealisedSeason>> byRank, int rank,
+                                                 int radius) {
+        ((rank - radius)..(rank + radius)).collectMany { (byRank[it] ?: []) as List<RealisedSeason> }
     }
 
     /** Which ranks carry enough money for a ratio against them to mean anything. */
