@@ -36,8 +36,12 @@ class FantasyProsDataRefresh implements Runnable {
 
         new File("$resourcePath/dynasty_rankings_ppr.csv").text =
                 toTabSeparated(fetch("$baseUrl?type=DYNASTY&position=OP"))
-        new File("$resourcePath/redraft_rankings_half_ppr.csv").text =
-                toTabSeparated(fetch("$baseUrl?type=DRAFT&position=OP&scoring=HALF"))
+        // OP is every offensive player, which does not include kickers. They have to be asked for
+        // separately or the redraft set comes back without a single one, and a team that needs a kicker
+        // then sees none on the board. See docs/DATA.md.
+        new File("$resourcePath/redraft_rankings_half_ppr.csv").text = toTabSeparated(
+                fetch("$baseUrl?type=DRAFT&position=OP&scoring=HALF"),
+                fetch("$baseUrl?type=DRAFT&position=K&scoring=HALF"))
         new File("$resourcePath/rookie_rankings_ppr.csv").text =
                 toTabSeparated(fetch("$baseUrl?type=ROOKIES&position=OP"))
     }
@@ -63,11 +67,25 @@ class FantasyProsDataRefresh implements Runnable {
         }
     }
 
-    static String toTabSeparated(Map rankings) {
+    /**
+     * Write one or more ranking sets as a single file.
+     *
+     * Each set numbers its own overall ranks from one, so a later set is offset to sit after the ones
+     * before it. Nothing prices off the overall rank — the model reads the positional rank out of the POS
+     * column — but leaving a second set numbered from one would put kickers among the best players in the
+     * file, which is misleading to anyone reading it and to the unmatched-player diagnostic.
+     */
+    static String toTabSeparated(Map... rankings) {
         StringBuilder out = new StringBuilder(HEADER).append('\n')
-        (rankings.players as List<Map>).each { player ->
-            out.append([player.rank_ecr, player.tier, player.player_name, player.player_team_id,
-                        player.pos_rank, player.player_bye_week].join('\t')).append('\n')
+        int offset = 0
+        rankings.each { Map set ->
+            List<Map> players = (set.players as List<Map>) ?: []
+            players.each { player ->
+                out.append([(player.rank_ecr as String as int) + offset, player.tier, player.player_name,
+                            player.player_team_id, player.pos_rank, player.player_bye_week]
+                        .join('\t')).append('\n')
+            }
+            offset += players.size()
         }
         out.toString()
     }

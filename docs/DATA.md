@@ -72,6 +72,19 @@ Under `src/main/resources/ff/fantasypros/data/<year>`: `dynasty_rankings_ppr.csv
 unquoted values; from 2026 they are comma separated with quoted values. `FantasyProsLoader` detects which
 from the header line and reads both.
 
+**2026's redraft ranking has no kickers, and cannot be repaired.** Every earlier year carries 33 to 45 of
+them; 2026 was the first fetched through the API rather than downloaded by hand, and it asked for
+`position=OP` — every offensive player, which excludes the position. The fetcher now asks for kickers
+separately, and `RankingCoverageSpec` asserts that every committed ranking set carries all five positions
+so the next one cannot go quietly. The 2026 file itself is stuck: the API key has since dropped to the free
+tier, which truncates every set to ten players, and `FantasyProsDataRefresh` refuses to overwrite good data
+with that.
+
+The consequence is small but real. Kickers have no curve and price at the minimum bid anyway, so no
+price is wrong — but six teams go into the 2026 auction needing one and the board lists none. `NEEDS` on
+`-t teams` still reports who is short. Fixing it needs either an upgraded API key or the kicker rankings
+downloaded by hand, the way every year through 2025 was.
+
 ## The rollover rule
 
 Each season's `rosters.json` is the prior season's `rosters_end_of_year.json` rolled over:

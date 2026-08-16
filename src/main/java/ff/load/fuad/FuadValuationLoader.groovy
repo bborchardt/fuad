@@ -62,11 +62,17 @@ class FuadValuationLoader {
      * Kickers are cut off by hand, having no curve to derive a depth from.
      *
      * Every other position is bounded by {@link PointsCurve#pricedDepth}, the point below which the curve
-     * says a rank is no longer really a claim. Kicking is not in the statistics at all, so there is no
-     * level to compare against a floor and this stands in for one. It costs nothing: the league has spent
-     * under one per cent of its auction on the position in every season on record.
+     * says a rank is no longer really a claim. Kicking is not in the statistics at all, so there is no level
+     * to compare against a floor and this stands in for one, set to cover every kicker the league has ever
+     * signed at auction: the deepest is PK25, and 25 also holds 95% of all the kickers on a week 1 roster.
+     *
+     * Deeper than it looks like it needs to be, for two reasons. Half the league carries a second kicker for
+     * bye coverage in a typical year — 20% to 56% of teams, season by season — so about fifteen are rostered
+     * rather than ten. And consensus rank means very little at the position, so teams do not take them in
+     * rank order: the median kicker signed ranks 6th, but the 90th percentile is 16th. A depth of 12 covered
+     * only 81% of the kickers actually signed.
      */
-    private static final int KICKER_DEPTH = 12
+    private static final int KICKER_DEPTH = 25
 
     /**
      * The curve, built once per loader.
