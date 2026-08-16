@@ -140,7 +140,7 @@ class FuadRunner {
         if (TYPE_TEAMS == type) {
             return [(type): { PrintWriter out ->
                 new FuadTeamContextPrinter(fuadData, valuationLoader.valuations(year, fuadData),
-                        salaryCap(year)).print(out)
+                        salaryCap(year), valuationLoader.requirements(year)).print(out)
             }]
         }
         if (TYPE_ROSTER == type) {

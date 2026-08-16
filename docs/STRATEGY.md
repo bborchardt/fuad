@@ -65,6 +65,7 @@ for something, that something is now a column:
 | what a team can spend | `FREECAP`, `EXPOSURE`, `EXP/CAP` on `teams` | the cap and the spend rate |
 | what a player adds to **my** lineup | `ADDEXP` / `ADDHIND` on `roster_<id>` | a lineup worked out by hand |
 | whether a third at a position is worth it | `ADD1`-`ADD4` on `roster_depth_<id>` | the same, but harder |
+| a position I cannot field at all | `NEEDS` on `teams` | remembering to buy a kicker |
 
 `PTSLOW` and `PTSHIGH` carry a caveat worth restating, because the whole point of the boundary is not to
 assume things the model does not know: **the range is the position's, scaled to the player.** Two players
@@ -107,6 +108,29 @@ board puts the third quarterback at 22 and the fourth at nothing.
 **A team is evaluated, never optimised.** Nothing here recommends a roster or solves for one under the cap.
 It says what a roster scores; which players to buy stays a judgement, made against prices the model is
 least confident about at exactly the top of the board where the money is.
+
+### The kicker, and why `NEEDS` exists
+
+A kicker scores nothing in this model. The nflverse statistics carry no kicking, so no kicker can be
+levelled, every one of them prices at the minimum bid, and none adds anything to any lineup. A team holding
+no kicker would therefore never see the position surface on any report — while still being unable to field
+a legal lineup.
+
+That is the one place the board would have forced a plan to bring knowledge from outside it, and the old
+plan did exactly that, in a hand-written aside: *"Kicker is a checklist item, not a strategy. Just do not
+forget to draft one."*
+
+`NEEDS` on `teams` closes it. It reports each position where a team holds fewer players than the lineup
+requires, as `PK:1`. Saying a roster is short at a position needs no curve for that position — which is the
+same move the rest of that report makes: state what is true, and decline to price what cannot be priced.
+In 2026 it reads `PK:1` for six of the ten teams and is empty for the rest, which is the whole of the
+league's roster-legality problem.
+
+The header of each roster report names the same gap from the other side: `15 of 16 signed in the lineup,
+1 unpriced (PK Evan McPherson)`. His salary and his roster spot are counted everywhere — free cap,
+`COMMITTED`, `SIGNED`, `SLOTS`, `MINSIGN` — and only the lineup cannot use him. Dropping him changes no
+figure, since a player worth nothing is never selected and could only fill a slot that would stand empty
+anyway, but the two counts differ and should be seen to.
 
 ## Running the check
 

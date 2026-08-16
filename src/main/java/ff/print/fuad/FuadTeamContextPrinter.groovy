@@ -5,6 +5,7 @@ import ff.data.fuad.FuadData
 import ff.data.mfl.MflFranchise
 import ff.data.mfl.MflPlayer
 import ff.projection.AuctionValuation
+import ff.projection.StarterRequirements
 
 import java.math.RoundingMode
 
@@ -40,11 +41,32 @@ class FuadTeamContextPrinter {
     private final FuadData fuadData
     private final List<PlayerValuation> valuations
     private final int salaryCap
+    private final Map<String, Integer> lineupMinimums
 
-    FuadTeamContextPrinter(FuadData fuadData, List<PlayerValuation> valuations, int salaryCap) {
+    FuadTeamContextPrinter(FuadData fuadData, List<PlayerValuation> valuations, int salaryCap,
+                           StarterRequirements requirements) {
         this.fuadData = fuadData
         this.valuations = valuations
         this.salaryCap = salaryCap
+        this.lineupMinimums = requirements.perTeamMinimums()
+    }
+
+    /**
+     * Positions a team cannot field a legal lineup at, as `POS:short`.
+     *
+     * Reported rather than priced, for the same reason the rest of this report is. A kicker is the case
+     * that forces it: the statistics carry no kicking, so no kicker can be levelled and every one of them
+     * prices at the minimum bid and adds nothing to any lineup. A team with none would therefore never see
+     * the position surface anywhere, and would have to carry "remember to buy a kicker" as knowledge from
+     * outside the model — which is exactly what a plan reasoning from the board is not supposed to need.
+     *
+     * Saying a roster is short at a position needs no curve for it. See docs/STRATEGY.md.
+     */
+    private String needs(List<MflPlayer> signed) {
+        lineupMinimums.collect { String position, int minimum ->
+            int held = signed.count { it.player.position == position }
+            held < minimum ? "$position:${minimum - held}" : null
+        }.findAll { it != null }.join(',')
     }
 
     void print(PrintWriter out) {
@@ -53,16 +75,17 @@ class FuadTeamContextPrinter {
                 .groupBy { it.franchiseId }
 
         out.println((['TEAM', 'OWNER', 'ROSTER', 'SIGNED', 'EXPIRING', 'SLOTS', 'ROOKIES', 'MINSIGN',
-                      'MAXSIGN', 'COMMITTED', 'FREECAP', 'EXPOSURE', 'EXP/CAP', 'TAGS', 'TAGCOST'] +
-                POSITIONS.collect { "${it}SIGNED" }).join('\t'))
+                      'MAXSIGN', 'NEEDS', 'COMMITTED', 'FREECAP', 'EXPOSURE', 'EXP/CAP', 'TAGS',
+                      'TAGCOST'] + POSITIONS.collect { "${it}SIGNED" }).join('\t'))
         fuadData.mflData.franchiseByIdMap.sort { it.key }.each { String id, MflFranchise franchise ->
             List<MflPlayer> signed = franchise.players.findAll { it.contract }
             List<PlayerValuation> expiring = expiringByTeam[id] ?: []
-            int committed = signed.sum { it.contract.salary } as int ?: 0
+            // Coalesced before the cast, not after: an empty roster sums to null, and null as int throws.
+            int committed = (signed.sum { it.contract.salary } ?: 0) as int
             int freeCap = salaryCap - committed
             // What keeping every expiring player would cost: a tag price where one is expected, the market
             // price otherwise. Against free cap it says how much of the roster the budget can actually hold.
-            int exposure = expiring.sum { it.salary } as int ?: 0
+            int exposure = (expiring.sum { it.salary } ?: 0) as int
             List<PlayerValuation> tagged = expiring.findAll { it.franchiseTagged }
 
             // The rookie draft fills spots the auction then does not have to, so it comes off both ends of
@@ -80,6 +103,7 @@ class FuadTeamContextPrinter {
                     rookies,
                     Math.max(0, MIN_ROSTER - signed.size() - rookies),
                     Math.max(0, MAX_ROSTER - signed.size() - rookies),
+                    needs(signed),
                     committed,
                     freeCap,
                     exposure,

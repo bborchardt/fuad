@@ -49,15 +49,21 @@ class FuadRosterFitPrinter {
     }
 
     private List<LineupValue.Rostered> roster
+    private List<MflPlayer> unpriced
     private LineupValue.Bracket base
 
     /**
      * The roster as it will reach the auction: contracts still running.
      *
      * Everyone expiring is in the pool rather than on the roster, this team's own included, since keeping
-     * one is a decision it makes at a price like anybody else's. A contracted player the consensus does not
-     * rank brings no points and drops out, which is right for a lineup and worth knowing when the count in
-     * the header comes in under the roster size.
+     * one is a decision it makes at a price like anybody else's.
+     *
+     * A contracted player the curve cannot level brings no points and leaves the lineup: a kicker, whom the
+     * statistics carry nothing for, someone ranked past the depth the curve reaches, or someone the
+     * consensus does not rank at all. Dropping him changes no number here, since a player worth nothing is
+     * never selected and could only ever fill a slot that would otherwise stand empty. It is named in the
+     * header rather than silently absorbed, because his salary and his roster spot are still counted
+     * everywhere else and the two counts should be seen to differ.
      */
     private List<LineupValue.Rostered> roster() {
         if (roster != null) {
@@ -66,11 +72,14 @@ class FuadRosterFitPrinter {
         MflFranchise franchise = franchise()
         Map<String, FuadPlayer> byMflId = fuadData.playerByNameMap.values()
                 .findAll { it.mflId }.collectEntries { [(it.mflId): it] }
-        roster = franchise.players.findAll { MflPlayer held -> held.contract }
-                .collect { MflPlayer held ->
-                    FuadPlayer ranked = byMflId[held.id]
-                    lineups.rostered(held.player.position, ranked?.redraftRank?.positionRank)
-                }.findAll { it != null }
+        List<MflPlayer> signed = franchise.players.findAll { MflPlayer held -> held.contract }
+        Map<Boolean, List<MflPlayer>> split = signed.groupBy { MflPlayer held ->
+            lineups.rostered(held.player.position, byMflId[held.id]?.redraftRank?.positionRank) != null
+        }
+        unpriced = split[false] ?: []
+        roster = (split[true] ?: []).collect { MflPlayer held ->
+            lineups.rostered(held.player.position, byMflId[held.id]?.redraftRank?.positionRank)
+        }
     }
 
     private LineupValue.Bracket base() {
@@ -169,8 +178,12 @@ class FuadRosterFitPrinter {
     }
 
     private String header() {
-        "# franchise $franchiseId (${franchise().ownerName}), ${roster().size()} ranked players under " +
-                "contract, lineup ${round(base().onExpectation)} to ${round(base().withHindsight)} points"
+        List<LineupValue.Rostered> priced = roster()
+        String missing = unpriced ? ", ${unpriced.size()} unpriced (${unpriced
+                .collect { "$it.player.position $it.player.name" }.join('; ')})" : ''
+        "# franchise $franchiseId (${franchise().ownerName}), ${priced.size()} of " +
+                "${priced.size() + unpriced.size()} signed in the lineup$missing, " +
+                "lineup ${round(base().onExpectation)} to ${round(base().withHindsight)} points"
     }
 
     private static BigDecimal round(BigDecimal points) { points.setScale(0, RoundingMode.HALF_UP) }

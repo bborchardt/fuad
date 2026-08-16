@@ -82,9 +82,14 @@ class FuadValuationLoader {
      */
     LineupValue lineups(String year) {
         Map league = LoadUtils.loadJsonResource(LoadUtils.mflLeagueResourcePath(year)) as Map
-        int teams = (league.league.franchises.franchise as List).size()
         new LineupValue(curve(), byeWeeks(year, league.league.lastRegularSeasonWeek as String as int),
-                StarterRequirements.fromLeague(league, teams), MAX_ROSTER)
+                requirements(year), MAX_ROSTER)
+    }
+
+    /** What a team has to field each week, which is also what tells it where its roster is short. */
+    StarterRequirements requirements(String year) {
+        Map league = LoadUtils.loadJsonResource(LoadUtils.mflLeagueResourcePath(year)) as Map
+        StarterRequirements.fromLeague(league, (league.league.franchises.franchise as List).size())
     }
 
     List<PlayerValuation> valuations(String year, FuadData fuadData) {

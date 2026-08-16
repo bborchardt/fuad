@@ -216,6 +216,10 @@ spots to fill and one with nine are not read as being in the same auction on ide
 rookie figure is rounds times one, as the model assumes league-wide; a team that has traded picks will hold
 more or fewer.
 
+`NEEDS` names any position a team holds fewer players at than the lineup requires, as `PK:1`. It is the one
+piece of roster legality no price can carry, since the position it almost always names is the one with no
+curve behind it.
+
 None of this moves a price, deliberately. An auction clears at the highest bidder rather than the average
 one, so the outliers come from one team being thin at a position with the money to fix it. Lamar Jackson's
 $100 in 2025 went to a team holding one quarterback under contract with $251 free, which spent $183 on the
@@ -258,7 +262,9 @@ reader who knows the league is not.
   reach the auction, and no observed price can confirm or refute it — see below.
 - **Kickers have no curve at all.** The nflverse statistics carry no kicking, so no rank at the position can
   be levelled and every kicker prices at the minimum bid. The league has spent under 1% of its auction on
-  them in every season on record, and in 2026 none reaches the board at all, so this costs nothing yet.
+  them in every season on record, so this costs nothing in money. It costs something in visibility: a team
+  with no kicker cannot field a legal lineup and would see the position on no report, which is what the
+  `NEEDS` column on `-t teams` exists to say without pricing it.
 - **The curve is only as good as the ranking it is indexed by.** A season is attributed to whatever rank the
   consensus gave that player, so a year the consensus was collectively wrong about is levelled into the
   rank, not identified as an error. That is the right total for pricing and no help at all in spotting one.
