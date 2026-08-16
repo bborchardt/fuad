@@ -67,8 +67,21 @@ What that produces at the top of each position, in points over the fourteen week
 | Rank 6 | 217 | 187 | 161 | 112 |
 | Rank 24 | 157 | 110 | 124 | 76 |
 
-RB1 below RB3 and RB6 is not a bug. The consensus best running back busts harder than the ones behind him,
-often enough over nine seasons to show up in the average.
+RB1 below RB3 and RB6 is not a bug, but it is not what it looks like either. The consensus best running
+back is not outplayed by the ones behind him — **he misses more football than they do**:
+
+| RB rank | Season points | Points per game | Games played |
+| --- | --- | --- | --- |
+| 1 | 169.6 | **16.29** | **10.04** |
+| 3 | 179.7 | 16.45 | 10.60 |
+| 5 | 188.2 | 15.76 | 11.87 |
+| 8 | 177.6 | 15.36 | 11.42 |
+
+On rate he is at the top of the position, where the consensus puts him. On availability he is at the bottom
+of the top eight, which is what a bell cow's workload buys him, and the season total is the product of the
+two. For pricing a salary the total is still the right number — a back who plays ten games is worth what he
+scored in ten games. But the reason matters, and the curve reports it as though the consensus were simply
+wrong about who is best.
 
 **Indexing by rank, not by player, is what keeps this honest.** See [Provenance](#provenance).
 
