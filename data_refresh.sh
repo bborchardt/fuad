@@ -3,8 +3,9 @@
 # Fetches the latest MFL data for the given year into src/main/resources/ff/mfl/data/<year>.
 #
 # Rankings are NOT fetched. Download them from fantasypros by hand into
-# src/main/resources/ff/fantasypros/data/<year>, and include kickers: the export defaults to
-# offensive players only, and a set missing a position fails RankingCoverageSpec. See docs/DATA.md.
+# src/main/resources/ff/fantasypros/data/<year>. Superflex rankings carry no kickers, so those need a
+# separate export saved as kicker_rankings.csv. RankingCoverageSpec fails if a position is missing.
+# See docs/DATA.md.
 #
 # Usage:
 #   ./data_refresh.sh <year>

@@ -31,6 +31,15 @@ class LoadUtils {
     static String fpRedraftRankingsHalfPprResourcePath(String year) { "/ff/fantasypros/data/$year/redraft_rankings_half_ppr.csv" }
 
     /**
+     * Kickers, where a season's redraft ranking leaves them out.
+     *
+     * Fantasypros does not carry kickers in a superflex ranking, which is the one this league needs, so
+     * from 2026 they are exported on their own. Being a single position export it has no POS column: the
+     * position is the file, and the rank is the row. See docs/DATA.md.
+     */
+    static String fpKickerRankingsResourcePath(String year) { "/ff/fantasypros/data/$year/kicker_rankings.csv" }
+
+    /**
      * Players who show up under a nickname sharing no prefix with their given name, which no amount of
      * fuzzy matching pairs up. Applied to every source, since it is not only fantasypros that uses the
      * nickname: MFL called Marquise Brown Hollywood in 2024 and Marquise in every other year.
@@ -61,6 +70,12 @@ class LoadUtils {
     static List<String> loadCsvResource(String resourcePath) {
         def stream = LoadUtils.class.getResourceAsStream(resourcePath)
         stream.readLines()
+    }
+
+    /** The same, but empty rather than failing where a season does not carry the file. */
+    static List<String> loadCsvResourceIfPresent(String resourcePath) {
+        def stream = LoadUtils.class.getResourceAsStream(resourcePath)
+        stream ? stream.readLines() : []
     }
 
     static String nameFirstThenLast(String name) {

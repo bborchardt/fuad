@@ -8,38 +8,51 @@ import spock.lang.Unroll
 /**
  * A ranking set that quietly loses a position is invisible until somebody needs that position.
  *
- * These sets are downloaded by hand, and the export defaults to offensive players — so 2026's arrived with
- * no kickers in it, and nothing noticed until six teams needed one and the board had none to show them.
- * This is what stops the next download going the same way. See docs/DATA.md.
+ * Fantasypros does not carry kickers in a superflex ranking, which is the format this league needs, so
+ * 2026's redraft export arrived without a single one — and nothing noticed until six teams needed a kicker
+ * and the board had none to show them. Kickers now come as their own single position export, merged in by
+ * {@link FantasyProsLoader#loadRedraftRankedPlayers}. This asserts the result, which is what the model
+ * actually reads, rather than any one file. See docs/DATA.md.
  */
 class RankingCoverageSpec extends Specification {
 
     /** Every position the league starts, and so every position a board has to be able to price. */
     private static final List<String> POSITIONS = ['QB', 'RB', 'WR', 'TE', 'PK'].asImmutable()
 
-    /**
-     * 2026's set was downloaded without kickers. Re-download it with them included and delete this line —
-     * it is a record of a known gap, not a licence for the next one.
-     */
-    private static final List<String> MISSING_KICKERS = ['2026'].asImmutable()
-
     @Unroll
     def "#year's redraft ranking carries every position the league starts"() {
         given:
-        Collection<FpRankedPlayer> ranked = new FantasyProsLoader()
-                .loadRankedPlayers(LoadUtils.fpRedraftRankingsHalfPprResourcePath(year)).values()
+        Collection<FpRankedPlayer> ranked = new FantasyProsLoader().loadRedraftRankedPlayers(year).values()
 
         expect:
-        POSITIONS.findAll { it != 'PK' || !MISSING_KICKERS.contains(year) }.every { String position ->
-            ranked.any { it.player.position == position }
-        }
+        POSITIONS.every { String position -> ranked.any { it.player.position == position } }
 
         where:
         year << LoadUtils.YEARS
     }
 
-    def "the only ranking set missing a position is the one that cannot be refetched"() {
-        expect: 'so that the exclusion above stays a record of a known gap rather than a place to hide new ones'
-        MISSING_KICKERS == ['2026']
+    @Unroll
+    def "#year ranks its kickers from one, however they were exported"() {
+        given: 'a single position export has no POS column, so the rank has to come from the row'
+        List<Integer> ranks = new FantasyProsLoader().loadRedraftRankedPlayers(year).values()
+                .findAll { it.player.position == 'PK' }
+                .collect { it.rank.positionRank }
+                .sort()
+
+        expect: 'the best kicker is PK1 and the ranks run without gaps or repeats'
+        ranks.first() == 1
+        ranks == (1..ranks.size()).toList()
+
+        where:
+        year << LoadUtils.YEARS
+    }
+
+    def "kickers merged from their own file do not land among the best players overall"() {
+        given: 'their file numbers from one, so the overall rank has to be offset past the main set'
+        Collection<FpRankedPlayer> ranked = new FantasyProsLoader().loadRedraftRankedPlayers('2026').values()
+        int bestKicker = ranked.findAll { it.player.position == 'PK' }.collect { it.rank.overallRank }.min()
+
+        expect:
+        bestKicker > ranked.findAll { it.player.position != 'PK' }.size()
     }
 }

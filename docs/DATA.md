@@ -76,14 +76,26 @@ from the header line and reads both.
 The public key is limited to the first ten players of any ranking set, which is useless, and an automated
 path that silently returns a partial set is worse than no automated path at all.
 
-The thing to watch when downloading is that **the export defaults to offensive players and leaves kickers
-out**. 2026's redraft ranking has none — every year from 2021 to 2025 carries 33 to 45 — which nobody
-noticed until six teams needed a kicker and the board had none to show them. `RankingCoverageSpec` asserts
-every committed set carries all five positions so the next one cannot go quietly.
+**Fantasypros does not put kickers in a superflex ranking**, which is the format this league needs, so from
+2026 they come as their own single position export: `kicker_rankings.csv`. Having only one position in it,
+that file has no `POS` column — the position is the file and the rank is the row —
+and `FantasyProsLoader.loadRedraftRankedPlayers` merges it into the redraft set so that everything
+downstream sees one ranking. Through 2025 the superflex exports still carried kickers and no extra file is
+needed.
 
-The consequence is small but real. Kickers have no curve and price at the minimum bid anyway, so no price
-is wrong; `NEEDS` on `-t teams` still reports who is short. But the board cannot list a kicker to buy.
-Re-downloading 2026's redraft rankings with kickers included fixes it, and nothing else needs to change.
+It matters because a set that quietly loses a position is invisible until somebody needs it: 2026's went
+unnoticed until six teams needed a kicker and the board had none to show them. `RankingCoverageSpec`
+asserts the merged set carries all five positions, that kicker ranks run from 1 without gaps or repeats,
+and that merged kickers do not land among the best players overall.
+
+### Tier rows
+
+The site's export separates tiers with an empty row, and **its rank column skips those rows rather than
+counting them**. The loader used to renumber around them, which collided two players onto a single rank in
+every 2026 set — A.J. Brown with Saquon Barkley, Brian Thomas Jr. with Sam LaPorta. Harmless in the main
+files, where the positional rank is read from `POS`, and not harmless in the kicker export, where the rank
+*is* the positional rank. Ranks are now taken as written. No tab separated export has tier rows at all, so
+nothing before 2026 is affected either way.
 
 ## The rollover rule
 

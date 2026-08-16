@@ -273,7 +273,7 @@ class FuadValuationLoader {
     }
 
     private static Collection<FpRankedPlayer> ranked(String year) {
-        new FantasyProsLoader().loadRankedPlayers(LoadUtils.fpRedraftRankingsHalfPprResourcePath(year)).values()
+        new FantasyProsLoader().loadRedraftRankedPlayers(year).values()
     }
 
     /** Cap space not already committed to contracts still running. */

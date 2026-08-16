@@ -30,7 +30,7 @@ class FuadLoader {
                 .loadRankedPlayers(LoadUtils.fpDynastyRankingsPprResourcePath(year))
                 .collectEntries { k, v -> [k.toUpperCase(), v] }
         Map<String, FpRankedPlayer> upperRedraftRankedPlayers = new FantasyProsLoader()
-                .loadRankedPlayers(LoadUtils.fpRedraftRankingsHalfPprResourcePath(year))
+                .loadRedraftRankedPlayers(year)
                 .collectEntries { k, v -> [k.toUpperCase(), v] }
         Map<String, FpRankedPlayer> upperRookieRankedPlayers = new FantasyProsLoader()
                 .loadRankedPlayers(LoadUtils.fpRookieRankingsPprResourcePath(year))
