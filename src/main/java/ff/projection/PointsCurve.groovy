@@ -305,8 +305,8 @@ class PointsCurve {
                                        Map<Integer, BigDecimal> level,
                                        Map<Integer, BigDecimal> rate,
                                        Map<Integer, BigDecimal> flattened) {
-        BigDecimal floor = relevanceFloor(level)
-        List<Integer> priced = level.keySet().findAll { level[it] > floor }.toList()
+        int deepest = pricedDepthOf(level)
+        List<Integer> priced = level.keySet().findAll { it <= deepest }.toList()
         if (!priced) {
             return 1.0
         }
@@ -338,8 +338,8 @@ class PointsCurve {
     private static Map<Integer, BigDecimal> flattenAvailability(Map<Integer, List<RealisedSeason>> byRank,
                                                                 Map<Integer, BigDecimal> level,
                                                                 Map<Integer, BigDecimal> played) {
-        BigDecimal floor = relevanceFloor(level)
-        List<Integer> priced = level.keySet().findAll { level[it] > floor }.toList()
+        int deepest = pricedDepthOf(level)
+        List<Integer> priced = level.keySet().findAll { it <= deepest }.toList()
         if (!priced) {
             return played
         }
@@ -351,7 +351,7 @@ class PointsCurve {
         }
         BigDecimal flat = mean(observed)
         played.collectEntries { int rank, BigDecimal own ->
-            [(rank): level[rank] > floor ? flat : own.min(flat)]
+            [(rank): rank <= deepest ? flat : own.min(flat)]
         }
     }
 
@@ -426,12 +426,39 @@ class PointsCurve {
         (level.values().max() ?: 0.0) * RELEVANT_FRACTION
     }
 
+    /**
+     * The deepest rank at this position still carrying real money: the last one above the relevance floor.
+     *
+     * Taken as a single cutoff rather than testing each rank on its own, because the curve is not monotone
+     * and a per-rank test comes out ragged at the boundary. At receiver the level dips under the floor at
+     * rank 95, climbs back over it from 96 to 101, and drops away for good after that, which would leave a
+     * handful of ranks treated as though they carried money while their neighbours did not.
+     *
+     * This is what bounds the auction pool as well. A rank the curve says is not really a claim is a rank
+     * nobody will bid on, and that is as true of a player whose contract is expiring as of one nobody
+     * holds — an expiring contract does not have to be re-signed, and if nobody bids he returns to the free
+     * agent pool like anyone else. See docs/PROJECTION.md.
+     */
+    int pricedDepth(String position) {
+        Map<Integer, BigDecimal> level = levelByPosition[position]
+        if (!level) {
+            return 0
+        }
+        pricedDepthOf(level)
+    }
+
+    /** The last rank above the relevance floor, taken as one cutoff so the boundary is not ragged. */
+    private static int pricedDepthOf(Map<Integer, BigDecimal> level) {
+        BigDecimal floor = relevanceFloor(level)
+        (level.keySet().findAll { level[it] > floor }.max() ?: 0) as int
+    }
+
     private static List<Double> spread(Map<Integer, List<RealisedSeason>> byRank,
                                        Map<Integer, BigDecimal> level) {
-        BigDecimal floor = relevanceFloor(level)
+        int deepest = pricedDepthOf(level)
         List<Double> ratios = byRank.collectMany { int rank, List<RealisedSeason> seasons ->
             BigDecimal expected = level[rank]
-            expected > floor && expected > 0 ? seasons.collect { (it.points / expected).toDouble() } : []
+            rank <= deepest && expected > 0 ? seasons.collect { (it.points / expected).toDouble() } : []
         }
         if (ratios.size() < 20) {
             return []
@@ -450,11 +477,11 @@ class PointsCurve {
     private static List<Outcome> outcomesOf(Map<Integer, List<RealisedSeason>> byRank,
                                             Map<Integer, BigDecimal> rate,
                                             Map<Integer, BigDecimal> level) {
-        BigDecimal floor = relevanceFloor(level)
+        int deepest = pricedDepthOf(level)
         List<Outcome> raw = byRank.collectMany { int rank, List<RealisedSeason> seasons ->
             BigDecimal expected = level[rank]
             BigDecimal expectedRate = rate[rank]
-            if (!expected || expected <= floor || !expectedRate) {
+            if (!expected || rank > deepest || !expectedRate) {
                 return [] as List<Outcome>
             }
             seasons.collect { RealisedSeason season ->

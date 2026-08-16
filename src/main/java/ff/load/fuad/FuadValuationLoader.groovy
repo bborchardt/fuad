@@ -58,9 +58,15 @@ class FuadValuationLoader {
     /** A full roster, from the league bylaws. See docs/LEAGUE_RULES.md. */
     private static final int MAX_ROSTER = 30
 
-    /** How deep at each position the league actually rosters, which bounds who is worth pricing. */
-    private static final Map<String, Integer> ROSTERED_DEPTH =
-            [QB: 30, RB: 45, WR: 50, TE: 25, PK: 12].asImmutable()
+    /**
+     * Kickers are cut off by hand, having no curve to derive a depth from.
+     *
+     * Every other position is bounded by {@link PointsCurve#pricedDepth}, the point below which the curve
+     * says a rank is no longer really a claim. Kicking is not in the statistics at all, so there is no
+     * level to compare against a floor and this stands in for one. It costs nothing: the league has spent
+     * under one per cent of its auction on the position in every season on record.
+     */
+    private static final int KICKER_DEPTH = 12
 
     /**
      * The curve, built once per loader.
@@ -161,9 +167,13 @@ class FuadValuationLoader {
             if (!player.redraftRank || !POSITIONS.contains(player.player.position) || player.rookie) {
                 return false
             }
-            franchiseByPlayer.containsKey(player.mflId) ||
-                    (!rostered.contains(player.mflId) &&
-                            player.redraftRank.positionRank <= ROSTERED_DEPTH[player.player.position])
+            // One depth for both kinds of free agent. An expiring contract does not have to be re-signed:
+            // if nobody bids, the player goes back into the pool like anyone else, so a rank too deep to
+            // be worth bidding on is too deep whoever happens to hold it.
+            int depth = 'PK' == player.player.position ? KICKER_DEPTH
+                    : curve().pricedDepth(player.player.position)
+            (franchiseByPlayer.containsKey(player.mflId) || !rostered.contains(player.mflId)) &&
+                    player.redraftRank.positionRank <= depth
         }.collectEntries { FuadPlayer player ->
             // The dynasty rank rides along to the board and is priced by nothing: a salary buys one
             // season, and the model levels every rank on the redraft ranking alone. It is carried because

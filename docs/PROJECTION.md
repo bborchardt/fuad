@@ -456,13 +456,25 @@ it.
 
 Three groups, treated differently.
 
-**Expiring contracts** are restricted free agents: 111 of them in 2026. Their team may match.
+**Expiring contracts** are restricted free agents. Their team may match.
 
-**Unrostered veterans** are unrestricted, and go to the highest bid. They are cut off at roughly the depth
-the league actually rosters (QB 30, RB 45, WR 50, TE 25), since deeper players are never signed and would
-only dilute the board. Historically 7 to 22 veterans a year are signed from outside the pre-auction
-rosters. **They are the only players on whom a positive edge is available**, for the reason in the next
-section.
+**Unrostered veterans** are unrestricted, and go to the highest bid. Historically 7 to 22 a year are signed
+from outside the pre-auction rosters. **They are the only players on whom a positive edge is available**,
+for the reason in the next section.
+
+**Both are cut off at the same depth**, which is the point below which the curve stops making a claim — the
+last rank levelling above a quarter of the position's best. For 2026 that is QB 35, RB 65, WR 101, TE 46,
+and it leaves 88 players priced against the 78 spots the auction has to fill.
+
+One depth for both, because an expiring contract does not have to be re-signed: if nobody bids, the player
+goes back into the pool like anybody else. A rank too deep to be worth bidding on is too deep whoever holds
+it. Pricing every expiring contract regardless of rank had put 43 players on the board past the cutoff that
+applied to free agents — holding 1.9% of all value between them, 36 of them at the minimum bid — while
+excluding unrostered players like Dontayvion Wicks at WR67 who would be signed.
+
+The depth is taken from the curve rather than set by hand. The four numbers it replaced (QB 30, RB 45, WR
+50, TE 25) were too shallow against what the league has actually signed, most badly at receiver, where
+**26% of historical signings — and 18% of those above the minimum bid — fell beyond rank 50**.
 
 **Rookies are excluded entirely.** They are drafted separately after the auction and cannot be bid on. Two
 simple allowances stand in for them, both checked against the record by `AuctionValuationSpec`:
