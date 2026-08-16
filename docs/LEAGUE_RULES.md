@@ -108,36 +108,43 @@ minimum.
 
 ### The cut penalty
 
-Releasing a player costs the greater of:
+Releasing a player costs the greater of, both measured over the years **remaining** on the contract and
+charged against the **current** year's cap:
 
-- **40% of the dollars left on the contract**, charged against the **current** year's cap, and
-- **$1 per year of the contract.**
+- **40% of the dollars left on the contract**, and
+- **$1 per year remaining.**
 
 The floor is the part that is easy to miss, and it binds in exactly one place. Below $2.50 a year the 40%
 is worth less than a dollar, so the minimum takes over — which makes a cheap long contract proportionally
 the most expensive thing in the league to get out of:
 
-| Contract | 40% of remaining | $1 per year | Penalty | As a multiple of the annual salary |
+| Contract, freshly signed | 40% of remaining | $1 per year remaining | Penalty | As a multiple of the annual salary |
 | --- | --- | --- | --- | --- |
 | $1 × 5yr | $2 | **$5** | $5 | **5.0x** |
 | $2 × 5yr | $4 | **$5** | $5 | 2.5x |
 | $5 × 3yr | **$6** | $3 | $6 | 1.2x |
 | $50 × 1yr | **$20** | $1 | $20 | 0.4x |
 
+Because both halves count only what is left, **the exposure decays as the deal runs down**. The same $1
+five-year contract costs $5 to escape in its first year, $4 in its second, and a dollar in its last:
+
+| $1 × 5yr, cut after | 0 yrs | 1 yr | 2 yrs | 3 yrs | 4 yrs |
+| --- | --- | --- | --- | --- | --- |
+| Years remaining | 5 | 4 | 3 | 2 | 1 |
+| Penalty | $5 | $4 | $3 | $2 | $1 |
+
 So the two ends of the board are constrained differently rather than one being free. A large salary cannot
 carry length, because 40% of a long deal on real money is crippling in the year it is eaten — which is why
 **87% of signings above $40 are one-year deals**. A minimum salary can carry length, but not for nothing: a
-five-year dollar player costs five dollars to walk away from, five times what he costs to keep for a year.
-That is a deliberate brake on hoarding long free lottery tickets, and it works — 22 of the 115 signings at
-$1-2 run three years or more, so teams write them, but not without thinking.
+five-year dollar player costs five dollars to walk away from in the year you would most want to, five times
+what he costs to keep. The bill is largest exactly when a flyer has just failed and smallest once he has
+been carried long enough not to matter. That is a deliberate brake on hoarding long free lottery tickets,
+and it works as a brake rather than a bar — 22 of the 115 signings at $1-2 run three years or more.
 
 **Provenance: this is the least verified rule in this file.** It is stated by the commissioner and is in
 neither `league.json` nor `rules.json`, which carry no cut or penalty fields at all, so it is a bylaw like
 the roster limits. Nothing in the exports records a release penalty being charged, so neither the rate nor
-the floor can be confirmed against the data the way the franchise salary can. One detail is genuinely
-open: whether "per year of the contract" counts the years **remaining** or the years **originally signed**.
-The two agree on a contract cut before it starts, which is the case the rule was quoted for, and diverge
-mid-contract. Treat the mid-contract number as unknown.
+the floor can be confirmed against the data the way the franchise salary can.
 
 ### What it means for the model
 
