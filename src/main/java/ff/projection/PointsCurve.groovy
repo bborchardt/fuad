@@ -132,8 +132,9 @@ class PointsCurve {
                 // position rather than per rank. Levelling it rank by rank fits noise and puts it straight
                 // back into the product this split exists to take it out of.
                 Map<Integer, BigDecimal> flattened = flattenAvailability(byRank, level, played)
+                BigDecimal anchor = anchorTo(byRank, level, rate, flattened)
                 Map<Integer, BigDecimal> settled = level.collectEntries { int rank, BigDecimal points ->
-                    [(rank): rate[rank] * flattened[rank]]
+                    [(rank): rate[rank] * flattened[rank] * anchor]
                 }
                 Map<Integer, BigDecimal> settledError = error.collectEntries { int rank, BigDecimal e ->
                     [(rank): level[rank] > 0 ? e * settled[rank] / level[rank] : e]
@@ -283,6 +284,40 @@ class PointsCurve {
 
     private static BigDecimal mean(List<BigDecimal> values) {
         (values.sum() as BigDecimal) / values.size()
+    }
+
+    /**
+     * Put the position's overall level back where its seasons actually were.
+     *
+     * A season total is a rate times an availability, and averaging the two apart drops the covariance
+     * between them: within a rank the years a player misses games are also years he plays less well, so the
+     * product of the means comes in about five per cent under the mean of the products at every position.
+     *
+     * That is deliberate for the <b>shape</b> — the rank-to-rank wobble it removes is the noise this whole
+     * split exists to take out — but it is wrong for the <b>level</b>, and unevenly so: 0.945 at tight end
+     * against 0.959 at receiver. {@link StarterRequirements} compares positions against each other to
+     * allocate the flex, so a differential of that size is enough to move a starting slot between them.
+     *
+     * So the smoothed shape is scaled back to the mean season the position actually had. Prices normalise
+     * to the pot and would not notice a uniform factor; the flex allocation would.
+     */
+    private static BigDecimal anchorTo(Map<Integer, List<RealisedSeason>> byRank,
+                                       Map<Integer, BigDecimal> level,
+                                       Map<Integer, BigDecimal> rate,
+                                       Map<Integer, BigDecimal> flattened) {
+        BigDecimal floor = relevanceFloor(level)
+        List<Integer> priced = level.keySet().findAll { level[it] > floor }.toList()
+        if (!priced) {
+            return 1.0
+        }
+        List<BigDecimal> observed = priced.collectMany { int rank -> (byRank[rank] ?: []).collect { it.points } }
+        List<BigDecimal> modelled = priced.collect { int rank -> rate[rank] * flattened[rank] }
+        if (!observed || !modelled) {
+            return 1.0
+        }
+        BigDecimal target = mean(observed)
+        BigDecimal built = mean(modelled)
+        built > 0 ? target / built : 1.0
     }
 
     /**

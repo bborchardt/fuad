@@ -8,9 +8,12 @@ package ff.projection
  * filled by whoever scores most. So the number of quarterbacks the league starts is not a setting to read
  * off, it is the outcome of every team filling its flex with the best player available.
  *
- * Allocating the flex greedily across the whole league gives, for 2026: 20 QB, 26 RB, 31 WR, 13 TE, 10 PK.
- * Tight end draws three flex spots, which the 2026 premium buys it: a point a reception puts the third best
- * tight end on a roster ahead of the deep running backs he used to lose to. See docs/PROJECTION.md.
+ * Allocating the flex greedily across the whole league gives, for 2026: 20 QB, 26 RB, 34 WR, 10 TE, 10 PK.
+ *
+ * The quarterback figure is decisive: superflex doubles the position's starters and sets a very high
+ * replacement. The last few flex spots are not. They turn on whether a league's 12th tight end outscores
+ * its 33rd receiver, and the curve has those two within three points of each other against a standard error
+ * near ten, so which position they land on is inside the noise. See docs/PROJECTION.md.
  */
 class StarterRequirements {
 
