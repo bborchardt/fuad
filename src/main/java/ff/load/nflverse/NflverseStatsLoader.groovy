@@ -27,6 +27,21 @@ class NflverseStatsLoader {
         names
     }
 
+    /**
+     * Player name to games played over the regular season, counted as distinct weeks with a stat line.
+     *
+     * Availability is half of what a fantasy season is, and it is separately caused from the rate: a back
+     * who scores 16 points a game in ten games and one who scores 14 in twelve are not the same player
+     * having the same year. Thirteen is a full season here, the fourteenth week being everybody's bye.
+     */
+    static Map<String, Integer> gamesPlayed(String year) {
+        Map<String, Set<String>> weeks = [:].withDefault { [] as Set }
+        eachStatLine(year) { Map<String, String> line ->
+            weeks[line.player_display_name] << line.week
+        }
+        weeks.collectEntries { String name, Set<String> played -> [(name): played.size()] }
+    }
+
     private static void eachStatLine(String year, Closure<?> handle) {
         List<String> lines = LoadUtils.loadTextResource(LoadUtils.nflverseStatsResourcePath(year)).readLines()
         List<String> header = lines.first().split('\t').toList()

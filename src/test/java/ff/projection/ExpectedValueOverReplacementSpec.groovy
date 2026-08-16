@@ -15,9 +15,14 @@ class ExpectedValueOverReplacementSpec extends Specification {
     /** Nobody is ever off, so a week is a tenth of a season and replacement is flat. */
     private static final ByeWeeks NO_BYES = new ByeWeeks([:], 10)
 
-    /** One position, ranks levelled 204 down to 30 over ten weeks. */
+    /**
+     * One position, ranks levelled 204 down to 30 over ten weeks.
+     *
+     * Ten games to match the ten week season these fixtures run: a rate is points divided by games, so a
+     * fixture claiming thirteen games of a ten week year would price every rank a fifth low.
+     */
     private static PointsCurve curveWith(Map<Integer, List<BigDecimal>> realised) {
-        PointsCurve.of([WR: realised])
+        PointsCurve.of([WR: TestSeasons.byRank(realised, 10)])
     }
 
     /** Every season at exactly its rank's level, so there is no spread to carry. */
@@ -84,30 +89,32 @@ class ExpectedValueOverReplacementSpec extends Specification {
     }
 
     /**
-     * A bye takes a week away from a player without taking any scoring away from him: his season is what it
-     * is, and the curve is levelled on seasons that already had a bye in them. Spreading that total over the
-     * weeks he plays rather than over the whole calendar leaves him worth slightly <i>more</i> against a flat
-     * replacement, not less, because the week he misses costs nothing — a team simply starts someone else.
+     * A bye costs a game of production, because a rate is per game played.
      *
-     * Which is the whole reason byes are carried for the ranked pool rather than for the players being
-     * priced. What a bye really does is take the replacements out too, and that is a thing about the week
-     * and not about him.
+     * This is the reading the split changed. Levelling on season totals, a bye was free: the total was what
+     * it was and spreading it over fewer weeks simply raised the per-week figure, so a player with a bye
+     * came out worth slightly <i>more</i> than the same player without one. That was an artefact of dividing
+     * a season by the calendar. On a rate, the week he is off is a week he does not score, and the season is
+     * shorter by exactly one game.
+     *
+     * What he gains is only the replacement he no longer has to clear that week, which is much the smaller
+     * of the two, so a bye is a modest net cost rather than a modest net gain.
      */
-    def "a bye takes a week off a player without taking scoring off him"() {
-        given: 'the same expected season, once with a bye and once without'
+    def "a bye costs a game of production, less the replacement it saves"() {
+        given: 'the same player, once with a bye and once without'
         PointsCurve curve = curveWith(certain())
         ByeWeeks byes = new ByeWeeks([WR: [(1): 5]], 10)
 
         when:
-        Map<Integer, BigDecimal> weekly = curve.weeklyPoints('WR', 1, 5, 10)
+        Map<Integer, BigDecimal> weekly = curve.weeklyRate('WR', 1, 5, 10)
         BigDecimal withBye = AuctionValuation.expectedValueOverReplacement(curve, replacementAt(5.0), 'WR', 1, byes)
         BigDecimal without = AuctionValuation.expectedValueOverReplacement(curve, replacementAt(5.0), 'WR', 1, NO_BYES)
 
-        then: 'nothing is scored in the week he is off, and it costs nothing against replacement'
+        then: 'he scores nothing in the week he is off'
         weekly[5] == 0.0
-        withBye >= without
 
-        and: 'the gain is only the replacement he no longer has to beat that week'
-        (withBye - without) < 5.0 + 0.001
+        and: 'and is worth less for it, by that week net of the replacement he would have had to beat'
+        withBye < without
+        ((without - withBye) - (curve.pointsPerGame('WR', 1) - 5.0)).abs() < 0.001
     }
 }

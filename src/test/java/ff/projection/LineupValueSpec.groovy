@@ -30,7 +30,7 @@ class LineupValueSpec extends Specification {
     }
 
     private static PointsCurve curve(Map<Integer, List<BigDecimal>> qb, Map<Integer, List<BigDecimal>> rest) {
-        PointsCurve.of([QB: qb, RB: rest, WR: rest])
+        PointsCurve.of([QB: TestSeasons.byRank(qb), RB: TestSeasons.byRank(rest), WR: TestSeasons.byRank(rest)])
     }
 
     def "a third quarterback is worth only what hindsight makes him worth, absent a bye"() {

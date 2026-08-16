@@ -1,6 +1,7 @@
 package ff.load.fuad
 
 import ff.data.PlayerValuation
+import ff.data.RealisedSeason
 import ff.data.fantasypros.FpRankedPlayer
 import ff.data.fuad.FuadData
 import ff.data.fuad.FuadPlayer
@@ -186,17 +187,22 @@ class FuadValuationLoader {
      * this honest where comparing a finished season's projections against its own results would only
      * measure hindsight.
      */
-    private Map<String, Map<Integer, List<BigDecimal>>> realisedByRank() {
-        Map<String, Map<Integer, List<BigDecimal>>> realised = [:].withDefault { [:].withDefault { [] } }
+    private Map<String, Map<Integer, List<RealisedSeason>>> realisedByRank() {
+        Map<String, Map<Integer, List<RealisedSeason>>> realised = [:].withDefault { [:].withDefault { [] } }
         REALISED_SEASONS.each { String season ->
             Map<String, BigDecimal> scored = NflverseStatsLoader.seasonPoints(season, ScoringRules.CURRENT)
                     .collectEntries { String name, BigDecimal points -> [(LoadUtils.aliasedName(name)): points] }
+            Map<String, Integer> games = NflverseStatsLoader.gamesPlayed(season)
+                    .collectEntries { String name, Integer played -> [(LoadUtils.aliasedName(name)): played] }
             Set<String> unclaimed = NflverseStatsLoader.played(season).collect { LoadUtils.aliasedName(it) } as Set
             ranked(season).each { FpRankedPlayer player ->
                 if (SCORED_POSITIONS.contains(player.player.position)) {
                     String name = claim(unclaimed, player.player.name)
-                    realised[player.player.position][player.rank.positionRank] <<
-                            (name ? scored[name] : 0.0 as BigDecimal)
+                    // No stat line at all is a season that never happened: no points and no games, which is
+                    // an observation about availability and none about how he plays.
+                    realised[player.player.position][player.rank.positionRank] << new RealisedSeason(
+                            points: name ? scored[name] : 0.0 as BigDecimal,
+                            games: name ? (games[name] ?: 0) : 0)
                 }
             }
         }

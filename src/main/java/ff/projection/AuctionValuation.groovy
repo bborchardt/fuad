@@ -297,28 +297,43 @@ class AuctionValuation {
     /**
      * Value over replacement, averaged over how the season might actually go.
      *
-     * A season is replayed against every realised-over-expected ratio the position has produced, and the
-     * value over replacement averaged across them. Taking the expectation at the end rather than the start
-     * is the whole point: a player projected level with replacement is worth nothing at his average and a
-     * good deal in the seasons he beats it, and only the second reading gives a bench any value at all.
+     * A season is replayed against every one the position has actually produced, and the value over
+     * replacement averaged across them. Taking the expectation at the end rather than the start is the whole
+     * point: a player projected level with replacement is worth nothing at his average and a good deal in
+     * the seasons he beats it, and only the second reading gives a bench any value at all.
      *
-     * Replacement itself is left at its expectation. It is the best of whoever is left at a position rather
-     * than one player's season, so it moves far less than any individual does.
+     * <b>Each replayed season is a rate and a number of games, not one blended number.</b> A player who
+     * misses half a year was previously modelled as scoring half as much every week, which put him under
+     * replacement in all of them and worth nothing at all: 24 of the 215 top-24 quarterback seasons ran
+     * seven games or fewer, and the old shape valued them at 4.77 points a week when they were in fact
+     * playing at 12.22. Now he plays his own rate in the weeks he plays and contributes nothing in the rest,
+     * which is what actually happened and is worth considerably more.
+     *
+     * Which weeks he misses is left as an expectation rather than drawn, since nothing here knows when an
+     * injury lands: a season of {@code g} games out of {@code W} playable weeks earns the fraction
+     * {@code g/W} of what a full season at that rate would have earned.
+     *
+     * Replacement itself is left at its expectation, and at its <b>rate</b>. It is the best of whoever is
+     * left at a position rather than one player's season, and a replacement by definition turns up: the
+     * waiver wire always has a healthy body, so discounting him by somebody else's injury risk would be
+     * pricing against a player nobody has to accept.
      */
     static BigDecimal expectedValueOverReplacement(PointsCurve curve,
                                                    Map<String, Map<Integer, BigDecimal>> replacement,
                                                    String position, int rank, ByeWeeks byes) {
-        Map<Integer, BigDecimal> weekly = curve.weeklyPoints(position, rank, byes.of(position, rank), byes.lastWeek)
+        Map<Integer, BigDecimal> weekly = curve.weeklyRate(position, rank, byes.of(position, rank), byes.lastWeek)
         Map<Integer, BigDecimal> against = replacement[position] ?: [:]
-        List<Double> outcomes = curve.outcomeMultipliers(position)
         if (!weekly) {
             return 0.0
         }
-        if (!outcomes) {
+        int playable = PointsCurve.playableWeeks(byes.of(position, rank), byes.lastWeek).size()
+        List<PointsCurve.Outcome> outcomes = curve.outcomeSeasons(position)
+        if (!outcomes || !playable) {
             return valueOverReplacement(weekly, against, 1.0d)
         }
-        BigDecimal total = outcomes.collect { double multiplier ->
-            valueOverReplacement(weekly, against, multiplier)
+        BigDecimal total = outcomes.collect { PointsCurve.Outcome outcome ->
+            BigDecimal full = valueOverReplacement(weekly, against, outcome.rateMultiplier)
+            full * Math.min(outcome.games, playable) / playable
         }.sum() as BigDecimal
         total / outcomes.size()
     }
@@ -331,14 +346,20 @@ class AuctionValuation {
         }.sum() ?: 0.0) as BigDecimal
     }
 
-    /** For each week, the points of the best player at a position who would not be started that week. */
+    /**
+     * For each week, the points of the best player at a position who would not be started that week.
+     *
+     * Taken at the replacement's <b>rate</b>, since a replacement is by definition someone available: the
+     * player a team actually starts in an emergency is whoever is fit that week, not a rank discounted by
+     * the chance that he too is hurt.
+     */
     private static Map<String, Map<Integer, BigDecimal>> replacementByPosition(PointsCurve curve,
                                                                                Map<String, Integer> starters,
                                                                                ByeWeeks byes) {
         curve.positions().collectEntries { String position ->
             Map<Integer, List<BigDecimal>> weekly = [:].withDefault { [] }
             (1..curve.depth(position)).each { int rank ->
-                curve.weeklyPoints(position, rank, byes.of(position, rank), byes.lastWeek).each { int week, BigDecimal points ->
+                curve.weeklyRate(position, rank, byes.of(position, rank), byes.lastWeek).each { int week, BigDecimal points ->
                     if (points > 0) {
                         weekly[week] << points
                     }

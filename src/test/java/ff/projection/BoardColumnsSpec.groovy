@@ -29,7 +29,7 @@ class BoardColumnsSpec extends Specification {
     }
 
     private static List<PlayerValuation> value(ByeWeeks byes) {
-        PointsCurve curve = PointsCurve.of([WR: uneven()])
+        PointsCurve curve = PointsCurve.of([WR: TestSeasons.byRank(uneven())])
         StarterRequirements requirements = new StarterRequirements(
                 [WR: 2], [WR: 4], 3, 10)
         Map<String, List> available = (1..20).collectEntries { int rank ->
@@ -61,7 +61,7 @@ class BoardColumnsSpec extends Specification {
 
     def "leaves the dynasty rank empty where the ranking does not carry a player"() {
         given:
-        PointsCurve curve = PointsCurve.of([WR: uneven()])
+        PointsCurve curve = PointsCurve.of([WR: TestSeasons.byRank(uneven())])
 
         when: 'a pool whose entries stop at the franchise, as a caller that has no dynasty ranking would give'
         List<PlayerValuation> valuations = AuctionValuation.value(curve,
@@ -96,8 +96,8 @@ class BoardColumnsSpec extends Specification {
 
     def "leaves the range at expectation when a position has no measured spread"() {
         given: 'three ranks over six seasons: enough to level a rank, too few to describe a distribution'
-        PointsCurve curve = PointsCurve.of(
-                [WR: (1..3).collectEntries { int rank -> [(rank): (1..6).collect { 200.0 as BigDecimal }] }])
+        PointsCurve curve = PointsCurve.of([WR: TestSeasons.byRank(
+                (1..3).collectEntries { int rank -> [(rank): (1..6).collect { 200.0 as BigDecimal }] })])
         Map<String, List> available = [p1: ['Player 1', 'WR', 2, null, 5]]
 
         when:
