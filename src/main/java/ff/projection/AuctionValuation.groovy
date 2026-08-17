@@ -130,11 +130,8 @@ class AuctionValuation {
     static List<PlayerValuation> value(PointsCurve curve, StarterRequirements requirements,
                                        Map<String, List> available, Map<String, Integer> franchiseSalary,
                                        BigDecimal freeCap, int slotsToFill, ByeWeeks byes) {
-        Map<String, Integer> starters = requirements.startersByPosition(
-                curve.positions().collectEntries { String position ->
-                    [(position): (1..curve.depth(position)).collect { curve.seasonPoints(position, it) }]
-                })
-        Map<String, Map<Integer, BigDecimal>> replacement = replacementByPosition(curve, starters, byes)
+        Map<String, Map<Integer, BigDecimal>> replacement =
+                replacementByPosition(curve, startersOf(curve, requirements), byes)
 
         // The set the board is priced with is the set the board must report. They come apart when the loop
         // runs out of rounds mid-cycle, and re-stamping the tags from the round after the last pricing left
@@ -365,6 +362,50 @@ class AuctionValuation {
             full * Math.min(outcome.games, playable) / playable
         }.sum() as BigDecimal
         total / outcomes.size()
+    }
+
+    /**
+     * The same thing without the outcome spread: what the rank is worth if it simply has its average year.
+     *
+     * This is {@code max(0, E[X] - r)} against {@link #expectedValueOverReplacement}'s
+     * {@code E[max(0, X - r)]}, and the gap between them is what a roster spot is worth over and above what
+     * the player is expected to score — a player level with replacement is worth nothing at his average and
+     * a good deal in the weeks he beats it.
+     *
+     * Availability is treated identically in both, so the difference isolates the spread and nothing else.
+     * Reported rather than priced: nothing in the chain uses this, and it exists so the comparison the
+     * documentation makes can be recomputed instead of remembered. See docs/figures.
+     */
+    static BigDecimal valueOverReplacementAtExpectation(PointsCurve curve,
+                                                        Map<String, Map<Integer, BigDecimal>> replacement,
+                                                        String position, int rank, ByeWeeks byes) {
+        Map<Integer, BigDecimal> weekly = curve.weeklyRate(position, rank, byes.of(position, rank), byes.lastWeek)
+        if (!weekly) {
+            return 0.0
+        }
+        int playable = PointsCurve.playableWeeks(byes.of(position, rank), byes.lastWeek).size()
+        BigDecimal full = valueOverReplacement(weekly, replacement[position] ?: [:], 1.0d)
+        BigDecimal games = curve.expectedGames(position, rank)
+        playable > 0 ? full * (games < playable ? games : playable) / playable : full
+    }
+
+    /**
+     * For each week, the points of the best player at a position who would not be started that week.
+     *
+     * Public because it is an input to both readings of value over replacement, and the figures the
+     * documentation quotes have to be able to compute the one the model does not price with.
+     */
+    static Map<String, Map<Integer, BigDecimal>> replacementLevels(PointsCurve curve,
+                                                                   StarterRequirements requirements,
+                                                                   ByeWeeks byes) {
+        replacementByPosition(curve, startersOf(curve, requirements), byes)
+    }
+
+    /** How many at each position the league starts, which is what replacement is taken one past. */
+    static Map<String, Integer> startersOf(PointsCurve curve, StarterRequirements requirements) {
+        requirements.startersByPosition(curve.positions().collectEntries { String position ->
+            [(position): (1..curve.depth(position)).collect { curve.seasonPoints(position, it) }]
+        })
     }
 
     private static BigDecimal valueOverReplacement(Map<Integer, BigDecimal> weekly,

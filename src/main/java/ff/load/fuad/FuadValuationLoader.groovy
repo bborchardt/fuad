@@ -123,7 +123,7 @@ class FuadValuationLoader {
                 LoadUtils.loadJsonResource(LoadUtils.mflPlayersResourcePath(priorYear)) as Map)
 
         valuationsByYear[year] = AuctionValuation.value(curve, requirements, available(year, fuadData),
-                franchiseSalary, freeCap(year, league), slotsToFill(year, teams), byes)
+                franchiseSalary, freeCapOf(year, league), slotsToFill(year, teams), byes)
     }
 
     /**
@@ -293,8 +293,18 @@ class FuadValuationLoader {
         new FantasyProsLoader().loadRedraftRankedPlayers(year).values()
     }
 
+    /**
+     * Cap space the league has left, which is what the pot is a share of.
+     *
+     * Public because it is the one figure behind a board that no report carries: `teams` reports it a team
+     * at a time and nothing adds it up. See docs/figures.
+     */
+    BigDecimal freeCap(String year) {
+        freeCapOf(year, LoadUtils.loadJsonResource(LoadUtils.mflLeagueResourcePath(year)) as Map)
+    }
+
     /** Cap space not already committed to contracts still running. */
-    private static BigDecimal freeCap(String year, Map league) {
+    private static BigDecimal freeCapOf(String year, Map league) {
         Map rosters = LoadUtils.loadJsonResource(LoadUtils.mflRostersResourcePath(year)) as Map
         BigDecimal committed = (rosters.rosters.franchise as List<Map>).collectMany { Map franchise ->
             def held = franchise.player ?: []

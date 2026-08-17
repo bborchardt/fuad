@@ -214,4 +214,53 @@ class PointsCurveSpec extends Specification {
         expect:
         PointsCurve.of([WR: TestSeasons.byRank(steady())]).weeklyRate('WR', 90, null, 14) == [:]
     }
+
+    def "counts what it was built from, so a figure about the sample comes from the sample"() {
+        given: 'thirty ranks over nine seasons, two of every rank lost outright'
+        Map<Integer, List<RealisedSeason>> byRank = (1..30).collectEntries { int rank ->
+            [(rank): (1..7).collect { new RealisedSeason(points: (300 - rank * 5) as BigDecimal, games: 13) } +
+                    [new RealisedSeason(points: 0.0, games: 0), new RealisedSeason(points: 0.0, games: 0)]]
+        }
+        PointsCurve curve = PointsCurve.of([WR: byRank])
+
+        when:
+        PointsCurve.Census census = curve.census('WR')
+
+        then: 'the seasons behind the ranks that carry money, and how many never happened'
+        census.seasons == curve.pricedDepth('WR') * 9
+        census.lost == curve.pricedDepth('WR') * 2
+    }
+
+    def "calls a curve that never goes backwards perfectly monotone"() {
+        given: 'rank k scores exactly 300 - 5k every year, so nothing ever dips'
+        PointsCurve curve = PointsCurve.of([WR: TestSeasons.byRank(steady())])
+
+        expect:
+        curve.census('WR').backward == 0.0
+    }
+
+    /**
+     * The claim splitting a season in two exists to make: the curve comes out more monotone.
+     *
+     * Availability is the noisy half here — every rank plays at the same rate and the games alternate — so
+     * levelling the totals carries that noise straight into the level, while smoothing availability over ten
+     * ranks either side takes it out. This is the measurement behind the comparison in docs/PROJECTION.md,
+     * which is why it is computed rather than remembered.
+     */
+    def "travels backwards less than levelling the season totals does"() {
+        given: 'the rate declining cleanly with rank, and availability sawtoothing rank by rank'
+        Map<Integer, List<RealisedSeason>> byRank = (1..40).collectEntries { int rank ->
+            BigDecimal rate = (30.0 - rank * 0.5) as BigDecimal
+            int games = rank % 2 == 0 ? 12 : 8
+            [(rank): (1..9).collect { new RealisedSeason(points: rate * games, games: games) }]
+        }
+        PointsCurve curve = PointsCurve.of([WR: byRank])
+
+        when:
+        PointsCurve.Census census = curve.census('WR')
+
+        then: 'the totals carry the sawtooth and the split does not'
+        census.backwardOfTotals > 0.25
+        census.backward < census.backwardOfTotals / 2
+    }
 }

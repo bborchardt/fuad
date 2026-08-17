@@ -76,6 +76,17 @@ class PointsCurve {
 
     private static final int MINIMUM_OBSERVATIONS = 6
 
+    /**
+     * The rank window {@link Census#backward} is measured over, common to every position.
+     *
+     * It has to be common. Backward movement accumulates over the ranks it is summed across while the range
+     * it is taken against does not, so a position priced a hundred ranks deep scores worse than one priced
+     * thirty-six deep for no reason except its depth — and the whole use of the measure is comparing
+     * positions. Thirty-six is the shallowest any position prices to, so it is the deepest window all four
+     * actually make a claim across.
+     */
+    private static final int MONOTONICITY_WINDOW = 36
+
     /** One season as the spread sees it: how the player scored when he played, and how often he played. */
     static class Outcome {
         final double rateMultiplier
@@ -87,6 +98,37 @@ class PointsCurve {
         }
     }
 
+    /**
+     * What a position's curve was built from, and how well it came out.
+     *
+     * Carried so that the figures the documentation quotes about the curve come from the curve rather than
+     * from somebody's notes on a run of it. See docs/figures.
+     */
+    static class Census {
+        /** Seasons behind the ranks that carry money, which is the sample every level is a mean of. */
+        final int seasons
+        /** How many of those never happened, being the left tail a bench is priced against. */
+        final int lost
+        /**
+         * How far the curve travels <b>backwards</b>, as a share of its range.
+         *
+         * A curve levelled on evidence is not obliged to be monotone and a good one is nearly so: where
+         * rank r+1 levels above rank r, that step is noise the smoothing failed to remove. Summed over the
+         * priced ranks and taken against the curve's whole range, it is the one number that says whether a
+         * change to the smoothing helped.
+         */
+        final BigDecimal backward
+        /** The same measure for levelling the season totals directly, which is what the split replaced. */
+        final BigDecimal backwardOfTotals
+
+        Census(int seasons, int lost, BigDecimal backward, BigDecimal backwardOfTotals) {
+            this.seasons = seasons
+            this.lost = lost
+            this.backward = backward
+            this.backwardOfTotals = backwardOfTotals
+        }
+    }
+
     private final Map<String, Map<Integer, BigDecimal>> rateByPosition
     private final Map<String, Map<Integer, BigDecimal>> gamesByPosition
     private final Map<String, Map<Integer, BigDecimal>> levelByPosition
@@ -95,6 +137,7 @@ class PointsCurve {
     private final Map<String, List<Double>> multipliersByPosition
     private final Map<String, List<Outcome>> outcomesByPosition
     private final Map<String, Integer> depthByPosition
+    private final Map<String, Census> censusByPosition
 
     private PointsCurve(Map<String, Map<Integer, BigDecimal>> rateByPosition,
                         Map<String, Map<Integer, BigDecimal>> gamesByPosition,
@@ -103,7 +146,8 @@ class PointsCurve {
                         Map<String, Map<Integer, Integer>> tierByPosition,
                         Map<String, List<Double>> multipliersByPosition,
                         Map<String, List<Outcome>> outcomesByPosition,
-                        Map<String, Integer> depthByPosition) {
+                        Map<String, Integer> depthByPosition,
+                        Map<String, Census> censusByPosition) {
         this.rateByPosition = rateByPosition
         this.gamesByPosition = gamesByPosition
         this.levelByPosition = levelByPosition
@@ -112,6 +156,12 @@ class PointsCurve {
         this.multipliersByPosition = multipliersByPosition
         this.outcomesByPosition = outcomesByPosition
         this.depthByPosition = depthByPosition
+        this.censusByPosition = censusByPosition
+    }
+
+    /** What this position's curve was built from, and how monotone it came out. */
+    Census census(String position) {
+        censusByPosition[position] ?: new Census(0, 0, 0.0, 0.0)
     }
 
     /**
@@ -127,6 +177,7 @@ class PointsCurve {
         Map<String, List<Double>> multipliers = [:]
         Map<String, List<Outcome>> outcomes = [:]
         Map<String, Integer> depths = [:]
+        Map<String, Census> census = [:]
 
         realised.each { String position, Map<Integer, List<RealisedSeason>> byRank ->
             int deepest = byRank.keySet() ? byRank.keySet().max() as int : 0
@@ -165,9 +216,10 @@ class PointsCurve {
                 depths[position] = settled.keySet().max() as int
                 multipliers[position] = spread(byRank, settled)
                 outcomes[position] = outcomesOf(byRank, rate, settled)
+                census[position] = censusOf(byRank, settled)
             }
         }
-        new PointsCurve(rates, games, levels, errors, tiers, multipliers, outcomes, depths)
+        new PointsCurve(rates, games, levels, errors, tiers, multipliers, outcomes, depths, census)
     }
 
     Set<String> positions() { levelByPosition.keySet().asImmutable() }
@@ -402,6 +454,63 @@ class PointsCurve {
             tiers[rank] = tier
         }
         tiers
+    }
+
+    /**
+     * Count what the curve was built from, and measure how monotone it came out.
+     *
+     * Both are taken over the priced ranks only, since a rank the curve has stopped making a claim about is
+     * neither a season that carries money nor a step worth calling backwards.
+     */
+    private static Census censusOf(Map<Integer, List<RealisedSeason>> byRank,
+                                   Map<Integer, BigDecimal> level) {
+        int deepest = pricedDepthOf(level)
+        List<RealisedSeason> counted = byRank.findAll { int rank, List<RealisedSeason> seasons ->
+            rank <= deepest
+        }.collectMany { int rank, List<RealisedSeason> seasons -> seasons }
+        int window = Math.min(MONOTONICITY_WINDOW, deepest)
+        new Census(counted.size(), counted.count { it.games == 0 } as int,
+                backwardShare(level, window), backwardShare(totalsLevel(byRank, deepest), window))
+    }
+
+    /**
+     * The share of a curve's range that it spends travelling the wrong way.
+     *
+     * Every step where a worse rank levels above a better one is added up and taken against the whole drop
+     * across the window. Zero is a curve that never goes backwards.
+     */
+    private static BigDecimal backwardShare(Map<Integer, BigDecimal> level, int window) {
+        List<Integer> ranks = level.keySet().findAll { it <= window }.sort()
+        if (ranks.size() < 2) {
+            return 0.0
+        }
+        BigDecimal backward = 0.0
+        ranks.eachWithIndex { int rank, int i ->
+            if (i > 0) {
+                BigDecimal step = level[rank] - level[ranks[i - 1]]
+                if (step > 0) {
+                    backward += step
+                }
+            }
+        }
+        BigDecimal range = level[ranks.first()] - level[ranks.last()]
+        range > 0 ? backward / range : 0.0
+    }
+
+    /**
+     * The curve the season totals give directly, which is what levelling rate and availability apart
+     * replaced.
+     *
+     * Kept so the comparison between the two can be recomputed rather than remembered. Smoothed at the
+     * rate's own radius, which is what the old shape used.
+     */
+    private static Map<Integer, BigDecimal> totalsLevel(Map<Integer, List<RealisedSeason>> byRank,
+                                                        int deepest) {
+        (1..Math.max(1, deepest)).collectEntries { int rank ->
+            List<RealisedSeason> around = smoothed(byRank, rank, SMOOTHING_RADIUS)
+            around.size() >= MINIMUM_OBSERVATIONS ?
+                    [(rank): mean(around.collect { it.points })] : [:]
+        } as Map<Integer, BigDecimal>
     }
 
     private static List<RealisedSeason> smoothed(Map<Integer, List<RealisedSeason>> byRank, int rank,

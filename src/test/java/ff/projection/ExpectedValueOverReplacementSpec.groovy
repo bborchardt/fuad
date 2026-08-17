@@ -89,6 +89,40 @@ class ExpectedValueOverReplacementSpec extends Specification {
     }
 
     /**
+     * The inequality the whole spread argument rests on, asserted rather than illustrated.
+     *
+     * {@code E[max(0, X - r)] >= max(0, E[X] - r)} is Jensen's, so it holds at every rank of every position
+     * and not merely at the ones the documentation happens to tabulate. The two readings treat availability
+     * identically, so what separates them is the spread and nothing else.
+     */
+    def "is never worth less than the same rank taken at its expectation"() {
+        given:
+        PointsCurve curve = curveWith(uncertain())
+        Map<String, Map<Integer, BigDecimal>> replacement = replacementAt(5.0)
+
+        expect:
+        (1..30).every { int rank ->
+            AuctionValuation.expectedValueOverReplacement(curve, replacement, 'WR', rank, NO_BYES) >=
+                    AuctionValuation.valueOverReplacementAtExpectation(curve, replacement, 'WR', rank, NO_BYES) -
+                    0.000001
+        }
+    }
+
+    def "and the gap between the two readings is widest at replacement level"() {
+        given:
+        PointsCurve curve = curveWith(uncertain())
+        Map<String, Map<Integer, BigDecimal>> replacement = replacementAt(5.0)
+        def gap = { int rank ->
+            AuctionValuation.expectedValueOverReplacement(curve, replacement, 'WR', rank, NO_BYES) -
+                    AuctionValuation.valueOverReplacementAtExpectation(curve, replacement, 'WR', rank, NO_BYES)
+        }
+
+        expect: 'the player level with replacement gains most, and the best player nothing at all'
+        gap(28) > gap(1)
+        gap(1).abs() < 0.01
+    }
+
+    /**
      * A bye costs a game of production, because a rate is per game played.
      *
      * This is the reading the split changed. Levelling on season totals, a bye was free: the total was what
