@@ -99,6 +99,17 @@ class FuadValuationLoader {
                 requirements(year), MAX_ROSTER)
     }
 
+    /**
+     * When each rank is off, and how long the season being priced runs.
+     *
+     * Public for the same reason as {@link #requirements}: anything recomputing what the board was priced
+     * from has to use the same byes it was priced with, or it is describing a different season.
+     */
+    ByeWeeks byes(String year) {
+        Map league = LoadUtils.loadJsonResource(LoadUtils.mflLeagueResourcePath(year)) as Map
+        byeWeeks(year, league.league.lastRegularSeasonWeek as String as int)
+    }
+
     /** What a team has to field each week, which is also what tells it where its roster is short. */
     StarterRequirements requirements(String year) {
         Map league = LoadUtils.loadJsonResource(LoadUtils.mflLeagueResourcePath(year)) as Map

@@ -19,8 +19,11 @@ class ReportManifest {
 
     static final String FILE_NAME = 'MANIFEST'
 
-    private static final String HEADER =
-            '# Written by generate_report.sh: which model produced each report. See docs/STRATEGY.md.'
+    private static final String DEFAULT_WRITER = 'generate_report.sh'
+
+    private static String header(String writtenBy) {
+        "# Written by $writtenBy: which model produced each file here. See docs/STRATEGY.md."
+    }
 
     /** What produced one report: the model sha, and when it was written. */
     static class Stamp {
@@ -38,7 +41,7 @@ class ReportManifest {
     }
 
     /** Record that these report types were just written from the working tree's model. */
-    static void stamp(File outputDir, List<String> types) {
+    static void stamp(File outputDir, List<String> types, String writtenBy = DEFAULT_WRITER) {
         String model = currentModel()
         String generated = Instant.now().truncatedTo(ChronoUnit.SECONDS).toString()
         Map<String, Stamp> stamps = read(outputDir)
@@ -46,7 +49,7 @@ class ReportManifest {
             stamps[type] = new Stamp(type: type, model: model, generated: generated)
         }
         new File(outputDir, FILE_NAME).withPrintWriter { out ->
-            out.println(HEADER)
+            out.println(header(writtenBy))
             stamps.keySet().sort().each { out.println(stamps[it].toString()) }
         }
     }
