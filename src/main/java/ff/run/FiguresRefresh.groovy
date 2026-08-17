@@ -24,6 +24,7 @@ class FiguresRefresh {
             curve    : 'printCurve',
             positions: 'printPositions',
             board    : 'printBoard',
+            spend    : 'printSpend',
     ].asImmutable() as Map<String, String>
 
     static void main(String[] args) {

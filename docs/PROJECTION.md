@@ -415,15 +415,20 @@ quarterbacks 13.9% against 16.7% to 29.8%. Averaging that year in drags wide rec
 the pot and holds quarterback down, which showed up as top receivers priced above anything the league has
 ever paid.
 
-| Share of auction spend | QB | RB | WR | TE |
-| --- | --- | --- | --- | --- |
-| 2022 (excluded) | 13.9% | 22.3% | **56.2%** | 7.6% |
-| 2023 | 21.8% | 27.3% | 37.8% | 13.1% |
-| 2024 | 16.7% | 42.5% | 30.4% | 10.4% |
-| 2025 | 29.8% | 29.8% | 34.9% | 5.5% |
+<!-- figures: spend across=POS field=SHAREXPK -->
 
-Those four rows are what the league paid, and `AuctionValuationSpec` recomputes them from the committed
-seasons so they cannot drift from the record. What the model calibrates to:
+| Share of auction spend | QB | RB | WR | TE | |
+| --- | --- | --- | --- | --- | --- |
+| 2022 | 13.9% | 22.3% | **56.2%** | 7.6% | excluded |
+| 2023 | 21.8% | 27.3% | 37.8% | 13.1% | |
+| 2024 | 16.7% | 42.5% | 30.4% | 10.4% | |
+| 2025 | 29.8% | 29.8% | 34.9% | 5.5% | |
+| 2023-2025 | 23.3% | 33.0% | 34.4% | 9.3% | what the model calibrates to |
+
+Those rows are what the league paid, generated from the committed seasons into
+`docs/figures/<year>/spend.tsv` and checked cell by cell, so the case for dropping 2022 is evidence a
+reader can check rather than a claim they have to take. The last row is the pooled span the calibration is
+fitted over, and it is `TARGETSHARE`:
 
 <!-- figures: positions -->
 
@@ -433,6 +438,11 @@ seasons so they cannot drift from the record. What the model calibrates to:
 | RB | 33.0 |
 | WR | 34.4 |
 | TE | 9.3 |
+
+**Those are shares of what the four priced positions took, not of the whole auction.** Kickers take 0.5% to
+1.6% a season, and leaving them in the denominator moves every other position by a few tenths — enough to
+be mistaken for rounding and enough to matter to a constant compared against them. `spend.tsv` carries
+both: `SHAREXPK` is the basis above, `SHARE` is the share of every dollar.
 
 The repricing is real, and it is not a stock of old contracts running off. Money already committed says the
 same thing from the other side: quarterback contracts have gone from 16% to 30% of committed salary since

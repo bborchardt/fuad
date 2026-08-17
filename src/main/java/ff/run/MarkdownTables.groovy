@@ -22,9 +22,15 @@ class MarkdownTables {
         trimmed.split(/\|/, -1).collect { it.trim() } as List<String>
     }
 
-    /** Strip the markdown a figure may be dressed in, so **$76** and 76 are the same number. */
+    /**
+     * Strip the markdown and the units a figure may be dressed in, so <b>$76</b> and 76 are the same number.
+     *
+     * The percent sign is in here because a share reads as a percentage in prose and is written as a bare
+     * number in a file, and a table forced to say 13.9 where the sentence around it says 13.9% is a table
+     * nobody will keep writing. Stripping it can only widen what matches, never narrow it.
+     */
     static String clean(String cell) {
-        cell?.replaceAll(/[*`]/, '')?.replaceAll(/[$,±]/, '')?.trim()
+        cell?.replaceAll(/[*`]/, '')?.replaceAll(/[$,±%]/, '')?.trim()
     }
 
     /** Numbers compare as numbers so 0.26 and .26 agree; everything else compares as text. */

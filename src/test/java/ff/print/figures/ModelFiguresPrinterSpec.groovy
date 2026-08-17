@@ -1,6 +1,7 @@
 package ff.print.figures
 
 import ff.data.PlayerValuation
+import ff.projection.AuctionSpend
 import ff.projection.AuctionValuation
 import ff.projection.ByeWeeks
 import ff.projection.PointsCurve
@@ -145,5 +146,48 @@ class ModelFiguresPrinterSpec extends Specification {
     def "names every figure it writes, so a document can cite one by name"() {
         expect: 'a lookup, not a wide row: each line is a figure and its value'
         rows(printer().&printBoard).every { it.keySet() == ['FIGURE', 'VALUE'] as Set }
+    }
+
+    /**
+     * The spend table reads the committed seasons rather than the fixture, being about the league and not
+     * about a curve. So what is asserted is that the two bases hold together, which is the thing a reader
+     * of the documentation relies on and the thing that was wrong in the constant.
+     */
+    def "reports what the league paid on both bases, each summing to its own whole"() {
+        given:
+        List<Map<String, String>> spend = rows(printer().&printSpend)
+
+        expect: 'every season the league has played under superflex, and the pooled span besides'
+        spend.collect { it.SEASON }.toSet() ==
+                (AuctionSpend.SUPERFLEX_SEASONS + ['2023-2025']) as Set
+
+        and: 'the share of every dollar sums to a hundred, kickers included'
+        spend.groupBy { it.SEASON }.every { String season, List<Map<String, String>> rows ->
+            (rows.collect { new BigDecimal(it.SHARE) }.sum() - 100.0).abs() < 0.2
+        }
+
+        and: 'and so does the share of the four priced positions, kickers left out'
+        spend.groupBy { it.SEASON }.every { String season, List<Map<String, String>> rows ->
+            (rows.findAll { it.SHAREXPK }.collect { new BigDecimal(it.SHAREXPK) }.sum() - 100.0).abs() < 0.2
+        }
+    }
+
+    def "leaves the kicker out of the basis he is not in, rather than calling it nil"() {
+        given:
+        List<Map<String, String>> spend = rows(printer().&printSpend)
+
+        expect: 'a kicker has no share of a total he was excluded from, which is not a share of zero'
+        spend.findAll { it.POS == 'PK' }.every { it.SHAREXPK == '' && new BigDecimal(it.SHARE) > 0 }
+    }
+
+    def "the pooled row is the calibration target, which is what the model actually uses"() {
+        given:
+        Map<String, Map<String, String>> pooled = rows(printer().&printSpend)
+                .findAll { it.SEASON == '2023-2025' }.collectEntries { [(it.POS): it] }
+
+        expect: 'the four priced positions calibrate to their share of the four-position pot'
+        AuctionSpend.EXCLUDING_KICKERS.every {
+            (new BigDecimal(pooled[it].SHAREXPK) / 100 - AuctionValuation.MARKET_SHARE[it]).abs() < 0.005
+        }
     }
 }

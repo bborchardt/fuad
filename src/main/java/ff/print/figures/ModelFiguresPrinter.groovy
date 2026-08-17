@@ -1,6 +1,7 @@
 package ff.print.figures
 
 import ff.data.PlayerValuation
+import ff.projection.AuctionSpend
 import ff.projection.AuctionValuation
 import ff.projection.ByeWeeks
 import ff.projection.PointsCurve
@@ -23,11 +24,14 @@ import java.math.RoundingMode
  * documentation: the figures are generated, committed, and checked, and a number that moves shows up as a
  * diff in the commit that moved it rather than as prose that quietly went stale.
  *
- * Three tables, because they have three shapes.
+ * Four tables, because they have four shapes.
  *
  * <b>curve.tsv</b> is per position and rank — everything the curve says about a rank.
  * <b>positions.tsv</b> is per position — the scalars a position carries, including what it was built from.
  * <b>board.tsv</b> is one row for the season, being the figures about the priced board as a whole.
+ * <b>spend.tsv</b> is per season and position — what the league actually paid, which is the one thing here
+ * that describes the league rather than the model, and is here because it is what the model's calibration
+ * is fitted to and the only evidence for which seasons it throws away.
  *
  * Written under docs/figures rather than into reports, deliberately. A report describes one auction and is
  * not committed; this describes the model, so it belongs beside the prose that cites it and in the same
@@ -153,6 +157,50 @@ class ModelFiguresPrinter {
                 FREECAP         : freeCap.setScale(0, RoundingMode.HALF_UP),
                 EXPECTEDSPEND   : (freeCap * AuctionValuation.SPEND_RATE).setScale(0, RoundingMode.HALF_UP),
         ].each { String figure, Object value -> out.println([figure, value].join('\t')) }
+    }
+
+    /**
+     * What the league actually paid each position, season by season, which is what the calibration is fitted to.
+     *
+     * <b>The one table here that is about the league rather than about the model.</b> It earns its place
+     * because the case for {@link AuctionValuation#MARKET_SHARE} — and in particular the case for throwing
+     * 2022 away — is these figures and nothing else, and an exclusion whose evidence cannot be checked is an
+     * exclusion a reader has to take on trust. The documentation quoted all sixteen of them and claimed a
+     * spec recomputed them, which no spec did.
+     *
+     * <b>Both bases, because the two are genuinely different questions.</b> {@code SHARE} is the share of
+     * every auction dollar; {@code SHAREXPK} leaves kickers out of the denominator, which is how the
+     * positional comparison reads and is what the prose tabulates. They differ by a few tenths at every
+     * position, which is small enough to be mistaken for rounding and large enough to matter to a constant
+     * that gets compared against them.
+     *
+     * 2022 is reported and not calibrated on. The pooled row is the span that is.
+     */
+    void printSpend(PrintWriter out) {
+        out.println(['SEASON', 'POS', 'DOLLARS', 'SHARE', 'SHAREXPK'].join('\t'))
+        List<AuctionSpend.Season> measured = AuctionSpend.SUPERFLEX_SEASONS.collect { AuctionSpend.of(it) }
+        measured.each { AuctionSpend.Season season -> printSpendRow(out, season.season, [season]) }
+        List<AuctionSpend.Season> calibrated =
+                measured.findAll { AuctionSpend.CALIBRATED_SEASONS.contains(it.season) }
+        printSpendRow(out, AuctionSpend.CALIBRATED_SEASONS.first() + '-' +
+                AuctionSpend.CALIBRATED_SEASONS.last(), calibrated)
+    }
+
+    private static void printSpendRow(PrintWriter out, String label, List<AuctionSpend.Season> seasons) {
+        Map<String, BigDecimal> share = AuctionSpend.shareByPosition(seasons)
+        Map<String, BigDecimal> excludingKickers =
+                AuctionSpend.shareByPosition(seasons, AuctionSpend.EXCLUDING_KICKERS)
+        AuctionSpend.POSITIONS.each { String position ->
+            out.println([
+                    label,
+                    position,
+                    (seasons.collect { it.dollars[position] ?: 0.0 }.sum() ?: 0.0)
+                            .setScale(0, RoundingMode.HALF_UP),
+                    percent(share[position]),
+                    // A kicker has no share of a total he is not in, which is not the same as a share of nil.
+                    excludingKickers.containsKey(position) ? percent(excludingKickers[position]) : '',
+            ].join('\t'))
+        }
     }
 
     /** What share of the money each position ends up with, which is what the calibration is aiming at. */

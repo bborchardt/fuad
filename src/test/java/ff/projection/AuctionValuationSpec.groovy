@@ -1,58 +1,29 @@
 package ff.projection
 
-import ff.load.util.LoadUtils
 import spock.lang.Specification
 
 /**
  * The constants this model divides money by are measurements, not choices, so they are checked against the
- * seasons they were measured from rather than left to drift. See docs/PROJECTION.md.
+ * seasons they were measured from rather than left to drift.
+ *
+ * <b>The measuring itself is no longer done here.</b> It was, and that was the wrong place for it: the
+ * figures the documentation quotes about what the league pays were computed by test code, which meant they
+ * could not be generated, could not be cited, and could not be checked. {@link AuctionSpend} owns them now,
+ * so the constants below and the tables in docs/figures come from one implementation reading one set of
+ * committed seasons. See docs/PROJECTION.md.
  */
 class AuctionValuationSpec extends Specification {
 
-    /**
-     * The seasons the model calibrates against: superflex, and after the league had repriced for it. 2022
-     * was the first superflex year and still bid like the old one, so it is excluded. See docs/PROJECTION.md.
-     */
-    private static final List<String> SUPERFLEX_SEASONS = ['2023', '2024', '2025']
-
-    private static final String WIPED_SALARY = '0.01'
-
-    /**
-     * Player id to [franchise, salary], keeping the first row for each player.
-     *
-     * Deliberately by player rather than by row: the week 1 snapshots repeat a few roster rows verbatim,
-     * and counting those contracts twice overstates what the league spent.
-     */
-    private static Map<String, List> byPlayer(String resourcePath) {
-        Map<String, List> held = [:]
-        (LoadUtils.loadJsonResource(resourcePath).rosters.franchise as List).each { franchise ->
-            def rostered = franchise.player ?: []
-            (rostered instanceof List ? rostered : [rostered]).each { player ->
-                held.putIfAbsent(player.id as String, [franchise.id as String, player.salary as BigDecimal])
-            }
-        }
-        held
-    }
-
-    private static BigDecimal spendRate(String season) {
-        Map<String, List> preDraft = byPlayer(LoadUtils.mflRostersResourcePath(season))
-        Map<String, List> postDraft = byPlayer(LoadUtils.mflPostDraftRostersResourcePath(season))
-        Map league = LoadUtils.loadJsonResource(LoadUtils.mflLeagueResourcePath(season)) as Map
-
-        int teams = (league.league.franchises.franchise as List).size()
-        BigDecimal cap = (league.league.salaryCapAmount as String as BigDecimal) * teams
-        BigDecimal committed = preDraft.values().findAll { it[1] != new BigDecimal(WIPED_SALARY) }
-                .collect { it[1] as BigDecimal }.sum() ?: 0.0
-        BigDecimal spent = preDraft.findAll { id, held ->
-            held[1] == new BigDecimal(WIPED_SALARY) && postDraft.containsKey(id)
-        }.collect { id, held -> postDraft[id][1] as BigDecimal }.sum() ?: 0.0
-
-        spent / (cap - committed)
+    private static List<AuctionSpend.Season> calibrated() {
+        AuctionSpend.CALIBRATED_SEASONS.collect { AuctionSpend.of(it) }
     }
 
     def "the spend rate is what the superflex seasons actually spent"() {
+        given:
+        List<AuctionSpend.Season> seasons = calibrated()
+
         when:
-        BigDecimal measured = SUPERFLEX_SEASONS.collect { spendRate(it) }.sum() / SUPERFLEX_SEASONS.size()
+        BigDecimal measured = seasons.collect { it.spendRate }.sum() / seasons.size()
 
         then:
         (measured - AuctionValuation.SPEND_RATE).abs() < 0.01
@@ -60,73 +31,76 @@ class AuctionValuationSpec extends Specification {
 
     def "no season spent outside the range the model claims"() {
         expect:
-        SUPERFLEX_SEASONS.every { spendRate(it) > 0.65 && spendRate(it) < 0.90 }
-    }
-
-    private static int rookiesRostered(String season) {
-        Map<String, String> status = (LoadUtils.loadJsonResource(
-                LoadUtils.mflPlayersResourcePath(season)).players.player as List)
-                .collectEntries { [(it.id as String): (it.status ?: '') as String] }
-        byPlayer(LoadUtils.mflPostDraftRostersResourcePath(season)).keySet().count { status[it] == 'R' }
-    }
-
-    private static int teams(String season) {
-        (LoadUtils.loadJsonResource(LoadUtils.mflLeagueResourcePath(season))
-                .league.franchises.franchise as List).size()
+        calibrated().every { it.spendRate > 0.65 && it.spendRate < 0.90 }
     }
 
     def "five rounds times teams is what the rookie draft actually puts on rosters"() {
         expect: 'within a couple of picks every season, since rookies are almost always kept'
-        SUPERFLEX_SEASONS.every {
-            Math.abs(rookiesRostered(it) - AuctionValuation.ROOKIE_ROUNDS * teams(it)) <= 3
+        calibrated().every {
+            Math.abs(it.rookiesRostered - AuctionValuation.ROOKIE_ROUNDS * it.teams) <= 3
         }
     }
 
     def "rookies cost about the share of the pot the model reserves for them"() {
         given:
-        List<BigDecimal> shares = SUPERFLEX_SEASONS.collect { String season ->
-            Map<String, String> status = (LoadUtils.loadJsonResource(
-                    LoadUtils.mflPlayersResourcePath(season)).players.player as List)
-                    .collectEntries { [(it.id as String): (it.status ?: '') as String] }
-            Map<String, List> postDraft = byPlayer(LoadUtils.mflPostDraftRostersResourcePath(season))
-            BigDecimal onRookies = postDraft.findAll { id, held -> status[id] == 'R' }
-                    .collect { id, held -> held[1] as BigDecimal }.sum() ?: 0.0
-            Map league = LoadUtils.loadJsonResource(LoadUtils.mflLeagueResourcePath(season)) as Map
-            onRookies / (spendRate(season) * capSpace(season, league))
-        }
+        List<BigDecimal> shares = calibrated().collect { it.rookieShare }
 
         expect:
         (shares.sum() / shares.size() - AuctionValuation.ROOKIE_BUDGET_SHARE).abs() < 0.01
     }
 
-    private static BigDecimal capSpace(String season, Map league) {
-        Map<String, List> preDraft = byPlayer(LoadUtils.mflRostersResourcePath(season))
-        int teams = (league.league.franchises.franchise as List).size()
-        BigDecimal committed = preDraft.values().findAll { it[1] != new BigDecimal(WIPED_SALARY) }
-                .collect { it[1] as BigDecimal }.sum() ?: 0.0
-        (league.league.salaryCapAmount as String as BigDecimal) * teams - committed
-    }
-
+    /**
+     * The four priced positions are calibrated on the share of what those four took, kickers left out of
+     * the denominator. See {@link AuctionSpend#EXCLUDING_KICKERS} for why the two bases are kept apart.
+     */
     def "the market shares are what the superflex seasons actually paid each position"() {
         given:
-        Map<String, BigDecimal> paid = [:].withDefault { 0.0 as BigDecimal }
-        SUPERFLEX_SEASONS.each { String season ->
-            Map<String, List> preDraft = byPlayer(LoadUtils.mflRostersResourcePath(season))
-            Map<String, List> postDraft = byPlayer(LoadUtils.mflPostDraftRostersResourcePath(season))
-            Map<String, String> position = (LoadUtils.loadJsonResource(
-                    LoadUtils.mflPlayersResourcePath(season)).players.player as List)
-                    .collectEntries { [(it.id as String): it.position as String] }
-            preDraft.each { id, held ->
-                if (held[1] == new BigDecimal(WIPED_SALARY) && postDraft.containsKey(id) && position[id]) {
-                    paid[position[id]] += postDraft[id][1] as BigDecimal
-                }
-            }
-        }
-        BigDecimal total = paid.values().sum() as BigDecimal
+        Map<String, BigDecimal> paid = AuctionSpend.shareByPosition(calibrated(), AuctionSpend.EXCLUDING_KICKERS)
 
         expect:
-        AuctionValuation.MARKET_SHARE.every { String pos, BigDecimal share ->
-            (paid[pos] / total - share).abs() < 0.005
+        AuctionSpend.EXCLUDING_KICKERS.every {
+            (paid[it] - AuctionValuation.MARKET_SHARE[it]).abs() < 0.005
         }
+    }
+
+    /**
+     * The kicker is the one entry on a different basis, and pinning it is what makes that visible.
+     *
+     * {@code MARKET_SHARE} therefore does not sum to one — it sums to 1.009, being four shares of the
+     * four-position pot plus one share of the whole pot. It costs nothing in dollars, because the four are
+     * inflated together and {@code clearingRate} renormalises anything uniform away, and because kickers
+     * have no curve and price at the minimum bid whatever share they are given. It is asserted rather than
+     * quietly corrected: repricing the board is a decision, not a tidy-up.
+     */
+    def "the kicker share is on the other basis, which is why the shares do not sum to one"() {
+        given:
+        Map<String, BigDecimal> wholePot = AuctionSpend.shareByPosition(calibrated())
+
+        expect: 'PK is a share of every auction dollar, where the other four are not'
+        (wholePot.PK - AuctionValuation.MARKET_SHARE.PK).abs() < 0.005
+
+        and: 'and the four are each above their whole-pot share, by the kicker slice they leave out'
+        AuctionSpend.EXCLUDING_KICKERS.every {
+            AuctionValuation.MARKET_SHARE[it] > wholePot[it]
+        }
+
+        and: 'so the map overstates by almost exactly that slice'
+        ((AuctionValuation.MARKET_SHARE.values().sum() as BigDecimal) - 1.0 - wholePot.PK).abs() < 0.002
+    }
+
+    /** Measured and reported, never calibrated on: the case for dropping it has to be checkable. */
+    def "2022 is the outlier the calibration excludes, and by a distance"() {
+        given:
+        Map<String, BigDecimal> transition =
+                AuctionSpend.shareByPosition([AuctionSpend.of('2022')], AuctionSpend.EXCLUDING_KICKERS)
+        List<Map<String, BigDecimal>> since = AuctionSpend.CALIBRATED_SEASONS.collect {
+            AuctionSpend.shareByPosition([AuctionSpend.of(it)], AuctionSpend.EXCLUDING_KICKERS)
+        }
+
+        expect: 'wide receiver took more of that auction than of any season since, by a wide margin'
+        transition.WR > since.collect { it.WR }.max() + 0.15
+
+        and: 'and quarterback less than any of them'
+        transition.QB < since.collect { it.QB }.min()
     }
 }
