@@ -266,7 +266,7 @@ It reports every disagreement at once, with line numbers, and exits non-zero on 
 | Figures | a cited number is not what the board says |
 | Boundary | the document uses a technical word no cited report carries, an input file, or a source path |
 
-A report generated from uncommitted changes under `src` is stamped `-dirty`, and a plan cannot be checked
+A report generated from uncommitted changes under `src/main` is stamped `-dirty`, and a plan cannot be checked
 against one: the sha does not then describe what actually ran. Commit the model, regenerate, and re-check.
 
 ## The manifest

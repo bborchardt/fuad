@@ -171,7 +171,7 @@ class DocsCheck {
         // Last, because it is the one thing the stamps cannot see. The figures may be exactly what their
         // commit produced and still not be what the model would produce now.
         ReportManifest.modelIsDirty() ?
-                ['the model has uncommitted changes under src, so the figures are not what it would now ' +
+                ['the model has uncommitted changes under src/main, so the figures are not what it would now ' +
                          'produce — commit it and run ./figures_refresh.sh'] : []
     }
 
