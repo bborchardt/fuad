@@ -3,6 +3,8 @@ package ff.projection
 import ff.data.PlayerValuation
 import spock.lang.Specification
 
+import java.math.RoundingMode
+
 /**
  * The constants this model divides money by are measurements, not choices, so they are checked against the
  * seasons they were measured from rather than left to drift.
@@ -15,13 +17,27 @@ import spock.lang.Specification
  */
 class AuctionValuationSpec extends Specification {
 
+    /** The seasons the positional calibration is fitted over, which is what MARKET_SHARE is a mean of. */
     private static List<AuctionSpend.Season> calibrated() {
         AuctionSpend.CALIBRATED_SEASONS.collect { AuctionSpend.of(it) }
     }
 
-    def "the spend rate is what the superflex seasons actually spent"() {
+    /**
+     * The seasons played under superflex, which is what the rookie and spend constants are means of.
+     *
+     * Not the same span as {@link #calibrated}, and the difference matters. A share of the pot is only
+     * comparable between seasons starting the same lineup, so the positional calibration throws 2022 away;
+     * a spend rate and a rookie budget are not positional and keep it. These used to be measured over the
+     * calibration's three seasons while their constants documented four, so each assertion was checking a
+     * narrower claim than the one beside it in prose.
+     */
+    private static List<AuctionSpend.Season> superflex() {
+        AuctionSpend.SUPERFLEX_SEASONS.collect { AuctionSpend.of(it) }
+    }
+
+    def "the spend rate is what the four superflex seasons actually spent"() {
         given:
-        List<AuctionSpend.Season> seasons = calibrated()
+        List<AuctionSpend.Season> seasons = superflex()
 
         when:
         BigDecimal measured = seasons.collect { it.spendRate }.sum() / seasons.size()
@@ -30,21 +46,32 @@ class AuctionValuationSpec extends Specification {
         (measured - AuctionValuation.SPEND_RATE).abs() < 0.01
     }
 
-    def "no season spent outside the range the model claims"() {
+    /**
+     * The range is stated over the whole record, so it is checked over the whole record.
+     *
+     * It used to be asserted over the calibration's three seasons against bounds of 0.65 and 0.90, which
+     * matched neither the span nor the figures the documentation gives. Nine seasons run 0.652 to 0.854,
+     * which is the 65% to 85% the prose states once each is read to the whole percentage point it is
+     * rounded to.
+     */
+    def "no season in the record spent outside the range the model claims"() {
         expect:
-        calibrated().every { it.spendRate > 0.65 && it.spendRate < 0.90 }
+        AuctionSpend.RECORD_SEASONS.collect { AuctionSpend.of(it).spendRate }.every {
+            BigDecimal rounded = it.setScale(2, RoundingMode.HALF_UP)
+            rounded >= 0.65 && rounded <= 0.85
+        }
     }
 
     def "five rounds times teams is what the rookie draft actually puts on rosters"() {
         expect: 'within a couple of picks every season, since rookies are almost always kept'
-        calibrated().every {
+        superflex().every {
             Math.abs(it.rookiesRostered - AuctionValuation.ROOKIE_ROUNDS * it.teams) <= 3
         }
     }
 
     def "rookies cost about the share of the pot the model reserves for them"() {
         given:
-        List<BigDecimal> shares = calibrated().collect { it.rookieShare }
+        List<BigDecimal> shares = superflex().collect { it.rookieShare }
 
         expect:
         (shares.sum() / shares.size() - AuctionValuation.ROOKIE_BUDGET_SHARE).abs() < 0.01
@@ -60,7 +87,7 @@ class AuctionValuationSpec extends Specification {
      * of the pool {@link AuctionValuation#calibrate} normalises over, and his entry was never read at all.
      * Levelling kickers put them in that pool and made the mixed basis a real error.
      */
-    def "the market shares are what the superflex seasons actually paid each position"() {
+    def "the market shares are what the calibrated seasons actually paid each position"() {
         given:
         Map<String, BigDecimal> paid = AuctionSpend.shareByPosition(calibrated())
 

@@ -100,7 +100,17 @@ class FuadScheduleGeneratorSpec extends Specification {
         '2022' | 56
     }
 
-    def "schedules are randomized between runs"() {
+    /**
+     * The draw is unseeded on purpose, so two runs must be able to disagree — asserted without asking that
+     * any particular pair of them does.
+     *
+     * This used to generate twice and require the two to differ. With four franchises the shuffle has only
+     * a few tens of thousands of distinct arrangements, so two runs coincide every so often and the test
+     * failed for no reason but the draw. Two seeded generators given different seeds settle the same
+     * question deterministically: the schedule is a function of the randomness rather than of the
+     * franchises alone. The third case pins the other half of it, that one seed always gives one schedule.
+     */
+    def "schedules are randomized rather than a function of the franchises alone"() {
         given:
         List<MflFranchise> franchises = [
                 new MflFranchise(id: 'A1', name: 'A1', ownerName: 'Owner', division: '00', players: []),
@@ -110,11 +120,15 @@ class FuadScheduleGeneratorSpec extends Specification {
         ]
 
         when:
-        List<FuadMatchup> first = new FuadScheduleGenerator().generate(franchises)
-        List<FuadMatchup> second = new FuadScheduleGenerator().generate(franchises)
+        List<FuadMatchup> first = new FuadScheduleGenerator(14, new Random(1L)).generate(franchises)
+        List<FuadMatchup> second = new FuadScheduleGenerator(14, new Random(2L)).generate(franchises)
+        List<FuadMatchup> again = new FuadScheduleGenerator(14, new Random(1L)).generate(franchises)
 
-        then:
+        then: 'a different draw gives a different schedule'
         first != second
+
+        and: 'and the same draw gives the same one, so the difference is the randomness and nothing else'
+        first == again
     }
 
     def "requires exactly 2 divisions"() {

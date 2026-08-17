@@ -39,6 +39,18 @@ class AuctionSpend {
      */
     static final List<String> EXCLUDING_KICKERS = ['QB', 'RB', 'WR', 'TE'].asImmutable() as List<String>
 
+    /**
+     * Every season whose auction can be measured at all, which is every one holding a post-draft snapshot.
+     *
+     * Wider than the calibration, deliberately. A share of the pot is only comparable across seasons with
+     * the same lineup, so {@link AuctionValuation#MARKET_SHARE} is fitted on the superflex ones alone — but
+     * the <b>spend rate</b> is a share of the cap rather than of a position, and the range the
+     * documentation states for it is a claim about the whole record. A range stated over nine seasons and
+     * checked over three is a range nothing checks.
+     */
+    static final List<String> RECORD_SEASONS =
+            (2017..2025).collect { it as String }.asImmutable() as List<String>
+
     /** Every season played under superflex, which is as far back as a share of this pot means anything. */
     static final List<String> SUPERFLEX_SEASONS = ['2022', '2023', '2024', '2025'].asImmutable() as List<String>
 
