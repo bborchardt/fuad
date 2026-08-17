@@ -1,5 +1,6 @@
 package ff.projection
 
+import ff.data.PlayerValuation
 import spock.lang.Specification
 
 /**
@@ -95,6 +96,59 @@ class AuctionValuationSpec extends Specification {
 
         and: 'and kickers take well under a fifth of what the curve says they are worth'
         AuctionValuation.MARKET_SHARE.PK < 0.02
+    }
+
+    /**
+     * The property that makes the scale a curve is measured on somebody else's business.
+     *
+     * Value over replacement is computed inside a position and then summed across all of them to divide the
+     * pot, so any factor applied to one position's whole curve is a thumb on that sum. It ought not to be:
+     * {@link AuctionValuation#calibrate} forces each position's share of the money to what the league
+     * actually pays, and a share is a ratio, so multiplying a position's points by anything must come out
+     * the other side unchanged.
+     *
+     * <b>That is what was quietly not true.</b> Rate and availability are averaged apart and multiplied,
+     * which loses their covariance, so each position's level is anchored back to the season it really had —
+     * by a different factor at each position, 1.032 at receiver against 1.067 at kicker. Value over
+     * replacement was taken on the unanchored rate and {@code PTS} on the anchored one, so the two were on
+     * different scales and {@code VALUE} carried the difference between positions. Prices never did, which
+     * is why it went unseen until the kicker market turned on {@code VALUE}.
+     *
+     * Asserted with the flex pinned shut, since allocating it compares positions against each other and
+     * would legitimately move if one of them doubled.
+     */
+    def "doubling a position's points changes no price, a share being a ratio"() {
+        given: 'two positions, and the same two with every receiver season worth twice as much'
+        Map<Integer, List<BigDecimal>> shape = (1..12).collectEntries { int rank ->
+            BigDecimal expected = (240 - rank * 12) as BigDecimal
+            [(rank): [expected, expected * 0.5, expected * 1.5] * 3]
+        }
+        Map<Integer, List<BigDecimal>> doubled = shape.collectEntries { int rank, List<BigDecimal> seasons ->
+            [(rank): seasons.collect { it * 2 }]
+        }
+        PointsCurve plain = PointsCurve.of([QB: TestSeasons.byRank(shape), WR: TestSeasons.byRank(shape)])
+        PointsCurve scaled = PointsCurve.of([QB: TestSeasons.byRank(shape), WR: TestSeasons.byRank(doubled)])
+
+        and: 'a lineup with no flex, so nothing reallocates a starting slot between the two'
+        StarterRequirements fixed = new StarterRequirements([QB: 1, WR: 2], [QB: 1, WR: 2], 3, 10)
+        Map<String, List> pool = (1..6).collectMany { int rank ->
+            [["q$rank" as String, ["QB $rank" as String, 'QB', rank, null]],
+             ["w$rank" as String, ["WR $rank" as String, 'WR', rank, null]]]
+        }.collectEntries { [(it[0]): it[1]] }
+
+        when:
+        List<PlayerValuation> before = AuctionValuation.value(plain, fixed, pool, [QB: 20, WR: 20],
+                400.0, 12, new ByeWeeks([:], 14))
+        List<PlayerValuation> after = AuctionValuation.value(scaled, fixed, pool, [QB: 20, WR: 20],
+                400.0, 12, new ByeWeeks([:], 14))
+
+        then: 'the receivers really are worth twice as much, so there is something here that could leak'
+        scaled.seasonPoints('WR', 3) > plain.seasonPoints('WR', 3) * 1.9
+
+        and: 'and every price is the same to the dollar, at both positions'
+        before.every { PlayerValuation player ->
+            player.marketSalary == after.find { it.playerId == player.playerId }.marketSalary
+        }
     }
 
     /** Measured and reported, never calibrated on: the case for dropping it has to be checkable. */

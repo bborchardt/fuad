@@ -248,22 +248,22 @@ be compared. Read down a position at a time:
 
 | Rank | QB | WR | RB |
 | --- | --- | --- | --- |
-| 10 | 38.8 | | |
-| 30 | | 18.5 | 14.7 |
-| 38 | | 13.7 | |
-| 48 | | | 4.7 |
+| 10 | 41.2 | | |
+| 30 | | 19.1 | 15.3 |
+| 38 | | 14.1 | |
+| 48 | | | 4.9 |
 
 <!-- figures: curve across=POS field=VOREXP -->
 
 | Rank | QB | WR | RB |
 | --- | --- | --- | --- |
-| 10 | 29.7 | | |
-| 30 | | 3.6 | 0.2 |
-| 38 | | 0.2 | |
+| 10 | 31.6 | | |
+| 30 | | 3.7 | 0.2 |
+| 38 | | 0.3 | |
 | 48 | | | 0.0 |
 
 Every one of those gaps is positive, and it is widest where a player sits near replacement rather than well
-clear of it — RB48 is worth nothing at all on the second reading and nearly five points on the first.
+clear of it — RB48 is worth nothing at all on the second reading and about five points on the first.
 
 The spread is real: realised points at a given preseason rank vary with a coefficient of variation of 0.5 to
 0.6 by position, and players nominally below replacement still clear it often.

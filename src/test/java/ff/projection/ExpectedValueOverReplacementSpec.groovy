@@ -149,6 +149,9 @@ class ExpectedValueOverReplacementSpec extends Specification {
 
         and: 'and is worth less for it, by that week net of the replacement he would have had to beat'
         withBye < without
-        ((without - withBye) - (curve.pointsPerGame('WR', 1) - 5.0)).abs() < 0.001
+        // The levelled rate, not the raw one. What a week is worth has to be measured on the scale the week
+        // was priced on, and value over replacement is taken on the anchored rate so that the sum across
+        // positions is a sum of comparable things.
+        ((without - withBye) - (curve.levelledRate('WR', 1) - 5.0)).abs() < 0.001
     }
 }

@@ -235,10 +235,17 @@ class PointsCurve {
      * What this rank scores in a game he plays, which is the half of a season that is about ability.
      *
      * The raw mean of the seasons behind the rank, before {@link #anchorTo} puts the position's overall
-     * level back where its seasons actually were. Everything priced off a week — value over replacement,
-     * and replacement itself — uses this, since the anchor is a single factor across a position and
-     * cancels out of a comparison taken inside one. Anything <b>reported</b> wants {@link #levelledRate},
-     * which is this times the anchor and so multiplies back out to the season the board carries.
+     * level back where its seasons actually were.
+     *
+     * <b>Nothing prices off this, and it used to.</b> The argument was that the anchor is a single factor
+     * across a position and cancels out of any comparison taken inside one, which is true and was not the
+     * whole story: value over replacement is computed inside a position and then <b>summed across</b> all
+     * of them to divide the pot. The anchor runs from 1.032 at receiver to 1.067 at kicker, so an unanchored
+     * rate tilted {@code VALUE} by about two per cent between positions — invisible while {@code VALUE} was
+     * a secondary column, and load bearing once the kicker market turned on it.
+     *
+     * {@link #weeklyRate} therefore takes {@link #levelledRate}. Kept public because the two are worth
+     * telling apart, and because the difference between them is the anchor itself.
      */
     BigDecimal pointsPerGame(String position, int rank) {
         rateByPosition[position]?.get(rank) ?: 0.0
@@ -303,7 +310,7 @@ class PointsCurve {
      * apart so that a season lost to injury is modelled as absence rather than as thirteen bad weeks.
      */
     Map<Integer, BigDecimal> weeklyRate(String position, int rank, Integer byeWeek, int lastWeek) {
-        BigDecimal rate = pointsPerGame(position, rank)
+        BigDecimal rate = levelledRate(position, rank)
         List<Integer> playing = playableWeeks(byeWeek, lastWeek)
         if (!rate || !playing) {
             return [:]
