@@ -29,12 +29,12 @@ class BoardColumnsSpec extends Specification {
         }
     }
 
-    private static List<PlayerValuation> value(ByeWeeks byes) {
+    private static List<PlayerValuation> value(ByeWeeks byes, Closure<Integer> dynastyFor = { it + 3 }) {
         PointsCurve curve = PointsCurve.of([WR: TestSeasons.byRank(uneven())])
         StarterRequirements requirements = new StarterRequirements(
                 [WR: 2], [WR: 4], 3, 10)
         Map<String, List> available = (1..20).collectEntries { int rank ->
-            [("p$rank" as String): ["Player $rank" as String, 'WR', rank, null, rank + 3]]
+            [("p$rank" as String): ["Player $rank" as String, 'WR', rank, null, dynastyFor(rank)]]
         }
         AuctionValuation.value(curve, requirements, available, [WR: 40], 300.0, 20, byes)
     }
@@ -48,16 +48,43 @@ class BoardColumnsSpec extends Specification {
         valuations.find { it.positionRank == 4 }.bye == null
     }
 
-    def "carries the dynasty rank through without letting it touch a price"() {
+    def "carries the dynasty rank onto the board"() {
         given: 'every player ranked three worse for the long run than for this season'
         List<PlayerValuation> valuations = value(new ByeWeeks([:], LAST_WEEK))
 
-        expect: 'it reaches the board'
+        expect:
         valuations.find { it.positionRank == 5 }.dynastyRank == 8
+    }
 
-        and: 'and nothing is priced off it: value and price follow the redraft rank, which is monotone'
-        valuations.sort { it.positionRank }.collect { it.value } ==
-                valuations.sort { it.positionRank }.collect { it.value }.sort { -it }
+    /**
+     * Priced by nothing, which takes a board that disagrees with itself to demonstrate.
+     *
+     * The obvious test — that value still falls with redraft rank — cannot fail, because a dynasty rank of
+     * {@code rank + 3} is the redraft order relabelled: pricing off either one gives the same descending
+     * board. So the two boards here are identical except that one ranks the long run in exactly the reverse
+     * order, and every priced figure has to come out the same anyway.
+     */
+    def "prices nothing off the dynasty rank, however far it disagrees with this season's"() {
+        given: 'two boards alike but for the long run, the second ranking it backwards'
+        List<PlayerValuation> ascending = value(new ByeWeeks([:], LAST_WEEK)) { int rank -> rank + 3 }
+        List<PlayerValuation> reversed = value(new ByeWeeks([:], LAST_WEEK)) { int rank -> 100 - rank }
+
+        expect: 'the two really do disagree about the long run, at every rank'
+        ascending.every { PlayerValuation player ->
+            player.dynastyRank != reversed.find { it.positionRank == player.positionRank }.dynastyRank
+        }
+
+        and: 'and every figure the board prices is identical, player for player'
+        ascending.every { PlayerValuation player ->
+            PlayerValuation other = reversed.find { it.positionRank == player.positionRank }
+            player.value == other.value &&
+                    player.marketSalary == other.marketSalary &&
+                    player.acquisitionSalary == other.acquisitionSalary &&
+                    player.salary == other.salary &&
+                    player.valueOverReplacement == other.valueOverReplacement &&
+                    player.points == other.points &&
+                    player.tier == other.tier
+        }
     }
 
     def "leaves the dynasty rank empty where the ranking does not carry a player"() {

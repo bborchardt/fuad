@@ -59,9 +59,12 @@ class LineupValueSpec extends Specification {
      * player sitting one week out, and a spare covering it is real value that these tests are not about.
      */
     private static PointsCurve curve(Map<Integer, List<BigDecimal>> qb, Map<Integer, List<BigDecimal>> rest) {
+        // Tight end is levelled but has no slot in the lineup these tests use, which is what makes it the
+        // position to reach for when a test wants a player who can never be fielded.
         PointsCurve.of([QB : TestSeasons.byRank(qb, LAST_WEEK),
                         RB : TestSeasons.byRank(rest, LAST_WEEK),
-                        WR : TestSeasons.byRank(rest, LAST_WEEK)])
+                        WR : TestSeasons.byRank(rest, LAST_WEEK),
+                        TE : TestSeasons.byRank(rest, LAST_WEEK)])
     }
 
     def "a third quarterback is worth only what hindsight makes him worth, absent a bye"() {
@@ -211,17 +214,33 @@ class LineupValueSpec extends Specification {
         (lineups.evaluate([lineups.rostered('QB', 5)]).onExpectation - levelled).abs() < levelled * 0.02
     }
 
-    def "a marginal is measured against the same seasons as the roster it is added to"() {
-        given:
+    /**
+     * A marginal is a difference between two replayed rosters, and the draws are shared so that the
+     * difference is the added player and nothing else.
+     *
+     * <b>Exactly nothing is the assertion, and it has to be.</b> Were each roster drawn its own seasons, the
+     * two evaluations would disagree by the sampling noise of everybody already on it — a small number, and
+     * a number that would sail past any test asking merely for a non-negative answer. Four hundred replays
+     * of three quarterbacks having wildly different years cancel to the last decimal place, or the draws are
+     * not shared.
+     *
+     * The tight end is the device: this lineup has no slot for one at all, so he can never be fielded
+     * whatever the draw, where a quarterback fourth in line merely usually is not.
+     */
+    def "adds exactly nothing for a player the lineup can never field"() {
+        given: 'three quarterbacks whose seasons vary a great deal'
         PointsCurve points = curve(uneven(210), uneven(150))
         LineupValue lineups = new LineupValue(points, new ByeWeeks([:], LAST_WEEK), superflex(), 30)
         List<LineupValue.Rostered> roster = (1..3).collect { lineups.rostered('QB', it) }
 
-        when: 'a player who can never be started is added: rank 30 behind three better quarterbacks'
-        LineupValue.Bracket added = lineups.marginal(roster, lineups.rostered('QB', 30))
+        expect: 'and they really do vary, so there is something here that would fail to cancel'
+        lineups.evaluate(roster).withHindsight > lineups.evaluate(roster).onExpectation
 
-        then: 'the difference is his alone, with no sampling noise from redrawing everybody else'
-        added.onExpectation >= 0.0
-        added.withHindsight >= 0.0
+        when: 'a tight end is added, for whom this lineup holds no slot on either reading'
+        LineupValue.Bracket added = lineups.marginal(roster, lineups.rostered('TE', 1))
+
+        then: 'not nearly nothing, nothing'
+        added.onExpectation == 0.0
+        added.withHindsight == 0.0
     }
 }
