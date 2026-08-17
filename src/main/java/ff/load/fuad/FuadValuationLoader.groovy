@@ -61,28 +61,6 @@ class FuadValuationLoader {
 
 
     /**
-     * How deep the auction pool runs at kicker, which the relevance floor cannot decide.
-     *
-     * Every other position is bounded by {@link PointsCurve#pricedDepth}, the rank below which the curve
-     * has stopped making a claim — a level under a quarter of the position's best. That test never fires at
-     * kicker, because the curve there is nearly flat: the 42nd ranked kicker still levels around 60 points,
-     * three fifths of the best one, so the floor would carry the entire ranked pool onto the board.
-     *
-     * <b>Flat is not the same as valuable.</b> Only ten kickers start, so everything past about the eleventh
-     * is below replacement and worth nothing to anybody — the curve says a deep kicker scores points, and
-     * the lineup says nobody has a slot to score them in. Left uncapped the board carried 29 kickers, 27 of
-     * them at the minimum bid, and the dollar reserved for each one came to more than the whole position's
-     * calibrated budget.
-     *
-     * So the depth is what the league actually rosters, which is the same figure it always was: the deepest
-     * kicker ever signed at auction ranks 25th, and 25 covers 95% of the kickers on a week 1 roster. Half
-     * the league carries a second kicker for bye cover, so about fifteen are rostered rather than ten, and
-     * rank predicts little enough at the position that teams do not sign them in order — the median kicker
-     * signed ranks 6th, the 90th percentile 16th.
-     */
-    private static final int KICKER_DEPTH = 25
-
-    /**
      * The curve, built once per loader.
      *
      * Nine seasons of statistics are read and restated to make it, which is much the most expensive thing
@@ -211,11 +189,11 @@ class FuadValuationLoader {
             }
             // One depth for both kinds of free agent. An expiring contract does not have to be re-signed:
             // if nobody bids, the player goes back into the pool like anyone else, so a rank too deep to
-            // be worth bidding on is too deep whoever happens to hold it.
-            int depth = 'PK' == player.player.position ? KICKER_DEPTH
-                    : curve().pricedDepth(player.player.position)
+            // be worth bidding on is too deep whoever happens to hold it. And one depth for every position,
+            // kicker included: it used to be capped here instead, which left the board priced over 25 ranks
+            // against a spread the curve had taken over 42.
             (franchiseByPlayer.containsKey(player.mflId) || !rostered.contains(player.mflId)) &&
-                    player.redraftRank.positionRank <= depth
+                    player.redraftRank.positionRank <= curve().pricedDepth(player.player.position)
         }.collectEntries { FuadPlayer player ->
             // The dynasty rank rides along to the board and is priced by nothing: a salary buys one
             // season, and the model levels every rank on the redraft ranking alone. It is carried because

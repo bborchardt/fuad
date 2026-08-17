@@ -74,6 +74,31 @@ class PointsCurve {
      */
     private static final double RELEVANT_FRACTION = 0.25d
 
+    /**
+     * Positions {@link #RELEVANT_FRACTION} cannot bound, and how deep they price instead.
+     *
+     * <b>The floor never fires at kicker.</b> The curve there is nearly flat — the 42nd ranked kicker still
+     * levels around three fifths of the first — so a test written as a share of the position's best carries
+     * the entire ranked pool. Flat is not the same as valuable: only ten kickers start, so everything past
+     * about the eleventh is below replacement and worth nothing to anybody, and the curve saying a deep
+     * kicker scores points does not give the lineup a slot to score them in.
+     *
+     * So kicker is bounded by what the league actually rosters. The deepest kicker ever signed at auction
+     * ranks 25th, and 25 covers 95% of the kickers on a week 1 roster. Half the league carries a second for
+     * bye cover, so about fifteen are rostered rather than ten, and rank predicts little enough at the
+     * position that teams do not sign them in order — the median kicker signed ranks 6th, the 90th
+     * percentile 16th.
+     *
+     * <b>It is a cap on the priced depth itself, not a filter over the board.</b> It was the second of
+     * those, applied where the auction pool was assembled while the curve went on computing to 42, so
+     * kicker had two depths: the board priced 25 ranks and the spread, the outcomes, the census and the
+     * anchor behind those prices were all taken over 42. Every other position has one number doing both
+     * jobs, and the seventeen ranks between them are where the position's lost seasons are concentrated, so
+     * the distribution the board priced kickers against was largely made of ranks the board would not
+     * carry.
+     */
+    private static final Map<String, Integer> DEPTH_CAP = [PK: 25].asImmutable() as Map<String, Integer>
+
     private static final int MINIMUM_OBSERVATIONS = 6
 
     /**
@@ -82,8 +107,15 @@ class PointsCurve {
      * It has to be common. Backward movement accumulates over the ranks it is summed across while the range
      * it is taken against does not, so a position priced a hundred ranks deep scores worse than one priced
      * thirty-six deep for no reason except its depth — and the whole use of the measure is comparing
-     * positions. Thirty-six is the shallowest any position prices to, so it is the deepest window all four
-     * actually make a claim across.
+     * positions. Thirty-six is the shallowest of the four scoring positions, so it is the deepest window
+     * all of them actually make a claim across.
+     *
+     * <b>Kicker prices shallower than the window and is measured across its own depth instead.</b> Its
+     * depth is set by what the league rosters rather than by the relevance floor — see {@link #DEPTH_CAP} —
+     * and no window can be both common to the other four and inside a position that stops at 25. So the
+     * kicker figure answers the same question over a shorter run and is not comparable with the rest; a
+     * change to the smoothing is still read against kicker's own previous figure, which is what the measure
+     * is for.
      */
     private static final int MONOTONICITY_WINDOW = 36
 
@@ -201,7 +233,7 @@ class PointsCurve {
                 }
             }
             if (level) {
-                BigDecimal anchor = anchorTo(byRank, level, rate, played)
+                BigDecimal anchor = anchorTo(position, byRank, level, rate, played)
                 Map<Integer, BigDecimal> settled = level.collectEntries { int rank, BigDecimal points ->
                     [(rank): rate[rank] * played[rank] * anchor]
                 }
@@ -214,9 +246,9 @@ class PointsCurve {
                 errors[position] = settledError
                 tiers[position] = tiersOf(settled, settledError)
                 depths[position] = settled.keySet().max() as int
-                multipliers[position] = spread(byRank, settled)
-                outcomes[position] = outcomesOf(byRank, rate, settled)
-                census[position] = censusOf(byRank, settled)
+                multipliers[position] = spread(position, byRank, settled)
+                outcomes[position] = outcomesOf(position, byRank, rate, settled)
+                census[position] = censusOf(position, byRank, settled)
             }
         }
         new PointsCurve(rates, games, levels, errors, tiers, multipliers, outcomes, depths, census)
@@ -381,11 +413,12 @@ class PointsCurve {
      * So the smoothed shape is scaled back to the mean season the position actually had. Prices normalise
      * to the pot and would not notice a uniform factor; the flex allocation would.
      */
-    private static BigDecimal anchorTo(Map<Integer, List<RealisedSeason>> byRank,
+    private static BigDecimal anchorTo(String position,
+                                       Map<Integer, List<RealisedSeason>> byRank,
                                        Map<Integer, BigDecimal> level,
                                        Map<Integer, BigDecimal> rate,
                                        Map<Integer, BigDecimal> played) {
-        int deepest = pricedDepthOf(level)
+        int deepest = pricedDepthOf(position, level)
         List<Integer> priced = level.keySet().findAll { it <= deepest }.toList()
         if (!priced) {
             return 1.0
@@ -468,9 +501,9 @@ class PointsCurve {
      * Both are taken over the priced ranks only, since a rank the curve has stopped making a claim about is
      * neither a season that carries money nor a step worth calling backwards.
      */
-    private static Census censusOf(Map<Integer, List<RealisedSeason>> byRank,
+    private static Census censusOf(String position, Map<Integer, List<RealisedSeason>> byRank,
                                    Map<Integer, BigDecimal> level) {
-        int deepest = pricedDepthOf(level)
+        int deepest = pricedDepthOf(position, level)
         List<RealisedSeason> counted = byRank.findAll { int rank, List<RealisedSeason> seasons ->
             rank <= deepest
         }.collectMany { int rank, List<RealisedSeason> seasons -> seasons }
@@ -547,18 +580,23 @@ class PointsCurve {
         if (!level) {
             return 0
         }
-        pricedDepthOf(level)
+        pricedDepthOf(position, level)
     }
 
-    /** The last rank above the relevance floor, taken as one cutoff so the boundary is not ragged. */
-    private static int pricedDepthOf(Map<Integer, BigDecimal> level) {
+    /**
+     * The last rank above the relevance floor, taken as one cutoff so the boundary is not ragged, and held
+     * to {@link #DEPTH_CAP} where the floor has nothing to say.
+     */
+    private static int pricedDepthOf(String position, Map<Integer, BigDecimal> level) {
         BigDecimal floor = relevanceFloor(level)
-        (level.keySet().findAll { level[it] > floor }.max() ?: 0) as int
+        int deepest = (level.keySet().findAll { level[it] > floor }.max() ?: 0) as int
+        Integer cap = DEPTH_CAP[position]
+        cap == null ? deepest : Math.min(deepest, cap)
     }
 
-    private static List<Double> spread(Map<Integer, List<RealisedSeason>> byRank,
+    private static List<Double> spread(String position, Map<Integer, List<RealisedSeason>> byRank,
                                        Map<Integer, BigDecimal> level) {
-        int deepest = pricedDepthOf(level)
+        int deepest = pricedDepthOf(position, level)
         List<Double> ratios = byRank.collectMany { int rank, List<RealisedSeason> seasons ->
             BigDecimal expected = level[rank]
             rank <= deepest && expected > 0 ? seasons.collect { (it.points / expected).toDouble() } : []
@@ -577,10 +615,10 @@ class PointsCurve {
      * lost season keeps its zero games and carries whatever multiplier the scaling leaves it with, which is
      * read by nothing either way: with no games there is no week for a rate to apply to.
      */
-    private static List<Outcome> outcomesOf(Map<Integer, List<RealisedSeason>> byRank,
+    private static List<Outcome> outcomesOf(String position, Map<Integer, List<RealisedSeason>> byRank,
                                             Map<Integer, BigDecimal> rate,
                                             Map<Integer, BigDecimal> level) {
-        int deepest = pricedDepthOf(level)
+        int deepest = pricedDepthOf(position, level)
         List<Outcome> raw = byRank.collectMany { int rank, List<RealisedSeason> seasons ->
             BigDecimal expected = level[rank]
             BigDecimal expectedRate = rate[rank]
