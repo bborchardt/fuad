@@ -99,9 +99,15 @@ Two columns, because the lineup can be set two ways and neither is true:
 - `ADDEXP` — starters chosen on preseason ranks, then whatever the season gives. Nobody knows in advance.
 - `ADDHIND` — starters chosen knowing how the season turned out. Nobody is still guessing by week four.
 
-The truth is bracketed rather than picked. The split is also readable in itself: **`ADDEXP` is what bye
-coverage is worth, `ADDHIND − ADDEXP` is what optionality is worth.** A spare a lineup would never reach
-for on preseason ranks shows nothing in the first column and everything in the second.
+**Both of them can see who is playing.** What a manager cannot know is how good a player will turn out; he
+can always see who is hurt, and nobody starts a man who is not on the field. So availability binds both
+readings and only form is bracketed between them. The bracket is narrower than it used to be for that
+reason, and the width it lost was never real: it came of pretending a lineup would keep starting a player
+who had been out since October.
+
+The split is readable in itself: **`ADDEXP` is what covering byes and absences is worth, `ADDHIND − ADDEXP`
+is what optionality is worth.** A spare a lineup would never reach for on preseason ranks, and who is never
+needed to cover anybody, shows nothing in the first column and everything in the second.
 
 Both are **points, never dollars** — the most this team would rationally pay, against `PRICE` for what he
 will cost. Comparing them is the reader's job, and the reason to run this at all.
@@ -110,8 +116,14 @@ Two things not to misread:
 
 **The per-player marginals do not add up.** Each is measured against the roster as it stands, so they are
 all the value of being the *first* signing at that position. Brett's board shows a first quarterback worth
-170 and a second worth 155; signing both is not worth 325. That is what `roster_depth` is for — the same
-board puts the third quarterback at 22 and the fourth at nothing.
+210 and a second worth 154; signing both is not worth 364. That is what `roster_depth` is for — the same
+board puts the third quarterback at 59 and the fourth at 15.
+
+Depth is worth more than it used to read, and the reason is that a lost season is now weeks a player is
+absent rather than a year of him playing badly. A backup behind a starter who misses six games covers six
+weeks; the old shape left the starter nominally in the lineup all year at a reduced rate, so the backup
+covered nothing and `ADDEXP` gave depth no credit for injury at all. Brett's third quarterback went from 24
+points to 59 on that change alone.
 
 **A team is evaluated, never optimised.** Nothing here recommends a roster or solves for one under the cap.
 It says what a roster scores; which players to buy stays a judgement, made against prices the model is

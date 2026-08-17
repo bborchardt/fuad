@@ -116,28 +116,6 @@ class PointsCurveSpec extends Specification {
                 .setScale(1, RoundingMode.HALF_UP) == 175.0
     }
 
-    def "spreads a season evenly over the weeks that are played, and none over the bye"() {
-        given:
-        PointsCurve curve = PointsCurve.of([WR: TestSeasons.byRank(steady())])
-        Map<Integer, BigDecimal> weekly = curve.weeklyPoints('WR', 15, 7, 14)
-
-        expect: 'the season is intact to the rounding of one division, and none of it falls on the bye'
-        weekly[7] == 0.0
-        ((weekly.values().sum() as BigDecimal) - 225.0).abs() < 0.001
-        weekly[1] == weekly[14]
-        weekly.size() == 14
-    }
-
-    def "spreads over the whole season when a rank has no bye recorded"() {
-        given:
-        Map<Integer, BigDecimal> weekly = PointsCurve.of([WR: TestSeasons.byRank(steady())]).weeklyPoints('WR', 15, null, 14)
-
-        expect:
-        weekly.size() == 14
-        weekly.values().every { it > 0 }
-        ((weekly.values().sum() as BigDecimal) - 225.0).abs() < 0.001
-    }
-
     def "outcome multipliers average one, so carrying the spread moves no expected points"() {
         given: 'ranks that realise anywhere from nothing to half again as much as expected'
         Map<Integer, List<BigDecimal>> uneven = (1..30).collectEntries { int rank ->
@@ -234,6 +212,6 @@ class PointsCurveSpec extends Specification {
 
     def "reports nothing for a rank deeper than the record goes"() {
         expect:
-        PointsCurve.of([WR: TestSeasons.byRank(steady())]).weeklyPoints('WR', 90, null, 14) == [:]
+        PointsCurve.of([WR: TestSeasons.byRank(steady())]).weeklyRate('WR', 90, null, 14) == [:]
     }
 }

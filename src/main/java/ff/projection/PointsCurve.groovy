@@ -242,25 +242,6 @@ class PointsCurve {
     }
 
     /**
-     * Expected points in a given week, availability included: the season spread over the weeks it could
-     * fall in.
-     *
-     * The counterpart to {@link #weeklyRate}, and the right reading wherever the question is what a player
-     * brings on average rather than what a particular week looks like. A lineup compared against another
-     * lineup wants this; value over replacement, which has to know whether he cleared the bar in the weeks
-     * he actually played, wants the rate.
-     */
-    Map<Integer, BigDecimal> weeklyPoints(String position, int rank, Integer byeWeek, int lastWeek) {
-        BigDecimal season = seasonPoints(position, rank)
-        List<Integer> playing = playableWeeks(byeWeek, lastWeek)
-        if (!season || !playing) {
-            return [:]
-        }
-        BigDecimal perWeek = season / playing.size()
-        (1..lastWeek).collectEntries { [(it): it == byeWeek ? 0.0 as BigDecimal : perWeek] }
-    }
-
-    /**
      * Every ratio of a realised season to what the rank predicted, scaled to average one.
      *
      * The whole season, rate and availability together, which is what the board reports a range from. Kept

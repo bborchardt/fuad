@@ -24,13 +24,44 @@ class LineupValueSpec extends Specification {
         }
     }
 
-    /** Every season exactly at its rank, so outcomes never differ from expectation. */
-    private static Map<Integer, List<BigDecimal>> certain(int top) {
-        (1..30).collectEntries { int rank -> [(rank): (1..9).collect { (top - rank * 6) as BigDecimal }] }
+    /**
+     * Nothing varies: every season exactly on its level, and every rank on the same one.
+     *
+     * Flat across ranks as well as across seasons, which is stronger than it looks and has to be. The
+     * outcome spread is pooled over the whole position and each rank's level is smoothed over its
+     * neighbours, so on a sloped curve the ranks at either end realise a few per cent off their own
+     * smoothed level. Pooled, that reaches every rank, and a few per cent is enough to reorder two players
+     * a rank apart. A fixture meaning "nobody ever outperforms anybody" has to be flat for that to be true.
+     */
+    private static Map<Integer, List<BigDecimal>> certain(int level) {
+        (1..30).collectEntries { int rank -> [(rank): (1..9).collect { level as BigDecimal }] }
     }
 
+    /**
+     * A position that loses half its seasons outright, at twice the rate in the ones it keeps.
+     *
+     * The same expected season as {@link #certain} delivered a different way, which is the whole point: one
+     * player is there every week, the other is excellent and then absent. A roster is not indifferent
+     * between them, and a model that averages the second into thirteen mediocre weeks cannot say so.
+     */
+    private static Map<Integer, List<BigDecimal>> fragile(int level) {
+        // Four of the nine seasons lost outright, the other five carrying the whole level between them.
+        (1..30).collectEntries { int rank ->
+            [(rank): (1..9).collect { it % 2 == 0 ? 0.0 : (level * 9 / 5) as BigDecimal }]
+        }
+    }
+
+    /**
+     * Seasons in which nobody ever misses a week.
+     *
+     * Availability is drawn now rather than averaged in, so a fixture meaning to hold outcomes fixed has to
+     * say so about both halves: seasons of thirteen games against fourteen playable weeks would have every
+     * player sitting one week out, and a spare covering it is real value that these tests are not about.
+     */
     private static PointsCurve curve(Map<Integer, List<BigDecimal>> qb, Map<Integer, List<BigDecimal>> rest) {
-        PointsCurve.of([QB: TestSeasons.byRank(qb), RB: TestSeasons.byRank(rest), WR: TestSeasons.byRank(rest)])
+        PointsCurve.of([QB : TestSeasons.byRank(qb, LAST_WEEK),
+                        RB : TestSeasons.byRank(rest, LAST_WEEK),
+                        WR : TestSeasons.byRank(rest, LAST_WEEK)])
     }
 
     def "a third quarterback is worth only what hindsight makes him worth, absent a bye"() {
@@ -115,6 +146,69 @@ class LineupValueSpec extends Specification {
         expect: 'a figure a plan is held to cannot move because the sampling was reseeded'
         lineups.evaluate(roster).onExpectation == lineups.evaluate(roster).onExpectation
         lineups.evaluate(roster).withHindsight == lineups.evaluate(roster).withHindsight
+    }
+
+    /**
+     * The fix this file exists to hold: a lost season is weeks missed, not a year of bad football.
+     *
+     * Smearing an injured starter's total across the calendar left him nominally in the lineup every week,
+     * scoring a little. A backup behind him was then worth nothing at all on the reading a plan should lean
+     * on, because a lineup set on the preseason ranks never reached past a starter who was, as far as the
+     * model could see, playing. Give the weeks back and the backup is worth exactly the ones his starter is
+     * not there for, which is what insurance is.
+     */
+    def "a backup is worth the weeks his starter misses, before anyone needs hindsight"() {
+        given: 'one starting slot, at a position that loses half its seasons to injury'
+        PointsCurve points = PointsCurve.of([QB: TestSeasons.byRank(fragile(210), LAST_WEEK)])
+        StarterRequirements oneSlot = new StarterRequirements([QB: 1], [QB: 1], 1, 10)
+        LineupValue lineups = new LineupValue(points, new ByeWeeks([:], LAST_WEEK), oneSlot, 30)
+
+        when: 'a second quarterback is added behind the first'
+        LineupValue.Bracket added = lineups.marginal([lineups.rostered('QB', 1)], lineups.rostered('QB', 2))
+
+        then: 'he is worth real points without anybody having to have guessed right'
+        added.onExpectation > 0.0
+
+        and: 'the share of the season his starter is absent for, of what he himself brings'
+        LineupValue.Rostered starter = lineups.rostered('QB', 1)
+        BigDecimal absent = 1.0 - (starter.expectedGames / starter.playable.length) as BigDecimal
+        BigDecimal expected = absent * points.seasonPoints('QB', 2)
+        added.onExpectation > expected * 0.8
+        added.onExpectation < expected * 1.2
+    }
+
+    def "the same expected season is worth less spread thin than delivered and then missed"() {
+        given: 'two positions levelled alike, one of them never absent and the other absent half the time'
+        PointsCurve points = PointsCurve.of([QB: TestSeasons.byRank(certain(210), LAST_WEEK),
+                                             RB: TestSeasons.byRank(fragile(210), LAST_WEEK)])
+        StarterRequirements oneEach = new StarterRequirements([QB: 1, RB: 1], [QB: 1, RB: 1], 2, 10)
+        LineupValue lineups = new LineupValue(points, new ByeWeeks([:], LAST_WEEK), oneEach, 30)
+
+        expect: 'the two starters are levelled at the same season'
+        (points.seasonPoints('QB', 1) - points.seasonPoints('RB', 1)).abs() < 1.0
+
+        when: 'a spare is added behind each'
+        LineupValue.Bracket behindDurable =
+                lineups.marginal([lineups.rostered('QB', 1)], lineups.rostered('QB', 2))
+        LineupValue.Bracket behindFragile =
+                lineups.marginal([lineups.rostered('RB', 1)], lineups.rostered('RB', 2))
+
+        then: 'behind the durable starter a spare is worth nothing: there is never a week to cover'
+        behindDurable.onExpectation == 0.0
+
+        and: 'behind the fragile one he is worth a large part of a season, on the same levelled points'
+        behindFragile.onExpectation > points.seasonPoints('RB', 2) * 0.3
+    }
+
+    def "a lone player brings the season his rank is levelled at"() {
+        given: 'a single roster spot and nobody to compete for it'
+        PointsCurve points = PointsCurve.of([QB: TestSeasons.byRank(uneven(210), LAST_WEEK)])
+        StarterRequirements oneSlot = new StarterRequirements([QB: 1], [QB: 1], 1, 10)
+        LineupValue lineups = new LineupValue(points, new ByeWeeks([:], LAST_WEEK), oneSlot, 30)
+
+        expect: 'splitting the season into a rate and a set of weeks gives the same season back'
+        BigDecimal levelled = points.seasonPoints('QB', 5)
+        (lineups.evaluate([lineups.rostered('QB', 5)]).onExpectation - levelled).abs() < levelled * 0.02
     }
 
     def "a marginal is measured against the same seasons as the roster it is added to"() {
