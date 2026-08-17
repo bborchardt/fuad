@@ -335,6 +335,70 @@ Prose, which ends the table.
         DocsCheck.check(doc, yearDir) == []
     }
 
+    /**
+     * A table with one row per pair of things needs both of them to find a row.
+     *
+     * The tags are one per season and player and neither alone picks one out: a season holds several tags,
+     * and a player is tagged in several seasons at different prices. Keyed by the first column alone, every
+     * row of a season matched the first row of that season.
+     */
+    def "finds a row by a pair of columns where one column cannot name it"() {
+        given:
+        new File(yearDir, 'tags.tsv').text =
+                "SEASON\tPLAYER\tPOS\tSALARY\n" +
+                "2024\tLamar Jackson\tQB\t45\n" +
+                "2024\tTravis Kelce\tTE\t38\n" +
+                "2025\tLamar Jackson\tQB\t100\n"
+
+        and: 'the same player twice, at two prices, which a season-keyed lookup would confuse'
+        File doc = document('''<!-- figures: tags key=SEASON+PLAYER -->
+
+| Season | Player | Pos | Salary |
+| --- | --- | --- | --- |
+| 2024 | Lamar Jackson | QB | 45 |
+| 2024 | Travis Kelce | TE | 38 |
+| 2025 | Lamar Jackson | QB | 100 |
+''')
+
+        expect:
+        DocsCheck.check(doc, yearDir) == []
+    }
+
+    def "catches a drifted cell in a table keyed by a pair, naming both halves of the key"() {
+        given:
+        new File(yearDir, 'tags.tsv').text =
+                "SEASON\tPLAYER\tPOS\tSALARY\n" +
+                "2024\tLamar Jackson\tQB\t45\n" +
+                "2025\tLamar Jackson\tQB\t100\n"
+        File doc = document('''<!-- figures: tags key=SEASON+PLAYER -->
+
+| Season | Player | Pos | Salary |
+| --- | --- | --- | --- |
+| 2025 | Lamar Jackson | QB | 45 |
+''')
+
+        expect: 'the 2025 row, not the 2024 one that carries a 45'
+        DocsCheck.check(doc, yearDir).any {
+            it.contains('2025 LAMARJACKSON') && it.contains('is 100') && it.contains('cited as 45')
+        }
+    }
+
+    def "says which pair it could not find when a keyed row is not there"() {
+        given:
+        new File(yearDir, 'tags.tsv').text =
+                "SEASON\tPLAYER\tPOS\tSALARY\n" +
+                "2024\tLamar Jackson\tQB\t45\n"
+        File doc = document('''<!-- figures: tags key=SEASON+PLAYER -->
+
+| Season | Player | Pos | Salary |
+| --- | --- | --- | --- |
+| 2024 | Tom Brody | QB | 41 |
+''')
+
+        expect:
+        DocsCheck.check(doc, yearDir).any { it.contains("'2024 TOMBRODY' is not in tags.tsv") }
+    }
+
     def "refuses to check against figures that have never been stamped"() {
         expect:
         DocsCheck.checkProvenance(yearDir).any { it.contains('holds no MANIFEST') }

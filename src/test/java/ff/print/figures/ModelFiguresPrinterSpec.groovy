@@ -6,6 +6,7 @@ import ff.projection.AuctionValuation
 import ff.projection.ByeWeeks
 import ff.projection.PointsCurve
 import ff.projection.StarterRequirements
+import ff.projection.TagHistory
 import ff.projection.TestSeasons
 import spock.lang.Specification
 
@@ -178,6 +179,47 @@ class ModelFiguresPrinterSpec extends Specification {
 
         expect: 'a kicker has no share of a total he was excluded from, which is not a share of zero'
         spend.findAll { it.POS == 'PK' }.every { it.SHAREXPK == '' && new BigDecimal(it.SHARE) > 0 }
+    }
+
+    /**
+     * The tags are the one figure here that is inferred rather than computed, so what is asserted is that
+     * the inference holds together — a confirmed tag is priced at the rate unless somebody paid picks for
+     * him, and the one-per-team rule the identifier never enforces across teams comes out satisfied anyway.
+     */
+    def "writes every confirmed tag, priced at the rate unless it was bid away"() {
+        given:
+        List<Map<String, String>> tags = rows(printer().&printTags)
+
+        expect: 'every season a tag can be recovered for, and nothing uncertain'
+        tags.collect { it.SEASON }.toSet() == TagHistory.SEASONS as Set
+        tags.every { it.STATUS == 'CONFIRMED' }
+
+        and: 'an uncontested tag is paid exactly the rate, which is what makes it recognisable as one'
+        tags.findAll { it.BASIS == 'exact' }.every { it.SALARY == it.RATE }
+
+        and: 'and one bid away went above it, since nobody gives up a pick to pay the same money'
+        tags.findAll { it.BASIS != 'exact' }.every {
+            (it.SALARY as int) > (it.RATE as int) && it.BASIS.startsWith('bid away')
+        }
+    }
+
+    def "the rate a tag was paid is the rate the calculator produces for that season"() {
+        given:
+        Map<String, String> rates = rows(printer().&printRates)
+                .collectEntries { [("$it.SEASON $it.POS" as String): it.RATE] }
+
+        expect: 'the two tables are written from one calculation, and say so'
+        rows(printer().&printTags).every { rates["$it.SEASON $it.POS" as String] == it.RATE }
+    }
+
+    def "carries a rate for the season being priced, which has no auction and so no tags"() {
+        given:
+        List<Map<String, String>> rates = rows(printer().&printRates)
+
+        expect: 'a rate is known from salaries already paid, where a tag needs an auction to have happened'
+        rates.collect { it.SEASON }.toSet() == TagHistory.RATE_SEASONS as Set
+        rows(printer().&printTags).collect { it.SEASON }.toSet() == TagHistory.SEASONS as Set
+        !(TagHistory.SEASONS.contains(TagHistory.RATE_SEASONS.last()))
     }
 
     def "the pooled row is the calibration target, which is what the model actually uses"() {

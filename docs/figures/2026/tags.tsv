@@ -1,0 +1,47 @@
+SEASON	PLAYER	POS	SALARY	RATE	BASIS	STATUS
+2018	Tom Brady	QB	41	41	exact	CONFIRMED
+2018	Drew Brees	QB	41	41	exact	CONFIRMED
+2018	Le'Veon Bell	RB	85	47	bid away 0010 to 0005	CONFIRMED
+2018	Zach Ertz	TE	29	29	exact	CONFIRMED
+2018	Rob Gronkowski	TE	29	29	exact	CONFIRMED
+2018	Travis Kelce	TE	29	29	exact	CONFIRMED
+2018	Antonio Brown	WR	91	91	exact	CONFIRMED
+2018	DeAndre Hopkins	WR	91	91	exact	CONFIRMED
+2018	Julio Jones	WR	91	91	exact	CONFIRMED
+2019	Le'Veon Bell	RB	43	42	bid away 0008 to 0004	CONFIRMED
+2019	Antonio Brown	WR	94	94	exact	CONFIRMED
+2019	DeAndre Hopkins	WR	94	94	exact	CONFIRMED
+2020	Ezekiel Elliott	RB	42	30	bid away 0008 to 0001	CONFIRMED
+2020	Aaron Jones	RB	30	30	exact	CONFIRMED
+2020	Davante Adams	WR	98	98	exact	CONFIRMED
+2021	Tom Brady	QB	23	23	exact	CONFIRMED
+2021	Dak Prescott	QB	38	23	bid away 0006 to 0002	CONFIRMED
+2021	Derrick Henry	RB	40	40	exact	CONFIRMED
+2021	Travis Kelce	TE	23	23	exact	CONFIRMED
+2021	Tyreek Hill	WR	92	92	exact	CONFIRMED
+2022	Lamar Jackson	QB	33	33	exact	CONFIRMED
+2022	Patrick Mahomes	QB	33	33	exact	CONFIRMED
+2022	Derrick Henry	RB	43	43	exact	CONFIRMED
+2022	Joe Mixon	RB	55	43	bid away 0005 to 0008	CONFIRMED
+2022	Davante Adams	WR	94	94	exact	CONFIRMED
+2022	Cooper Kupp	WR	94	94	exact	CONFIRMED
+2023	Lamar Jackson	QB	36	36	exact	CONFIRMED
+2023	Patrick Mahomes	QB	36	36	exact	CONFIRMED
+2023	Austin Ekeler	RB	52	52	exact	CONFIRMED
+2023	Christian McCaffrey	RB	52	52	exact	CONFIRMED
+2023	Davante Adams	WR	82	82	exact	CONFIRMED
+2023	Stefon Diggs	WR	82	82	exact	CONFIRMED
+2023	Cooper Kupp	WR	82	82	exact	CONFIRMED
+2024	Lamar Jackson	QB	45	45	exact	CONFIRMED
+2024	Patrick Mahomes	QB	45	45	exact	CONFIRMED
+2024	Jahmyr Gibbs	RB	61	61	exact	CONFIRMED
+2024	Christian McCaffrey	RB	61	61	exact	CONFIRMED
+2024	Travis Kelce	TE	38	38	exact	CONFIRMED
+2024	Tyreek Hill	WR	71	71	exact	CONFIRMED
+2025	Joe Burrow	QB	47	47	exact	CONFIRMED
+2025	Jalen Hurts	QB	47	47	exact	CONFIRMED
+2025	Lamar Jackson	QB	100	47	bid away 0006 to 0001	CONFIRMED
+2025	Patrick Mahomes	QB	47	47	exact	CONFIRMED
+2025	Saquon Barkley	RB	64	64	exact	CONFIRMED
+2025	Jahmyr Gibbs	RB	64	64	exact	CONFIRMED
+2025	CeeDee Lamb	WR	61	61	exact	CONFIRMED

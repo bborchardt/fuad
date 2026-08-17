@@ -262,10 +262,11 @@ class DocsCheck {
                 table.collect { it[marker.across] }.findAll { it }.unique() :
                 table.first().keySet()
 
+        // The leading columns label the key rather than naming a figure, so they bind to nothing by design.
+        int keyWidth = marker.across ? 1 : keyColumnsOf(marker, table).size()
         List<String> failures = []
         headings.eachWithIndex { String heading, int column ->
-            // The first column labels the key rather than naming a figure, so it binds to nothing by design.
-            if (column == 0) {
+            if (column < keyWidth) {
                 return
             }
             String cleaned = MarkdownTables.clean(heading)
@@ -294,27 +295,51 @@ class DocsCheck {
             return new Result([], 0, 0)
         }
         marker.across ? checkAcross(marker, table, headings, cells, key, line)
-                : checkDown(marker, table, headings, cells, key, line)
+                : checkDown(marker, table, headings, cells, line)
     }
 
     /**
-     * Headings name fields and the first column names the row: the plain shape.
+     * Which of the file's columns the document's leading columns name a row by.
      *
-     * The row is found on whichever of the file's own columns the key matches, so a table may be keyed by
-     * whatever the file's first column is without having to say so.
+     * One by default, being the file's first column, which is every table holding one row per thing. A
+     * table with one row per <b>pair</b> of things needs both named — the tags are one per season and
+     * player, and neither alone picks out a row — so the marker may say {@code key=SEASON+PLAYER} and the
+     * document's first two columns are read together.
+     */
+    private static List<String> keyColumnsOf(Map<String, String> marker, List<Map<String, String>> table) {
+        marker.key ? marker.key.split(/\+/).toList() : [table.first().keySet().first()]
+    }
+
+    /** The document's leading cells, normalised and joined, as one key to look a row up by. */
+    private static String compositeKey(List<String> cells, int width) {
+        (0..<width).collect {
+            it < cells.size() ? MarkdownTables.normaliseKey(MarkdownTables.clean(cells[it])) : ''
+        }.join('|')
+    }
+
+    /**
+     * Headings name fields and the leading columns name the row: the plain shape.
+     *
+     * The row is found on whichever of the file's own columns the key names, so a table may be keyed by
+     * whatever the file's first column is without having to say so, or by a pair where one will not do.
      */
     private static Result checkDown(Map<String, String> marker, List<Map<String, String>> table,
-                                    List<String> headings, List<String> cells, String key, int line) {
-        String keyColumn = table ? table.first().keySet().first() : null
-        Map<String, String> row = table.find { MarkdownTables.normaliseKey(it[keyColumn]) == key }
+                                    List<String> headings, List<String> cells, int line) {
+        List<String> keyColumns = keyColumnsOf(marker, table)
+        int keyWidth = keyColumns.size()
+        String composite = compositeKey(cells, keyWidth)
+        Map<String, String> row = table.find { Map<String, String> candidate ->
+            keyColumns.collect { MarkdownTables.normaliseKey(candidate[it]) }.join('|') == composite
+        }
         if (row == null) {
-            return new Result(["line $line: '$key' is not in ${marker.table}.tsv" as String], 0, 0)
+            return new Result(["line $line: '${composite.replace('|', ' ')}' is not " +
+                                       "in ${marker.table}.tsv" as String], 0, 0)
         }
         List<String> failures = []
         int verified = 0
         headings.eachWithIndex { String heading, int column ->
             String field = row.keySet().find { MarkdownTables.normaliseKey(it) == MarkdownTables.normaliseKey(heading) }
-            if (column == 0 || column >= cells.size() || !field) {
+            if (column < keyWidth || column >= cells.size() || !field) {
                 return
             }
             String cited = MarkdownTables.clean(cells[column])
@@ -323,7 +348,8 @@ class DocsCheck {
             }
             verified++
             if (!MarkdownTables.matches(cited, row[field])) {
-                failures << "line $line: $key $field is ${row[field]} in ${marker.table}.tsv, cited as $cited"
+                failures << "line $line: ${composite.replace('|', ' ')} $field is ${row[field]} " +
+                        "in ${marker.table}.tsv, cited as $cited"
             }
         }
         new Result(failures, verified, 0)

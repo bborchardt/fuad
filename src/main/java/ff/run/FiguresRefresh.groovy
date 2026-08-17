@@ -25,6 +25,8 @@ class FiguresRefresh {
             positions: 'printPositions',
             board    : 'printBoard',
             spend    : 'printSpend',
+            tags     : 'printTags',
+            rates    : 'printRates',
     ].asImmutable() as Map<String, String>
 
     static void main(String[] args) {

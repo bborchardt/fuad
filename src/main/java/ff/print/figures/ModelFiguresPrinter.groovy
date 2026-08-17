@@ -1,11 +1,13 @@
 package ff.print.figures
 
+import ff.data.FranchiseTag
 import ff.data.PlayerValuation
 import ff.projection.AuctionSpend
 import ff.projection.AuctionValuation
 import ff.projection.ByeWeeks
 import ff.projection.PointsCurve
 import ff.projection.StarterRequirements
+import ff.projection.TagHistory
 
 import java.math.RoundingMode
 
@@ -24,11 +26,14 @@ import java.math.RoundingMode
  * documentation: the figures are generated, committed, and checked, and a number that moves shows up as a
  * diff in the commit that moved it rather than as prose that quietly went stale.
  *
- * Four tables, because they have four shapes.
+ * Six tables, because they have six shapes.
  *
  * <b>curve.tsv</b> is per position and rank — everything the curve says about a rank.
  * <b>positions.tsv</b> is per position — the scalars a position carries, including what it was built from.
  * <b>board.tsv</b> is one row for the season, being the figures about the priced board as a whole.
+ * <b>tags.tsv</b> is per season and player — every franchise tag the model recovers, being the one figure
+ * here that is an inference rather than arithmetic on something the league published.
+ * <b>rates.tsv</b> is per season and position — what a tag cost, set by rule off the previous season.
  * <b>spend.tsv</b> is per season and position — what the league actually paid, which is the one thing here
  * that describes the league rather than the model, and is here because it is what the model's calibration
  * is fitted to and the only evidence for which seasons it throws away.
@@ -200,6 +205,49 @@ class ModelFiguresPrinter {
                     // A kicker has no share of a total he is not in, which is not the same as a share of nil.
                     excludingKickers.containsKey(position) ? percent(excludingKickers[position]) : '',
             ].join('\t'))
+        }
+    }
+
+    /**
+     * Every franchise tag the model recovers, which is the one table here reporting an inference.
+     *
+     * Everything else in the figures is arithmetic on data the league published. A tag is not published at
+     * all — it is reconstructed from a wiped contract that came back at exactly the rate, or from a first
+     * round pick moving with nothing against it — so of all the figures the documentation quotes, these are
+     * the ones where being wrong is both likeliest and least visible. They were quoted in a table of 46
+     * rows that nothing checked.
+     *
+     * Keyed by season and player together, since neither alone picks out a row: a season holds several tags
+     * and a player is tagged in several seasons.
+     */
+    void printTags(PrintWriter out) {
+        out.println(['SEASON', 'PLAYER', 'POS', 'SALARY', 'RATE', 'BASIS', 'STATUS'].join('\t'))
+        TagHistory.tagsBySeason().each { String season, List<FranchiseTag> tags ->
+            tags.findAll { it.status == FranchiseTag.Status.CONFIRMED }
+                    .sort { a, b -> a.position <=> b.position ?: a.playerName <=> b.playerName }
+                    .each { FranchiseTag tag ->
+                        out.println([season, TagHistory.readableName(tag), tag.position, tag.salary,
+                                     tag.franchiseSalary, TagHistory.basisOf(tag), tag.status].join('\t'))
+                    }
+        }
+    }
+
+    /**
+     * What tagging a player at each position cost, coming into each season's auction.
+     *
+     * Set by rule off the previous season's top five salaries, so it is the one auction price in the record
+     * that was not bid. It runs a season further than the tags do: the season being priced has a rate,
+     * known from salaries already paid, and no auction yet to use it in.
+     */
+    void printRates(PrintWriter out) {
+        out.println(['SEASON', 'POS', 'RATE'].join('\t'))
+        TagHistory.RATE_SEASONS.each { String season ->
+            Map<String, Integer> rates = TagHistory.franchiseSalaries(season)
+            POSITIONS.each { String position ->
+                if (rates.containsKey(position)) {
+                    out.println([season, position, rates[position]].join('\t'))
+                }
+            }
         }
     }
 

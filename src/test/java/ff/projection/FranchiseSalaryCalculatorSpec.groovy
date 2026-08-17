@@ -1,5 +1,6 @@
 package ff.projection
 
+import ff.data.FranchiseTag
 import ff.load.util.LoadUtils
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -12,10 +13,7 @@ import spock.lang.Unroll
 class FranchiseSalaryCalculatorSpec extends Specification {
 
     private static Map<String, Integer> franchiseSalariesFor(String season) {
-        String priorSeason = (season as int) - 1 as String
-        FranchiseSalaryCalculator.franchiseSalaries(
-                LoadUtils.loadJsonResource(LoadUtils.mflEndOfYearRostersResourcePath(priorSeason)) as Map,
-                LoadUtils.loadJsonResource(LoadUtils.mflPlayersResourcePath(priorSeason)) as Map)
+        TagHistory.franchiseSalaries(season)
     }
 
     def "averages the top five salaries and ignores the rest"() {
@@ -56,10 +54,32 @@ class FranchiseSalaryCalculatorSpec extends Specification {
         '2026' | [QB: 66, RB: 60, WR: 61, TE: 24, PK: 3]
     }
 
+    /**
+     * What this test's name has always claimed, and did not check until now.
+     *
+     * The player column was decoration: the body asserted only that the rate for a season and position was
+     * what the calculator says, which the test above already asserts for every position of every season. So
+     * eleven rows collapsed to six assertions, all of them redundant, under a name promising that named
+     * players were verified as having been tagged at the rate. Nothing was checked about any player.
+     *
+     * It now asserts the thing itself — that the player is recovered as a confirmed tag, and that what he
+     * was paid is the rate this calculator produced. That is the join the two classes exist either side of,
+     * and it is what makes the rate a price somebody actually paid rather than an arithmetic exercise.
+     */
     @Unroll
     def "#season #position #player was tagged at the franchise salary"() {
-        expect:
+        given:
+        FranchiseTag tag = TagHistory.tags(season).find { TagHistory.readableName(it) == player }
+
+        expect: 'the rate the calculator produces for that position'
         franchiseSalariesFor(season)[position] == salary
+
+        and: 'and a tag recovered for that player, priced at it'
+        tag != null
+        tag.status == FranchiseTag.Status.CONFIRMED
+        tag.position == position
+        tag.franchiseSalary == salary
+        tag.salary == salary
 
         where:
         season | position | player            | salary

@@ -16,16 +16,7 @@ import spock.lang.Unroll
 class FranchiseTagIdentifierSpec extends Specification {
 
     private static List<FranchiseTag> tagsFor(String season) {
-        String priorSeason = (season as int) - 1 as String
-        Map<String, Integer> franchiseSalaries = FranchiseSalaryCalculator.franchiseSalaries(
-                LoadUtils.loadJsonResource(LoadUtils.mflEndOfYearRostersResourcePath(priorSeason)) as Map,
-                LoadUtils.loadJsonResource(LoadUtils.mflPlayersResourcePath(priorSeason)) as Map)
-        FranchiseTagIdentifier.tags(
-                LoadUtils.loadJsonResource(LoadUtils.mflRostersResourcePath(season)) as Map,
-                LoadUtils.loadJsonResource(LoadUtils.mflPostDraftRostersResourcePath(season)) as Map,
-                LoadUtils.loadJsonResource(LoadUtils.mflTransactionsResourcePath(season)) as Map,
-                LoadUtils.loadJsonResource(LoadUtils.mflPlayersResourcePath(season)) as Map,
-                franchiseSalaries)
+        TagHistory.tags(season)
     }
 
     private static List<String> named(List<FranchiseTag> tags, FranchiseTag.Status status) {

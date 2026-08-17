@@ -217,6 +217,8 @@ The price of tagging a player at each position, coming into that season's auctio
 to the nearest dollar; five salaries average to a fifth of a dollar and never to a half, so no tie-breaking
 rule is needed and none of the values below is ambiguous.
 
+<!-- figures: rates across=POS field=RATE -->
+
 | Season | QB | RB | WR | TE | PK |
 | --- | --- | --- | --- | --- | --- |
 | 2018 | 41 | 47 | 91 | 29 | 1 |
@@ -297,6 +299,8 @@ Beckham at 100 and Davante Adams at 115 both look like tags bid away without a r
 invisible. Their confirmed counts are uncontested tags only.
 
 ### Confirmed tags
+
+<!-- figures: tags key=SEASON+PLAYER -->
 
 | Season | Player | Pos | Salary | Rate | Basis |
 | --- | --- | --- | --- | --- | --- |
