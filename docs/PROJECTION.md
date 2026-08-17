@@ -201,6 +201,47 @@ rather than one player's season, and a replacement by definition turns up — th
 healthy body, so pricing against one who might himself be hurt would be pricing against a player nobody has
 to accept.
 
+### 3c. Why a missed week costs nothing, which is not the same as being free
+
+A missed week earns no value over replacement, and that is a claim: it says the week a player is out, his
+team fields somebody at replacement level. It plainly does not, in season. Replacement here is the best
+player *not started* — QB21, RB27, WR33, TE13 — and the week 1 rosters hold 46 quarterbacks, 71 running
+backs, 110 receivers and 44 tight ends, so every one of those is on somebody's bench. The first genuinely
+free quarterback is about QB47.
+
+Charging for it was tried, against two bars: covered by the deepest rank the curve still prices, and
+covered by nobody. Both wreck the board.
+
+Measured on `COST`, which is what a team actually pays and so what the record can be compared against — the
+tag holds the very best players well below their `PRICE`.
+
+| | Players above $1 | Highest `COST` | Share in the top 40 |
+| --- | --- | --- | --- |
+| **As priced** | **72** | $80 | **88.0%** |
+| Each rank at its own availability | 70 | $81 | 88.3% |
+| Missed weeks covered by the last priced rank | 27 | $236 | 96.5% |
+| Missed weeks covered by nobody | 23 | $268 | 96.5% |
+| **Actual 2025** | **70** | $100 | **87%** |
+
+Twenty-seven players above the minimum bid against the seventy the league signs, and tight end priced out
+of existence altogether. The reason is structural rather than a matter of picking a gentler bar: the games
+a season loses are drawn from the position's pooled distribution, so the charge is **the same number for
+every player at a position**. Subtract a constant from everyone and let the positional shares renormalise,
+and the money tilts to whoever had most of it already — the top tenth of the board goes from 34.7% to
+60.2%. A rank-invariant penalty cannot correct a rank-invariant assumption; it only steepens the curve.
+
+The one thing here that is rank-graded moves nothing. Value over replacement draws its games from the
+pooled distribution while `PTS` uses the rank's own, which is a real inconsistency, and repairing it shifts
+no quarterback on the board by more than a dollar. The ranks where availability genuinely differs — QB35
+plays 7.1 games against QB1's 11.9 — are already at the minimum bid.
+
+**What settles it is that the cost is charged elsewhere, once.** At the auction a team buys its whole
+roster in one sitting, so what covers an injured starter is another player it also bought. Charging the
+starter for his own absence *and* making the team buy a backup pays for the same week twice. `-t roster`
+prices that backup and finds him expensive — a third quarterback is worth 59 points to Brett, nearly all of
+it bye and injury cover. So absence is charged in the report that can see a roster, and a league-wide
+clearing price, which cannot see one, leaves it alone. See [STRATEGY.md](STRATEGY.md#the-roster-reports).
+
 **The distribution is used as observed, not fitted.** It is badly lopsided: almost all the variance is a
 left tail of seasons lost to injury, reaching zero at every position, while the upside stops around 1.9 to
 2.0 times expectation at the 95th percentile. Fitting a lognormal to that variance mirrors the left tail
@@ -364,7 +405,8 @@ reader who knows the league is not.
   identically whether they cover each other's byes or share one, and a spare at a position a team already
   starts two of is priced as though it were his first. `-t roster` answers that separately, in points and
   for one named team; see [STRATEGY.md](STRATEGY.md#the-roster-reports). It is deliberately not fed back
-  into price, which is a league-wide clearing rate and would stop being one.
+  into price, which is a league-wide clearing rate and would stop being one. That division is also what
+  keeps the cost of a missed week from being charged twice; see [3c](#3c-why-a-missed-week-costs-nothing-which-is-not-the-same-as-being-free).
 - **The spread cannot tell volatility from disagreement.** It is realised variation, so a genuinely erratic
   player and one the consensus simply misjudged look identical. For pricing that is the right total, but it
   means the model has no notion of a safe pick versus a risky one — which is why `PTSLOW` and `PTSHIGH` are
