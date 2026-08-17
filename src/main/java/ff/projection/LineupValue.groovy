@@ -142,6 +142,15 @@ class LineupValue {
         ((z ^ SEED) >>> 11) * (1.0d / (1L << 53))
     }
 
+    /**
+     * The positions this lineup can field, in the order the league lists them.
+     *
+     * Read from the requirements rather than listed anywhere, so a report walking "every position" walks
+     * the ones the league actually starts. A hand-kept list has to be told when the model gains a position
+     * and was not: kickers were levelled and the depth report went on covering four.
+     */
+    Set<String> positions() { new LinkedHashSet<>(maximums.keySet()) }
+
     /** A player as a lineup sees him, or null where no rank means no points to bring. */
     Rostered rostered(String position, Integer rank) {
         if (rank == null) {

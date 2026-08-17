@@ -30,8 +30,6 @@ import java.math.RoundingMode
  */
 class FuadRosterFitPrinter {
 
-    private static final List<String> POSITIONS = ['QB', 'RB', 'WR', 'TE'].asImmutable()
-
     /** How deep the diminishing returns are worth showing: past a fourth at a position, nothing is. */
     private static final int DEPTH_SHOWN = 4
 
@@ -58,9 +56,9 @@ class FuadRosterFitPrinter {
      * Everyone expiring is in the pool rather than on the roster, this team's own included, since keeping
      * one is a decision it makes at a price like anybody else's.
      *
-     * A contracted player the curve cannot level brings no points and leaves the lineup: a kicker, whom the
-     * statistics carry nothing for, someone ranked past the depth the curve reaches, or someone the
-     * consensus does not rank at all. Dropping him changes no number here, since a player worth nothing is
+     * A contracted player the curve cannot level brings no points and leaves the lineup: someone ranked
+     * past the depth the curve reaches, or someone the consensus does not rank at all. Dropping him changes
+     * no number here, since a player worth nothing is
      * never selected and could only ever fill a slot that would otherwise stand empty. It is named in the
      * header rather than silently absorbed, because his salary and his roster spot are still counted
      * everywhere else and the two counts should be seen to differ.
@@ -131,19 +129,6 @@ class FuadRosterFitPrinter {
      * How much a second and a third player at a position are still worth, which the per-player rows cannot
      * say.
      *
-     * Every marginal below is measured against the roster as it stands today, so they are all the value of
-     * being the <b>first</b> signing at that position and they do not add up: a team with no quarterback
-     * gains hugely from its first and much less from its second. That is exactly the question a superflex
-     * team with two starting slots and three candidates has to answer, so it is answered here directly, by
-     * adding the best available at each position in turn and reporting what each one brings.
-     *
-     * Taken in order of expected points rather than of price, since this is what the lineup gains and not
-     * what it costs. Who is actually available at that depth is on the board below.
-     */
-    /**
-     * How much a second and a third player at a position are still worth, which the per-player rows cannot
-     * say.
-     *
      * Every marginal in the main report is measured against the roster as it stands, so they are all the
      * value of being the <b>first</b> signing at that position and they do not add up. A team with no
      * quarterback gains hugely from its first and much less from its second, and reading two large
@@ -153,12 +138,18 @@ class FuadRosterFitPrinter {
      * answer, so it is answered directly: the best available at each position are added in turn and each
      * one's contribution reported. Taken in order of expected points rather than of price, since this is
      * what the lineup gains and not what it costs.
+     *
+     * <b>Every position the lineup fields, taken from the lineup.</b> It used to be a list of four written
+     * down here, which stopped being every position the day kickers were levelled — leaving the report that
+     * exists to say whether a second one is worth buying unable to mention the position at all. The second
+     * kicker is exactly the case it is needed for: only one starts, so the answer is nothing, and a reader
+     * who has just seen a kicker priced far below his value needs telling that once is enough.
      */
     void printDepth(PrintWriter out) {
         List<LineupValue.Rostered> roster = roster()
         out.println(header())
         out.println(['POS', 'ADD1', 'ADD2', 'ADD3', 'ADD4'].join('\t'))
-        POSITIONS.each { String position ->
+        lineups.positions().each { String position ->
             List<LineupValue.Rostered> best = valuations
                     .findAll { it.position == position }
                     .sort { -it.points }

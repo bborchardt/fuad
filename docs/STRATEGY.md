@@ -115,7 +115,8 @@ and a team holding one quarterback is not choosing between the same things as a 
 **`roster_<id>.tsv`** — every available player by what he adds to *this* team's starting lineup, in points.
 
 **`roster_depth_<id>.tsv`** — what the 1st, 2nd, 3rd and 4th best available at each position would add,
-taken in turn.
+taken in turn. Every position the lineup fields, kicker included; it used to be a list of four written into
+the printer, which quietly stopped being every position when kickers were levelled.
 
 Two columns, because the lineup can be set two ways and neither is true:
 
@@ -146,6 +147,13 @@ is worth 157, because the first already covered the weeks he would have covered.
 Those four are a snapshot rather than a checked figure: unlike everything on the auction board, roster
 reports are per-team and are not among the generated figures `./check_docs.sh` verifies. Read them for the
 shape — steep, then flat — rather than to the point.
+
+**The kicker row has a shape of its own, and it is the one worth reading closely.** Brett's is 100, 26, 8, 2.
+The first is worth as much as a second running back because he fills a slot that is otherwise standing
+empty — a lineup short a kicker forfeits those points every week, and six of the ten teams go into 2026
+short one. The drop to 26 is the whole point of the row: only one kicker starts, so the second is worth the
+two or three weeks the first is away and nothing else. A kicker priced far under what the board says he is
+worth invites buying two. The row is what says once is enough.
 
 Depth is worth more than it used to read, and the reason is that a lost season is now weeks a player is
 absent rather than a year of him playing badly. A backup behind a starter who misses six games covers six
