@@ -765,14 +765,24 @@ last rank levelling above a quarter of the position's best:
 | RB | 65 |
 | WR | 100 |
 | TE | 45 |
+| PK | 25 |
 
-Kickers are cut off by hand at 25 instead, which is the one position that rule cannot bound. The test is a
-level under a quarter of the position's best, and it never fires at kicker because the curve there is nearly
-flat — the 42nd ranked kicker still levels around three fifths of the first, so the whole ranked pool would
-come onto the board. Flat is not the same as valuable: only ten kickers start, so everything past about the
-eleventh is below replacement and worth nothing to anybody. Left uncapped the board carried 29 kickers, 27
-of them at the minimum bid, and the dollar reserved for each came to more than the position's whole budget.
-25 is the deepest kicker ever signed at auction, and covers 95% of those on a week 1 roster.
+Kicker's 25 is set by hand, being the one position that rule cannot bound. The test is a level under a
+quarter of the position's best, and it never fires at kicker because the curve there is nearly flat — the
+42nd ranked kicker still levels around three fifths of the first, so the whole ranked pool would come onto
+the board. Flat is not the same as valuable: only ten kickers start, so everything past about the eleventh
+is below replacement and worth nothing to anybody. Left uncapped the board carried 29 kickers, 27 of them
+at the minimum bid, and the dollar reserved for each came to more than the position's whole budget. 25 is
+the deepest kicker ever signed at auction, and covers 95% of those on a week 1 roster.
+
+**Set by hand, but set in the same place as the others.** It is a cap on `PRICEDDEPTH` itself rather than a
+filter applied where the auction pool is assembled, which is what it used to be — and while it was, kicker
+had two depths at once. The board priced 25 ranks while the curve took the position's spread, its outcomes,
+its census and its anchor over all 42. Those seventeen ranks are where kicker's lost seasons sit: the
+consensus ranks more kickers each year than ever record a stat line, so the position reported a tenth
+percentile of **0.00** — one ranked season in ten worth nothing at all — against 0.23 to 0.36 everywhere
+else. That was true of ranks 26 to 42 and never true of a kicker anybody would bid on. One depth doing both
+jobs puts kicker's spread back among the other four; the figures are below.
 
 One depth for both, because an expiring contract does not have to be re-signed: if nobody bids, the player
 goes back into the pool like anybody else. A rank too deep to be worth bidding on is too deep whoever holds
@@ -813,9 +823,9 @@ anything — a dead constant that looked live, and which cost an afternoon of mi
 
 <!-- figures: positions -->
 
-| POS | SHARE | TARGETSHARE | PRICEDDEPTH | SEASONS | LOST |
-| --- | --- | --- | --- | --- | --- |
-| PK | 1.2 | 0.9 | 42 | 339 | 43 |
+| POS | SHARE | TARGETSHARE | PRICEDDEPTH | SEASONS | LOST | P10 | P90 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| PK | 1.2 | 0.9 | 25 | 225 | 11 | 0.36 | 1.43 |
 
 Rank predicts kicker scoring better than the position's reputation suggests. Over 2017-2025 the preseason
 PK1 finished inside the top ten kickers in **every one of the nine seasons**, and the curve separates the
@@ -825,18 +835,29 @@ top of the position from replacement by more than five standard errors:
 
 | Rank | PK |
 | --- | --- |
-| 1 | 116.8 |
-| 3 | 111.4 |
-| 5 | 106.6 |
-| 11 | 95.1 |
-| 20 | 80.9 |
+| 1 | 113.3 |
+| 3 | 108.0 |
+| 5 | 103.3 |
+| 11 | 92.2 |
+| 20 | 78.5 |
 
-Most of that is **rate** rather than availability — 9.96 points a game at PK1 against 8.41 at replacement —
+Most of that is **rate** rather than availability:
+
+<!-- figures: curve across=POS field=PPG -->
+
+| Rank | PK |
+| --- | --- |
+| 1 | 9.66 |
+| 11 | 8.16 |
+
 so it is a claim about how well a rank kicks, not about who keeps his job.
 
 Set against what the league pays, kickers take about 0.9% of the auction while the curve puts their share of
-value over replacement near 6%. Every other position is bought within a fifth of its value; kicker is out by
-roughly six times, and the top kickers carry the largest `EDGE` on the whole board.
+value over replacement near 6%. That is a factor of six, and nothing else on the board is out by a factor at
+all: quarterback and running back are bought at about nine tenths of their share of value, and receiver and
+tight end — the two the league is already known to misprice, see [§5](#5-pulled-towards-how-this-league-actually-bids) —
+at about a third above and a third below. Kicker is a different kind of disagreement from those, and the top
+kickers carry the largest `EDGE` on the whole board.
 
 **This is reported and not acted on, and the caution is specific.** Value over replacement assumes the
 alternative is the best player *not started*, which for kickers is a rank on a preseason list. In practice
