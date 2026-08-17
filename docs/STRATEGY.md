@@ -101,15 +101,58 @@ where it can be tested, rather than working it out in the plan, where it cannot.
 
 **Read `TIER` before reading `PRICE`.** The board quotes dollars off levels that are good to seven points
 or so, so within a tier the ordering is noise and a plan that ranks players by price inside one has
-invented a distinction. Lawrence, Prescott and Mahomes are all QB tier 5 in 2026, priced $34, $34 and $30;
-nothing in the model says any of them is better than another. That is where the price column is at its most
-misleading, and the bye and `AVAIL` are what is left to choose on.
+invented a distinction. QB10, QB11 and QB14 are all tier 5 in 2026:
 
-**`G` is not one of them.** It is a per-rank figure and it moves a long way across a position — 11.5 games
-at the top of quarterback against 6.9 by rank 34 — but availability is smoothed over ten ranks either side,
-so within a single tier it is nearly flat: 11.4, 11.4 and 11.2 for the three above, and never more than 0.7
-games apart anywhere on the 2026 board. It tells you what kind of player a rank is, not which of two
-neighbours to take. Ordering a tier by `G` is the same mistake as ordering it by price.
+<!-- figures: curve across=POS field=PTS -->
+
+| Rank | QB |
+| --- | --- |
+| 10 | 202.9 |
+| 11 | 202.4 |
+| 14 | 195.6 |
+
+<!-- figures: curve across=POS field=SE -->
+
+| Rank | QB |
+| --- | --- |
+| 10 | 7.4 |
+| 11 | 7.3 |
+| 14 | 8.8 |
+
+<!-- figures: curve across=POS field=TIER -->
+
+| Rank | QB |
+| --- | --- |
+| 10 | 5 |
+| 11 | 5 |
+| 14 | 5 |
+
+Seven points of spread on estimates carrying seven to nine. They reach the board a few dollars apart all
+the same, and nothing in the model says any of them is better than another. That is where the price column
+is at its most misleading, and the bye and `AVAIL` are what is left to choose on.
+
+**Named by rank, not by player, and that is the point.** Three quarterbacks hold those ranks this season and
+different ones will hold them next, while the claim being made is about the curve rather than about any of
+them — it is the same reason the model is indexed by rank in the first place. It is also what lets the
+figures above be checked: a rank is on a committed figure and a player is on a board that is regenerated and
+never kept.
+
+**`G` is not one of them.** It is a per-rank figure and it moves a long way across a position:
+
+<!-- figures: curve across=POS field=G -->
+
+| Rank | QB |
+| --- | --- |
+| 1 | 11.46 |
+| 10 | 11.43 |
+| 11 | 11.42 |
+| 14 | 11.24 |
+| 34 | 6.90 |
+
+Eleven and a half games at the top against under seven by rank 34 — but availability is smoothed over ten
+ranks either side, so within a single tier it is nearly flat, as the three middle rows show. It tells you
+what kind of player a rank is, not which of two neighbours to take. Ordering a tier by `G` is the same
+mistake as ordering it by price.
 
 ## The roster reports
 
@@ -149,16 +192,22 @@ Jackson at 195 and Joe Burrow at 182, and signing both is not worth 377: whichev
 is worth 157, because the first already covered the weeks he would have covered. That is what
 `roster_depth` is for — it walks the same position down in turn, 195, 157, 57, 17.
 
-Those four are a snapshot rather than a checked figure: unlike everything on the auction board, roster
-reports are per-team and are not among the generated figures `./check_docs.sh` verifies. Read them for the
-shape — steep, then flat — rather than to the point.
+Every roster figure in this section is a snapshot rather than a checked one, this row and the kicker row
+below alike: unlike everything on the auction board, roster reports are per-team and are not among the
+generated figures `./check_docs.sh` verifies. Read them for the shape — steep, then flat — rather than to
+the point.
 
-**The kicker row has a shape of its own, and it is the one worth reading closely.** Brett's is 100, 26, 8, 2.
+**And they do go stale, which is the argument for the rest of this file rather than against it.** Giving
+kicker a single priced depth moved its row from 100, 26, 8, 2 to the figures below — the shape it makes the
+point with intact, every number different, and nothing but a reader to notice. The auction board's figures
+cannot drift that way, because a marked table fails the check in the commit that moves it.
+
+**The kicker row has a shape of its own, and it is the one worth reading closely.** Brett's is 106, 24, 5, 0.
 The first is worth as much as a second running back because he fills a slot that is otherwise standing
 empty — a lineup short a kicker forfeits those points every week, and six of the ten teams go into 2026
-short one. The drop to 26 is the whole point of the row: only one kicker starts, so the second is worth the
-two or three weeks the first is away and nothing else. A kicker priced far under what the board says he is
-worth invites buying two. The row is what says once is enough.
+short one. The drop to 24 is the whole point of the row: only one kicker starts, so the second is worth the
+two or three weeks the first is away and nothing else, and the fourth is worth nothing at all. A kicker
+priced far under what the board says he is worth invites buying two. The row is what says once is enough.
 
 Depth is worth more than it used to read, and the reason is that a lost season is now weeks a player is
 absent rather than a year of him playing badly. A backup behind a starter who misses six games covers six
