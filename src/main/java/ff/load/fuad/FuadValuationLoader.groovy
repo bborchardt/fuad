@@ -96,7 +96,7 @@ class FuadValuationLoader {
     LineupValue lineups(String year) {
         Map league = LoadUtils.loadJsonResource(LoadUtils.mflLeagueResourcePath(year)) as Map
         new LineupValue(curve(), byeWeeks(year, league.league.lastRegularSeasonWeek as String as int),
-                requirements(year), MAX_ROSTER)
+                requirements(year))
     }
 
     /**

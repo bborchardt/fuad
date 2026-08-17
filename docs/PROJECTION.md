@@ -343,7 +343,7 @@ bid.
 **What settles it is that the cost is charged elsewhere, once.** At the auction a team buys its whole
 roster in one sitting, so what covers an injured starter is another player it also bought. Charging the
 starter for his own absence *and* making the team buy a backup pays for the same week twice. `-t roster`
-prices that backup and finds him expensive — a third quarterback is worth 59 points to Brett, nearly all of
+prices that backup and finds him expensive — a third quarterback is worth 57 points to Brett, nearly all of
 it bye and injury cover. So absence is charged in the report that can see a roster, and a league-wide
 clearing price, which cannot see one, leaves it alone. See [STRATEGY.md](STRATEGY.md#the-roster-reports).
 

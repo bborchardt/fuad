@@ -92,42 +92,54 @@ class LineupValue {
         }
     }
 
+    /** The two things a replayed season needs drawn: which season a player has, and when he misses weeks. */
+    private static final long FORM = 0L
+    private static final long TIMING = 1L
+
     private final PointsCurve curve
     private final ByeWeeks byes
     private final Map<String, Integer> minimums
     private final Map<String, Integer> maximums
     private final int slots
     private final int lastWeek
-    private final int width
     private final Map<String, Double> meanGames = [:]
 
-    /**
-     * Draws shared across every roster this evaluates, indexed by sample and by position on the roster.
-     *
-     * Shared deliberately. A marginal value is the difference between two rosters, and if each were drawn
-     * its own seasons the difference would carry the noise of both. Holding the draws fixed means the only
-     * thing that changes between them is the player being added.
-     *
-     * Two per slot, because a replayed season is now two things: which season a player has, and when in the
-     * year the weeks he misses fall.
-     */
-    private final double[][] form
-    private final double[][] timing
-
-    LineupValue(PointsCurve curve, ByeWeeks byes, StarterRequirements requirements, int maxRoster) {
+    LineupValue(PointsCurve curve, ByeWeeks byes, StarterRequirements requirements) {
         this.curve = curve
         this.byes = byes
         this.minimums = requirements.perTeamMinimums()
         this.maximums = requirements.perTeamMaximums()
         this.slots = requirements.perTeamStarters()
         this.lastWeek = byes.lastWeek
-        Random random = new Random(SEED)
-        // One more than a full roster, since every evaluation asks what one further player would add.
-        this.width = maxRoster + 1
-        this.form = (0..<SAMPLES).collect { (0..<width).collect { random.nextDouble() } as double[] }
-                as double[][]
-        this.timing = (0..<SAMPLES).collect { (0..<width).collect { random.nextDouble() } as double[] }
-                as double[][]
+    }
+
+    /**
+     * The draw for one player, in one replayed season, of one of the two things a season is made of.
+     *
+     * <b>Computed rather than stored, and that is the whole point.</b> These used to be a table of random
+     * numbers sized to a full roster and indexed {@code slot = index % width}, which meant a roster longer
+     * than the table wrapped silently and handed the extra players the seasons of the first few — the same
+     * form, the same weeks missed. A player who is out exactly when an existing player is out diversifies
+     * nothing, so depth measured past the end of the table came back worth about a third of its real value,
+     * with nothing to say it had happened. The depth report walks a roster plus four, where the table was
+     * sized for a roster plus one, so a full enough roster reached it.
+     *
+     * A function of the sample and the position on the roster has no length to overrun. It keeps what the
+     * table was for — a marginal is the difference between two rosters, and drawing each its own seasons
+     * would give that difference the noise of both — while removing the size it was for.
+     *
+     * The key is {@code (sample, slot, stream)} packed injectively and put through SplitMix64's finaliser,
+     * which is a bijection with good avalanche: neighbouring slots come back uncorrelated, which is what
+     * the table got from being drawn in sequence and what this has to get from mixing.
+     */
+    private static double draw(int sample, int slot, long stream) {
+        long key = ((sample as long) * 1024L + slot) * 2L + stream
+        long z = key + 0x9E3779B97F4A7C15L
+        z = (z ^ (z >>> 30)) * 0xBF58476D1CE4E5B9L
+        z = (z ^ (z >>> 27)) * 0x94D049BB133111EBL
+        z = z ^ (z >>> 31)
+        // The top 53 bits are the ones worth having, and 53 is what a double holds.
+        ((z ^ SEED) >>> 11) * (1.0d / (1L << 53))
     }
 
     /** A player as a lineup sees him, or null where no rank means no points to bring. */
@@ -202,21 +214,20 @@ class LineupValue {
         for (int index = 0; index < roster.size(); index++) {
             Rostered player = roster[index]
             List<PointsCurve.Outcome> outcomes = curve.outcomeSeasons(player.position)
-            int slot = index % width
             int weeks
             if (!outcomes) {
                 multipliers[index] = 1.0
                 weeks = Math.round(player.expectedGames) as int
             } else {
                 PointsCurve.Outcome outcome = outcomes[Math.min(outcomes.size() - 1,
-                        (form[sample][slot] * outcomes.size()) as int)]
+                        (draw(sample, index, FORM) * outcomes.size()) as int)]
                 multipliers[index] = outcome.rateMultiplier
                 double mean = meanGamesOf(player.position, outcomes)
                 weeks = Math.round(mean > 0 ? player.expectedGames * outcome.games / mean
                         : player.expectedGames) as int
             }
             play(player, playing[index], Math.max(0, Math.min(player.playable.length, weeks)),
-                    timing[sample][slot])
+                    draw(sample, index, TIMING))
         }
     }
 

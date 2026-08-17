@@ -70,7 +70,7 @@ class LineupValueSpec extends Specification {
     def "a third quarterback is worth only what hindsight makes him worth, absent a bye"() {
         given: 'two starting slots, and outcomes that vary so the best two of three is a real choice'
         PointsCurve points = curve(uneven(210), uneven(150))
-        LineupValue lineups = new LineupValue(points, new ByeWeeks([:], LAST_WEEK), superflex(), 30)
+        LineupValue lineups = new LineupValue(points, new ByeWeeks([:], LAST_WEEK), superflex())
         List<LineupValue.Rostered> two = [lineups.rostered('QB', 3), lineups.rostered('QB', 4)]
 
         when:
@@ -86,7 +86,7 @@ class LineupValueSpec extends Specification {
     def "a spare covers a bye whether or not anyone has hindsight"() {
         given: 'two starting quarterbacks, one of them off in week 7, and outcomes that never vary'
         PointsCurve points = curve(certain(210), certain(150))
-        LineupValue lineups = new LineupValue(points, new ByeWeeks([QB: [3: 7]], LAST_WEEK), superflex(), 30)
+        LineupValue lineups = new LineupValue(points, new ByeWeeks([QB: [3: 7]], LAST_WEEK), superflex())
         List<LineupValue.Rostered> two = [lineups.rostered('QB', 3), lineups.rostered('QB', 4)]
 
         when:
@@ -100,7 +100,7 @@ class LineupValueSpec extends Specification {
     def "a spare is worth nothing at a position whose outcomes never vary"() {
         given: 'the same two slots, but every season lands exactly on its rank'
         PointsCurve points = curve(certain(210), certain(150))
-        LineupValue lineups = new LineupValue(points, new ByeWeeks([:], LAST_WEEK), superflex(), 30)
+        LineupValue lineups = new LineupValue(points, new ByeWeeks([:], LAST_WEEK), superflex())
         List<LineupValue.Rostered> two = [lineups.rostered('QB', 3), lineups.rostered('QB', 4)]
 
         when:
@@ -116,7 +116,7 @@ class LineupValueSpec extends Specification {
         PointsCurve points = curve(certain(210), certain(150))
         StarterRequirements oneSlot = new StarterRequirements([QB: 1], [QB: 1], 1, 10)
         LineupValue lineups = new LineupValue(points,
-                new ByeWeeks([QB: [1: 7]], LAST_WEEK), oneSlot, 30)
+                new ByeWeeks([QB: [1: 7]], LAST_WEEK), oneSlot)
 
         when: 'a backup who is never off is added behind him'
         LineupValue.Bracket added = lineups.marginal([lineups.rostered('QB', 1)], lineups.rostered('QB', 2))
@@ -129,7 +129,7 @@ class LineupValueSpec extends Specification {
     def "a slot a team cannot fill is a slot it goes without"() {
         given: 'a lineup wanting two receivers, on a roster that holds none and is full everywhere else'
         PointsCurve points = curve(certain(210), certain(150))
-        LineupValue lineups = new LineupValue(points, new ByeWeeks([:], LAST_WEEK), superflex(), 30)
+        LineupValue lineups = new LineupValue(points, new ByeWeeks([:], LAST_WEEK), superflex())
         List<LineupValue.Rostered> full = (1..2).collect { lineups.rostered('QB', it) } +
                 (1..3).collect { lineups.rostered('RB', it) }
 
@@ -143,7 +143,7 @@ class LineupValueSpec extends Specification {
     def "the same roster scores the same every time it is asked"() {
         given:
         PointsCurve points = curve(uneven(210), uneven(150))
-        LineupValue lineups = new LineupValue(points, new ByeWeeks([:], LAST_WEEK), superflex(), 30)
+        LineupValue lineups = new LineupValue(points, new ByeWeeks([:], LAST_WEEK), superflex())
         List<LineupValue.Rostered> roster = (1..4).collect { lineups.rostered('QB', it) }
 
         expect: 'a figure a plan is held to cannot move because the sampling was reseeded'
@@ -164,7 +164,7 @@ class LineupValueSpec extends Specification {
         given: 'one starting slot, at a position that loses half its seasons to injury'
         PointsCurve points = PointsCurve.of([QB: TestSeasons.byRank(fragile(210), LAST_WEEK)])
         StarterRequirements oneSlot = new StarterRequirements([QB: 1], [QB: 1], 1, 10)
-        LineupValue lineups = new LineupValue(points, new ByeWeeks([:], LAST_WEEK), oneSlot, 30)
+        LineupValue lineups = new LineupValue(points, new ByeWeeks([:], LAST_WEEK), oneSlot)
 
         when: 'a second quarterback is added behind the first'
         LineupValue.Bracket added = lineups.marginal([lineups.rostered('QB', 1)], lineups.rostered('QB', 2))
@@ -185,7 +185,7 @@ class LineupValueSpec extends Specification {
         PointsCurve points = PointsCurve.of([QB: TestSeasons.byRank(certain(210), LAST_WEEK),
                                              RB: TestSeasons.byRank(fragile(210), LAST_WEEK)])
         StarterRequirements oneEach = new StarterRequirements([QB: 1, RB: 1], [QB: 1, RB: 1], 2, 10)
-        LineupValue lineups = new LineupValue(points, new ByeWeeks([:], LAST_WEEK), oneEach, 30)
+        LineupValue lineups = new LineupValue(points, new ByeWeeks([:], LAST_WEEK), oneEach)
 
         expect: 'the two starters are levelled at the same season'
         (points.seasonPoints('QB', 1) - points.seasonPoints('RB', 1)).abs() < 1.0
@@ -207,11 +207,49 @@ class LineupValueSpec extends Specification {
         given: 'a single roster spot and nobody to compete for it'
         PointsCurve points = PointsCurve.of([QB: TestSeasons.byRank(uneven(210), LAST_WEEK)])
         StarterRequirements oneSlot = new StarterRequirements([QB: 1], [QB: 1], 1, 10)
-        LineupValue lineups = new LineupValue(points, new ByeWeeks([:], LAST_WEEK), oneSlot, 30)
+        LineupValue lineups = new LineupValue(points, new ByeWeeks([:], LAST_WEEK), oneSlot)
 
         expect: 'splitting the season into a rate and a set of weeks gives the same season back'
         BigDecimal levelled = points.seasonPoints('QB', 5)
-        (lineups.evaluate([lineups.rostered('QB', 5)]).onExpectation - levelled).abs() < levelled * 0.02
+        // Five per cent, which is what four hundred replays can actually promise. The multipliers scatter
+        // with a coefficient of variation around 0.4, so the mean of four hundred of them carries a
+        // standard error of about two per cent and a couple of those is ordinary. A tighter bound here
+        // passed only because it had been fitted to one particular set of draws.
+        (lineups.evaluate([lineups.rostered('QB', 5)]).onExpectation - levelled).abs() < levelled * 0.05
+    }
+
+    /**
+     * The bug this file could not see: a roster longer than the draw table wrapped, and the extra players
+     * were handed the seasons of the first few.
+     *
+     * A clone is worth nothing. He is out in exactly the weeks his twin is out, so he covers none of them,
+     * and depth measured past the end of the table came back at about a third of its real value with
+     * nothing to say so. The depth report walks a roster plus four where the table was sized for a roster
+     * plus one, so a full enough roster reached it.
+     *
+     * Thirty unstartable tight ends pad the roster out past where the table used to end. They can never be
+     * fielded, so the only thing the second quarterback can be worth is covering the first one's absences —
+     * and under the wrap he was the first one, so he covered nothing at all.
+     */
+    def "gives a player past the end of the old draw table a season of his own"() {
+        given: 'one starting quarterback slot, at a position that loses four seasons in nine'
+        PointsCurve points = PointsCurve.of([QB: TestSeasons.byRank(fragile(210), LAST_WEEK),
+                                             TE: TestSeasons.byRank(certain(150), LAST_WEEK)])
+        StarterRequirements oneSlot = new StarterRequirements([QB: 1], [QB: 1], 1, 10)
+        LineupValue lineups = new LineupValue(points, new ByeWeeks([:], LAST_WEEK), oneSlot)
+
+        and: 'a roster padded past the old table with players this lineup can never field'
+        List<LineupValue.Rostered> padded = [lineups.rostered('QB', 5)] +
+                (1..30).collect { lineups.rostered('TE', it) }
+
+        expect: 'the padding really is thirty-one deep, so the next player lands where the table wrapped'
+        padded.size() == 31
+
+        when: 'a second quarterback is added, at the index that used to alias onto the first'
+        LineupValue.Bracket added = lineups.marginal(padded, lineups.rostered('QB', 5))
+
+        then: 'he covers the weeks the starter is absent, which a copy of the starter could not'
+        added.onExpectation > points.seasonPoints('QB', 5) * 0.2
     }
 
     /**
@@ -230,7 +268,7 @@ class LineupValueSpec extends Specification {
     def "adds exactly nothing for a player the lineup can never field"() {
         given: 'three quarterbacks whose seasons vary a great deal'
         PointsCurve points = curve(uneven(210), uneven(150))
-        LineupValue lineups = new LineupValue(points, new ByeWeeks([:], LAST_WEEK), superflex(), 30)
+        LineupValue lineups = new LineupValue(points, new ByeWeeks([:], LAST_WEEK), superflex())
         List<LineupValue.Rostered> roster = (1..3).collect { lineups.rostered('QB', it) }
 
         expect: 'and they really do vary, so there is something here that would fail to cancel'

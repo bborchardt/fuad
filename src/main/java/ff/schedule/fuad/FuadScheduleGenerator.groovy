@@ -26,6 +26,14 @@ class FuadScheduleGenerator {
     private final int numWeeks
     private final Random random
 
+    /**
+     * Unseeded on purpose, unlike every other draw in this project.
+     *
+     * {@link ff.projection.LineupValue} pins its seed because a figure that moved because of sampling is a
+     * figure a plan cannot be held to. A schedule is the opposite kind of thing: it is generated once a
+     * year and imported, and the league wants a genuinely different one each season within the constraints
+     * rather than the same fixture list re-derived from a constant. Two runs disagreeing is the feature.
+     */
     FuadScheduleGenerator(int numWeeks = 14, Random random = new Random()) {
         this.numWeeks = numWeeks
         this.random = random

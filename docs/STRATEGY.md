@@ -139,14 +139,22 @@ Two things not to misread:
 
 **The per-player marginals do not add up.** Each is measured against the roster as it stands, so they are
 all the value of being the *first* signing at that position. Brett's board shows a first quarterback worth
-210 and a second worth 154; signing both is not worth 364. That is what `roster_depth` is for — the same
-board puts the third quarterback at 59 and the fourth at 15.
+195 and a second worth 157; signing both is not worth 352. That is what `roster_depth` is for — the same
+board puts the third quarterback at 57 and the fourth at 17.
+
+Those four are a snapshot rather than a checked figure: unlike everything on the auction board, roster
+reports are per-team and are not among the generated figures `./check_docs.sh` verifies. Read them for the
+shape — steep, then flat — rather than to the point.
 
 Depth is worth more than it used to read, and the reason is that a lost season is now weeks a player is
 absent rather than a year of him playing badly. A backup behind a starter who misses six games covers six
 weeks; the old shape left the starter nominally in the lineup all year at a reduced rate, so the backup
-covered nothing and `ADDEXP` gave depth no credit for injury at all. Brett's third quarterback went from 24
-points to 59 on that change alone.
+covered nothing and `ADDEXP` gave depth no credit for injury at all.
+
+<!-- model: b5e0874 -->
+
+> **Superseded**: measured against a model that no longer exists, where Brett's third quarterback came out
+> at 24 points against the 57 above.
 
 **A team is evaluated, never optimised.** Nothing here recommends a roster or solves for one under the cap.
 It says what a roster scores; which players to buy stays a judgement, made against prices the model is
@@ -169,11 +177,12 @@ same move the rest of that report makes: state what is true, and decline to pric
 In 2026 it reads `PK:1` for six of the ten teams and is empty for the rest, which is the whole of the
 league's roster-legality problem.
 
-The header of each roster report names the same gap from the other side: `15 of 16 signed in the lineup,
-1 unpriced (PK Evan McPherson)`. His salary and his roster spot are counted everywhere — free cap,
-`COMMITTED`, `SIGNED`, `SLOTS`, `MINSIGN` — and only the lineup cannot use him. Dropping him changes no
-figure, since a player worth nothing is never selected and could only fill a slot that would stand empty
-anyway, but the two counts differ and should be seen to.
+The header of each roster report names the same gap from the other side, counting how many of a team's
+signed players the lineup can actually use and naming the ones it cannot — a kicker, or anyone ranked past
+the depth the curve still prices. Their salaries and their roster spots are counted everywhere else — free
+cap, `COMMITTED`, `SIGNED`, `SLOTS`, `MINSIGN` — and only the lineup cannot use them. Dropping them would
+change no figure, since a player worth nothing is never selected and could only fill a slot that would
+stand empty anyway, but the two counts differ and should be seen to.
 
 ## Running the check
 
