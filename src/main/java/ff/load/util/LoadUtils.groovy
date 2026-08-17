@@ -22,8 +22,6 @@ class LoadUtils {
 
     /** What releasing a player cost, which is the only record of the cut penalty. See docs/LEAGUE_RULES.md. */
     static String mflSalaryAdjustmentsResourcePath(String year) { "/ff/mfl/data/$year/salary_adjustments.json" }
-    /** Weekly scoring a finished season actually produced, under that season's rules. */
-    static String mflPlayerScoresResourcePath(String year) { "/ff/mfl/data/$year/player_scores.json" }
     /** Raw weekly statistics, so any season can be restated under any rules. See docs/PROJECTION.md. */
     static String nflverseStatsResourcePath(String year) { "/ff/nflverse/data/$year/player_stats.tsv" }
     static String fpDynastyRankingsPprResourcePath(String year) { "/ff/fantasypros/data/$year/dynasty_rankings_ppr.csv" }

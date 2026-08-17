@@ -16,7 +16,6 @@ Under `src/main/resources/ff/mfl/data/<year>`:
 | `transactions.json` | Every move made that season | Yes |
 | `rules.json` | That season's scoring rules | Yes |
 | `salary_adjustments.json` | Every cut penalty charged that season | Yes |
-| `player_scores.json` | What players scored each week, under that season's rules | Yes |
 | `players.json`, `owners.json`, `draft.json` | When last refreshed | Yes |
 | `league.json` | When last refreshed | **No** (see below) |
 
@@ -33,7 +32,14 @@ The site's projections are not collected at all, because it rewrites them as the
 priced off them. See [PROJECTION.md](PROJECTION.md#provenance).
 
 Everything else is a genuine record of a finished season and can be refetched at any time. `rules.json` in
-particular is period correct, verified against the league's own recorded scores.
+particular is period correct.
+
+**What the league itself scored is not collected.** `player_scores.json` used to be, on the strength of
+being able to check `rules.json` against it — restate a season under its own rules and see whether the
+model lands on the figures the league published. That check was never written. What the file did instead
+was sit in three seasons' worth of committed JSON with a loader nothing called, and the claim that the
+rules had been verified rested on nobody having read the code. It is refetchable if the check is ever
+wanted; carrying it unread was the worse of the two states, since a file in the tree reads as evidence.
 
 Under `src/main/resources/ff/nflverse/data/<year>`, 2017 onwards: `player_stats.tsv`, the raw weekly
 statistics every expected point is now built from.

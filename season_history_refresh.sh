@@ -5,7 +5,6 @@
 #   rosters_post_draft.json   week 1, holding what players were signed for in that year's auction
 #   rosters_end_of_year.json  the season's final rosters, which the next year's pre draft rosters come from
 #   transactions.json         every move made that season, including the commissioner's expansion drafts
-#   player_scores.json        what the league itself scored that season, week by week
 # and into src/main/resources/ff/nflverse/data/<year>:
 #   player_stats.tsv          the raw weekly statistics every expected point is built from
 #

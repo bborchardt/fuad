@@ -3,7 +3,6 @@ package ff.run
 import ff.fetch.mfl.MflDataRefresh
 import ff.fetch.mfl.MflRosterSnapshotRefresh
 import ff.fetch.mfl.MflTransactionsRefresh
-import ff.fetch.mfl.MflWeeklyScoresRefresh
 import ff.fetch.mfl.RosterSnapshot
 
 /**
@@ -27,7 +26,6 @@ class DataRefresh {
                 new MflRosterSnapshotRefresh(year - 1, 48571, 'api.myfantasyleague.com', snapshot).run()
             }
             new MflTransactionsRefresh(year - 1, 48571, 'api.myfantasyleague.com').run()
-            new MflWeeklyScoresRefresh(year - 1, 48571, 'api.myfantasyleague.com').run()
 
             println 'Rankings are not fetched: download them from fantasypros by hand. See docs/DATA.md.'
         } catch(Exception e) { e.printStackTrace() }
