@@ -136,18 +136,45 @@ class AuctionValuation {
                 })
         Map<String, Map<Integer, BigDecimal>> replacement = replacementByPosition(curve, starters, byes)
 
-        Set<String> tagged = []
+        // The set the board is priced with is the set the board must report. They come apart when the loop
+        // runs out of rounds mid-cycle, and re-stamping the tags from the round after the last pricing left
+        // a team told to tag one player while every price on the board assumed it had tagged another.
+        Set<String> pricedWith = [] as Set<String>
+        Set<String> tagged = [] as Set<String>
         List<PlayerValuation> valuations = []
         for (int i = 0; i < MAX_TAG_ITERATIONS; i++) {
+            pricedWith = tagged
             valuations = price(curve, replacement, available, franchiseSalary, freeCap, slotsToFill, tagged, byes)
-            Set<String> next = predictTags(valuations)
-            if (next == tagged) {
+            tagged = predictTags(valuations)
+            if (tagged == pricedWith) {
                 break
             }
-            tagged = next
         }
-        valuations.collect { it.copyWith(franchiseTagged: tagged.contains(it.playerId)) }
-                .sort { a, b -> b.salary <=> a.salary ?: a.playerName <=> b.playerName }
+        if (tagged != pricedWith) {
+            warnUnsettled(pricedWith, tagged, valuations)
+        }
+        valuations.sort { a, b -> b.salary <=> a.salary ?: a.playerName <=> b.playerName }
+    }
+
+    /**
+     * Say so when the tags never settle, rather than picking a round and letting it read as an answer.
+     *
+     * Two expiring players on one roster can each be the better tag once the other is tagged: taking one out
+     * of the bidding puts his tag price back in the pot and lifts what the other would fetch, which flips
+     * the saving back the other way. The cycle is real rather than a rounding artefact, and the surpluses
+     * driving it sit inside the standard error the levels carry, so the model genuinely cannot separate
+     * them.
+     *
+     * The board stays priced with the tags it reports. What it cannot do is claim the set is settled.
+     */
+    private static void warnUnsettled(Set<String> pricedWith, Set<String> next, List<PlayerValuation> valuations) {
+        Map<String, PlayerValuation> byId = valuations.collectEntries { [(it.playerId): it] }
+        List<String> contested = ((pricedWith - next) + (next - pricedWith)).collect { String id ->
+            PlayerValuation player = byId[id]
+            player ? "$player.playerName ($player.franchiseId)" as String : id
+        }.sort()
+        System.err.println("Franchise tags did not settle in $MAX_TAG_ITERATIONS rounds. The board is priced " +
+                "with the tags it reports; these are the ones it cannot choose between: ${contested.join(', ')}")
     }
 
     /**

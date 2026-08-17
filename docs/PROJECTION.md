@@ -281,6 +281,21 @@ spent tagging him back in the pot. Both halves matter: pricing him against a poo
 or against a pot his own tag has already left, overstates him by a quarter at the top, since once the
 tagged are gone the best player left is a large share of what remains.
 
+**It does not always reach a fixed point, and where it does not the board says so.** Two expiring players
+on one roster can each be the better tag once the other is tagged: taking one out of the bidding puts his
+tag price back in the pot and lifts what the other would fetch, which flips the saving back the other way.
+2026 does this for franchise 0001, where Lamar Jackson saves $17 against his market price and Amon-Ra St.
+Brown $19 — a gap well inside the standard error the levels carry, so the model genuinely cannot separate
+them.
+
+What matters is that the set the board **reports** is the set it was **priced with**. Those came apart
+once: the loop ran out of rounds part way round the cycle and the tags were re-read from the round after
+the last pricing, so a team was told to tag one player while all 106 prices, his own included, assumed it
+had tagged another. The prices were never wrong — only the column naming the tag was. `AuctionValuation`
+now stops on the set it priced and prints an unsettled warning naming the players it cannot choose between,
+rather than letting half a turn of the cycle read as an answer. `FranchiseTagSettlementSpec` holds it to
+that.
+
 ## What it produces for 2026
 
 106 players priced, $1,872 total. The highest `PRICE` is Ja'Marr Chase at $90, which no one pays because he
@@ -361,7 +376,13 @@ reader who knows the league is not.
   board so a plan can weigh this; nothing prices it. See
   [LEAGUE_RULES.md](LEAGUE_RULES.md#contract-length).
 - **Nine of ten teams are predicted to tag**, at the high end of the observed 5-to-9. 2026's tag prices are
-  low against the market because they are computed from 2025 salaries.
+  low against the market because they are computed from 2025 salaries. One of the nine does not settle: see
+  [the tag loop](#6-franchise-tags-iterated-to-a-fixed-point).
+- **Tag surplus asks what a tag saves, never whether the player is worth it.** It is `MARKET` less the tag
+  price, so the tag a team is told to use is the one it saves most on even where that player
+  is priced above what he is worth. For 2026's undecided pair the two readings disagree: Lamar Jackson's
+  $66 tag buys $67 of `VALUE` while Amon-Ra St. Brown's $61 buys $57, so the cheaper saving is the better
+  contract. Nothing in the model weighs that.
 - **The calibration is fitted on three seasons.** Positional shares swing hard year to year, and dropping
   2022 as a transition year buys accuracy at the cost of a thinner sample.
 - **The market price of a tagged player is never tested.** It is a counterfactual for a player who will not
