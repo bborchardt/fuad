@@ -56,6 +56,73 @@ class MarkdownTables {
         key?.replaceAll(/[^A-Za-z0-9]/, '')?.toUpperCase()
     }
 
+    /**
+     * The name this heading was probably meant to be, or null where it names nothing like one.
+     *
+     * <b>A heading that binds to no field has to be allowed, and that is what makes a typo invisible.</b>
+     * A document legitimately carries columns the model does not produce — a note, or what the league
+     * actually paid beside what the model says it will — so an unrecognised heading cannot simply be an
+     * error. Which meant a heading that was <i>meant</i> to bind and no longer does, because it was
+     * mistyped or because the figure was renamed underneath it, read as deliberate commentary: the column
+     * stopped being checked and the run went on saying OK.
+     *
+     * The two are told apart by distance rather than by a list. A typo is a near miss — {@code VALUEE} is
+     * one edit from {@code VALUE} — while real commentary is nowhere near any field, {@code note} being
+     * three edits from the closest thing the figures carry. So the rule is derived from the figures
+     * themselves and needs telling nothing when they gain a column, which is the lesson
+     * {@link StrategyCheck#PROSE} records at length.
+     *
+     * <b>Two-letter headings are in scope, and they are the ones that matter most.</b> Exempting them was
+     * the first attempt, on the grounds that at that length everything is near everything — but every
+     * position is two letters, and a table spread across positions is the commonest shape in this
+     * documentation, so exempting them exempted exactly the typo most likely to be made. {@code WB} for
+     * {@code WR} went straight through.
+     *
+     * The cost is a commentary column of two letters that happens to sit one edit from a position — a
+     * {@code TD} beside a {@code TE} — being reported. That is the right way round to be wrong: the author
+     * renames a column and moves on, where the other way round a column stops being checked and says
+     * nothing. Only a single character is exempt, having nothing to be a slip of.
+     */
+    static List<String> nearMisses(String heading, Collection<String> candidates) {
+        String key = normaliseKey(heading)
+        if (!key || key.length() < 2) {
+            return []
+        }
+        // Scaled to length, so a long heading may be two letters out and a short one only one.
+        int allowed = key.length() >= 6 ? 2 : 1
+        Map<Integer, List<String>> byDistance = [:].withDefault { [] }
+        candidates.each { String candidate ->
+            String other = normaliseKey(candidate)
+            if (!other) {
+                return
+            }
+            int distance = editDistance(key, other)
+            if (distance > 0 && distance <= allowed) {
+                byDistance[distance] << candidate
+            }
+        }
+        // Every candidate that is equally near, because at two letters several usually are and naming one
+        // of them confidently would be pointing at the wrong repair as often as the right one.
+        byDistance.isEmpty() ? [] : byDistance[byDistance.keySet().min()]
+    }
+
+    /** Levenshtein, over strings short enough that nothing cleverer is worth having. */
+    private static int editDistance(String from, String to) {
+        int[] previous = (0..to.length()).toList() as int[]
+        int[] current = new int[to.length() + 1]
+        for (int i = 1; i <= from.length(); i++) {
+            current[0] = i
+            for (int j = 1; j <= to.length(); j++) {
+                int substitute = previous[j - 1] + (from.charAt(i - 1) == to.charAt(j - 1) ? 0 : 1)
+                current[j] = Math.min(substitute, Math.min(previous[j] + 1, current[j - 1] + 1))
+            }
+            int[] swap = previous
+            previous = current
+            current = swap
+        }
+        previous[to.length()]
+    }
+
     /** The rows of a tab separated file, in order, each a heading-to-value map. */
     static List<Map<String, String>> read(File file) {
         if (!file.exists()) {

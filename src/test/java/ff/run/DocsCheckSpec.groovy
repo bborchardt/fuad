@@ -280,6 +280,61 @@ Prose, which ends the table.
      * Agreement between prose and figures that a superseded model wrote says only that the two were written
      * together. That is exactly the reassurance this check is supposed to be unable to give.
      */
+    /**
+     * The hole the commentary rule left, and the reason it could not simply be closed.
+     *
+     * A heading matching no field has to be allowed, or a table could never carry a note beside a figure.
+     * Which meant a heading that was <b>meant</b> to bind and no longer did — mistyped, or left behind when
+     * the figure was renamed underneath it — read as deliberate commentary: the column quietly stopped
+     * being checked and the run went on printing OK. Every table in PROJECTION.md turns on exact heading
+     * names, so this is the one way left to make a passing run mean nothing.
+     */
+    def "catches a heading that is one slip from a figure, where a plain miss is commentary"() {
+        given: 'VALUEE for VALUE, which used to disable the column and pass, over two wrong rows'
+        File doc = document('''<!-- figures: board -->
+
+| FIGURE | VALUEE |
+| --- | --- |
+| Top price | 99999 |
+| Players | 88888 |
+''')
+
+        when:
+        List<String> failures = DocsCheck.check(doc, yearDir)
+
+        then: 'named, and pointed at what it was probably meant to be'
+        failures.any { it.contains("'VALUEE'") && it.contains("'VALUE'") }
+
+        and: 'reported once for the table rather than once for each of the rows beneath it'
+        failures.size() == 1
+    }
+
+    def "catches a mistyped position in a table read across, which is two letters and used to be exempt"() {
+        given: 'WB for WR, the commonest shape of table in the documentation'
+        File doc = document('''<!-- figures: curve across=POS field=PTS -->
+
+| Rank | QB | WB |
+| --- | --- | --- |
+| 1 | 245.2 | 99999 |
+''')
+
+        expect: 'every position it is equally near, since at two letters several usually are'
+        DocsCheck.check(doc, yearDir).any { it.contains("'WB'") && it.contains("'RB'") }
+    }
+
+    def "leaves real commentary alone, being nowhere near anything the model produces"() {
+        given: 'a note and a column of what the league actually paid, neither of them a figure'
+        File doc = document('''<!-- figures: board -->
+
+| FIGURE | VALUE | Actual 2025 | note |
+| --- | --- | --- | --- |
+| Top price | 90 | $100 | the tag held him below it |
+''')
+
+        expect:
+        DocsCheck.check(doc, yearDir) == []
+    }
+
     def "refuses to check against figures that have never been stamped"() {
         expect:
         DocsCheck.checkProvenance(yearDir).any { it.contains('holds no MANIFEST') }

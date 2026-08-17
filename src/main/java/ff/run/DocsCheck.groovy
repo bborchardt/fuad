@@ -44,7 +44,9 @@ import ff.run.fuad.ReportManifest
  *
  * A heading matching no field is the document's own commentary and is left alone, so a table can carry a
  * note or a figure the model does not produce — what the league actually paid, say — beside the ones it
- * does.
+ * does. <b>Unless it is a near miss.</b> That permission is what let a mistyped or renamed heading read as
+ * deliberate commentary and stop being checked in silence, so a heading one slip from a real field is
+ * reported rather than excused. See {@link MarkdownTables#nearMisses}.
  */
 class DocsCheck {
 
@@ -210,6 +212,9 @@ class DocsCheck {
             if (headings == null) {
                 headings = cells
                 tables++
+                // Once for the table rather than once per row: a mistyped heading is one mistake, and
+                // reporting it against every row below would bury the rows that are genuinely wrong.
+                failures.addAll(checkHeadings(marker, yearDir, headings, i + 1, cache))
                 continue
             }
             if (MarkdownTables.isDivider(cells)) {
@@ -233,6 +238,48 @@ class DocsCheck {
             }
         }
         marker
+    }
+
+    /**
+     * Catch a heading that was meant to name a figure and no longer does.
+     *
+     * The permissive rule below — a heading matching nothing is the document's own commentary — is what
+     * makes a table able to carry a note beside a figure, and it is also what let a mistyped or renamed
+     * heading go quiet instead of failing. {@link MarkdownTables#nearMiss} separates the two by distance,
+     * so commentary stays commentary and a near miss is reported as what it is.
+     *
+     * The candidates differ by orientation. Read down, a heading names a field of the figures file. Read
+     * across, it names a value of the key the table is spread over — a position, usually.
+     */
+    private static List<String> checkHeadings(Map<String, String> marker, File yearDir, List<String> headings,
+                                              int line, Map<String, List<Map<String, String>>> cache) {
+        List<Map<String, String>> table = table(yearDir, marker.table, cache)
+        if (!table) {
+            // Missing or empty: the rows report that themselves, and better than a heading can.
+            return []
+        }
+        Collection<String> candidates = marker.across ?
+                table.collect { it[marker.across] }.findAll { it }.unique() :
+                table.first().keySet()
+
+        List<String> failures = []
+        headings.eachWithIndex { String heading, int column ->
+            // The first column labels the key rather than naming a figure, so it binds to nothing by design.
+            if (column == 0) {
+                return
+            }
+            String cleaned = MarkdownTables.clean(heading)
+            if (candidates.any { MarkdownTables.normaliseKey(it) == MarkdownTables.normaliseKey(cleaned) }) {
+                return
+            }
+            List<String> meant = MarkdownTables.nearMisses(cleaned, candidates)
+            if (meant) {
+                failures << "line $line: heading '$cleaned' is checked against nothing in " +
+                        "${marker.table}.tsv and is one slip from ${meant.collect { "'$it'" }.join(' / ')}" +
+                        ' — if it really is commentary, name it something that is not'
+            }
+        }
+        failures
     }
 
     private static Result checkRow(Map<String, String> marker, File yearDir, List<String> headings,
