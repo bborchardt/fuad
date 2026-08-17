@@ -25,8 +25,14 @@ set -euo pipefail
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$DIR"
 
-YEAR="${1:-2026}"
-shift || true
+# The year is optional and the documents are optional, so the first argument has to say which it is.
+# Taking it as the year regardless meant `./check_docs.sh docs/PROJECTION.md` — the form the README
+# documents — looked for figures under docs/figures/docs/PROJECTION.md and reported a missing manifest.
+YEAR=2026
+if [[ ${1:-} =~ ^[0-9]{4}$ ]]; then
+    YEAR="$1"
+    shift
+fi
 
 if [[ $# -eq 0 ]]; then
     set -- docs/*.md
