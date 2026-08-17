@@ -195,8 +195,8 @@ class LineupValue {
      * <b>How much he plays is his rank's, not the position's.</b> The outcome list is pooled across the
      * ranks that carry money, so its games are the position's. Taken raw they would hand a backup
      * quarterback the availability of a starter, which is exactly the thing rank does predict at that
-     * position — 11.9 games at the top against 7.1 by rank 34. So the draw is read as a multiplier against
-     * the position's own mean and applied to what this rank has historically played.
+     * position, where it predicts it nowhere else. So the draw is read as a multiplier against the position's
+     * own mean and applied to what this rank has historically played. See docs/figures.
      */
     private void seasonOf(List<Rostered> roster, int sample, double[] multipliers, boolean[][] playing) {
         for (int index = 0; index < roster.size(); index++) {

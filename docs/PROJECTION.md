@@ -60,28 +60,43 @@ is no era effect left to correct for, and the quarterback figure is noise. Nine 
 **45 observations against 15** from three, which is what the smoothing has to work with: two ranks either
 side are averaged in, and a rank with fewer than six observations behind it is not levelled at all.
 
-**Ranked seasons that never happened are in the sample as zeros.** 46 of them across the 2,187 observations
-that carry money, and 10 inside the depth the league actually rosters — Andrew Luck's 2017 shoulder,
-Le'Veon Bell's 2018 holdout, Gus Edwards' 2021 knee, Joe Mixon's 2025 foot. They are exactly the seasons
-that busted hardest, so dropping them biases every curve upward and cuts off the left tail a bench is
-priced against.
+**Ranked seasons that never happened are in the sample as zeros.** Andrew Luck's 2017 shoulder, Le'Veon
+Bell's 2018 holdout, Gus Edwards' 2021 knee, Joe Mixon's 2025 foot. They are exactly the seasons that busted
+hardest, so dropping them biases every curve upward and cuts off the left tail a bench is priced against.
+How many of each there are, per position:
+
+<!-- figures: positions -->
+
+| POS | SEASONS | LOST |
+| --- | --- | --- |
+| QB | 324 | 5 |
+| RB | 584 | 13 |
+| WR | 900 | 16 |
+| TE | 405 | 10 |
 
 Which is why the name matching between the rankings and the statistics has to be careful before it gives
 up: **an unmatched name and a season lost to injury are indistinguishable, and both score zero.** See
 [DATA.md](DATA.md#player-names) for how names are matched.
 
-What that produces at the top of each position, in points over the fourteen week regular season and per
-game played:
+What that produces at the top of each position, in points over the fourteen week regular season:
 
-| | QB | RB | WR | TE |
+<!-- figures: curve across=POS field=PTS -->
+
+| Rank | QB | RB | WR | TE |
 | --- | --- | --- | --- | --- |
-| Rank 1 | 245 | 188 | 184 | 162 |
-| Rank 6 | 221 | 179 | 161 | 116 |
-| Rank 24 | 154 | 109 | 122 | 75 |
-| | | | | |
-| Rank 1, per game | 20.1 | 16.3 | 15.6 | 14.4 |
-| Rank 6, per game | 18.1 | 15.9 | 13.8 | 10.4 |
-| Rank 24, per game | 14.3 | 10.0 | 10.8 | 6.8 |
+| 1 | 245.2 | 188.4 | 184.3 | 161.5 |
+| 6 | 220.5 | 178.6 | 161.2 | 116.4 |
+| 24 | 154.3 | 108.5 | 122.1 | 74.6 |
+
+and per game played:
+
+<!-- figures: curve across=POS field=PPG -->
+
+| Rank | QB | RB | WR | TE |
+| --- | --- | --- | --- | --- |
+| 1 | 21.39 | 16.94 | 16.09 | 15.06 |
+| 6 | 19.26 | 16.51 | 14.20 | 10.90 |
+| 24 | 15.26 | 10.41 | 11.16 | 7.18 |
 
 ### 2b. A season is a rate times an availability
 
@@ -90,44 +105,80 @@ when he plays, and how much football he plays. For ranked quarterback seasons th
 coefficient of variation of 0.25 and games played with 0.25, so **about half the variation in a season
 total is availability rather than production.**
 
-Levelling the product directly lets one unlucky run of injuries at one rank pass for a judgement about
-talent. That is what made RB1 appear to be outplayed by RB5:
+**How much the two halves have to say about rank is not the same, and it differs by position.** Over the
+same span of ranks, receiver loses almost all of its level to the rate while quarterback loses a third of
+its own to availability:
 
-| RB rank | Season points | Points per game | Games played |
-| --- | --- | --- | --- |
-| 1 | 169.6 | **16.29** | **10.04** |
-| 3 | 179.7 | 16.45 | 10.60 |
-| 5 | 188.2 | 15.76 | 11.87 |
-| 8 | 177.6 | 15.36 | 11.42 |
+<!-- figures: curve across=POS field=PPG -->
 
-He is not outplayed. He has the highest rate at the position, where the consensus puts him, and the fewest
-games of the top eight, which is what a bell cow's workload buys him.
+| Rank | QB | WR |
+| --- | --- | --- |
+| 1 | 21.39 | 16.09 |
+| 34 | 11.22 | 9.86 |
+
+<!-- figures: curve across=POS field=G -->
+
+| Rank | QB | WR |
+| --- | --- | --- |
+| 1 | 11.46 | 11.45 |
+| 34 | 6.90 | 10.71 |
+
+A receiver 34 ranks down plays essentially as much football as the best one and simply scores less when he
+does. A quarterback 34 ranks down is a different kind of player: the league has 32 starting jobs, so past
+about rank 26 he is a backup who plays when somebody gets hurt. A single levelled season total says the same
+thing about both — worth about 60% of the best — and hides that one is worse and the other is absent.
+
+**Levelling the product directly carries that noise into the level, and the measurement says by how much.**
+Where rank *r+1* levels above rank *r*, the step is noise the smoothing failed to remove; summed over the
+priced ranks and taken against the curve's range, it is how far a curve travels backwards. Levelling the
+season totals against splitting them, over a rank window common to all four positions:
+
+<!-- figures: positions -->
+
+| POS | BACKWARDTOTALS | BACKWARD |
+| --- | --- | --- |
+| QB | 24.5 | 6.6 |
+| RB | 54.5 | 12.4 |
+| WR | 61.2 | 21.9 |
+| TE | 20.3 | 11.6 |
+
+Better at every position, and by a factor of two to four at three of them.
+
+> **Superseded.** This section used to argue the split from a single case — that levelling season totals
+> made the consensus best running back appear to be outplayed by RB5 — and that case no longer exists,
+> which is the change working rather than an argument still standing. RB1 now levels above RB5 on the
+> season, on the rate and on games played alike. The measurement above replaced it because a curve-wide
+> number can be regenerated and an anecdote cannot.
 
 **Availability is smoothed five times harder than the rate**, over ranks ±10 rather than ±2. How much
 football a player misses is nearly unrelated to where he was ranked — the correlation between rank and games
 played is −0.04 at running back, −0.09 at receiver and −0.14 at tight end — so a narrow window fits noise
 and multiplies it straight back into the level. At the rate's own radius the curve came out *less* monotone
-than the season totals it replaced:
+than the season totals it replaced.
 
-| Backward movement, as a share of the curve's range | QB | RB | WR | TE |
-| --- | --- | --- | --- | --- |
-| Levelling season totals | 23% | 32% | 45% | 25% |
-| Availability at the rate's radius, ±2 | 24% | 44% | 83% | 35% |
-| **Availability smoothed at ±10** | **7%** | **11%** | **22%** | **13%** |
+<!-- model: 7556912 -->
 
-Smoothed, though, and not held flat, which was the first attempt. Quarterback is why: the league has 32
-starting jobs, so a quarterback ranked past about 26 is a backup who plays when somebody gets hurt.
+> Measured when the radius was chosen, against a model since superseded, and not reproducible: the
+> alternative is a constant the curve no longer accepts. Backward movement at ±2 ran 24% at quarterback,
+> 44% at running back, 83% at receiver and 35% at tight end, against the ±10 figures in the table above.
 
-| QB rank | 1 | 20 | 24 | 26 | 30 | 34 |
-| --- | --- | --- | --- | --- | --- | --- |
-| games actually played | 11.9 | 11.2 | 10.7 | 10.1 | 9.1 | 7.1 |
-| a flat figure would use | 10.6 | 10.6 | 10.6 | 10.6 | 10.6 | 10.6 |
+Smoothed, though, and not held flat, which was the first attempt. Quarterback is why:
 
-Flat overstated the back of that range by half while understating the elite, and left a cliff wherever the
-flat region stopped — 10.6 games at QB34 against 6.0 at QB35, a 43% drop between neighbouring ranks. A wide
-window keeps what flattening was for and gives all of that back: it is more monotone at every position, and
-continuous everywhere. Receiver, where availability really is flat to rank 40 and beyond, is unaffected
-either way.
+<!-- figures: curve across=POS field=G -->
+
+| Rank | QB |
+| --- | --- |
+| 1 | 11.46 |
+| 20 | 10.61 |
+| 24 | 10.11 |
+| 26 | 9.54 |
+| 30 | 8.31 |
+| 34 | 6.90 |
+
+A flat figure would have used one number for all of them, around 10.6. That overstated the back of the range
+by half while understating the elite, and left a cliff wherever the flat region stopped. A wide window keeps
+what flattening was for and gives all of that back: it is more monotone at every position, and continuous
+everywhere. Receiver, where availability really is flat well past rank 40, is unaffected either way.
 
 A season lost entirely is `games = 0`. It carries no rate — a year that never happened is no evidence about
 form — and counts in the availability half, which is how the left tail a bench is priced against survives
@@ -141,9 +192,15 @@ the split.
 setting to read off: the lineup is ten of QB 1-2, RB 1-3, WR 2-5, TE 1-3, PK 1, so six slots are fixed by
 the minimums and four are flex. Allocating the flex greedily across the league gives, for 2026:
 
-| | QB | RB | WR | TE | PK |
-| --- | --- | --- | --- | --- | --- |
-| Started league-wide | 20 | 26 | 32 | 12 | 10 |
+<!-- figures: positions -->
+
+| POS | STARTED | REPLRANK |
+| --- | --- | --- |
+| QB | 20 | 21 |
+| RB | 26 | 27 |
+| WR | 32 | 33 |
+| TE | 12 | 13 |
+| PK | 10 | 11 |
 
 Superflex means 20 of about 50 usable quarterbacks start, which pushes quarterback replacement very high
 and compresses what the best ones are worth over it. That much is decisive and stable.
@@ -151,12 +208,23 @@ and compresses what the best ones are worth over it. That much is decisive and s
 **The last few flex spots are not.** The comparison that decides them is between a league's 32nd to 34th
 receiver and its 11th to 13th tight end, and those are the same players:
 
-| | 11th | 12th | 13th |
-| --- | --- | --- | --- |
-| TE | 109 | 110 | 107 |
-| WR (32nd, 33rd, 34th) | 104 | 105 | 106 |
+<!-- figures: curve across=POS field=PTS -->
 
-A handful of points apart, against a standard error near eight. Small changes to the curve have moved these
+| Rank | TE |
+| --- | --- |
+| 11 | 109.4 |
+| 12 | 110.3 |
+| 13 | 107.2 |
+
+<!-- figures: curve across=POS field=PTS -->
+
+| Rank | WR |
+| --- | --- |
+| 32 | 103.6 |
+| 33 | 104.8 |
+| 34 | 105.6 |
+
+A handful of points apart, against a standard error near six. Small changes to the curve have moved these
 slots between the two positions more than once, and
 the honest reading is that the league starts about ten tight ends and about thirty-two receivers with the
 last few slots undetermined. It matters because replacement level follows from it — which is a caution
@@ -173,17 +241,32 @@ Value over replacement at a player's expected points is `max(0, E[X] - replaceme
 actually worth is `E[max(0, X - replacement)]`, because a player only has to be started in the weeks he is
 good. The second is never smaller, and the gap is widest at replacement level — exactly where a bench sits:
 
-| | Rank | `E[max(0,X-r)]` | `max(0,E[X]-r)` | Missed |
-| --- | --- | --- | --- | --- |
-| QB | 10 | 55 | 34 | +21 |
-| WR | 38 | 18 | 0 | +18 |
-| WR | 30 | 17 | 0 | +17 |
-| RB | 30 | 16 | 0 | +16 |
-| RB | 48 | 7 | 0 | +7 |
+`VOR` is the first, which is what the board prices with; `VOREXP` is the second, carried only so the two can
+be compared. Read down a position at a time:
 
-The spread is real: realised points at a given preseason rank vary with a coefficient of variation of 0.49
-to 0.57 by position, and players nominally below replacement still clear it often — WR38 does 45% of the
-time.
+<!-- figures: curve across=POS field=VOR -->
+
+| Rank | QB | WR | RB |
+| --- | --- | --- | --- |
+| 10 | 38.8 | | |
+| 30 | | 18.5 | 14.7 |
+| 38 | | 13.7 | |
+| 48 | | | 4.7 |
+
+<!-- figures: curve across=POS field=VOREXP -->
+
+| Rank | QB | WR | RB |
+| --- | --- | --- | --- |
+| 10 | 29.7 | | |
+| 30 | | 3.6 | 0.2 |
+| 38 | | 0.2 | |
+| 48 | | | 0.0 |
+
+Every one of those gaps is positive, and it is widest where a player sits near replacement rather than well
+clear of it — RB48 is worth nothing at all on the second reading and nearly five points on the first.
+
+The spread is real: realised points at a given preseason rank vary with a coefficient of variation of 0.5 to
+0.6 by position, and players nominally below replacement still clear it often.
 
 So a season is replayed against **every season the position has actually produced**, and value over
 replacement averaged across them.
@@ -192,16 +275,15 @@ Each replayed season is a rate and a number of games, kept paired as one player'
 apart. That matters most for the seasons that ended early. Smearing an injured starter's total across the
 whole calendar made him look like a player who was bad every week instead of good and then absent:
 
-| A top-24 quarterback season of seven games or fewer | Points per week |
-| --- | --- |
-| what he actually scored, in the games he played | **12.22** |
-| what levelling the season total gave him | 4.77 |
-| a healthy season, for comparison | 17.46 |
+<!-- model: b5e0874 -->
 
-At 12.22 he clears replacement in every week he plays and banks value; at 4.77 he clears it in none and
-banks nothing. Twenty-four of the 215 top-24 quarterback seasons on record are that shape, so the old
-reading systematically understated the injury tail — which overstated injury risk and undervalued the
-players with the highest rates.
+> **Superseded, and not reproducible**: the second row is what an implementation the model no longer has
+> produced. A top-24 quarterback season of seven games or fewer scored **12.22** points per week in the games
+> he actually played, against the **4.77** levelling the season total gave him, and **17.46** for a healthy
+> season. At 12.22 he clears replacement in every week he plays and banks value; at 4.77 he clears it in none
+> and banks nothing. Twenty-four of the 215 top-24 quarterback seasons on record are that shape, so the old
+> reading systematically understated the injury tail — which overstated injury risk and undervalued the
+> players with the highest rates.
 
 Which weeks are missed is left as an expectation rather than drawn, since nothing here knows when an injury
 lands: a season of `g` games out of `W` playable weeks earns `g/W` of what a full season at that rate would
@@ -226,13 +308,24 @@ covered by nobody. Both wreck the board.
 Measured on `COST`, which is what a team actually pays and so what the record can be compared against — the
 tag holds the very best players well below their `PRICE`.
 
-| | Players above $1 | Highest `COST` | Share in the top 40 |
-| --- | --- | --- | --- |
-| **As priced** | **72** | $80 | **88.0%** |
-| Each rank at its own availability | 70 | $81 | 88.3% |
-| Missed weeks covered by the last priced rank | 27 | $236 | 96.5% |
-| Missed weeks covered by nobody | 23 | $268 | 96.5% |
-| **Actual 2025** | **70** | $100 | **87%** |
+As priced, which is generated:
+
+<!-- figures: board -->
+
+| FIGURE | VALUE | Actual 2025 |
+| --- | --- | --- |
+| Players above $1 | 72 | 70 |
+| Top cost | 80 | $100 |
+| Top 40 cost | 88.0 | 87% |
+
+<!-- model: 59b4f91 -->
+
+> **Superseded, and not reproducible**: each of the three alternatives below is an implementation the model
+> no longer has. Charging missed weeks against the deepest rank the curve still prices left **27** players
+> above the minimum bid with a top `COST` of **$236** and 96.5% of the money in the top 40; charging them
+> against nobody left **23**, **$268** and the same 96.5%. Giving each rank its own availability instead —
+> the mildest of the three — left **70**, **$81** and 88.3%, which is the only one that did not wreck the
+> board.
 
 Twenty-seven players above the minimum bid against the seventy the league signs, and tight end priced out
 of existence altogether. The reason is structural rather than a matter of picking a gentler bar: the games
@@ -243,8 +336,9 @@ and the money tilts to whoever had most of it already — the top tenth of the b
 
 The one thing here that is rank-graded moves nothing. Value over replacement draws its games from the
 pooled distribution while `PTS` uses the rank's own, which is a real inconsistency, and repairing it shifts
-no quarterback on the board by more than a dollar. The ranks where availability genuinely differs — QB35
-plays 7.1 games against QB1's 11.9 — are already at the minimum bid.
+no quarterback on the board by more than a dollar. The ranks where availability genuinely differs — the back
+of quarterback plays barely six games against the best one's eleven and a half — are already at the minimum
+bid.
 
 **What settles it is that the cost is charged elsewhere, once.** At the auction a team buys its whole
 roster in one sitting, so what covers an injured starter is another player it also bought. Charging the
@@ -253,11 +347,23 @@ prices that backup and finds him expensive — a third quarterback is worth 59 p
 it bye and injury cover. So absence is charged in the report that can see a roster, and a league-wide
 clearing price, which cannot see one, leaves it alone. See [STRATEGY.md](STRATEGY.md#the-roster-reports).
 
-**The distribution is used as observed, not fitted.** It is badly lopsided: almost all the variance is a
-left tail of seasons lost to injury, reaching zero at every position, while the upside stops around 1.9 to
-2.0 times expectation at the 95th percentile. Fitting a lognormal to that variance mirrors the left tail
-into a right one and invents multipliers above three, pricing the bench as if every deep player might
-become a star, which flattens the whole board.
+**The distribution is used as observed, not fitted.** It is badly lopsided. Almost all the variance is a left
+tail of seasons lost to injury, reaching zero at every position, while the upside is far more compressed —
+nine seasons in ten land under about one and three quarters times expectation:
+
+<!-- figures: positions -->
+
+| POS | P10 | P90 |
+| --- | --- | --- |
+| QB | 0.36 | 1.50 |
+| RB | 0.23 | 1.71 |
+| WR | 0.30 | 1.68 |
+| TE | 0.31 | 1.72 |
+
+Note how much further the tenth percentile falls below one than the ninetieth rises above it. Fitting a
+lognormal to that variance mirrors the left tail into a right one, pricing the bench as if every deep player
+might become a star, which flattens the whole board. The empirical distribution does carry a handful of
+multipliers above three; what a fit does is make them ordinary rather than rare.
 
 **Only ranks levelled above a quarter of the position's best contribute to it.** Not because the deep ranks
 are uninteresting but because a ratio taken against a very small number is not a ratio of the same thing.
@@ -270,8 +376,14 @@ avoid.
 ### 4. Dollars from a known pot
 
 Teams spend a fairly steady share of the cap they have free — 65% to 85% across the record, **80%** across
-the four superflex seasons — so the pot is knowable before the auction. For 2026 that is $2,438 free
-against $1,950 expected spend.
+the four superflex seasons — so the pot is knowable before the auction:
+
+<!-- figures: board -->
+
+| FIGURE | VALUE |
+| --- | --- |
+| Free cap | 2438 |
+| Expected spend | 1950 |
 
 The fifth that goes unspent is deliberate, and it is why a model that assumed teams bid to the cap would
 price everything too high. Cap is what absorbs in-season signings, and it is what a team releasing a bad
@@ -309,7 +421,18 @@ ever paid.
 | 2023 | 21.8% | 27.3% | 37.8% | 13.1% |
 | 2024 | 16.7% | 42.5% | 30.4% | 10.4% |
 | 2025 | 29.8% | 29.8% | 34.9% | 5.5% |
-| **Calibration** | **23.3%** | **33.0%** | **34.4%** | **9.3%** |
+
+Those four rows are what the league paid, and `AuctionValuationSpec` recomputes them from the committed
+seasons so they cannot drift from the record. What the model calibrates to:
+
+<!-- figures: positions -->
+
+| POS | TARGETSHARE |
+| --- | --- |
+| QB | 23.3 |
+| RB | 33.0 |
+| WR | 34.4 |
+| TE | 9.3 |
 
 The repricing is real, and it is not a stock of old contracts running off. Money already committed says the
 same thing from the other side: quarterback contracts have gone from 16% to 30% of committed salary since
@@ -350,30 +473,38 @@ that.
 
 ## What it produces for 2026
 
-106 players priced, $1,872 total. The highest `PRICE` is Ja'Marr Chase at $90, which no one pays because he
-is tagged at $61.
+The highest `PRICE` is Ja'Marr Chase, which no one pays because he is tagged well below it.
 
-| | Model 2026 | Actual 2025 |
+<!-- figures: board -->
+
+| FIGURE | VALUE | Actual 2025 |
 | --- | --- | --- |
-| Top price | $90 | $100 |
+| Players | 106 | |
+| Total cost | 1872 | |
+| Top price | 90 | $100 |
 | Players above $1 | 72 | 70 |
-| Share of the pot in the top 40 | 89% | 87% |
+| Top 40 price | 88.7 | 87% |
 | Teams tagging | 9 | 7 |
 
-Position shares are the ones the league actually spends, since `MARKET_WEIGHT` is 1.0:
+Position shares are the ones the league actually spends, since `MARKET_WEIGHT` is 1.0. `SHARE` is what the
+board came out at and `TARGETSHARE` what the calibration aimed for:
 
-| | QB | RB | WR | TE |
-| --- | --- | --- | --- | --- |
-| Model | 23.1% | 32.6% | 33.8% | 9.6% |
-| Calibration | 23.3% | 33.0% | 34.4% | 9.3% |
+<!-- figures: positions -->
 
-Nine tags are predicted, one per team, led by Ja'Marr Chase at a $61 tag against a $90 market price.
+| POS | SHARE | TARGETSHARE |
+| --- | --- | --- |
+| QB | 23.1 | 23.3 |
+| RB | 32.6 | 33.0 |
+| WR | 33.8 | 34.4 |
+| TE | 9.6 | 9.3 |
 
-The concentration is the number to watch. Splitting rate from availability raised the top of the board —
-the best players lose less to the injury smear than the deep ones did — and took the top 40's share from
-87% to 89% against the 87% the league actually spent in 2025. That is a two point drift toward a more
-top-heavy board than the record, small but in the direction the model is least able to check, since the tag
-keeps the very top from ever being priced in the open.
+Nine tags are predicted, one per team.
+
+The concentration is the number to watch. Splitting rate from availability raised the top of the board — the
+best players lose less to the injury smear than the deep ones did — and the top forty now hold a little
+under 89% of what open bidding would pay, against the 87% the league actually spent in 2025. A two point
+drift toward a more top-heavy board than the record, small but in the direction the model is least able to
+check, since the tag keeps the very top from ever being priced in the open.
 
 ## Team context
 
@@ -475,9 +606,10 @@ Alongside them the board carries what a plan needs in order to reason without go
   two separate means, so `PPG` is the rate that level implies rather than the raw mean behind it.
 
   They are carried because the two halves are differently caused and the total hides which one a player is
-  made of. Availability is the one that moves with rank: quarterbacks run from 11.5 games at the top to 6.9
-  by rank 34, since past about 26 a quarterback is a backup who plays when somebody gets hurt. Receivers
-  and tight ends barely move at all, 2.4 games end to end.
+  made of. Availability is the one that moves with rank, and only at quarterback: past about rank 26 a
+  quarterback is a backup who plays when somebody gets hurt, while a receiver that far down plays nearly as
+  much football as the best one and simply scores less doing it. See
+  [2b](#2b-a-season-is-a-rate-times-an-availability) for the figures.
 
   **`G` does not break a tie inside a tier.** Availability is smoothed across ten ranks either side, because
   rank predicts it weakly — the correlation is −0.04 at running back — and a tier is a band of neighbouring
@@ -495,7 +627,7 @@ Alongside them the board carries what a plan needs in order to reason without go
 - `BYE` — the week he is off. A fact of the schedule rather than a judgement about him, and the one thing
   about a particular player the model is willing to know.
 - `TIER` — the band of ranks at this position the curve **cannot tell apart**, 1 being the best. Levels are
-  means of about 45 realised seasons and carry a standard error of ten points or so at quarterback, so the
+  means of about 45 realised seasons and carry a standard error of seven to nine points at quarterback, so the
   curve resolves QB2 from QB17 and has no business resolving QB10 from QB14. Players sharing a tier are
   ties: choose between them on price, bye or roster fit, never on the order they sit in. Compare only
   within a position, and see [What a tier is for](#what-a-tier-is-for).
@@ -506,7 +638,18 @@ Alongside them the board carries what a plan needs in order to reason without go
   but the top of the board cannot act on it, since a long deal there is unwritable under the cut penalty.
 
 Within-position steepness is fitted per position as `price ~ value^gamma` over historical signings by
-consensus rank over the same seasons: **QB 1.44, RB 1.13, WR 1.07, TE 1.51**. Tight end is the fragile one
+consensus rank over the same seasons:
+
+<!-- figures: positions -->
+
+| POS | GAMMA |
+| --- | --- |
+| QB | 1.44 |
+| RB | 1.13 |
+| WR | 1.07 |
+| TE | 1.51 |
+
+Tight end is the fragile one
 — it swings on a handful of signings a year and moved from 0.84 to 1.51 when 2022 came out. Quarterback is much the steepest, which is the
 league paying an elite-starter premium that value over replacement will not produce on its own, since
 superflex starts twenty quarterbacks and so sets a high replacement. This belongs to price and never to
@@ -518,19 +661,41 @@ and priced at $75.
 
 ## What a tier is for
 
-The board reports prices to the dollar off levels that are good to about ten points. Across the flat middle
+The board reports prices to the dollar off levels that are good to seven points or so. Across the flat middle
 of a position that is a false precision, and it shows up as an ordering the evidence does not support.
 
 Quarterback is the clearest case. The curve is nearly flat across the middle of the position, and each
-level carries a standard error of nine to ten points:
+level carries a standard error of seven to nine points:
 
-| Rank | Levelled | Standard error | Tier |
-| --- | --- | --- | --- |
-| 8 | 212.6 | ±7.7 | 4 |
-| 10 | 202.9 | ±7.4 | 5 |
-| 11 | 202.4 | ±7.3 | 5 |
-| 12 | 207.2 | ±7.8 | 4 |
-| 14 | 195.6 | ±8.8 | 5 |
+<!-- figures: curve across=POS field=PTS -->
+
+| Rank | QB |
+| --- | --- |
+| 8 | 212.6 |
+| 10 | 202.9 |
+| 11 | 202.4 |
+| 12 | 207.2 |
+| 14 | 195.6 |
+
+<!-- figures: curve across=POS field=SE -->
+
+| Rank | QB |
+| --- | --- |
+| 8 | 7.7 |
+| 10 | 7.4 |
+| 11 | 7.3 |
+| 12 | 7.8 |
+| 14 | 8.8 |
+
+<!-- figures: curve across=POS field=TIER -->
+
+| Rank | QB |
+| --- | --- |
+| 8 | 4 |
+| 10 | 5 |
+| 11 | 5 |
+| 12 | 4 |
+| 14 | 5 |
 
 QB10 and QB11 are half a point apart on estimates carrying seven. That is not a claim about which is
 better; it is the curve saying it cannot separate them.
@@ -567,8 +732,18 @@ from outside the pre-auction rosters. **They are the only players on whom a posi
 for the reason in the next section.
 
 **Both are cut off at the same depth**, which is the point below which the curve stops making a claim — the
-last rank levelling above a quarter of the position's best. For 2026 that is QB 35, RB 65, WR 101, TE 46,
-and it leaves 88 players priced against the 78 spots the auction has to fill.
+last rank levelling above a quarter of the position's best:
+
+<!-- figures: positions -->
+
+| POS | PRICEDDEPTH |
+| --- | --- |
+| QB | 36 |
+| RB | 65 |
+| WR | 100 |
+| TE | 45 |
+
+Kickers are cut off by hand at 25 instead, having no curve to derive a depth from.
 
 One depth for both, because an expiring contract does not have to be re-signed: if nobody bids, the player
 goes back into the pool like anybody else. A rank too deep to be worth bidding on is too deep whoever holds

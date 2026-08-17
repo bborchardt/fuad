@@ -9,6 +9,8 @@ consensus rankings.
 ./generate_report.sh -t all [-y <year>]        # write reports to reports/<year>
 ./generate_report.sh -t roster -f <id>         # what each player adds to one team's lineup
 ./check_strategy.sh <plan.md>                  # hold a plan to the board it was written from
+./figures_refresh.sh <year>                    # write the model's own figures to docs/figures/<year>
+./check_docs.sh [<year>] [<doc.md> ...]        # hold the docs to those figures
 ```
 
 Report types: `franchises`, `franchise_projections`, `rankings`, `rookies`, `salaries`, `teams`, `schedule`, or `all`.
@@ -29,3 +31,9 @@ none of which a projection can assume is constant across years.
 See [docs/STRATEGY.md](docs/STRATEGY.md) for the rule a draft plan follows: it reasons from the reports and
 from nothing behind them, so it cannot drift off a stale board or argue a premium the model has already
 priced in. Plans live in `strategy/`, which is not committed.
+
+The same rule applies to the documentation itself. Figures about the model are generated into
+`docs/figures/<year>` and committed, and the tables that cite them are checked against them, so a level or
+a depth that moves fails `./check_docs.sh` in the commit that moves it rather than going quietly stale in
+prose. **When the model changes: commit it, run `./figures_refresh.sh`, then `./check_docs.sh`, and work
+through whatever it reports.**

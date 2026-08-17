@@ -53,9 +53,9 @@ class PointsCurve {
      * <b>Smoothed, though, and not flattened.</b> Holding it constant across the ranks that carry money was
      * the first attempt and it went wrong at quarterback, where availability is not flat at all: there are
      * 32 starting jobs in the league, so a quarterback ranked past about 26 is a backup who plays when
-     * somebody gets hurt. Availability there falls from 10.7 games at rank 24 to 7.1 at rank 34, and a flat
-     * figure overstated the back of that range by half while understating the elite, whose own average is
-     * 11.9. It also left a cliff wherever the flat region ended — 10.63 games at QB34 against 6.02 at QB35.
+     * somebody gets hurt. Availability there falls away sharply over the back of the priced range, and a flat
+     * figure overstated that end by half while understating the elite. It also left a cliff wherever the flat
+     * region ended. The figures are in docs/figures/&lt;year&gt;/curve.tsv as G.
      *
      * A wide window keeps what flattening was for and gives all of that back. It is less monotone at no
      * position and more monotone at every one.

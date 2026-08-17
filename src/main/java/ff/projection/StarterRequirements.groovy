@@ -8,7 +8,9 @@ package ff.projection
  * filled by whoever scores most. So the number of quarterbacks the league starts is not a setting to read
  * off, it is the outcome of every team filling its flex with the best player available.
  *
- * Allocating the flex greedily across the whole league gives, for 2026: 20 QB, 26 RB, 34 WR, 10 TE, 10 PK.
+ * Allocating the flex greedily across the whole league is what decides the rest. What it comes out at for a
+ * given season is in docs/figures/<year>/positions.tsv as STARTED, rather than repeated here where nothing
+ * would notice it going stale.
  *
  * The quarterback figure is decisive: superflex doubles the position's starters and sets a very high
  * replacement. The last few flex spots are not. They turn on whether a league's 12th tight end outscores
