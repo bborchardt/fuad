@@ -104,11 +104,16 @@ class ModelFiguresPrinter {
      * statistics this project kept carried no kicking and so no rank at the position could be levelled.
      * They can, and the row is worth reading: {@code SHARE} against {@code TARGETSHARE} is where the
      * league's pricing of the position parts company with what the curve says it is worth.
+     *
+     * {@code ANCHOR} is here for the same reason the rest of the row is. It is the factor
+     * {@link PointsCurve} scales a position's shape by to put its level back where its seasons actually
+     * were, it differs by position, and it was quoted from memory in two javadoc comments that had drifted
+     * apart from each other and from the model alike.
      */
     void printPositions(PrintWriter out) {
         out.println(['POS', 'DEPTH', 'PRICEDDEPTH', 'STARTED', 'REPLRANK', 'GAMMA', 'PLAYERS', 'RESERVE',
                      'SHARE', 'TARGETSHARE', 'VORSHARE', 'P10', 'P90', 'SEASONS', 'LOST', 'BACKWARD',
-                     'BACKWARDTOTALS'].join('\t'))
+                     'BACKWARDTOTALS', 'ANCHOR'].join('\t'))
         Map<String, BigDecimal> share = pricedShareByPosition()
         Map<String, BigDecimal> reserve = reservedShareByPosition()
         Map<String, BigDecimal> worth = valueShareByPosition()
@@ -136,6 +141,7 @@ class ModelFiguresPrinter {
                     levelled ? census.lost : '',
                     levelled ? percent(census.backward) : '',
                     levelled ? percent(census.backwardOfTotals) : '',
+                    levelled ? census.anchor.setScale(3, RoundingMode.HALF_UP) : '',
             ].join('\t'))
         }
     }
@@ -286,10 +292,12 @@ class ModelFiguresPrinter {
      * any of that — what the curve says a position is worth — so the gap between it and {@code TARGETSHARE}
      * is the gap between what the league pays and what the model thinks it is buying.
      *
-     * Kicker is why it is here. It takes about 0.9% of the auction and holds nearly 6% of the value, which
-     * is a disagreement of a different kind from receiver's or tight end's, and the documentation had all
-     * four of those numbers as prose that nothing recomputed — the very arrangement that put the league's
-     * spending into a spec and out of reach of a citation. See {@link ff.projection.AuctionSpend}.
+     * Kicker is why it is here. It takes a fraction of the auction and holds a multiple of that fraction in
+     * value — a disagreement of a different kind from receiver's or tight end's, which are out by a margin
+     * rather than by a factor. The four numbers that say so are the row this method writes, and the
+     * documentation cites them from it: they were prose that nothing recomputed, which is the very
+     * arrangement that put the league's spending into a spec and out of reach of a citation. See
+     * {@link ff.projection.AuctionSpend}.
      */
     private Map<String, BigDecimal> valueShareByPosition() {
         BigDecimal total = (valuations.collect { it.valueOverReplacement }.sum() ?: 0.0) as BigDecimal

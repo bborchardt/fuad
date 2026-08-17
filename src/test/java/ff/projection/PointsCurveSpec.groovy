@@ -231,6 +231,40 @@ class PointsCurveSpec extends Specification {
         census.lost == curve.pricedDepth('WR') * 2
     }
 
+    /**
+     * The factor that puts a position's level back after the two halves are averaged apart, reported so the
+     * documentation can cite it rather than remember it — which is what two javadoc comments were doing,
+     * having drifted apart from each other and from the model alike.
+     */
+    def "reports the anchor it scaled the position's shape by"() {
+        given: 'seasons where missing games and playing badly go together, which is what the anchor is for'
+        Map<Integer, List<RealisedSeason>> byRank = (1..30).collectEntries { int rank ->
+            BigDecimal rate = (30 - rank * 0.5) as BigDecimal
+            [(rank): (1..9).collect { int season ->
+                // a good year is a full one at the rank's rate; a bad year is short *and* at half the rate.
+                // That covariance is what averaging the halves apart drops, and what the anchor puts back.
+                season % 3 == 0 ? new RealisedSeason(points: rate * 5 / 2, games: 5)
+                        : new RealisedSeason(points: rate * 13, games: 13)
+            }]
+        }
+        PointsCurve curve = PointsCurve.of([WR: byRank])
+
+        expect: 'above one, the covariance having been dropped by averaging the halves apart'
+        curve.census('WR').anchor > 1.0
+
+        and: 'and it is exactly what reconciles the raw halves with the level the board reports'
+        (curve.pointsPerGame('WR', 15) * curve.expectedGames('WR', 15) * curve.census('WR').anchor
+                - curve.seasonPoints('WR', 15)).abs() < 0.001
+    }
+
+    def "a position whose seasons never vary needs no anchor at all"() {
+        given: 'rank k scores 300 - 5k over a full season every year, so there is no covariance to drop'
+        PointsCurve curve = PointsCurve.of([WR: TestSeasons.byRank(steady())])
+
+        expect: 'one, and the level is the raw product untouched'
+        (curve.census('WR').anchor - 1.0).abs() < 0.001
+    }
+
     def "calls a curve that never goes backwards perfectly monotone"() {
         given: 'rank k scores exactly 300 - 5k every year, so nothing ever dips'
         PointsCurve curve = PointsCurve.of([WR: TestSeasons.byRank(steady())])

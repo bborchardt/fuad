@@ -26,11 +26,11 @@ import ff.data.PlayerValuation
  *
  * <b>What a position finally holds is a little off that target, and predictably so.</b> Every roster spot
  * still to be filled is reserved a dollar before anything is priced, and that reservation is handed out by
- * headcount rather than by worth — some 5% of the pot, spread evenly over players whose value is anything
- * but even. A position carrying many cheap players therefore lands above its target and one carrying fewer
- * dearer players below it. Kicker is the clearest case, holding a sixth of the board's players for under a
- * hundredth of its money. The figures are in docs/figures/&lt;year&gt;/positions.tsv as RESERVE against
- * SHARE and TARGETSHARE.
+ * headcount rather than by worth, spread evenly over players whose value is anything but even. A position
+ * carrying many cheap players therefore lands above its target and one carrying fewer dearer players below
+ * it. Kicker is the clearest case, holding many of the board's players for very little of its money. The
+ * figures are in docs/figures/&lt;year&gt;/positions.tsv as PLAYERS and RESERVE against SHARE and
+ * TARGETSHARE.
  *
  * Franchise tags are settled last and change the answer, so the whole thing is iterated. See
  * docs/PROJECTION.md.
@@ -41,9 +41,11 @@ class AuctionValuation {
      * Share of the pot each position has taken since the league repriced, 2023-2025.
      *
      * 2022 is deliberately excluded. Superflex arrived that year and the league had not adjusted to it yet:
-     * wide receivers took 56.2% of the auction against 30.4% to 37.8% in every season since, and
-     * quarterbacks 13.9% against 16.7% to 29.8%. Averaging it in drags wide receiver up by four points of
-     * the pot and holds quarterback down.
+     * wide receivers took far more of that auction than of any since, and quarterbacks far less. Averaging
+     * it in drags wide receiver up and holds quarterback down. What each position took, season by season, is
+     * in docs/figures/&lt;year&gt;/spend.tsv as SHARE and SHAREXPK — generated from the committed seasons and
+     * checked against docs/PROJECTION.md, so the case for dropping the year is evidence a reader can check
+     * rather than a number repeated here.
      *
      * The repricing is real and not a stock of old contracts running off. Money already committed tells the
      * same story from the other side: quarterback contracts have gone 16% to 30% of committed salary since

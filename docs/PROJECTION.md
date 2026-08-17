@@ -521,8 +521,8 @@ rather than by worth**. `RESERVE` is each position's share of it.
 
 So a position carrying many cheap players finishes above its target and one carrying fewer dearer players
 below it. Add `RESERVE` to `TARGETSHARE` scaled down by the reserved fraction and every position lands
-within a third of a point of `SHARE`. Kicker is the plain case: 18 of the board's 106 players, and under a
-hundredth of its money, so almost the whole of its 1.2 is minimum bids.
+within a third of a point of `SHARE`. Kicker is the plain case, and its row in the table above says it: a
+sixth of the board's players against a `SHARE` almost the whole of which is minimum bids.
 
 Nine tags are predicted, one per team.
 
@@ -626,9 +626,16 @@ Alongside them the board carries what a plan needs in order to reason without go
 - `PTS` — expected points: what this rank has historically been worth, under the rules being priced.
 - `PPG` / `G` — the two halves that season is the product of: what he scores in a game he plays, and how
   many games he plays. They multiply back out to `PTS`, to the one decimal place the board prints them at,
-  and that costs something to arrange — the level is
-  anchored back to the mean season the position actually had, about five per cent above the product of the
-  two separate means, so `PPG` is the rate that level implies rather than the raw mean behind it.
+  and that costs something to arrange — the level is anchored back to the mean season the position actually
+  had, which sits above the product of the two separate means, so `PPG` is the rate that level implies
+  rather than the raw mean behind it. The factor is `ANCHOR`, and it differs by position:
+
+  <!-- figures: positions -->
+
+  | POS | ANCHOR |
+  | --- | --- |
+  | WR | 1.032 |
+  | QB | 1.063 |
 
   They are carried because the two halves are differently caused and the total hides which one a player is
   made of. Availability is the one that moves with rank, and only at quarterback: past about rank 26 a

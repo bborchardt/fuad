@@ -151,12 +151,23 @@ class PointsCurve {
         final BigDecimal backward
         /** The same measure for levelling the season totals directly, which is what the split replaced. */
         final BigDecimal backwardOfTotals
+        /**
+         * What {@link #anchorTo} had to scale this position's shape by to put its level back.
+         *
+         * Above one at every position, because averaging the rate and the availability apart drops the
+         * covariance between them and the product of the means lands under the mean of the products. Carried
+         * because it differs <b>by position</b>, which is the whole reason it is applied: a single factor
+         * inside a position would cancel out of every comparison taken there, and this one does not cancel
+         * out of the sum across positions that divides the pot.
+         */
+        final BigDecimal anchor
 
-        Census(int seasons, int lost, BigDecimal backward, BigDecimal backwardOfTotals) {
+        Census(int seasons, int lost, BigDecimal backward, BigDecimal backwardOfTotals, BigDecimal anchor) {
             this.seasons = seasons
             this.lost = lost
             this.backward = backward
             this.backwardOfTotals = backwardOfTotals
+            this.anchor = anchor
         }
     }
 
@@ -192,7 +203,7 @@ class PointsCurve {
 
     /** What this position's curve was built from, and how monotone it came out. */
     Census census(String position) {
-        censusByPosition[position] ?: new Census(0, 0, 0.0, 0.0)
+        censusByPosition[position] ?: new Census(0, 0, 0.0, 0.0, 1.0)
     }
 
     /**
@@ -247,7 +258,7 @@ class PointsCurve {
                 depths[position] = settled.keySet().max() as int
                 multipliers[position] = spread(position, byRank, settled)
                 outcomes[position] = outcomesOf(position, byRank, rate, settled)
-                census[position] = censusOf(position, byRank, settled)
+                census[position] = censusOf(position, byRank, settled, anchor)
             }
         }
         new PointsCurve(rates, games, levels, errors, tiers, multipliers, outcomes, depths, census)
@@ -274,11 +285,10 @@ class PointsCurve {
      * of them to divide the pot, so a factor that differs by position does not cancel.
      *
      * {@link #weeklyRate} therefore takes {@link #levelledRate}. Kept public because the two are worth
-     * telling apart, and because the difference between them is the anchor itself.
-     *
-     * The anchor runs from about 1.03 at receiver to about 1.06 at quarterback, so an unanchored rate tilted
-     * {@code VALUE} by a couple of per cent between positions — invisible while {@code VALUE} was a secondary
-     * column, and load bearing once the kicker market turned on it.
+     * telling apart, and because the difference between them is the anchor itself, which is in
+     * docs/figures/&lt;year&gt;/positions.tsv as ANCHOR. An unanchored rate tilted {@code VALUE} between
+     * positions by the spread of that column — invisible while {@code VALUE} was a secondary one, and load
+     * bearing once the kicker market turned on it.
      */
     BigDecimal pointsPerGame(String position, int rank) {
         rateByPosition[position]?.get(rank) ?: 0.0
@@ -404,13 +414,14 @@ class PointsCurve {
      *
      * A season total is a rate times an availability, and averaging the two apart drops the covariance
      * between them: within a rank the years a player misses games are also years he plays less well, so the
-     * product of the means comes in three to six per cent under the mean of the products at every position.
+     * product of the means comes in under the mean of the products at every position.
      *
      * That is deliberate for the <b>shape</b> — the rank-to-rank wobble it removes is the noise this whole
-     * split exists to take out — but it is wrong for the <b>level</b>, and unevenly so: the shortfall is
-     * about 3% at receiver against about 6% at quarterback. {@link StarterRequirements} compares positions
-     * against each other to allocate the flex, so a differential of that size is enough to move a starting
-     * slot between them.
+     * split exists to take out — but it is wrong for the <b>level</b>, and unevenly so. How unevenly is in
+     * docs/figures/&lt;year&gt;/positions.tsv as ANCHOR, rather than quoted here where nothing would notice
+     * it going stale, which is what happened to the two figures that used to stand in this paragraph.
+     * {@link StarterRequirements} compares positions against each other to allocate the flex, so a
+     * differential of that size is enough to move a starting slot between them.
      *
      * So the smoothed shape is scaled back to the mean season the position actually had. Prices normalise
      * to the pot and would not notice a uniform factor; the flex allocation would.
@@ -504,14 +515,14 @@ class PointsCurve {
      * neither a season that carries money nor a step worth calling backwards.
      */
     private static Census censusOf(String position, Map<Integer, List<RealisedSeason>> byRank,
-                                   Map<Integer, BigDecimal> level) {
+                                   Map<Integer, BigDecimal> level, BigDecimal anchor) {
         int deepest = pricedDepthOf(position, level)
         List<RealisedSeason> counted = byRank.findAll { int rank, List<RealisedSeason> seasons ->
             rank <= deepest
         }.collectMany { int rank, List<RealisedSeason> seasons -> seasons }
         int window = Math.min(MONOTONICITY_WINDOW, deepest)
         new Census(counted.size(), counted.count { it.games == 0 } as int,
-                backwardShare(level, window), backwardShare(totalsLevel(byRank, deepest), window))
+                backwardShare(level, window), backwardShare(totalsLevel(byRank, deepest), window), anchor)
     }
 
     /**
