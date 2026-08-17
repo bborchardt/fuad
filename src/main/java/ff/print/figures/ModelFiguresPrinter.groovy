@@ -106,9 +106,11 @@ class ModelFiguresPrinter {
      * league's pricing of the position parts company with what the curve says it is worth.
      */
     void printPositions(PrintWriter out) {
-        out.println(['POS', 'DEPTH', 'PRICEDDEPTH', 'STARTED', 'REPLRANK', 'GAMMA', 'SHARE', 'TARGETSHARE',
-                     'P10', 'P90', 'SEASONS', 'LOST', 'BACKWARD', 'BACKWARDTOTALS'].join('\t'))
+        out.println(['POS', 'DEPTH', 'PRICEDDEPTH', 'STARTED', 'REPLRANK', 'GAMMA', 'PLAYERS', 'RESERVE',
+                     'SHARE', 'TARGETSHARE', 'P10', 'P90', 'SEASONS', 'LOST', 'BACKWARD',
+                     'BACKWARDTOTALS'].join('\t'))
         Map<String, BigDecimal> share = pricedShareByPosition()
+        Map<String, BigDecimal> reserve = reservedShareByPosition()
         POSITIONS.each { String position ->
             boolean levelled = curve.pricedDepth(position) > 0
             PointsCurve.Census census = curve.census(position)
@@ -120,6 +122,8 @@ class ModelFiguresPrinter {
                     // Replacement is the best player who would not be started, so one past the last starter.
                     starters[position] ? (starters[position] as int) + 1 : '',
                     AuctionValuation.PRICE_STEEPNESS[position] ?: '',
+                    valuations.count { it.position == position },
+                    percent(reserve[position]),
                     percent(share[position]),
                     percent(AuctionValuation.MARKET_SHARE[position]),
                     levelled ? curve.outcomePercentile(position, AuctionValuation.LOW_OUTCOME)
@@ -249,6 +253,24 @@ class ModelFiguresPrinter {
                     out.println([season, position, rates[position]].join('\t'))
                 }
             }
+        }
+    }
+
+    /**
+     * What share of the board's money a position gets from the minimum bid alone.
+     *
+     * <b>This is why {@code SHARE} and {@code TARGETSHARE} do not agree, and the difference is not an
+     * error.</b> {@link AuctionValuation#calibrate} hits the target exactly and {@code steepen} preserves
+     * it exactly; then every roster spot still to be filled is reserved a dollar, and <i>that</i> is handed
+     * out by headcount rather than by worth. A position holding many cheap players collects more of it than
+     * its share of the money would suggest, and one holding fewer dearer players collects less.
+     *
+     * Kicker shows it most plainly: a sixth of the board's players for under a hundredth of its money.
+     */
+    private Map<String, BigDecimal> reservedShareByPosition() {
+        BigDecimal total = (valuations.collect { it.marketSalary }.sum() ?: 0) as BigDecimal
+        POSITIONS.collectEntries { String position ->
+            [(position): total > 0 ? (valuations.count { it.position == position } as BigDecimal) / total : 0.0]
         }
     }
 

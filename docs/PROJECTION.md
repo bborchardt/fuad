@@ -503,13 +503,24 @@ board came out at and `TARGETSHARE` what the calibration aimed for:
 
 <!-- figures: positions -->
 
-| POS | SHARE | TARGETSHARE |
-| --- | --- | --- |
-| QB | 23.1 | 23.1 |
-| RB | 32.4 | 32.7 |
-| WR | 33.6 | 34.1 |
-| TE | 9.6 | 9.2 |
-| PK | 1.2 | 0.9 |
+| POS | PLAYERS | RESERVE | SHARE | TARGETSHARE |
+| --- | --- | --- | --- | --- |
+| QB | 19 | 1.0 | 23.1 | 23.1 |
+| RB | 23 | 1.2 | 32.4 | 32.7 |
+| WR | 25 | 1.3 | 33.6 | 34.1 |
+| TE | 21 | 1.1 | 9.6 | 9.2 |
+| PK | 18 | 0.9 | 1.2 | 0.9 |
+
+**Those two columns do not match, and the reason is not a failure of the calibration.** It hits the target
+exactly — the shares of value it hands on are `TARGETSHARE` to the decimal, and bending each position's
+curve to its own steepness leaves those totals alone. What moves them afterwards is the dollar reserved for
+every roster spot still to be filled, which comes to about 5% of the pot and is **handed out by headcount
+rather than by worth**. `RESERVE` is each position's share of it.
+
+So a position carrying many cheap players finishes above its target and one carrying fewer dearer players
+below it. Add `RESERVE` to `TARGETSHARE` scaled down by the reserved fraction and every position lands
+within a third of a point of `SHARE`. Kicker is the plain case: 18 of the board's 106 players, and under a
+hundredth of its money, so almost the whole of its 1.2 is minimum bids.
 
 Nine tags are predicted, one per team.
 

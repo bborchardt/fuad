@@ -14,8 +14,10 @@ package ff.projection
  *
  * The quarterback figure is decisive: superflex doubles the position's starters and sets a very high
  * replacement. The last few flex spots are not. They turn on whether a league's 12th tight end outscores
- * its 33rd receiver, and the curve has those two within three points of each other against a standard error
- * near ten, so which position they land on is inside the noise. See docs/PROJECTION.md.
+ * its 33rd receiver, and the curve separates those two by about the standard error each of them carries, so
+ * which position they land on is inside the noise. The figures are in docs/figures/&lt;year&gt;/curve.tsv
+ * rather than repeated here, where nothing would notice them going stale — as the ones that used to stand
+ * in this paragraph did. See docs/PROJECTION.md.
  */
 class StarterRequirements {
 

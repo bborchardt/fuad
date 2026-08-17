@@ -20,8 +20,17 @@ import ff.data.PlayerValuation
  *
  * <b>Then it is pulled towards how this league actually bids.</b> Pure value over replacement puts far more
  * of the pot on running backs than this league spends, and far less on wide receivers.
- * {@link #MARKET_WEIGHT} decides how far to trust the theory against the record; it is 1.0, so the
- * positional shares in {@link #MARKET_SHARE} are forced exactly.
+ * {@link #MARKET_WEIGHT} decides how far to trust the theory against the record; it is 1.0, so
+ * {@link #calibrate} forces the positional shares in {@link #MARKET_SHARE} exactly, and {@link #steepen}
+ * bends each position's curve without disturbing its total.
+ *
+ * <b>What a position finally holds is a little off that target, and predictably so.</b> Every roster spot
+ * still to be filled is reserved a dollar before anything is priced, and that reservation is handed out by
+ * headcount rather than by worth — some 5% of the pot, spread evenly over players whose value is anything
+ * but even. A position carrying many cheap players therefore lands above its target and one carrying fewer
+ * dearer players below it. Kicker is the clearest case, holding a sixth of the board's players for under a
+ * hundredth of its money. The figures are in docs/figures/&lt;year&gt;/positions.tsv as RESERVE against
+ * SHARE and TARGETSHARE.
  *
  * Franchise tags are settled last and change the answer, so the whole thing is iterated. See
  * docs/PROJECTION.md.

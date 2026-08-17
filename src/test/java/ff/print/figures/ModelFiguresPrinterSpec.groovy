@@ -97,6 +97,29 @@ class ModelFiguresPrinterSpec extends Specification {
         kicker.STARTED == '10'
     }
 
+    /**
+     * The account the documentation now gives of why SHARE and TARGETSHARE differ, asserted rather than
+     * described.
+     *
+     * It used to claim they were equal, because {@code MARKET_WEIGHT} is 1.0 and the calibration does force
+     * the shares of value exactly. What moves them afterwards is the dollar reserved for every roster spot,
+     * handed out by headcount rather than by worth. If that ever stops explaining the gap, this fails.
+     */
+    def "the reserved minimum bids are what separate the board's shares from the calibration's"() {
+        given: 'a board of three, one of them a position holding a single cheap player'
+        List<PlayerValuation> valuations = [valued('WR', 1, 90, 90, null), valued('WR', 2, 9, 9, null),
+                                            valued('PK', 1, 1, 1, null)]
+        List<Map<String, String>> rows = rows(printer(valuations).&printPositions)
+
+        expect: 'RESERVE is a headcount as a share of the money, not of the value'
+        rows.find { it.POS == 'WR' }.RESERVE == '2.0'
+        rows.find { it.POS == 'PK' }.RESERVE == '1.0'
+
+        and: 'and the kicker takes a share of the board far above anything the calibration gave him'
+        new BigDecimal(rows.find { it.POS == 'PK' }.SHARE) ==
+                new BigDecimal(rows.find { it.POS == 'PK' }.RESERVE)
+    }
+
     def "takes replacement one past the last player the league starts"() {
         given:
         Map<String, String> receiver = rows(printer().&printPositions).find { it.POS == 'WR' }
