@@ -1,4 +1,4 @@
-# Written by generate_report.sh: which model produced each report. See docs/STRATEGY.md.
-board d11d159-dirty 2026-08-17T03:35:45Z
-curve d11d159-dirty 2026-08-17T03:35:45Z
-positions d11d159-dirty 2026-08-17T03:35:45Z
+# Written by figures_refresh.sh: which model produced each file here. See docs/STRATEGY.md.
+board 2af5378 2026-08-17T03:37:53Z
+curve 2af5378 2026-08-17T03:37:53Z
+positions 2af5378 2026-08-17T03:37:53Z
