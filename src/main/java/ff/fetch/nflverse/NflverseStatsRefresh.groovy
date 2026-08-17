@@ -12,6 +12,11 @@ import ff.fetch.FetchUtils
  * The published file carries 150 columns and runs to eight megabytes a season. Only the scoring inputs are
  * kept, for the regular season weeks the league plays, at the positions it rosters.
  *
+ * <b>Kicking is among them.</b> It was left out on the belief that nflverse does not carry it, which is
+ * true of nothing but this extract: the release publishes made field goals with their distances and extra
+ * points, and the league scores both. Leaving them out meant no kicker could be levelled and every one
+ * priced at the minimum bid.
+ *
  * Source: https://github.com/nflverse/nflverse-data, release `stats_player`, which covers 1999 onwards
  * under one schema. The older `player_stats` release stops at 2024 and names interceptions differently; it
  * is deliberately not what this reads.
@@ -24,7 +29,11 @@ class NflverseStatsRefresh implements Runnable {
     /** The league's regular season. A salary buys these weeks and no others. */
     static final int LAST_REGULAR_SEASON_WEEK = 14
 
-    private static final List<String> POSITIONS = ['QB', 'RB', 'WR', 'TE'].asImmutable()
+    /** nflverse names the position K; the league and every other file here call it PK. */
+    private static final String NFLVERSE_KICKER = 'K'
+    private static final String KICKER = 'PK'
+
+    private static final List<String> POSITIONS = ['QB', 'RB', 'WR', 'TE', NFLVERSE_KICKER].asImmutable()
 
     /** Everything the league's scoring rules read, in the order written. */
     static final List<String> COLUMNS = [
@@ -33,7 +42,10 @@ class NflverseStatsRefresh implements Runnable {
             'rushing_yards', 'rushing_tds',
             'receiving_yards', 'receiving_tds', 'receptions',
             'sack_fumbles_lost', 'rushing_fumbles_lost', 'receiving_fumbles_lost',
-            'passing_2pt_conversions', 'rushing_2pt_conversions', 'receiving_2pt_conversions'].asImmutable()
+            'passing_2pt_conversions', 'rushing_2pt_conversions', 'receiving_2pt_conversions',
+            // Kicking. The distances rather than the buckets, because the league scores by decade from 2026
+            // and a 60-plus bucket cannot tell a 62 yard kick from a 71 yard one.
+            'fg_made_list', 'pat_made'].asImmutable()
 
     private final int year
 
@@ -64,8 +76,14 @@ class NflverseStatsRefresh implements Runnable {
                 return null
             }
             int week = ((values[at['week']] ?: '0') as BigDecimal).intValue()
-            week >= 1 && week <= LAST_REGULAR_SEASON_WEEK ?
-                    COLUMNS.collect { values[at[it]] ?: '' }.join('\t') : null
+            if (week < 1 || week > LAST_REGULAR_SEASON_WEEK) {
+                return null
+            }
+            COLUMNS.collect {
+                String value = values[at[it]] ?: ''
+                // Written in the league's vocabulary, so one position means one thing across every file here.
+                'position' == it && NFLVERSE_KICKER == value ? KICKER : value
+            }.join('\t')
         }
 
         String resourcePath = "$FetchUtils.baseResourceFilePath/ff/nflverse/data/$year"

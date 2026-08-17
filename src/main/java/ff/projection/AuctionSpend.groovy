@@ -31,9 +31,11 @@ class AuctionSpend {
     /**
      * The same without kickers, which is the basis the positional comparison is read on.
      *
-     * A kicker takes well under 1% of any auction and has no curve behind him, so leaving him in the
-     * denominator moves every other position by a few tenths for no reason anybody is interested in. The
-     * two bases differ, and carrying both is what stops a table on one being read as a figure on the other.
+     * A kicker takes well under 1% of any auction, so leaving him in the denominator moves every other
+     * position by a few tenths — small enough to be mistaken for rounding and large enough to matter to a
+     * constant compared against them. Carrying both is what stops a table on one basis being read as a
+     * figure on the other. {@link AuctionValuation#MARKET_SHARE} is on the whole-pot basis, kickers being
+     * levelled and priced like everyone else; the documentation tabulates the four-position one.
      */
     static final List<String> EXCLUDING_KICKERS = ['QB', 'RB', 'WR', 'TE'].asImmutable() as List<String>
 

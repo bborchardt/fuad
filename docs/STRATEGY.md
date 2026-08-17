@@ -163,14 +163,19 @@ least confident about at exactly the top of the board where the money is.
 
 ### The kicker, and why `NEEDS` exists
 
-A kicker scores nothing in this model. The nflverse statistics carry no kicking, so no kicker can be
-levelled, every one of them prices at the minimum bid, and none adds anything to any lineup. A team holding
-no kicker would therefore never see the position surface on any report — while still being unable to field
-a legal lineup.
+A kicker used to score nothing in this model. The statistics this project kept carried no kicking, so no
+kicker could be levelled, every one priced at the minimum bid, and none added anything to any lineup. A team
+holding no kicker would never have seen the position surface on any report — while still being unable to
+field a legal lineup.
 
 That is the one place the board would have forced a plan to bring knowledge from outside it, and the old
 plan did exactly that, in a hand-written aside: *"Kicker is a checklist item, not a strategy. Just do not
 forget to draft one."*
+
+**Kickers are levelled now**, and the aside turns out to have been wrong on the substance as well as out of
+bounds. See [PROJECTION.md](PROJECTION.md#kickers) — the position is the one place on the board where what
+the model thinks a player is worth and what this league pays for him differ by a factor rather than by a
+margin. `NEEDS` stays all the same: a team short at a position should be told so by the report.
 
 `NEEDS` on `teams` closes it. It reports each position where a team holds fewer players than the lineup
 requires, as `PK:1`. Saying a roster is short at a position needs no curve for that position — which is the

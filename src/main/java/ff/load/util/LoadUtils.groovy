@@ -51,7 +51,8 @@ class LoadUtils {
     private static final Map<String, String> NAME_ALIASES = [
             'Hollywood Brown': 'Marquise Brown',
             'Dee Eskridge'   : "D'Wayne Eskridge",
-            'Robbie Chosen'  : 'Robby Anderson'
+            'Robbie Chosen'  : 'Robby Anderson',
+            'Mike Badgley'   : 'Michael Badgley'
     ]
 
     static String aliasedName(String name) { NAME_ALIASES[name] ?: name }

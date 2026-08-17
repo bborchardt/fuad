@@ -55,7 +55,7 @@ class FuadTeamContextPrinter {
      * Positions a team cannot field a legal lineup at, as `POS:short`.
      *
      * Reported rather than priced, for the same reason the rest of this report is. A kicker is the case
-     * that forces it: the statistics carry no kicking, so no kicker can be levelled and every one of them
+     * that forced it: the statistics this project kept carried no kicking, so no kicker could be levelled and every one of them
      * prices at the minimum bid and adds nothing to any lineup. A team with none would therefore never see
      * the position surface anywhere, and would have to carry "remember to buy a kicker" as knowledge from
      * outside the model — which is exactly what a plan reasoning from the board is not supposed to need.

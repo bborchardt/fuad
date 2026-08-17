@@ -39,10 +39,11 @@ class FuadValuationLoader {
     /**
      * Positions the statistics carry, which are the ones a curve can be built for.
      *
-     * Kicking is not in the nflverse data and is not worth adding: kickers have taken under one per cent of
-     * the auction in every season on record, so they price out at the minimum bid either way.
+     * Kicking is among them now. It was left out on the belief that nflverse does not carry it, and the
+     * consequence was that no kicker could be levelled, every one priced at the minimum bid, and none added
+     * anything to any lineup. See docs/PROJECTION.md.
      */
-    private static final List<String> SCORED_POSITIONS = ['QB', 'RB', 'WR', 'TE'].asImmutable()
+    private static final List<String> SCORED_POSITIONS = ['QB', 'RB', 'WR', 'TE', 'PK'].asImmutable()
 
     /**
      * Prefix lengths tried in turn when a ranked name has no exact match in the statistics.
@@ -58,19 +59,26 @@ class FuadValuationLoader {
     /** A full roster, from the league bylaws. See docs/LEAGUE_RULES.md. */
     private static final int MAX_ROSTER = 30
 
+
     /**
-     * Kickers are cut off by hand, having no curve to derive a depth from.
+     * How deep the auction pool runs at kicker, which the relevance floor cannot decide.
      *
-     * Every other position is bounded by {@link PointsCurve#pricedDepth}, the point below which the curve
-     * says a rank is no longer really a claim. Kicking is not in the statistics at all, so there is no level
-     * to compare against a floor and this stands in for one, set to cover every kicker the league has ever
-     * signed at auction: the deepest is PK25, and 25 also holds 95% of all the kickers on a week 1 roster.
+     * Every other position is bounded by {@link PointsCurve#pricedDepth}, the rank below which the curve
+     * has stopped making a claim — a level under a quarter of the position's best. That test never fires at
+     * kicker, because the curve there is nearly flat: the 42nd ranked kicker still levels around 60 points,
+     * three fifths of the best one, so the floor would carry the entire ranked pool onto the board.
      *
-     * Deeper than it looks like it needs to be, for two reasons. Half the league carries a second kicker for
-     * bye coverage in a typical year — 20% to 56% of teams, season by season — so about fifteen are rostered
-     * rather than ten. And consensus rank means very little at the position, so teams do not take them in
-     * rank order: the median kicker signed ranks 6th, but the 90th percentile is 16th. A depth of 12 covered
-     * only 81% of the kickers actually signed.
+     * <b>Flat is not the same as valuable.</b> Only ten kickers start, so everything past about the eleventh
+     * is below replacement and worth nothing to anybody — the curve says a deep kicker scores points, and
+     * the lineup says nobody has a slot to score them in. Left uncapped the board carried 29 kickers, 27 of
+     * them at the minimum bid, and the dollar reserved for each one came to more than the whole position's
+     * calibrated budget.
+     *
+     * So the depth is what the league actually rosters, which is the same figure it always was: the deepest
+     * kicker ever signed at auction ranks 25th, and 25 covers 95% of the kickers on a week 1 roster. Half
+     * the league carries a second kicker for bye cover, so about fifteen are rostered rather than ten, and
+     * rank predicts little enough at the position that teams do not sign them in order — the median kicker
+     * signed ranks 6th, the 90th percentile 16th.
      */
     private static final int KICKER_DEPTH = 25
 

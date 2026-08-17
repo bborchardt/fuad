@@ -40,9 +40,15 @@ class AuctionValuation {
      * same story from the other side: quarterback contracts have gone 16% to 30% of committed salary since
      * 2022 and running back 43% to 20%, while wide receiver has stayed flat around 36-42%. Nothing is
      * expiring away, the league is simply paying for different positions.
+     *
+     * <b>Shares of the whole auction, kickers included.</b> They used to be shares of what the four scoring
+     * positions took, with a kicker entry on the other basis that summed the map to 1.009 — which cost
+     * nothing while it lasted, because a kicker had no curve, no value over replacement, and so never
+     * entered the pool {@link #calibrate} normalises over. His entry was never read. Now that kickers are
+     * levelled they are in that pool, the basis has to be one basis, and the map sums to one.
      */
     static final Map<String, BigDecimal> MARKET_SHARE =
-            [QB: 0.233, RB: 0.330, WR: 0.344, TE: 0.093, PK: 0.009].asImmutable() as Map<String, BigDecimal>
+            [QB: 0.231, RB: 0.327, WR: 0.341, TE: 0.092, PK: 0.009].asImmutable() as Map<String, BigDecimal>
 
     /** 0 leaves value over replacement alone, 1 forces the historical shares exactly. */
     static final BigDecimal MARKET_WEIGHT = 1.0

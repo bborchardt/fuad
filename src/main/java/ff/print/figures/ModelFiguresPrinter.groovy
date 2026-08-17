@@ -44,7 +44,7 @@ import java.math.RoundingMode
  */
 class ModelFiguresPrinter {
 
-    /** Positions in the order the documentation reads them, kickers last as the one with no curve. */
+    /** Positions in the order the documentation reads them. */
     private static final List<String> POSITIONS = ['QB', 'RB', 'WR', 'TE', 'PK'].asImmutable()
 
     private static final int TOP_CONCENTRATION = 40
@@ -100,9 +100,10 @@ class ModelFiguresPrinter {
     /**
      * The scalars a position carries, including what its curve was built from and how it came out.
      *
-     * Kickers are here with almost every column empty, which is the point: the statistics carry no kicking,
-     * so the position has no curve, no depth and no level, and the report that says so should be the same
-     * one that says everything else. {@code STARTED} it does have, since a lineup requires one.
+     * Kickers carry a full row now. They used to sit here with almost every column empty, because the
+     * statistics this project kept carried no kicking and so no rank at the position could be levelled.
+     * They can, and the row is worth reading: {@code SHARE} against {@code TARGETSHARE} is where the
+     * league's pricing of the position parts company with what the curve says it is worth.
      */
     void printPositions(PrintWriter out) {
         out.println(['POS', 'DEPTH', 'PRICEDDEPTH', 'STARTED', 'REPLRANK', 'GAMMA', 'SHARE', 'TARGETSHARE',

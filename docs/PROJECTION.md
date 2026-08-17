@@ -314,9 +314,9 @@ As priced, which is generated:
 
 | FIGURE | VALUE | Actual 2025 |
 | --- | --- | --- |
-| Players above $1 | 72 | 70 |
-| Top cost | 80 | $100 |
-| Top 40 cost | 88.0 | 87% |
+| Players above $1 | 77 | 70 |
+| Top cost | 83 | $100 |
+| Top 40 cost | 87.6 | 87% |
 
 <!-- model: 59b4f91 -->
 
@@ -434,15 +434,17 @@ fitted over, and it is `TARGETSHARE`:
 
 | POS | TARGETSHARE |
 | --- | --- |
-| QB | 23.3 |
-| RB | 33.0 |
-| WR | 34.4 |
-| TE | 9.3 |
+| QB | 23.1 |
+| RB | 32.7 |
+| WR | 34.1 |
+| TE | 9.2 |
+| PK | 0.9 |
 
-**Those are shares of what the four priced positions took, not of the whole auction.** Kickers take 0.5% to
-1.6% a season, and leaving them in the denominator moves every other position by a few tenths — enough to
-be mistaken for rounding and enough to matter to a constant compared against them. `spend.tsv` carries
-both: `SHAREXPK` is the basis above, `SHARE` is the share of every dollar.
+**The table above is on the four-position basis; `TARGETSHARE` is on the whole-auction one.** Kickers take
+0.5% to 1.6% a season, and leaving them in or out of the denominator moves every other position by a few
+tenths — enough to be mistaken for rounding and enough to matter to a constant compared against them.
+`spend.tsv` carries both: `SHAREXPK` is the table's basis, `SHARE` is the share of every dollar, and it is
+`SHARE` the model calibrates to now that kickers are priced along with everyone else.
 
 The repricing is real, and it is not a stock of old contracts running off. Money already committed says the
 same thing from the other side: quarterback contracts have gone from 16% to 30% of committed salary since
@@ -490,10 +492,10 @@ The highest `PRICE` is Ja'Marr Chase, which no one pays because he is tagged wel
 | FIGURE | VALUE | Actual 2025 |
 | --- | --- | --- |
 | Players | 106 | |
-| Total cost | 1872 | |
-| Top price | 90 | $100 |
-| Players above $1 | 72 | 70 |
-| Top 40 price | 88.7 | 87% |
+| Total cost | 1862 | |
+| Top price | 89 | $100 |
+| Players above $1 | 77 | 70 |
+| Top 40 price | 88.3 | 87% |
 | Teams tagging | 9 | 7 |
 
 Position shares are the ones the league actually spends, since `MARKET_WEIGHT` is 1.0. `SHARE` is what the
@@ -503,10 +505,11 @@ board came out at and `TARGETSHARE` what the calibration aimed for:
 
 | POS | SHARE | TARGETSHARE |
 | --- | --- | --- |
-| QB | 23.1 | 23.3 |
-| RB | 32.6 | 33.0 |
-| WR | 33.8 | 34.4 |
-| TE | 9.6 | 9.3 |
+| QB | 23.1 | 23.1 |
+| RB | 32.4 | 32.7 |
+| WR | 33.6 | 34.1 |
+| TE | 9.6 | 9.2 |
+| PK | 1.2 | 0.9 |
 
 Nine tags are predicted, one per team.
 
@@ -581,11 +584,10 @@ reader who knows the league is not.
   2022 as a transition year buys accuracy at the cost of a thinner sample.
 - **The market price of a tagged player is never tested.** It is a counterfactual for a player who will not
   reach the auction, and no observed price can confirm or refute it — see below.
-- **Kickers have no curve at all.** The nflverse statistics carry no kicking, so no rank at the position can
-  be levelled and every kicker prices at the minimum bid. The league has spent under 1% of its auction on
-  them in every season on record, so this costs nothing in money. It costs something in visibility: a team
-  with no kicker cannot field a legal lineup and would see the position on no report, which is what the
-  `NEEDS` column on `-t teams` exists to say without pricing it.
+- **Kicker value rests on a replacement nobody has to accept.** See [Kickers](#kickers). The position is
+  priced like any other now, and it is the one place where value and price disagree by a factor rather than
+  a margin — which is either an inefficiency or a limit of what value over replacement can say about a
+  position whose starters can be replaced from the waiver wire in a week.
 - **The curve is only as good as the ranking it is indexed by.** A season is attributed to whatever rank the
   consensus gave that player, so a year the consensus was collectively wrong about is levelled into the
   rank, not identified as an error. That is the right total for pricing and no help at all in spotting one.
@@ -753,7 +755,13 @@ last rank levelling above a quarter of the position's best:
 | WR | 100 |
 | TE | 45 |
 
-Kickers are cut off by hand at 25 instead, having no curve to derive a depth from.
+Kickers are cut off by hand at 25 instead, which is the one position that rule cannot bound. The test is a
+level under a quarter of the position's best, and it never fires at kicker because the curve there is nearly
+flat — the 42nd ranked kicker still levels around three fifths of the first, so the whole ranked pool would
+come onto the board. Flat is not the same as valuable: only ten kickers start, so everything past about the
+eleventh is below replacement and worth nothing to anybody. Left uncapped the board carried 29 kickers, 27
+of them at the minimum bid, and the dollar reserved for each came to more than the position's whole budget.
+25 is the deepest kicker ever signed at auction, and covers 95% of those on a week 1 roster.
 
 One depth for both, because an expiring contract does not have to be re-signed: if nobody bids, the player
 goes back into the pool like anybody else. A rank too deep to be worth bidding on is too deep whoever holds
@@ -778,6 +786,54 @@ That leaves the spots the auction has to fill, as `teams x 30 - under contract -
 what the league actually signs closely: 65 against 71 in 2022, 90 against 93 in 2023, 103 against 96 in
 2024, and 92 against 92 in 2025. A dollar is reserved per **spot**, not per player on the board, since the
 pool holds everyone who could be bid on and only the spots get filled.
+
+## Kickers
+
+Kickers were not levelled at all until recently, on the stated grounds that *"the nflverse statistics carry
+no kicking"*. That was true of the extract this project kept and of nothing else: the release publishes
+every made field goal with its distance, and the league scores field goals by distance. Seventeen of 150
+columns were being kept and kickers were filtered out at the fetch. Nothing about the data prevented it.
+
+The consequence was not neutral. No kicker could be levelled, so every one priced at the minimum bid, none
+contributed anything to any lineup, and the `MARKET_SHARE` entry for the position was never read by
+anything — a dead constant that looked live, and which cost an afternoon of misdiagnosis.
+
+**Levelled, the position turns out to be the one place the board and the league disagree by a factor.**
+
+<!-- figures: positions -->
+
+| POS | SHARE | TARGETSHARE | PRICEDDEPTH | SEASONS | LOST |
+| --- | --- | --- | --- | --- | --- |
+| PK | 1.2 | 0.9 | 42 | 339 | 43 |
+
+Rank predicts kicker scoring better than the position's reputation suggests. Over 2017-2025 the preseason
+PK1 finished inside the top ten kickers in **every one of the nine seasons**, and the curve separates the
+top of the position from replacement by more than five standard errors:
+
+<!-- figures: curve across=POS field=PTS -->
+
+| Rank | PK |
+| --- | --- |
+| 1 | 116.8 |
+| 3 | 111.4 |
+| 5 | 106.6 |
+| 11 | 95.1 |
+| 20 | 80.9 |
+
+Most of that is **rate** rather than availability — 9.96 points a game at PK1 against 8.41 at replacement —
+so it is a claim about how well a rank kicks, not about who keeps his job.
+
+Set against what the league pays, kickers take about 0.9% of the auction while the curve puts their share of
+value over replacement near 6%. Every other position is bought within a fifth of its value; kicker is out by
+roughly six times, and the top kickers carry the largest `EDGE` on the whole board.
+
+**This is reported and not acted on, and the caution is specific.** Value over replacement assumes the
+alternative is the best player *not started*, which for kickers is a rank on a preseason list. In practice
+a team whose kicker fails replaces him from the waiver wire the following week, at no cost — there are
+around 42 kickers with a stat line in a season and the league rosters 13 to 15, so the free pool is deep and
+the downside is insurable in a way it is not at any other position. Some of the gap is that, and how much
+cannot be measured from auction data. The board therefore prices kickers where the league prices them and
+reports the disagreement as `EDGE`, which is what that column is for.
 
 ## Restricted free agency, and why bargains are unavailable
 
