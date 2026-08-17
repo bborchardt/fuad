@@ -103,37 +103,47 @@ class ModelFiguresPrinterSpec extends Specification {
         (receiver.REPLRANK as int) == (receiver.STARTED as int) + 1
     }
 
+    /** board.tsv is one figure per row, so it reads as a lookup rather than as a single wide record. */
+    private static Map<String, String> board(List<PlayerValuation> valuations = []) {
+        rows(printer(valuations).&printBoard).collectEntries { [(it.FIGURE): it.VALUE] }
+    }
+
     def "totals the board both ways, since the tag holds the best players below what they would fetch"() {
         given: 'a tagged player who would have gone for 90 and costs his team 61'
-        List<PlayerValuation> board = [valued('WR', 1, 90, 61, '0001', true),
-                                       valued('WR', 2, 40, 40, '0002'),
-                                       valued('WR', 3, 1, 1, null)]
+        List<PlayerValuation> valuations = [valued('WR', 1, 90, 61, '0001', true),
+                                            valued('WR', 2, 40, 40, '0002'),
+                                            valued('WR', 3, 1, 1, null)]
 
         when:
-        Map<String, String> row = rows(printer(board).&printBoard).first()
+        Map<String, String> figures = board(valuations)
 
         then:
-        row.PLAYERS == '3'
-        row.TOTALPRICE == '131'
-        row.TOTALCOST == '102'
-        row.TOPPRICE == '90'
-        row.TOPCOST == '61'
+        figures.PLAYERS == '3'
+        figures.TOTALPRICE == '131'
+        figures.TOTALCOST == '102'
+        figures.TOPPRICE == '90'
+        figures.TOPCOST == '61'
 
         and: 'players above the minimum bid counted on what is actually paid'
-        row.ABOVEMIN == '2'
+        figures.PLAYERSABOVE1 == '2'
 
         and: 'and the tags counted by player and by team, which differ when one team holds two'
-        row.TAGS == '1'
-        row.TAGTEAMS == '1'
+        figures.TAGS == '1'
+        figures.TEAMSTAGGING == '1'
     }
 
     def "reports the pot the board was divided out of"() {
         given:
-        Map<String, String> row = rows(printer().&printBoard).first()
+        Map<String, String> figures = board()
 
         expect: 'free cap, and the share of it the league actually spends'
-        row.FREECAP == '2438'
-        row.EXPECTEDSPEND == (2438 * AuctionValuation.SPEND_RATE)
+        figures.FREECAP == '2438'
+        figures.EXPECTEDSPEND == (2438 * AuctionValuation.SPEND_RATE)
                 .setScale(0, java.math.RoundingMode.HALF_UP) as String
+    }
+
+    def "names every figure it writes, so a document can cite one by name"() {
+        expect: 'a lookup, not a wide row: each line is a figure and its value'
+        rows(printer().&printBoard).every { it.keySet() == ['FIGURE', 'VALUE'] as Set }
     }
 }

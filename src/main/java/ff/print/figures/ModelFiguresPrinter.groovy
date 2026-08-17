@@ -136,22 +136,23 @@ class ModelFiguresPrinter {
         List<Integer> prices = valuations.collect { it.marketSalary }.sort().reverse()
         List<Integer> costs = valuations.collect { it.salary }.sort().reverse()
         List<PlayerValuation> tagged = valuations.findAll { it.franchiseTagged }
-        out.println(['PLAYERS', 'TOTALPRICE', 'TOTALCOST', 'TOPPRICE', 'TOPCOST', 'ABOVEMIN',
-                     'TOP40PRICE', 'TOP40COST', 'TAGS', 'TAGTEAMS', 'FREECAP', 'EXPECTEDSPEND'].join('\t'))
-        out.println([
-                valuations.size(),
-                prices.sum() ?: 0,
-                costs.sum() ?: 0,
-                prices ? prices.first() : 0,
-                costs ? costs.first() : 0,
-                costs.count { it > 1 },
-                concentration(prices),
-                concentration(costs),
-                tagged.size(),
-                tagged.collect { it.franchiseId }.toSet().size(),
-                freeCap.setScale(0, RoundingMode.HALF_UP),
-                (freeCap * AuctionValuation.SPEND_RATE).setScale(0, RoundingMode.HALF_UP),
-        ].join('\t'))
+        // One figure per row rather than one wide row. The documentation reads these down a column against
+        // what the league actually did, and a name in the first column is what lets a table be checked.
+        out.println(['FIGURE', 'VALUE'].join('\t'))
+        [
+                PLAYERS         : valuations.size(),
+                TOTALPRICE      : prices.sum() ?: 0,
+                TOTALCOST       : costs.sum() ?: 0,
+                TOPPRICE        : prices ? prices.first() : 0,
+                TOPCOST         : costs ? costs.first() : 0,
+                PLAYERSABOVE1   : costs.count { it > 1 },
+                TOP40PRICE      : concentration(prices),
+                TOP40COST       : concentration(costs),
+                TAGS            : tagged.size(),
+                TEAMSTAGGING    : tagged.collect { it.franchiseId }.toSet().size(),
+                FREECAP         : freeCap.setScale(0, RoundingMode.HALF_UP),
+                EXPECTEDSPEND   : (freeCap * AuctionValuation.SPEND_RATE).setScale(0, RoundingMode.HALF_UP),
+        ].each { String figure, Object value -> out.println([figure, value].join('\t')) }
     }
 
     /** What share of the money each position ends up with, which is what the calibration is aiming at. */

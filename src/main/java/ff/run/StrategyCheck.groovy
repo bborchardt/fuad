@@ -278,32 +278,15 @@ class StrategyCheck {
         rows
     }
 
-    private static boolean isTableRow(String line) { line.trim().startsWith('|') }
+    private static boolean isTableRow(String line) { MarkdownTables.isTableRow(line) }
 
-    private static boolean isDivider(List<String> cells) {
-        cells.every { it.trim() ==~ /:?-{2,}:?/ }
-    }
+    private static boolean isDivider(List<String> cells) { MarkdownTables.isDivider(cells) }
 
-    private static List<String> cells(String line) {
-        String trimmed = line.trim()
-        trimmed = trimmed.replaceFirst(/^\|/, '').replaceFirst(/\|$/, '')
-        trimmed.split(/\|/, -1).collect { it.trim() } as List<String>
-    }
+    private static List<String> cells(String line) { MarkdownTables.cells(line) }
 
     /** Strip the markdown a figure may be dressed in, so **$76** and 76 are the same number. */
-    static String clean(String cell) {
-        cell?.replaceAll(/[*`]/, '')?.replaceAll(/[$,]/, '')?.trim()
-    }
+    static String clean(String cell) { MarkdownTables.clean(cell) }
 
     /** Numbers compare as numbers so 0.26 and .26 agree; everything else compares as text. */
-    static boolean matches(String cited, String actual) {
-        if (cited.equalsIgnoreCase(actual)) {
-            return true
-        }
-        try {
-            return new BigDecimal(cited).compareTo(new BigDecimal(actual)) == 0
-        } catch (NumberFormatException ignored) {
-            return false
-        }
-    }
+    static boolean matches(String cited, String actual) { MarkdownTables.matches(cited, actual) }
 }
