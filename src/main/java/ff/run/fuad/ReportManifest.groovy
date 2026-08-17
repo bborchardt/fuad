@@ -82,14 +82,40 @@ class ReportManifest {
         git('status', '--porcelain', '--', 'src', 'pom.xml') ? "$sha-dirty" : sha
     }
 
+    /** True where the model has uncommitted changes, so no sha describes what would run. */
+    static boolean modelIsDirty() {
+        git('status', '--porcelain', '--', 'src', 'pom.xml')
+    }
+
+    /**
+     * Whether anything the model is built from has changed between that commit and the working tree.
+     *
+     * <b>A sha is not compared against HEAD, because that would be the wrong question.</b> A generated file
+     * is stamped with HEAD as it was when it was written, and committing it moves HEAD past that — so the
+     * stamp names the parent commit of the one holding the file, always, and a check for equality would
+     * fail every time. What matters is not which commit wrote the figures but whether the model has moved
+     * since, and a commit touching only documentation or figures has moved nothing.
+     *
+     * @return true where the model moved, false where it did not, null where the sha cannot be resolved
+     *         and so nothing can be said either way
+     */
+    static Boolean modelMovedSince(String sha) {
+        if (!sha) {
+            return null
+        }
+        String changed = git('diff', '--name-only', sha, 'HEAD', '--', 'src', 'pom.xml')
+        changed == null ? null : !changed.isEmpty()
+    }
+
+    /** The trimmed output, or null where git could not answer — which is not the same as an empty answer. */
     private static String git(String... args) {
         try {
             Process process = new ProcessBuilder(['git'] + (args as List<String>)).start()
             String output = process.inputStream.text.trim()
             process.waitFor()
-            process.exitValue() == 0 ? output : ''
+            process.exitValue() == 0 ? output : null
         } catch (Exception ignored) {
-            ''
+            null
         }
     }
 }

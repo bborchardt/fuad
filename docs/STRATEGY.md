@@ -137,10 +137,11 @@ will cost. Comparing them is the reader's job, and the reason to run this at all
 
 Two things not to misread:
 
-**The per-player marginals do not add up.** Each is measured against the roster as it stands, so they are
-all the value of being the *first* signing at that position. Brett's board shows a first quarterback worth
-195 and a second worth 157; signing both is not worth 352. That is what `roster_depth` is for — the same
-board puts the third quarterback at 57 and the fourth at 17.
+**The per-player marginals do not add up.** Each is measured against the roster as it stands, so every one
+of them is the value of being the *first* signing at that position. Brett's `roster_0001` prices Lamar
+Jackson at 195 and Joe Burrow at 182, and signing both is not worth 377: whichever of them arrives second
+is worth 157, because the first already covered the weeks he would have covered. That is what
+`roster_depth` is for — it walks the same position down in turn, 195, 157, 57, 17.
 
 Those four are a snapshot rather than a checked figure: unlike everything on the auction board, roster
 reports are per-team and are not among the generated figures `./check_docs.sh` verifies. Read them for the

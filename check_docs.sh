@@ -5,6 +5,12 @@
 # docs/figures/<year>. A figure that moves therefore fails this check in the commit that moves it,
 # rather than sitting in prose looking exactly like a figure that did not move.
 #
+# The figures are checked first, once, against the model that is checked out: prose agreeing with
+# figures a superseded model wrote is not a pass, and without this it read as one.
+#
+# Each document then reports how many figures it was actually held to. A document with no marker is
+# reported NONE rather than OK, because nothing in it was checked and OK does not say that.
+#
 # Unlike check_strategy.sh there is no boundary rule here: a plan may not name a model internal, and
 # documentation of the model is nothing but model internals.
 #

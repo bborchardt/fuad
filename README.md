@@ -35,5 +35,7 @@ priced in. Plans live in `strategy/`, which is not committed.
 The same rule applies to the documentation itself. Figures about the model are generated into
 `docs/figures/<year>` and committed, and the tables that cite them are checked against them, so a level or
 a depth that moves fails `./check_docs.sh` in the commit that moves it rather than going quietly stale in
-prose. **When the model changes: commit it, run `./figures_refresh.sh`, then `./check_docs.sh`, and work
-through whatever it reports.**
+prose. The figures are themselves checked against the model that is checked out, so prose agreeing with
+figures an older model wrote is a failure rather than a pass, and each document reports how many figures it
+was held to — a document with no marked table reads `NONE`, never `OK`. **When the model changes: commit
+it, run `./figures_refresh.sh`, then `./check_docs.sh`, and work through whatever it reports.**

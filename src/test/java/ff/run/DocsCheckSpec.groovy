@@ -221,4 +221,90 @@ Prose in between, which ends the marked table.
         expect:
         DocsCheck.check(doc, yearDir) == []
     }
+
+    /**
+     * A document nothing was checked in used to be indistinguishable from one whose every figure was right.
+     *
+     * Both produce no failures, and both printed OK, which is the drift this whole check exists to catch
+     * wearing the word that says it was caught. Three of the four documents under docs/ carried no marker at
+     * all and were reported OK on every run.
+     */
+    def "counts what it actually held the document to, so a pass cannot mean nothing was checked"() {
+        given: 'two tables, five cells between them that name a figure, and one heading that names none'
+        File doc = document('''<!-- figures: positions -->
+
+| POS | PRICEDDEPTH | STARTED | note |
+| --- | --- | --- | --- |
+| QB | 36 | 20 | commentary, matching no field |
+| RB | 65 | 26 | nor this |
+
+Prose, which ends the table.
+
+<!-- figures: board -->
+
+| FIGURE | VALUE |
+| --- | --- |
+| Players | 106 |
+''')
+
+        when:
+        DocsCheck.Result result = DocsCheck.inspect(doc, yearDir)
+
+        then: 'the commentary column is not counted, because nothing was compared for it'
+        result.failures == []
+        result.tables == 2
+        result.verified == 5
+    }
+
+    def "reports a document with no marked table as checked against nothing at all"() {
+        given: 'prose and a table, but no marker, which is DATA.md and LEAGUE_RULES.md today'
+        File doc = document('''# Data
+
+| POS | PRICEDDEPTH |
+| --- | --- |
+| QB | 999 |
+''')
+
+        when:
+        DocsCheck.Result result = DocsCheck.inspect(doc, yearDir)
+
+        then: 'no failures, and no claim to have verified anything either'
+        result.failures == []
+        result.tables == 0
+        result.verified == 0
+    }
+
+    /**
+     * The figures have to be the model's own before the prose is held to them.
+     *
+     * Agreement between prose and figures that a superseded model wrote says only that the two were written
+     * together. That is exactly the reassurance this check is supposed to be unable to give.
+     */
+    def "refuses to check against figures that have never been stamped"() {
+        expect:
+        DocsCheck.checkProvenance(yearDir).any { it.contains('holds no MANIFEST') }
+    }
+
+    def "refuses to check against figures built from uncommitted changes"() {
+        given:
+        new File(yearDir, 'MANIFEST').text =
+                "# Written by figures_refresh.sh\n" +
+                "board 1234abc-dirty 2026-08-17T16:09:39Z\n" +
+                "curve 1234abc-dirty 2026-08-17T16:09:39Z\n"
+
+        expect: 'the sha does not describe what ran, so nothing can be checked against it'
+        DocsCheck.checkProvenance(yearDir).any {
+            it.contains('uncommitted model') && it.contains('board, curve')
+        }
+    }
+
+    def "says so when the figures name a model this repository does not have"() {
+        given:
+        new File(yearDir, 'MANIFEST').text =
+                "# Written by figures_refresh.sh\n" +
+                "board 0000000 2026-08-17T16:09:39Z\n"
+
+        expect:
+        DocsCheck.checkProvenance(yearDir).any { it.contains('does not have') }
+    }
 }
