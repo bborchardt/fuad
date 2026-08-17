@@ -3,6 +3,7 @@ package ff.run
 import ff.run.fuad.ReportManifest
 import spock.lang.Specification
 import spock.lang.TempDir
+import spock.lang.Unroll
 
 /**
  * A plan may reason from the board and from nothing else. The checks that hold it there: that the report
@@ -21,10 +22,16 @@ class StrategyCheckSpec extends Specification {
         reportsDir = new File(temp, 'reports')
         yearDir = new File(reportsDir, '2026')
         yearDir.mkdirs()
+        // Every position the league starts, since the board a plan is checked against carries all of them
+        // and the check reads its vocabulary out of exactly that.
         new File(yearDir, 'salaries.tsv').text =
                 "POS\tRANK\tPLAYER\tPTS\tVALUE\tPRICE\tAVAIL\n" +
                 "QB\t2\tLamar Jackson\t244\t72\t76\t0.26\n" +
-                "QB\t9\tKyler Murray\t174\t30\t21\t1.00\n"
+                "QB\t9\tKyler Murray\t174\t30\t21\t1.00\n" +
+                "RB\t5\tJames Cook\t177\t72\t79\t0.26\n" +
+                "WR\t4\tAmon-Ra St. Brown\t173\t57\t80\t0.26\n" +
+                "TE\t3\tTrey McBride\t120\t30\t28\t0.46\n" +
+                "PK\t1\tCameron Dicker\t0\t1\t1\t1.00\n"
         new File(yearDir, 'teams.tsv').text =
                 "TEAM\tOWNER\tROSTER\tFREECAP\n" +
                 "0001\tBrett\t29\t243\n"
@@ -141,6 +148,85 @@ class StrategyCheckSpec extends Specification {
         'nflverse'           | 'nflverse'
         'src/main/java'      | 'src/'
         'docs/PROJECTION.md' | 'docs/'
+    }
+
+    /**
+     * The failure the old check had, asserted so it cannot come back.
+     *
+     * None of these was on the denylist, because all of them were written after it was. That is the defect
+     * inverting the question fixes: a plan's vocabulary is now checked against what the board says rather
+     * than against a list of what it must not say, so an internal is covered the day it exists.
+     */
+    @Unroll
+    def "rejects #term, which no denylist was ever told about"() {
+        given:
+        manifest('86277a2')
+
+        when:
+        List<String> failures = StrategyCheck.check(
+                document("<!-- model: 86277a2 -->\n\nThe reasoning rests on $term.\n"), reportsDir)
+
+        then:
+        failures.any { it.contains(term) }
+
+        where:
+        term << ['LineupValue', 'CutPenalty', 'KICKER_DEPTH', 'SAMPLES', 'MONOTONICITY_WINDOW',
+                 'FuadLoader', 'salary_adjustments.json', 'kicker_rankings.csv']
+    }
+
+    def "rejects an internal nobody has written yet"() {
+        given: 'a constant that does not exist in the model at all, standing in for one added tomorrow'
+        manifest('86277a2')
+
+        expect: 'fails closed: it is not on the board, so it is behind it'
+        StrategyCheck.check(
+                document('<!-- model: 86277a2 -->\n\nWe lean on SOME_FUTURE_CONSTANT here.\n'), reportsDir)
+                .any { it.contains('SOME_FUTURE_CONSTANT') }
+    }
+
+    def "lets a plan name every column and value the board actually carries"() {
+        given:
+        manifest('86277a2')
+
+        expect: 'columns, players, owners and positions are all the board\'s own words'
+        StrategyCheck.check(document('''<!-- model: 86277a2 -->
+
+Lamar Jackson is QB2 at a PRICE of 76 with PTS of 244, and AVAIL says 0.26. Brett holds him.
+Kyler Murray is the unrestricted one. Compare VALUE against PRICE before bidding.
+'''), reportsDir) == []
+    }
+
+    def "lets a plan write a position and a rank run together, which nothing carries literally"() {
+        given:
+        manifest('86277a2')
+
+        expect: 'QB2 is a POS cell and a RANK cell side by side, and the plainest shorthand in the game'
+        StrategyCheck.check(document('''<!-- model: 86277a2 -->
+
+QB2 is the one to walk away from; WR38 and TE13 are where the bench value is.
+'''), reportsDir) == []
+    }
+
+    def "still rejects shorthand whose letters the board does not use"() {
+        given:
+        manifest('86277a2')
+
+        expect: 'the position has to be one the board itself knows, so this is not a hole'
+        StrategyCheck.check(document('''<!-- model: 86277a2 -->
+
+The FOO2 slot is where the value is.
+'''), reportsDir).any { it.contains('FOO2') }
+    }
+
+    def "lets a plan use ordinary football shorthand the board has no column for"() {
+        given:
+        manifest('86277a2')
+
+        expect:
+        StrategyCheck.check(document('''<!-- model: 86277a2 -->
+
+Half PPR scoring, and the NFL bye weeks are what make depth worth holding.
+'''), reportsDir) == []
     }
 
     def "leaves ordinary auction prose alone"() {

@@ -27,21 +27,41 @@ import ff.run.fuad.ReportManifest
  */
 class StrategyCheck {
 
-    /** Model internals and inputs a plan must not reason from. Matched case insensitively, as whole words. */
-    static final List<String> FORBIDDEN = [
-            'AuctionValuation', 'PointsCurve', 'StarterRequirements', 'ByeWeeks', 'ScoringRules',
-            'FranchiseSalaryCalculator', 'FranchiseTagIdentifier',
-            'NflverseStatsLoader', 'FuadValuationLoader',
-            'SPEND_RATE', 'MARKET_WEIGHT', 'MARKET_SHARE', 'PRICE_STEEPNESS', 'ROOKIE_BUDGET_SHARE',
-            'TAGGED_AVAILABILITY', 'REALISED_SEASONS', 'ROSTERED_DEPTH',
-            'rules.json', 'league.json', 'rosters.json', 'players.json', 'player_stats.tsv',
-            'projected_scores.json', 'rosters_post_draft.json', 'rosters_end_of_year.json',
-            'redraft_rankings_half_ppr.csv', 'dynasty_rankings_ppr.csv',
-            'nflverse', 'fantasypros',
+    /**
+     * Words a plan may use that no report carries, being ordinary football rather than model vocabulary.
+     *
+     * <b>This is the whole maintained list, and it is meant to stay this short.</b> What replaced the long
+     * one is in {@link #checkVocabulary}: rather than enumerating the internals a plan may not name, the
+     * check asks whether a technical-looking word appears anywhere in the reports the plan is written from.
+     * A list of forbidden internals has to be told about every class and constant the model gains, and was
+     * not — it went thirty names out of date and let a plan reason from the lineup evaluator, the cut
+     * penalty and four input files without complaint. A list of permitted prose does not grow when the model
+     * does.
+     */
+    static final List<String> PROSE = [
+            'PPR', 'NFL', 'IR', 'EOD', 'ADP', 'FAAB', 'TBD',
     ].asImmutable() as List<String>
+
+    /**
+     * Data sources, which a plan has no business naming and which no report carries either.
+     *
+     * Kept by hand because they are lowercase words rather than the capitalised tokens
+     * {@link #checkVocabulary} looks at, and because unlike model internals they are stable: the league has
+     * had the same three sources since 2017.
+     */
+    static final List<String> SOURCES = ['nflverse', 'fantasypros', 'myfantasyleague'].asImmutable()
 
     /** Paths a plan must not cite, being the model's own workings rather than its output. */
     static final List<String> FORBIDDEN_PATHS = ['src/', 'docs/'].asImmutable() as List<String>
+
+    /** All caps, three or more: the shape of a constant, and of a board column. */
+    private static final String SCREAMING = /\b[A-Z][A-Z0-9_]{2,}\b/
+
+    /** An internal capital: the shape of a class name, and of a good many surnames. */
+    private static final String CAMEL = /\b[A-Z][a-z0-9]+(?:[A-Z][a-z0-9]*)+\b/
+
+    /** A data file, which is never something a plan reasons from unless it is one of its own reports. */
+    private static final String DATA_FILE = /\b[\w.]+\.(?:json|csv|tsv)\b/
 
     private static final String MODEL_MARKER = /<!--\s*model:\s*(\S+)\s*-->/
     private static final String SOURCE_MARKER = /<!--\s*source:\s*(\S+)\s*-->/
@@ -71,7 +91,7 @@ class StrategyCheck {
     static List<String> check(File document, File reportsDir) {
         List<String> lines = document.readLines()
         List<String> failures = []
-        failures.addAll(checkBoundary(lines))
+        failures.addAll(checkPaths(lines))
 
         String model = declaredModel(lines)
         if (!model) {
@@ -90,6 +110,7 @@ class StrategyCheck {
             return failures
         }
 
+        failures.addAll(checkVocabulary(lines, yearDir))
         failures.addAll(checkTables(lines, model, yearDir, stamps))
         failures
     }
@@ -116,18 +137,11 @@ class StrategyCheck {
         matcher.find() ? new File(reportsDir, matcher.group(1)) : null
     }
 
-    private static List<String> checkBoundary(List<String> lines) {
+    private static List<String> checkPaths(List<String> lines) {
         List<String> failures = []
         lines.eachWithIndex { String line, int index ->
-            // The markers themselves name report types and paths, and are the sanctioned way to do so.
-            if (line.trim().startsWith('<!--')) {
+            if (isMarker(line)) {
                 return
-            }
-            FORBIDDEN.each { String term ->
-                if (line =~ /(?i)(?<![\w.\/])${java.util.regex.Pattern.quote(term)}(?![\w])/) {
-                    failures << "line ${index + 1}: reasons from '$term', which is a model input, " +
-                            'not a model output'
-                }
             }
             FORBIDDEN_PATHS.each { String path ->
                 if (line.contains(path)) {
@@ -135,9 +149,104 @@ class StrategyCheck {
                             'not its output'
                 }
             }
+            SOURCES.each { String source ->
+                if (line =~ /(?i)(?<![\w.\/])${java.util.regex.Pattern.quote(source)}(?![\w])/) {
+                    failures << "line ${index + 1}: names '$source', which is where the model gets its " +
+                            'data, not something the board reports'
+                }
+            }
         }
         failures
     }
+
+    /**
+     * Every technical-looking word in the plan has to be one the board actually uses.
+     *
+     * <b>Asked the other way round from how it used to be.</b> The old check held a list of model internals
+     * a plan must not name, which meant every commit that added a class or a constant silently widened the
+     * hole — and thirty of them had accumulated, so a plan could reason from the lineup evaluator, the cut
+     * penalty, the kicker depth and four input files and come back clean. Nothing linked the list to the
+     * model it was supposed to describe.
+     *
+     * So the question is inverted. A plan's legitimate vocabulary is the reports it is written from: their
+     * column names, and every value in them — players, teams, owners, tiers, bands. Anything shaped like a
+     * constant or a class name that appears in none of them is something the plan went behind the board for,
+     * whether or not anybody thought to forbid it. New internals are covered the day they are written,
+     * because they are covered by not being reports.
+     *
+     * The two shapes it looks at are all-caps runs and internal capitals, which is what a constant and a
+     * class name look like. It is not lost on this check that a good many surnames are the second shape:
+     * that is why the vocabulary is drawn from every value in every report rather than only from the
+     * headings, and a player who appears on no report is one a plan has no business reasoning about anyway.
+     */
+    private static List<String> checkVocabulary(List<String> lines, File yearDir) {
+        Set<String> vocabulary = vocabularyOf(yearDir)
+        Set<String> reportFiles = (yearDir.listFiles() ?: [] as File[]).collect { it.name } as Set
+        List<String> failures = []
+        lines.eachWithIndex { String line, int index ->
+            if (isMarker(line)) {
+                return
+            }
+            (line =~ DATA_FILE).each { String file ->
+                if (!reportFiles.contains(file)) {
+                    failures << "line ${index + 1}: reads '$file', which is a model input rather than one " +
+                            'of this plan\'s reports'
+                }
+            }
+            String withoutFiles = line.replaceAll(DATA_FILE, ' ')
+            ([(withoutFiles =~ SCREAMING).collect { it }, (withoutFiles =~ CAMEL).collect { it }]
+                    .flatten() as List<String>).unique().each { String token ->
+                if (!PROSE.contains(token) && !vocabulary.contains(token.toUpperCase()) &&
+                        !isRankShorthand(token, vocabulary)) {
+                    failures << "line ${index + 1}: names '$token', which no report carries — if the plan " +
+                            'needs it, it is a missing board column rather than a licence to reach behind'
+                }
+            }
+        }
+        failures
+    }
+
+    /**
+     * Everything the boards for this season actually say: headings and values alike.
+     *
+     * Values and not just headings, because most of what a plan legitimately writes in capitals is data — a
+     * player, a team, an owner, a tier band. Upper-cased on both sides so the check is about whether the
+     * board knows the word, not about how the plan happened to capitalise it.
+     */
+    private static Set<String> vocabularyOf(File yearDir) {
+        Set<String> vocabulary = [] as Set<String>
+        (yearDir.listFiles() ?: [] as File[])
+                .findAll { it.name.endsWith('.tsv') || it.name.endsWith('.csv') }
+                .each { File report ->
+                    report.readLines().each { String line ->
+                        line.split(/[\t,]/).each { String cell ->
+                            cell.split(/[^A-Za-z0-9_.\']+/).each { String word ->
+                                if (word) {
+                                    vocabulary << word.toUpperCase()
+                                }
+                            }
+                        }
+                    }
+                }
+        vocabulary
+    }
+
+    /**
+     * A position and a rank run together, which is how anybody discussing this league actually writes.
+     *
+     * QB2 and WR38 are on no board as literal strings — they are a {@code POS} cell and a {@code RANK} cell
+     * side by side — but they are the plainest shorthand in the game and a check that rejected them would be
+     * one nobody could write a plan under. Allowed by derivation rather than by listing: the letters have to
+     * be something the board itself uses, so QB2 passes and FOO2 does not, and a position the league adds
+     * later needs nothing done to it.
+     */
+    private static boolean isRankShorthand(String token, Set<String> vocabulary) {
+        def matcher = token =~ /^([A-Za-z]{1,3})(\d{1,3})$/
+        matcher.matches() && vocabulary.contains((matcher.group(1) as String).toUpperCase())
+    }
+
+    /** Markers name report types and paths, and are the sanctioned way to do so. */
+    private static boolean isMarker(String line) { line.trim().startsWith('<!--') }
 
     /**
      * Verify every table under a source marker against the report it names.
