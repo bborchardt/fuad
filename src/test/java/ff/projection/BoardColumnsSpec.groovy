@@ -1,6 +1,7 @@
 package ff.projection
 
 import ff.data.PlayerValuation
+import ff.data.RealisedSeason
 import spock.lang.Specification
 
 /**
@@ -92,6 +93,56 @@ class BoardColumnsSpec extends Specification {
         and: 'but the same proportional range, since realised variation is measured per position, not per player'
         ((best.pointsHigh / best.points) - (worse.pointsHigh / worse.points)).abs() < 0.001
         ((best.pointsLow / best.points) - (worse.pointsLow / worse.points)).abs() < 0.001
+    }
+
+    /**
+     * The season is carried as its two halves as well as its total, and the three have to agree.
+     *
+     * A plan reads these side by side and will multiply two of them; landing anywhere but the third would
+     * be a column that quietly lies. It is not free — the level is anchored back to the mean season the
+     * position actually had, some five per cent above the product of the two separate means — so the rate
+     * reported is the one implied by the level rather than the raw mean behind it.
+     */
+    def "carries the rate and the availability a season is the product of"() {
+        given:
+        List<PlayerValuation> valuations = value(new ByeWeeks([:], LAST_WEEK))
+
+        expect: 'both halves reach the board'
+        valuations.every { it.pointsPerGame > 0 && it.expectedGames > 0 }
+
+        and: 'and they multiply back out to the season beside them'
+        valuations.every {
+            ((it.pointsPerGame * it.expectedGames) - it.points).abs() < it.points * 0.001
+        }
+    }
+
+    /**
+     * Availability is the one thing on the board that separates two players a tier cannot.
+     *
+     * The outcome range is the position's, so it is the same proportion for everybody at it. Games played
+     * is not: it is levelled per rank, and it is why a fragile high-rate player and a durable moderate one
+     * are no longer the same row with different names.
+     */
+    def "reports availability per rank, where the outcome range is only per position"() {
+        given: 'a position whose deeper ranks miss half the season'
+        Map<Integer, List<BigDecimal>> shallow = (1..10).collectEntries { int rank ->
+            [(rank): [180.0, 180.0, 180.0] * 3]
+        }
+        Map<Integer, List<RealisedSeason>> byRank = TestSeasons.byRank(shallow)
+        (11..30).each { int rank ->
+            byRank[rank] = (1..9).collect { new RealisedSeason(points: 90.0, games: 6) }
+        }
+        PointsCurve curve = PointsCurve.of([WR: byRank])
+        Map<String, List> available = [deep: ['Deep', 'WR', 25, null], top: ['Top', 'WR', 3, null]]
+
+        when:
+        List<PlayerValuation> valuations = AuctionValuation.value(curve,
+                new StarterRequirements([WR: 2], [WR: 4], 3, 10), available, [WR: 40], 300.0, 20,
+                new ByeWeeks([:], LAST_WEEK))
+
+        then: 'the deep rank is reported as playing materially less football'
+        valuations.find { it.playerName == 'Deep' }.expectedGames <
+                valuations.find { it.playerName == 'Top' }.expectedGames * 0.85
     }
 
     def "leaves the range at expectation when a position has no measured spread"() {

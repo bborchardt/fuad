@@ -61,6 +61,7 @@ for something, that something is now a column:
 | --- | --- | --- |
 | how a set of players covers a season | `BYE` on `salaries` | the bye table inside the model |
 | how wide outcomes run | `PTSLOW` / `PTSHIGH` | the raw multipliers in the points curve |
+| whether a season is rate or availability | `PPG` / `G` on `salaries` | a total that hides which |
 | how many players a team must buy | `MINSIGN` / `MAXSIGN` / `ROOKIES` on `teams` | the 23/30 roster bylaw |
 | what a team can spend | `FREECAP`, `EXPOSURE`, `EXP/CAP` on `teams` | the cap and the spend rate |
 | what a player adds to **my** lineup | `ADDEXP` / `ADDHIND` on `roster_<id>` | a lineup worked out by hand |
@@ -79,9 +80,15 @@ where it can be tested, rather than working it out in the plan, where it cannot.
 
 **Read `TIER` before reading `PRICE`.** The board quotes dollars off levels that are good to about ten
 points, so within a tier the ordering is noise and a plan that ranks players by price inside one has
-invented a distinction. Herbert, Mahomes, Lawrence and Stafford are all QB tier 4 in 2026, priced $38 to
-$32; nothing in the model says any of them is better than another. That is the tier where the price
-column is at its most misleading and the bye and availability columns at their most useful.
+invented a distinction. Lawrence, Prescott and Mahomes are all QB tier 5 in 2026, priced $34, $34 and $30;
+nothing in the model says any of them is better than another. That is where the price column is at its most
+misleading, and the bye and `AVAIL` are what is left to choose on.
+
+**`G` is not one of them.** It is a per-rank figure and it moves a long way across a position — 11.5 games
+at the top of quarterback against 6.9 by rank 34 — but availability is smoothed over ten ranks either side,
+so within a single tier it is nearly flat: 11.4, 11.4 and 11.2 for the three above, and never more than 0.7
+games apart anywhere on the 2026 board. It tells you what kind of player a rank is, not which of two
+neighbours to take. Ordering a tier by `G` is the same mistake as ordering it by price.
 
 ## The roster reports
 

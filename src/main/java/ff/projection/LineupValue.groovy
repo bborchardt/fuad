@@ -135,13 +135,13 @@ class LineupValue {
         if (rank == null) {
             return null
         }
-        BigDecimal season = curve.seasonPoints(position, rank)
         BigDecimal games = curve.expectedGames(position, rank)
+        BigDecimal rate = curve.levelledRate(position, rank)
         List<Integer> playable = PointsCurve.playableWeeks(byes.of(position, rank), lastWeek)
-        if (!season || !games || !playable) {
+        if (!rate || !games || !playable) {
             return null
         }
-        new Rostered(position, (season / games).toDouble(), playable as int[], games.toDouble())
+        new Rostered(position, rate.toDouble(), playable as int[], games.toDouble())
     }
 
     /** What this roster scores, averaged over the seasons it is replayed against. */

@@ -179,9 +179,32 @@ class PointsCurve {
         levelByPosition[position]?.get(rank) ?: 0.0
     }
 
-    /** What this rank scores in a game he plays, which is the half of a season that is about ability. */
+    /**
+     * What this rank scores in a game he plays, which is the half of a season that is about ability.
+     *
+     * The raw mean of the seasons behind the rank, before {@link #anchorTo} puts the position's overall
+     * level back where its seasons actually were. Everything priced off a week — value over replacement,
+     * and replacement itself — uses this, since the anchor is a single factor across a position and
+     * cancels out of a comparison taken inside one. Anything <b>reported</b> wants {@link #levelledRate},
+     * which is this times the anchor and so multiplies back out to the season the board carries.
+     */
     BigDecimal pointsPerGame(String position, int rank) {
         rateByPosition[position]?.get(rank) ?: 0.0
+    }
+
+    /**
+     * The same rate, scaled so that rate times availability is exactly the season this rank is levelled at.
+     *
+     * The board carries the season, the rate and the games side by side, and a reader who multiplies two of
+     * them has to land on the third. {@link #pointsPerGame} does not oblige: the level is anchored back to
+     * the mean season the position actually had, about five per cent above the product of the two separate
+     * means, so the raw rate times the raw games comes out short of the season by that much. A column that
+     * quietly fails to multiply out is a trap on a board whose whole point is that a plan never has to
+     * reach behind it.
+     */
+    BigDecimal levelledRate(String position, int rank) {
+        BigDecimal games = expectedGames(position, rank)
+        games > 0 ? seasonPoints(position, rank) / games : 0.0
     }
 
     /** How many games this rank has historically played, out of the thirteen a season holds. */

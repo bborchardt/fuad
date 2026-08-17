@@ -457,6 +457,25 @@ They answer different questions and blending them answered neither. The board re
 Alongside them the board carries what a plan needs in order to reason without going behind it:
 
 - `PTS` — expected points: what this rank has historically been worth, under the rules being priced.
+- `PPG` / `G` — the two halves that season is the product of: what he scores in a game he plays, and how
+  many games he plays. They multiply back out to `PTS`, to the one decimal place the board prints them at,
+  and that costs something to arrange — the level is
+  anchored back to the mean season the position actually had, about five per cent above the product of the
+  two separate means, so `PPG` is the rate that level implies rather than the raw mean behind it.
+
+  They are carried because the two halves are differently caused and the total hides which one a player is
+  made of. Availability is the one that moves with rank: quarterbacks run from 11.5 games at the top to 6.9
+  by rank 34, since past about 26 a quarterback is a backup who plays when somebody gets hurt. Receivers
+  and tight ends barely move at all, 2.4 games end to end.
+
+  **`G` does not break a tie inside a tier.** Availability is smoothed across ten ranks either side, because
+  rank predicts it weakly — the correlation is −0.04 at running back — and a tier is a band of neighbouring
+  levels, so the ranks in one share nearly the same figure. Across a whole tier of 2026 the widest spread is
+  0.7 games and the usual one is 0.3. Reading an order into that is the same false precision `TIER` exists
+  to remove.
+
+  **`G` is not `AVAIL`.** `G` is how much football he plays; `AVAIL` is the chance he ever reaches another
+  team, which is a fact about the right of first refusal and nothing to do with his health.
 - `PTSLOW` / `PTSHIGH` — the same rank in a bad season and a good one, at the 10th and 90th percentile of
   realised outcomes. **The spread belongs to the position, not to the player.** Every quarterback gets the
   same proportional range around his own level, because realised variation cannot tell an erratic player

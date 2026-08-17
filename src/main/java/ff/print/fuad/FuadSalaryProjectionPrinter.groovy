@@ -29,8 +29,8 @@ class FuadSalaryProjectionPrinter {
     }
 
     void print(PrintWriter out) {
-        out.println(['POS', 'TIER', 'RANK', 'DYNRANK', 'PLAYER', 'TEAM', 'HOLDER', 'BYE', 'PTS', 'PTSLOW',
-                     'PTSHIGH', 'VOR', 'VALUE', 'PRICE', 'COST', 'ACQUIRE',
+        out.println(['POS', 'TIER', 'RANK', 'DYNRANK', 'PLAYER', 'TEAM', 'HOLDER', 'BYE', 'PTS', 'PPG', 'G',
+                     'PTSLOW', 'PTSHIGH', 'VOR', 'VALUE', 'PRICE', 'COST', 'ACQUIRE',
                      'EDGE', 'BAND', 'RFRCOST', 'AVAIL', 'TAG', 'FRANCHISED'].join('\t'))
         valuations.each { PlayerValuation v ->
             out.println([
@@ -43,6 +43,8 @@ class FuadSalaryProjectionPrinter {
                     holder(v),
                     v.bye ?: '',
                     v.points.setScale(0, RoundingMode.HALF_UP),
+                    v.pointsPerGame.setScale(1, RoundingMode.HALF_UP),
+                    v.expectedGames.setScale(1, RoundingMode.HALF_UP),
                     v.pointsLow.setScale(0, RoundingMode.HALF_UP),
                     v.pointsHigh.setScale(0, RoundingMode.HALF_UP),
                     v.valueOverReplacement.setScale(0, RoundingMode.HALF_UP),

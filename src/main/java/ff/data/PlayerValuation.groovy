@@ -25,6 +25,19 @@ class PlayerValuation {
     /** Expected points over the regular season: what this rank has historically been worth. */
     BigDecimal points
     /**
+     * The two halves of that season, kept apart because they are differently caused.
+     *
+     * How good he is when he plays, and how much football he plays. About half the variation in a season
+     * total is the second rather than the first, and only the second varies usefully by rank: a
+     * quarterback ranked past about 26 is a backup, and plays 7.1 games where the best play 11.9. Two
+     * players in one tier priced the same can differ here, which is most of what is left to choose between
+     * them on.
+     *
+     * {@code pointsPerGame} times {@code expectedGames} is {@code points}, to rounding.
+     */
+    BigDecimal pointsPerGame
+    BigDecimal expectedGames
+    /**
      * The band of ranks at this position that the curve cannot tell apart, 1 being the best.
      *
      * Players sharing a tier are ties. The levels behind them are means of about 45 realised seasons with a
