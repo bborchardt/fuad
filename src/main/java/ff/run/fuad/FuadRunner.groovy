@@ -120,14 +120,24 @@ class FuadRunner {
             def matchups = new FuadScheduleGenerator().generate(mflData.franchiseByIdMap.values())
             return [(type): { PrintWriter out -> new FuadSchedulePrinter(matchups).print(out) }]
         }
+        // Every sheet that quotes a dollar quotes the auction board's, so each of these needs the
+        // valuations. Building them costs the points curve, which is nine seasons of statistics, and the
+        // shared loader is what keeps -t all from paying for it more than once.
         if (TYPE_FRANCHISES == type) {
-            return [(type): { PrintWriter out -> new FuadFranchiseDraftPrinter(fuadData, false).print(out) }]
+            return [(type): { PrintWriter out ->
+                new FuadFranchiseDraftPrinter(fuadData, [], false).print(out)
+            }]
         }
         if (TYPE_FRANCHISE_PROJECTIONS == type) {
-            return [(type): { PrintWriter out -> new FuadFranchiseDraftPrinter(fuadData, true).print(out) }]
+            return [(type): { PrintWriter out ->
+                new FuadFranchiseDraftPrinter(fuadData, valuationLoader.valuations(year, fuadData), true)
+                        .print(out)
+            }]
         }
         if (TYPE_RANKINGS == type) {
-            return [(type): { PrintWriter out -> new FuadRankingsDraftPrinter(fuadData).print(out) }]
+            return [(type): { PrintWriter out ->
+                new FuadRankingsDraftPrinter(fuadData, valuationLoader.valuations(year, fuadData)).print(out)
+            }]
         }
         if (TYPE_ROOKIES == type) {
             return [(type): { PrintWriter out -> new FuadRookieDraftPrinter(fuadData).print(out) }]

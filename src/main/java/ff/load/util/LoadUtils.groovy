@@ -62,6 +62,11 @@ class LoadUtils {
         LoadUtils.class.getResourceAsStream(resourcePath).getText('UTF-8')
     }
 
+    /** Whether a season carries a file at all, for the seasons where the record does not go back far enough. */
+    static boolean hasResource(String resourcePath) {
+        LoadUtils.class.getResource(resourcePath) != null
+    }
+
     static Object loadJsonResource(String resourcePath) {
         def stream = LoadUtils.class.getResourceAsStream(resourcePath)
         jsonSlurper.parse(stream)

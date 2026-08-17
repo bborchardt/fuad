@@ -30,7 +30,7 @@ class StrategyCheck {
     /** Model internals and inputs a plan must not reason from. Matched case insensitively, as whole words. */
     static final List<String> FORBIDDEN = [
             'AuctionValuation', 'PointsCurve', 'StarterRequirements', 'ByeWeeks', 'ScoringRules',
-            'FranchiseSalaryCalculator', 'FranchiseTagIdentifier', 'PlayerSalaryCalculator',
+            'FranchiseSalaryCalculator', 'FranchiseTagIdentifier',
             'NflverseStatsLoader', 'FuadValuationLoader',
             'SPEND_RATE', 'MARKET_WEIGHT', 'MARKET_SHARE', 'PRICE_STEEPNESS', 'ROOKIE_BUDGET_SHARE',
             'TAGGED_AVAILABILITY', 'REALISED_SEASONS', 'ROSTERED_DEPTH',

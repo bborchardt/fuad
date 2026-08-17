@@ -1,17 +1,36 @@
 package ff.print.fuad
 
+import ff.data.PlayerValuation
 import ff.data.fuad.FuadData
 import ff.data.fuad.FuadPlayer
 import ff.data.mfl.MflFranchise
 import ff.print.MultiListPrinter
-import ff.projection.PlayerSalaryCalculator
 
+/**
+ * Every player not under contract, by position and in consensus rank order, with what he is expected to
+ * fetch.
+ *
+ * <b>The dollars are the auction board's, not a second opinion.</b> This used to price its own column from
+ * a curve fitted straight from positional rank to dollars, which is the model docs/PROJECTION.md rules out:
+ * it pools caps and lineups the league has since changed, reads franchise tags as bids, and prices each
+ * player alone so nothing makes the answers add up to the money that exists. Two sheets quoting different
+ * numbers for the same player is worse than either, so there is now one price and this reads it.
+ *
+ * The column is {@code PRICE} — what open bidding is expected to settle at — because this is the sheet a
+ * bid is made from. What the team holding him pays instead, where a franchise tag is cheaper, is on the
+ * salaries board as {@code COST}.
+ *
+ * A player the board does not carry prices blank rather than at zero: rookies, who are drafted separately
+ * and cannot be bid on, and ranks past the depth the curve still makes a claim at. See docs/PROJECTION.md.
+ */
 class FuadRankingsDraftPrinter {
 
     private final FuadData fuadData
+    private final Map<String, PlayerValuation> valuationByPlayerId
 
-    FuadRankingsDraftPrinter(FuadData fuadData) {
+    FuadRankingsDraftPrinter(FuadData fuadData, List<PlayerValuation> valuations) {
         this.fuadData = fuadData
+        this.valuationByPlayerId = valuations.collectEntries { [(it.playerId): it] }
     }
 
     void print(PrintWriter out) {
@@ -23,6 +42,12 @@ class FuadRankingsDraftPrinter {
                 new PrintableList(fuadData.teRanks.findAll { p -> !p.contract }, printRank),
                 new PrintableList(fuadData.pkRanks.findAll { p -> !p.contract }, printRank),
         )
+    }
+
+    /** What open bidding is expected to pay, or blank where the board does not price this player. */
+    private String price(FuadPlayer player) {
+        PlayerValuation valuation = player.mflId ? valuationByPlayerId[player.mflId] : null
+        valuation ? valuation.marketSalary as String : ''
     }
 
     private void printRank(PrintWriter out, FuadPlayer player) {
@@ -41,7 +66,7 @@ class FuadRankingsDraftPrinter {
                 out.print "$shortName"
             }
             out.print '\t'
-            out.print PlayerSalaryCalculator.projectedSalary(player)
+            out.print price(player)
             out.print '\t'
         } else {
             out.print "\t\t\t\t\t\t"

@@ -6,14 +6,25 @@ How `-t salaries` decides what a player will cost at auction. Run it with:
 ./generate_report.sh -t salaries -y 2026
 ```
 
-Built for the season being auctioned, and not meant to run on past ones. `PlayerSalaryCalculator`, a curve
-fitted from positional rank straight to dollars, still backs the other reports.
+Built for the season being auctioned, and not meant to run on past ones.
+
+**Every report that quotes a dollar quotes this one.** `rankings` and `franchise_projections` used to carry
+their own column, from a curve fitted straight from positional rank to dollars, so the same player could be
+worth one number on one sheet and another on the next with nothing to say which was meant. That curve is
+gone. `rankings` shows `PRICE`, being the sheet a bid is made from; `franchise_projections` shows `COST`,
+being read a roster at a time. Both are the board's, unchanged.
 
 Fitting dollars to rank directly is the obvious alternative, and three things rule it out here. It pools a
 $250 and a $300 cap, and one-quarterback and superflex lineups, as if they were one league. It reads the
 **46 franchise tags** as bids, when their prices are set by rule and land on the most expensive players in
 the data. And it prices each player alone, so nothing makes the answers add up to the money that exists.
 None of it can price 2026's tight end premium at all, since no season under that rule has been played.
+
+Two consequences of there being one model rather than two. A player the board declines to price — a rookie,
+or a rank past the depth the curve still makes a claim at — is now **blank** on those sheets rather than
+carrying a number, which took 148 priced rows on 2026's `rankings` down to the board's 106. And the
+earliest season any of them can run for is **2018**: the franchise tag is the average of the previous
+season's top five salaries at a position, and 2017 has no 2016 behind it.
 
 ## The chain
 

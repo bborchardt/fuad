@@ -117,12 +117,29 @@ class FuadValuationLoader {
         ByeWeeks byes = byeWeeks(year, league.league.lastRegularSeasonWeek as String as int)
 
         String priorYear = (year as int) - 1 as String
+        requirePriorSeason(year, priorYear)
         Map<String, Integer> franchiseSalary = FranchiseSalaryCalculator.franchiseSalaries(
                 LoadUtils.loadJsonResource(LoadUtils.mflEndOfYearRostersResourcePath(priorYear)) as Map,
                 LoadUtils.loadJsonResource(LoadUtils.mflPlayersResourcePath(priorYear)) as Map)
 
         valuationsByYear[year] = AuctionValuation.value(curve, requirements, available(year, fuadData),
                 franchiseSalary, freeCap(year, league), slotsToFill(year, teams), byes)
+    }
+
+    /**
+     * Refuse a season whose franchise tag rate cannot be computed, rather than failing on a null stream.
+     *
+     * The tag is the average of the top five salaries at a position the <b>previous</b> season, so the
+     * earliest season a board can be priced for is the second one collected. 2017 has no 2016 behind it and
+     * never will. Every report carrying a dollar goes through here, so a year that cannot be priced has to
+     * say which year it is short of and why.
+     */
+    private static void requirePriorSeason(String year, String priorYear) {
+        if (!LoadUtils.hasResource(LoadUtils.mflEndOfYearRostersResourcePath(priorYear))) {
+            throw new IllegalArgumentException("Cannot price $year: the franchise tag is the average of the " +
+                    "top five salaries at each position in $priorYear, and no $priorYear end of year " +
+                    'rosters are held. See docs/LEAGUE_RULES.md.')
+        }
     }
 
     /**
