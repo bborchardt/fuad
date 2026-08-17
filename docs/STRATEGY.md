@@ -38,9 +38,14 @@ Every strategy document:
 - uses no technical word the board does not itself use
 
 **That last one is asked the other way round from how it looks.** There is no list of internals a plan is
-forbidden to name. The check reads the vocabulary out of the reports the plan cites — their column names and
-every value in them, so players, teams, owners and bands all count — and flags anything shaped like a
-constant or a class name that appears in none of them.
+forbidden to name. The check reads the vocabulary out of **every report generated for that season** — their
+column names and every value in them, so players, teams, owners and bands all count — and flags anything
+shaped like a constant or a class name that appears in none of them.
+
+Every report rather than only the ones a plan marks with a source, because a plan legitimately names a team
+or a player in prose that cites no table, and holding it to only the tables it cites would reject that. The
+cost is that a word appearing on some other report the plan never opens is admitted too, which widens the
+boundary by whatever `reports/<year>` happens to hold.
 
 The reason is that the list came first and it rotted. It named thirty fewer things than the model had, so a
 plan could reason from the lineup evaluator, the cut penalty, the kicker depth and four input files and come

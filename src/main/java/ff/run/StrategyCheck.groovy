@@ -168,11 +168,15 @@ class StrategyCheck {
      * penalty, the kicker depth and four input files and come back clean. Nothing linked the list to the
      * model it was supposed to describe.
      *
-     * So the question is inverted. A plan's legitimate vocabulary is the reports it is written from: their
-     * column names, and every value in them — players, teams, owners, tiers, bands. Anything shaped like a
-     * constant or a class name that appears in none of them is something the plan went behind the board for,
-     * whether or not anybody thought to forbid it. New internals are covered the day they are written,
-     * because they are covered by not being reports.
+     * So the question is inverted. A plan's legitimate vocabulary is every report generated for its season:
+     * their column names, and every value in them — players, teams, owners, tiers, bands. Anything shaped
+     * like a constant or a class name that appears in none of them is something the plan went behind the
+     * board for, whether or not anybody thought to forbid it. New internals are covered the day they are
+     * written, because they are covered by not being reports.
+     *
+     * <b>Every report for the season, not only the ones the plan marks with a source.</b> A plan names teams
+     * and players in prose that cites no table, and holding its vocabulary to only the tables it cites would
+     * reject that. The cost is that a word carried by a report the plan never opens is admitted too.
      *
      * The two shapes it looks at are all-caps runs and internal capitals, which is what a constant and a
      * class name look like. It is not lost on this check that a good many surnames are the second shape:

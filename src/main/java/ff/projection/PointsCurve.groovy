@@ -311,8 +311,7 @@ class PointsCurve {
      */
     Map<Integer, BigDecimal> weeklyRate(String position, int rank, Integer byeWeek, int lastWeek) {
         BigDecimal rate = levelledRate(position, rank)
-        List<Integer> playing = playableWeeks(byeWeek, lastWeek)
-        if (!rate || !playing) {
+        if (!rate || !playableWeeks(byeWeek, lastWeek)) {
             return [:]
         }
         (1..lastWeek).collectEntries { [(it): it == byeWeek ? 0.0 as BigDecimal : rate] }
@@ -575,8 +574,8 @@ class PointsCurve {
      * The same seasons split in two, rate against the rank's rate and games as they were.
      *
      * Rate multipliers are scaled to average one so that carrying the spread moves no expected points. A
-     * lost season keeps its zero games and takes the average multiplier, which contributes nothing either
-     * way: with no games there is no week for a rate to apply to.
+     * lost season keeps its zero games and carries whatever multiplier the scaling leaves it with, which is
+     * read by nothing either way: with no games there is no week for a rate to apply to.
      */
     private static List<Outcome> outcomesOf(Map<Integer, List<RealisedSeason>> byRank,
                                             Map<Integer, BigDecimal> rate,

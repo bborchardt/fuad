@@ -42,8 +42,8 @@ statistics every expected point is now built from.
 | --- | --- |
 | Source | nflverse-data release `stats_player`, one file per season, 1999 onwards under one schema |
 | Collected by | `./season_history_refresh.sh <year>`, alongside that season's league record |
-| Kept | 17 scoring columns, weeks 1-14 of the regular season, at QB, RB, WR and TE |
-| Size | about 1.9MB for nine seasons, from 8MB and 150 columns a season published |
+| Kept | 16 scoring columns, weeks 1-14 of the regular season, at QB, RB, WR, TE and PK |
+| Size | about 2.3MB for nine seasons, from 8MB and 150 columns a season published |
 
 Statistics rather than fantasy points, because the league has scored four different ways since 2017 and a
 season scored under its own rules cannot be compared with one scored under another's. `ScoringRules` takes
@@ -55,7 +55,7 @@ Two things to know about the extract:
 - nflverse writes a player's **current** name into every season he ever played, so Robby Anderson is
   "Robbie Chosen" as far back as 2017. That is what the alias map is for; see [Player names](#player-names).
 - `position` comes from the roster and is occasionally not the one he plays. Travis Hunter is a `CB` in
-  2025, so the QB/RB/WR/TE filter drops his receiving, and his ranked season comes back as a zero.
+  2025, so the position filter drops his receiving, and his ranked season comes back as a zero.
 
 The transaction log matters more than it looks. Rosters only show where players ended up, so a move that a
 later move undid leaves no trace in them at all. Both expansion drafts are in the log as commissioner
@@ -226,8 +226,8 @@ matching pairs up. It is applied to **every** source, because it is not only fan
 nickname: MFL called Marquise Brown "Hollywood" in 2024 and "Marquise" in every other year, so aliasing one
 side only would fix one season and break another.
 
-Current entries: Hollywood Brown to Marquise Brown, Dee Eskridge to D'Wayne Eskridge, Robbie Chosen to
-Robby Anderson.
+Current entries: Hollywood Brown to Marquise Brown, Dee Eskridge to D'Wayne Eskridge, Mike Badgley to
+Michael Badgley, Robbie Chosen to Robby Anderson.
 
 The last is nflverse's doing rather than a nickname: it backdates a player's current name over his whole
 career, and Robby Anderson changed his in 2022. Without the alias his 2018, 2019 and 2021 seasons look like

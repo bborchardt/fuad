@@ -7,8 +7,9 @@ import java.math.RoundingMode
  *
  * The league lets each team franchise one free agent, keeping them off the auction block at the average of
  * the top five salaries at that player's position the previous season. Another team may bid on a franchised
- * player, but only by giving up rookie draft picks as compensation, which is enough friction that it has
- * never happened in the collected data: every tag observed is a team re-signing its own player.
+ * player, but only by giving up rookie draft picks as compensation, which is enough friction to make it
+ * uncommon rather than unheard of: six of the 46 confirmed tags were bid away, and the other forty are a
+ * team re-signing its own player at exactly this rate. See {@link FranchiseTagIdentifier}.
  *
  * This is the one auction price in the data that is set by rule rather than by bidding, so a salary model
  * fitted over signings should treat tagged players as fixed points rather than as evidence of what the
