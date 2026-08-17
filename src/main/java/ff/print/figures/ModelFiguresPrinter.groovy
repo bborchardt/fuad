@@ -107,10 +107,11 @@ class ModelFiguresPrinter {
      */
     void printPositions(PrintWriter out) {
         out.println(['POS', 'DEPTH', 'PRICEDDEPTH', 'STARTED', 'REPLRANK', 'GAMMA', 'PLAYERS', 'RESERVE',
-                     'SHARE', 'TARGETSHARE', 'P10', 'P90', 'SEASONS', 'LOST', 'BACKWARD',
+                     'SHARE', 'TARGETSHARE', 'VORSHARE', 'P10', 'P90', 'SEASONS', 'LOST', 'BACKWARD',
                      'BACKWARDTOTALS'].join('\t'))
         Map<String, BigDecimal> share = pricedShareByPosition()
         Map<String, BigDecimal> reserve = reservedShareByPosition()
+        Map<String, BigDecimal> worth = valueShareByPosition()
         POSITIONS.each { String position ->
             boolean levelled = curve.pricedDepth(position) > 0
             PointsCurve.Census census = curve.census(position)
@@ -126,6 +127,7 @@ class ModelFiguresPrinter {
                     percent(reserve[position]),
                     percent(share[position]),
                     percent(AuctionValuation.MARKET_SHARE[position]),
+                    percent(worth[position]),
                     levelled ? curve.outcomePercentile(position, AuctionValuation.LOW_OUTCOME)
                             .setScale(2, RoundingMode.HALF_UP) : '',
                     levelled ? curve.outcomePercentile(position, AuctionValuation.HIGH_OUTCOME)
@@ -271,6 +273,30 @@ class ModelFiguresPrinter {
         BigDecimal total = (valuations.collect { it.marketSalary }.sum() ?: 0) as BigDecimal
         POSITIONS.collectEntries { String position ->
             [(position): total > 0 ? (valuations.count { it.position == position } as BigDecimal) / total : 0.0]
+        }
+    }
+
+    /**
+     * What share of the board's <b>worth</b> each position holds, against {@code TARGETSHARE}'s share of its
+     * money.
+     *
+     * <b>The one comparison on this row that is not the model against itself.</b> {@code SHARE} and
+     * {@code TARGETSHARE} both describe what the board charges, and the calibration forces the second onto
+     * the first, so their agreement says only that the forcing worked. This is value over replacement before
+     * any of that — what the curve says a position is worth — so the gap between it and {@code TARGETSHARE}
+     * is the gap between what the league pays and what the model thinks it is buying.
+     *
+     * Kicker is why it is here. It takes about 0.9% of the auction and holds nearly 6% of the value, which
+     * is a disagreement of a different kind from receiver's or tight end's, and the documentation had all
+     * four of those numbers as prose that nothing recomputed — the very arrangement that put the league's
+     * spending into a spec and out of reach of a citation. See {@link ff.projection.AuctionSpend}.
+     */
+    private Map<String, BigDecimal> valueShareByPosition() {
+        BigDecimal total = (valuations.collect { it.valueOverReplacement }.sum() ?: 0.0) as BigDecimal
+        POSITIONS.collectEntries { String position ->
+            BigDecimal worth = (valuations.findAll { it.position == position }
+                    .collect { it.valueOverReplacement }.sum() ?: 0.0) as BigDecimal
+            [(position): total > 0 ? worth / total : 0.0]
         }
     }
 

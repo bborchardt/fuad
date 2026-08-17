@@ -54,6 +54,11 @@ class ModelFiguresPrinterSpec extends Specification {
                 valueOverReplacement: 0.0, availability: 1.0)
     }
 
+    /** The same, carrying value over replacement, for the columns that report worth rather than price. */
+    private static PlayerValuation worth(String position, int rank, int price, BigDecimal vor) {
+        valued(position, rank, price, price, null).copyWith(valueOverReplacement: vor)
+    }
+
     /**
      * The invariant the board also holds itself to: a reader who multiplies two columns lands on the third.
      *
@@ -118,6 +123,31 @@ class ModelFiguresPrinterSpec extends Specification {
         and: 'and the kicker takes a share of the board far above anything the calibration gave him'
         new BigDecimal(rows.find { it.POS == 'PK' }.SHARE) ==
                 new BigDecimal(rows.find { it.POS == 'PK' }.RESERVE)
+    }
+
+    /**
+     * VORSHARE is worth against TARGETSHARE's money, which is the only column pair here comparing two
+     * different things.
+     *
+     * SHARE and TARGETSHARE both describe what the board charges and the calibration forces one onto the
+     * other, so a reader learns nothing from their agreement. This is the board's value over replacement
+     * before any calibration touches it, so it has to be computed off {@code valueOverReplacement} and not
+     * off any price — which is exactly what a position holding value and charging almost nothing has to be
+     * able to show.
+     */
+    def "reports what a position is worth apart from what it is charged"() {
+        given: 'two positions charged alike, one of them carrying nearly all the value'
+        List<PlayerValuation> valuations = [
+                worth('WR', 1, 50, 30.0), worth('WR', 2, 50, 30.0), worth('PK', 1, 50, 0.0)]
+        List<Map<String, String>> rows = rows(printer(valuations).&printPositions)
+
+        expect: 'value is shared on value, so the receivers hold all of it and the kicker none'
+        rows.find { it.POS == 'WR' }.VORSHARE == '100.0'
+        rows.find { it.POS == 'PK' }.VORSHARE == '0.0'
+
+        and: 'while the money says the opposite, a third each, which is the disagreement worth reporting'
+        rows.find { it.POS == 'WR' }.SHARE == '66.7'
+        rows.find { it.POS == 'PK' }.SHARE == '33.3'
     }
 
     def "takes replacement one past the last player the league starts"() {

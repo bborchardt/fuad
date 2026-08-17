@@ -103,25 +103,32 @@ class AuctionValuationSpec extends Specification {
     }
 
     /**
-     * The finding that made levelling kickers worth doing.
+     * The price half of the finding that made levelling kickers worth doing.
      *
-     * Every other position is bought at roughly what it is worth — the league's spending and the model's
-     * value over replacement agree to within a fifth either way. Kicker is off by a factor of six. That is
-     * either the one standing inefficiency in this league's market or a limit of what value over
-     * replacement can say about a position whose starters can be replaced from the waiver wire in a week,
-     * and the board reports it as {@code EDGE} rather than acting on it. See docs/PROJECTION.md.
+     * <b>Asserted over the record rather than against the constant.</b> This used to check that each of the
+     * four scoring positions is paid within a fifth of {@link AuctionValuation#MARKET_SHARE} and that the
+     * kicker entry is under 0.02 — but {@code MARKET_SHARE} <i>is</i> the measured paid share, so the first
+     * was the constant against itself and a restatement of the test above, and the second was a constant
+     * against a literal. Neither could fail for any reason the data could supply.
+     *
+     * What the finding actually rests on is that kicker takes almost nothing in every auction the league
+     * has ever held, which the seasons can answer and a constant cannot. Nine seasons run 0.48% to 1.61%.
+     *
+     * The other half — that the curve puts kicker's share of <i>value</i> near 6% — is a property of a
+     * board rather than of the record, so it is reported as {@code VORSHARE} in docs/figures and the
+     * documentation is held to it there. It was prose that nothing recomputed, which is the arrangement
+     * this class's own history is a warning about.
      */
-    def "kicker is the one position whose price and value disagree by an order of magnitude"() {
+    def "kicker takes almost none of any auction the league has held"() {
         given:
-        Map<String, BigDecimal> paid = AuctionSpend.shareByPosition(calibrated())
-
-        expect: 'the four scoring positions are paid within a fifth of their share of the pot'
-        AuctionSpend.EXCLUDING_KICKERS.every {
-            paid[it] > AuctionValuation.MARKET_SHARE[it] * 0.8 &&
-                    paid[it] < AuctionValuation.MARKET_SHARE[it] * 1.2
+        List<BigDecimal> shares = AuctionSpend.RECORD_SEASONS.collect {
+            AuctionSpend.shareByPosition([AuctionSpend.of(it)]).PK
         }
 
-        and: 'and kickers take well under a fifth of what the curve says they are worth'
+        expect: 'never as much as a fiftieth of the pot, in any season, under either lineup'
+        shares.every { it > 0 && it < 0.02 }
+
+        and: 'which is what the pooled constant the calibration uses is a mean of'
         AuctionValuation.MARKET_SHARE.PK < 0.02
     }
 
