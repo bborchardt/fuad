@@ -106,8 +106,8 @@ coefficient of variation of 0.25 and games played with 0.25, so **about half the
 total is availability rather than production.**
 
 **How much the two halves have to say about rank is not the same, and it differs by position.** Over the
-same span of ranks, receiver loses almost all of its level to the rate while quarterback loses a third of
-its own to availability:
+same span of ranks, receiver loses almost all of its level to the rate while quarterback loses nearly as
+much of its own to availability as to the rate:
 
 <!-- figures: curve across=POS field=PPG -->
 
@@ -125,8 +125,10 @@ its own to availability:
 
 A receiver 34 ranks down plays essentially as much football as the best one and simply scores less when he
 does. A quarterback 34 ranks down is a different kind of player: the league has 32 starting jobs, so past
-about rank 26 he is a backup who plays when somebody gets hurt. A single levelled season total says the same
-thing about both — worth about 60% of the best — and hides that one is worse and the other is absent.
+about rank 26 he is a backup who plays when somebody gets hurt. A single levelled season total puts both a
+long way under the best and says nothing about which of them is worse and which is simply absent. The two
+tables above do say: the receiver keeps his availability and gives up the rate, while the quarterback gives
+up both.
 
 **Levelling the product directly carries that noise into the level, and the measurement says by how much.**
 Where rank *r+1* levels above rank *r*, the step is noise the smoothing failed to remove; summed over the
@@ -471,9 +473,9 @@ tagged are gone the best player left is a large share of what remains.
 **It does not always reach a fixed point, and where it does not the board says so.** Two expiring players
 on one roster can each be the better tag once the other is tagged: taking one out of the bidding puts his
 tag price back in the pot and lifts what the other would fetch, which flips the saving back the other way.
-2026 does this for franchise 0001, where Lamar Jackson saves $17 against his market price and Amon-Ra St.
-Brown $19 — a gap well inside the standard error the levels carry, so the model genuinely cannot separate
-them.
+2026 does this for franchise 0001, where Lamar Jackson and Amon-Ra St. Brown each save $17 against their
+market price — a difference well inside the standard error the levels carry, so the model genuinely cannot
+separate them.
 
 What matters is that the set the board **reports** is the set it was **priced with**. Those came apart
 once: the loop ran out of rounds part way round the cycle and the tags were re-read from the round after
@@ -589,8 +591,8 @@ reader who knows the league is not.
 - **Tag surplus asks what a tag saves, never whether the player is worth it.** It is `MARKET` less the tag
   price, so the tag a team is told to use is the one it saves most on even where that player
   is priced above what he is worth. For 2026's undecided pair the two readings disagree: Lamar Jackson's
-  $66 tag buys $67 of `VALUE` while Amon-Ra St. Brown's $61 buys $57, so the cheaper saving is the better
-  contract. Nothing in the model weighs that.
+  $66 tag buys $64 of `VALUE` while Amon-Ra St. Brown's $61 buys $54, so the same saving buys ten dollars
+  more worth on one than the other. Nothing in the model weighs that.
 - **The calibration is fitted on three seasons.** Positional shares swing hard year to year, and dropping
   2022 as a transition year buys accuracy at the cost of a thinner sample.
 - **The market price of a tagged player is never tested.** It is a counterfactual for a player who will not
@@ -679,8 +681,21 @@ superflex starts twenty quarterbacks and so sets a high replacement. This belong
 value: it describes behaviour, not worth.
 
 The split immediately shows what the blend was hiding. This league **overpays for receivers and underpays
-for running backs**: Ja'Marr Chase is worth $69 and priced at $90, while Christian McCaffrey is worth $79
-and priced at $75.
+for running backs**, and the size of it is on a committed figure rather than in a sentence: `TARGETSHARE`
+is the share of the pot a position takes and `VORSHARE` the share of the board's value it holds, before any
+calibration touches it.
+
+<!-- figures: positions -->
+
+| POS | TARGETSHARE | VORSHARE |
+| --- | --- | --- |
+| WR | 34.1 | 25.7 |
+| RB | 32.7 | 36.7 |
+
+Receiver is bought a third above what it is worth and running back at about nine tenths of it. Named by
+position rather than by player for the reason [STRATEGY.md](STRATEGY.md#what-the-board-carries) gives about
+ranks: a position is on a figure that is committed and checked, where the two players this paragraph used
+to name were on a board that is regenerated and never kept — and both of their numbers had gone stale.
 
 ## What a tier is for
 
@@ -884,8 +899,13 @@ reports the disagreement as `EDGE`, which is what that column is for.
 
 An expiring contract is restricted: the team holding it may match the winning bid. That shows up in the
 record as stickiness rather than as inflated prices — retention runs at **74% inside the top twelve** at a
-position against 41% in the twenties, while the price premium for prising a top-twelve player loose is only
-4%. The friction is spent on availability, not on cost.
+position, against 54% over ranks 13-24 and 41% over ranks 25-40, while the price premium for prising a
+top-twelve player loose is only 4%. The friction is spent on availability, not on cost.
+
+**It is not monotone past rank 40, and the bands are left as observed.** Retention rises back to 53% beyond
+the fortieth rank rather than continuing to fall. Nothing here explains that, and it is worth naming rather
+than smoothing away: the sentence above — that the friction lands on the players worth wanting — describes
+the first three bands and not the fourth.
 
 `AVAILABILITY` carries those retention rates onto the board, and `ACQUIRE` is `max(price, value + 1)` for a
 restricted player: to win you must clear what he is worth to the incumbent, not merely what the market

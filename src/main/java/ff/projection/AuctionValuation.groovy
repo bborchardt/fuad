@@ -90,8 +90,14 @@ class AuctionValuation {
      * How often a tier of expiring contract has actually changed hands, 2022-2025.
      *
      * Expiring players are restricted: their team may match, and for the best players it usually does.
-     * Retention runs at 74% inside the top twelve at a position against 41% in the twenties, so the
-     * stickiness the rule creates lands almost entirely on the players worth wanting.
+     * Retention runs at 74% inside the top twelve at a position, against 54% over ranks 13-24 and 41% over
+     * ranks 25-40, so across the ranks that carry money the stickiness the rule creates lands on the players
+     * worth wanting.
+     *
+     * <b>The fourth band does not continue that fall and is left as observed.</b> Past rank 40 retention
+     * comes back to 53%. Nothing here explains it, so it is carried as measured rather than smoothed into
+     * the monotone curve the first three bands suggest — the ranks concerned are at or near the minimum bid
+     * either way.
      */
     static final List<List> AVAILABILITY = [[12, 0.26], [24, 0.46], [40, 0.59], [Integer.MAX_VALUE, 0.47]]
 

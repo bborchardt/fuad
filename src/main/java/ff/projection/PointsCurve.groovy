@@ -18,13 +18,12 @@ import ff.data.RealisedSeason
  * player is when he plays and how much football he plays are differently caused and differently variable —
  * for ranked quarterbacks the rate scatters with a coefficient of variation of 0.25 and games played with
  * 0.25, so about half the variation in a season total is availability rather than production. Levelling the
- * product directly lets one unlucky year of injuries at one rank masquerade as a judgement about talent:
- * it is why the consensus best running back appeared to be outplayed by RB5, when in fact he has the
- * highest points per game at the position and the fewest games of the top eight.
+ * product directly lets one unlucky year of injuries at one rank masquerade as a judgement about talent.
  *
- * Multiplying two separately averaged halves is also the better estimator. Rate is much the smoother of the
- * two — running back's curve travels backwards a third as often measured per game as measured per season —
- * so the product carries less noise than the mean of the products does.
+ * Multiplying two separately averaged halves is also the better estimator, and the curve measures by how
+ * much: {@link Census#backward} against {@link Census#backwardOfTotals} is how far each shape travels
+ * backwards, and the split wins at every position. The figures are in docs/figures/&lt;year&gt;/positions.tsv
+ * as BACKWARD against BACKWARDTOTALS, rather than quoted here where nothing would notice them going stale.
  *
  * Nine seasons are pooled flat. Restating 2017-19 and 2022-24 under one rule set brings them to within a
  * few per cent at every position, so there is no era effect left to weight against. That gives about 45
@@ -272,12 +271,14 @@ class PointsCurve {
      * <b>Nothing prices off this, and it used to.</b> The argument was that the anchor is a single factor
      * across a position and cancels out of any comparison taken inside one, which is true and was not the
      * whole story: value over replacement is computed inside a position and then <b>summed across</b> all
-     * of them to divide the pot. The anchor runs from 1.032 at receiver to 1.067 at kicker, so an unanchored
-     * rate tilted {@code VALUE} by about two per cent between positions — invisible while {@code VALUE} was
-     * a secondary column, and load bearing once the kicker market turned on it.
+     * of them to divide the pot, so a factor that differs by position does not cancel.
      *
      * {@link #weeklyRate} therefore takes {@link #levelledRate}. Kept public because the two are worth
      * telling apart, and because the difference between them is the anchor itself.
+     *
+     * The anchor runs from about 1.03 at receiver to about 1.06 at quarterback, so an unanchored rate tilted
+     * {@code VALUE} by a couple of per cent between positions — invisible while {@code VALUE} was a secondary
+     * column, and load bearing once the kicker market turned on it.
      */
     BigDecimal pointsPerGame(String position, int rank) {
         rateByPosition[position]?.get(rank) ?: 0.0
@@ -403,12 +404,13 @@ class PointsCurve {
      *
      * A season total is a rate times an availability, and averaging the two apart drops the covariance
      * between them: within a rank the years a player misses games are also years he plays less well, so the
-     * product of the means comes in about five per cent under the mean of the products at every position.
+     * product of the means comes in three to six per cent under the mean of the products at every position.
      *
      * That is deliberate for the <b>shape</b> — the rank-to-rank wobble it removes is the noise this whole
-     * split exists to take out — but it is wrong for the <b>level</b>, and unevenly so: 0.945 at tight end
-     * against 0.959 at receiver. {@link StarterRequirements} compares positions against each other to
-     * allocate the flex, so a differential of that size is enough to move a starting slot between them.
+     * split exists to take out — but it is wrong for the <b>level</b>, and unevenly so: the shortfall is
+     * about 3% at receiver against about 6% at quarterback. {@link StarterRequirements} compares positions
+     * against each other to allocate the flex, so a differential of that size is enough to move a starting
+     * slot between them.
      *
      * So the smoothed shape is scaled back to the mean season the position actually had. Prices normalise
      * to the pot and would not notice a uniform factor; the flex allocation would.

@@ -34,8 +34,11 @@ if [[ ${1:-} =~ ^[0-9]{4}$ ]]; then
     shift
 fi
 
+# README.md is in the default set even though it carries no marked table. It makes claims about the model
+# like any other document, and leaving it out of the run meant it was not reported at all — which reads the
+# same as being checked and passing. Listed, it reports NONE, which is what is actually true of it.
 if [[ $# -eq 0 ]]; then
-    set -- docs/*.md
+    set -- README.md docs/*.md
 fi
 
 CLASSPATH_FILE="target/classpath.txt"

@@ -97,9 +97,18 @@ class ReportManifest {
         modelIsDirty() ? "$sha-dirty" : sha
     }
 
-    /** True where the model has uncommitted changes, so no sha describes what would run. */
+    /**
+     * True where the model has uncommitted changes, so no sha describes what would run.
+     *
+     * <b>A git that cannot answer counts as dirty.</b> {@link #git} returns null where the command failed
+     * and an empty string where it succeeded and found nothing, and Groovy truth flattens those to the same
+     * false — so an unanswerable question used to report a clean model, which is the one answer that lets a
+     * check pass. The guard exists to refuse a comparison it cannot stand behind, and not knowing is not the
+     * same as knowing there is nothing there.
+     */
     static boolean modelIsDirty() {
-        git(['status', '--porcelain', '--'] + MODEL_PATHS as String[])
+        String changed = git(['status', '--porcelain', '--'] + MODEL_PATHS as String[])
+        changed == null || !changed.isEmpty()
     }
 
     /**
