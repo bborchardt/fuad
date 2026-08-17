@@ -852,12 +852,25 @@ Most of that is **rate** rather than availability:
 
 so it is a claim about how well a rank kicks, not about who keeps his job.
 
-Set against what the league pays, kickers take about 0.9% of the auction while the curve puts their share of
-value over replacement near 6%. That is a factor of six, and nothing else on the board is out by a factor at
-all: quarterback and running back are bought at about nine tenths of their share of value, and receiver and
-tight end — the two the league is already known to misprice, see [§5](#5-pulled-towards-how-this-league-actually-bids) —
-at about a third above and a third below. Kicker is a different kind of disagreement from those, and the top
-kickers carry the largest `EDGE` on the whole board.
+Set against what the league pays, that value has nowhere to go. `TARGETSHARE` is the share of the pot each
+position takes and `VORSHARE` the share of the board's value over replacement it holds — the second before
+any calibration touches it, which is what makes the pair worth reading:
+
+<!-- figures: positions -->
+
+| POS | TARGETSHARE | VORSHARE |
+| --- | --- | --- |
+| QB | 23.1 | 25.2 |
+| RB | 32.7 | 36.7 |
+| WR | 34.1 | 25.7 |
+| TE | 9.2 | 6.7 |
+| PK | 0.9 | 5.7 |
+
+Kicker is out by a factor of six and nothing else is out by a factor at all. Quarterback and running back
+are bought at about nine tenths of their worth; receiver is bought a third above it and tight end a third
+below, which is the same mispricing
+[§5](#5-pulled-towards-how-this-league-actually-bids) reports from the price side. Kicker is a different
+kind of disagreement from those, and the top kickers carry the largest `EDGE` on the whole board.
 
 **This is reported and not acted on, and the caution is specific.** Value over replacement assumes the
 alternative is the best player *not started*, which for kickers is a rank on a preseason list. In practice
