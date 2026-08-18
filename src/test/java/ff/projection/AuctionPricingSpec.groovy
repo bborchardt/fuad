@@ -201,14 +201,14 @@ class AuctionPricingSpec extends Specification {
 
         where:
         rank | availability
-        1    | 0.26
-        12   | 0.26   // the band is inclusive at its own rank
-        13   | 0.46
-        24   | 0.46
-        25   | 0.59
-        40   | 0.59
-        41   | 0.47   // past the table, where retention falls back off
-        45   | 0.47
+        1    | 0.30
+        12   | 0.30   // the band is inclusive at its own rank
+        13   | 0.47
+        24   | 0.47
+        25   | 0.58
+        40   | 0.58
+        41   | 0.46   // past the table, where the deep band is mostly never re-signed at all
+        45   | 0.46
     }
 
     def "a player nobody holds is always available, and a tagged one almost never"() {

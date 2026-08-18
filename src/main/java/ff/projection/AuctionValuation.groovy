@@ -92,16 +92,16 @@ class AuctionValuation {
      * How often a tier of expiring contract has actually changed hands, 2022-2025.
      *
      * Expiring players are restricted: their team may match, and for the best players it usually does.
-     * Retention runs at 74% inside the top twelve at a position, against 54% over ranks 13-24 and 41% over
-     * ranks 25-40, so across the ranks that carry money the stickiness the rule creates lands on the players
-     * worth wanting.
      *
-     * <b>The fourth band does not continue that fall and is left as observed.</b> Past rank 40 retention
-     * comes back to 53%. Nothing here explains it, so it is carried as measured rather than smoothed into
-     * the monotone curve the first three bands suggest — the ranks concerned are at or near the minimum bid
-     * either way.
+     * <b>Of the contracts somebody re-signed, not of the contracts that expired.</b> That denominator is the
+     * whole meaning of these numbers and went unwritten, which made the last band read as an anomaly: taken
+     * against every expiring contract, availability falls away steadily with rank, because most deep players
+     * are re-signed by nobody at all. Taken against the ones somebody did sign — which is the question a
+     * bidder is actually asking — the deep band comes back up. Both readings are in
+     * docs/figures/&lt;year&gt;/retention.tsv, and {@code AuctionSpend.retention} measures them from the
+     * committed seasons so these four numbers cannot drift from the record they came from.
      */
-    static final List<List> AVAILABILITY = [[12, 0.26], [24, 0.46], [40, 0.59], [Integer.MAX_VALUE, 0.47]]
+    static final List<List> AVAILABILITY = [[12, 0.30], [24, 0.47], [40, 0.58], [Integer.MAX_VALUE, 0.46]]
 
     /** Roughly how often a franchised player has been prised away with pick compensation: six of 46. */
     static final BigDecimal TAGGED_AVAILABILITY = 0.13

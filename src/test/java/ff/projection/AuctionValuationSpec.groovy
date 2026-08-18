@@ -185,6 +185,54 @@ class AuctionValuationSpec extends Specification {
         }
     }
 
+    /**
+     * The last constant on this class that nothing recomputed, and it had drifted.
+     *
+     * It is a measurement like the rest — how often an expiring contract of a given band actually changed
+     * hands — so it is checked against the seasons it was measured from. The top band was carried at 0.26
+     * against a record of 0.30, which is the difference between saying a top-twelve player is retained
+     * three times in four and seven times in ten.
+     */
+    def "availability is what the record says an expiring contract of each band did"() {
+        given:
+        List<Integer> boundaries = AuctionValuation.AVAILABILITY.collect { it[0] as int }
+        List<AuctionSpend.Retention> measured =
+                AuctionSpend.retention(AuctionSpend.SUPERFLEX_SEASONS, boundaries)
+
+        expect: 'every band within a point of what the seasons behind it actually did'
+        measured.every { AuctionSpend.Retention band ->
+            BigDecimal carried = AuctionValuation.AVAILABILITY.find { it[0] == band.throughRank }[1]
+            (band.movedShare - carried).abs() < 0.01
+        }
+
+        and: 'each band resting on enough contracts to be a rate rather than an anecdote'
+        measured.every { it.signed >= 40 }
+    }
+
+    /**
+     * Why the deepest band does not continue the fall, which read as an anomaly while the denominator went
+     * unstated.
+     *
+     * Availability is measured over the contracts somebody re-signed, because that is the question a bidder
+     * asks. Measured over every contract that expired it falls away steadily with rank instead — and the
+     * difference between the two readings is that a deep contract is usually re-signed by nobody at all.
+     */
+    def "the deep band comes back up only because most of it is never signed at all"() {
+        given:
+        List<AuctionSpend.Retention> measured = AuctionSpend.retention(AuctionSpend.SUPERFLEX_SEASONS,
+                AuctionValuation.AVAILABILITY.collect { it[0] as int })
+
+        expect: 'on the constant\'s own denominator the deepest band is no more available than the middle'
+        measured.last().movedShare < measured[2].movedShare
+
+        and: 'while against every expiring contract it is much the least available of the four'
+        measured.last().movedShareOfExpiring < measured.collect { it.movedShareOfExpiring }.max() / 2
+
+        and: 'which is that reading collapsing: the top band is nearly always re-signed and the last rarely'
+        measured.first().signedShare > 0.9
+        measured.last().signedShare < 0.5
+    }
+
     /** Measured and reported, never calibrated on: the case for dropping it has to be checkable. */
     def "2022 is the outlier the calibration excludes, and by a distance"() {
         given:

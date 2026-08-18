@@ -213,6 +213,37 @@ class ModelFiguresPrinter {
                 AuctionSpend.CALIBRATED_SEASONS.last(), calibrated)
     }
 
+    /**
+     * How often an expiring contract of each band actually changed hands, which is what `AVAIL` carries.
+     *
+     * <b>Both denominators, because the constant uses one and the prose kept reaching for the other.</b>
+     * {@code MOVEDSHARE} is of the contracts somebody re-signed and is what
+     * {@link AuctionValuation#AVAILABILITY} holds; {@code MOVEDOFEXPIRING} is of every contract that
+     * expired. They tell opposite stories about the deepest band, and the difference between them is
+     * {@code SIGNEDSHARE} — how often a band is re-signed at all, which collapses with rank.
+     */
+    void printRetention(PrintWriter out) {
+        out.println(['BAND', 'THROUGHRANK', 'EXPIRING', 'SIGNED', 'MOVED', 'MOVEDSHARE', 'MOVEDOFEXPIRING',
+                     'SIGNEDSHARE'].join('\t'))
+        List<Integer> boundaries = AuctionValuation.AVAILABILITY.collect { it[0] as int }
+        int from = 1
+        AuctionSpend.retention(AuctionSpend.SUPERFLEX_SEASONS, boundaries).each { AuctionSpend.Retention band ->
+            // The last band runs to the end of the ranking rather than to a rank anybody would recognise.
+            String label = band.throughRank == Integer.MAX_VALUE ? "$from+" : "$from-$band.throughRank"
+            out.println([
+                    label,
+                    band.throughRank == Integer.MAX_VALUE ? '' : band.throughRank,
+                    band.expiring,
+                    band.signed,
+                    band.moved,
+                    band.movedShare.setScale(2, RoundingMode.HALF_UP),
+                    band.movedShareOfExpiring.setScale(2, RoundingMode.HALF_UP),
+                    band.signedShare.setScale(2, RoundingMode.HALF_UP),
+            ].join('\t'))
+            from = band.throughRank + 1
+        }
+    }
+
     private static void printSpendRow(PrintWriter out, String label, List<AuctionSpend.Season> seasons) {
         Map<String, BigDecimal> share = AuctionSpend.shareByPosition(seasons)
         Map<String, BigDecimal> excludingKickers =

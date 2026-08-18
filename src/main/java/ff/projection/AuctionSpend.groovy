@@ -145,6 +145,88 @@ class AuctionSpend {
         }
     }
 
+    /**
+     * How often an expiring contract in a band of ranks actually changed hands.
+     *
+     * <b>Of the contracts that were re-signed, not of the contracts that expired.</b> That denominator is
+     * the whole of what {@link AuctionValuation#AVAILABILITY} means and it was never written down, which is
+     * what made the deep band look anomalous: read against every expiring contract, availability falls away
+     * steadily with rank, because most deep players are not re-signed by anybody. Read against the ones
+     * somebody did sign — which is the question a bidder is asking — the deep band comes back up.
+     *
+     * Both counts are carried so the two readings can be told apart rather than argued about.
+     */
+    static class Retention {
+        /** The deepest rank in this band, which is how {@link AuctionValuation#AVAILABILITY} is keyed. */
+        final int throughRank
+        /** Expiring contracts at these ranks, whether or not anybody re-signed them. */
+        final int expiring
+        /** Those of them somebody signed, which is the denominator the constant is measured on. */
+        final int signed
+        /** Those that went to a team other than the one holding them. */
+        final int moved
+
+        Retention(int throughRank, int expiring, int signed, int moved) {
+            this.throughRank = throughRank
+            this.expiring = expiring
+            this.signed = signed
+            this.moved = moved
+        }
+
+        /** How often a signed player of this band reached another team: what the constant carries. */
+        BigDecimal getMovedShare() { signed > 0 ? (moved as BigDecimal) / signed : 0.0 }
+
+        /** The same against every expiring contract, which is the reading that falls away with rank. */
+        BigDecimal getMovedShareOfExpiring() { expiring > 0 ? (moved as BigDecimal) / expiring : 0.0 }
+
+        /** How often a band was re-signed at all, which is what separates the two readings. */
+        BigDecimal getSignedShare() { expiring > 0 ? (signed as BigDecimal) / expiring : 0.0 }
+    }
+
+    /**
+     * Retention over the given seasons, banded by the rank boundaries the model prices with.
+     *
+     * The bands are a modelling choice and the rates are a measurement, so the boundaries are read off
+     * {@link AuctionValuation#AVAILABILITY} rather than repeated here. A player the consensus did not rank
+     * is skipped: he has no band to fall in, and the constant makes no claim about him.
+     */
+    static List<Retention> retention(List<String> seasons, List<Integer> boundaries) {
+        Map<Integer, List<Integer>> tally = boundaries.collectEntries { [(it): [0, 0, 0]] }
+        seasons.each { String season ->
+            Map<String, List> preDraft = byPlayer(LoadUtils.mflRostersResourcePath(season))
+            Map<String, List> postDraft = byPlayer(LoadUtils.mflPostDraftRostersResourcePath(season))
+            Map<String, Integer> rankById = rankByPlayer(season)
+            preDraft.each { String id, List held ->
+                Integer rank = rankById[id]
+                if (!expiring(held) || rank == null) {
+                    return
+                }
+                List<Integer> counts = tally[boundaries.find { rank <= it }]
+                counts[0]++
+                if (postDraft.containsKey(id)) {
+                    counts[1]++
+                    if (postDraft[id][0] != held[0]) {
+                        counts[2]++
+                    }
+                }
+            }
+        }
+        boundaries.collect { int through ->
+            new Retention(through, tally[through][0], tally[through][1], tally[through][2])
+        }
+    }
+
+    /** A season's consensus positional rank by MFL id, which is the join the bands are read through. */
+    private static Map<String, Integer> rankByPlayer(String season) {
+        Map<String, Integer> ranks = [:]
+        new ff.load.fuad.FuadLoader().loadData(season).playerByNameMap.values().each { player ->
+            if (player.redraftRank) {
+                ranks[player.mflId] = player.redraftRank.positionRank
+            }
+        }
+        ranks
+    }
+
     /** Player id to [franchise, salary], keeping the first row for each player. */
     private static Map<String, List> byPlayer(String resourcePath) {
         Map<String, List> held = [:]

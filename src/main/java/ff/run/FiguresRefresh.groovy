@@ -25,6 +25,7 @@ class FiguresRefresh {
             positions: 'printPositions',
             board    : 'printBoard',
             spend    : 'printSpend',
+            retention: 'printRetention',
             tags     : 'printTags',
             rates    : 'printRates',
     ].asImmutable() as Map<String, String>

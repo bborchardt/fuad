@@ -936,14 +936,29 @@ reports the disagreement as `EDGE`, which is what that column is for.
 ## Restricted free agency, and why bargains are unavailable
 
 An expiring contract is restricted: the team holding it may match the winning bid. That shows up in the
-record as stickiness rather than as inflated prices — retention runs at **74% inside the top twelve** at a
-position, against 54% over ranks 13-24 and 41% over ranks 25-40, while the price premium for prising a
-top-twelve player loose is only 4%. The friction is spent on availability, not on cost.
+record as stickiness rather than as inflated prices, while the price premium for prising a top-twelve
+player loose is only 4%. The friction is spent on availability, not on cost.
 
-**It is not monotone past rank 40, and the bands are left as observed.** Retention rises back to 53% beyond
-the fortieth rank rather than continuing to fall. Nothing here explains that, and it is worth naming rather
-than smoothing away: the sentence above — that the friction lands on the players worth wanting — describes
-the first three bands and not the fourth.
+**The denominator is the whole of what these numbers mean, so both are reported.** `MOVEDSHARE` is of the
+expiring contracts somebody re-signed, which is the question a bidder is asking and what `AVAILABILITY`
+carries. `MOVEDOFEXPIRING` is of every contract that expired, re-signed or not.
+
+<!-- figures: retention -->
+
+| BAND | EXPIRING | SIGNED | MOVEDSHARE | MOVEDOFEXPIRING | SIGNEDSHARE |
+| --- | --- | --- | --- | --- | --- |
+| 1-12 | 108 | 103 | 0.30 | 0.29 | 0.95 |
+| 13-24 | 85 | 73 | 0.47 | 0.40 | 0.86 |
+| 25-40 | 80 | 62 | 0.58 | 0.45 | 0.78 |
+| 41+ | 142 | 56 | 0.46 | 0.18 | 0.39 |
+
+Read down `MOVEDSHARE` and the stickiness lands on the players worth wanting, seven of ten top-twelve
+players staying put against four of ten in the twenties and thirties — and then the deepest band appears to
+reverse it. **It does not, and `SIGNEDSHARE` is why.** A deep expiring contract is usually re-signed by
+nobody at all: 39% of them find a team against 95% inside the top twelve. Against every contract that
+expired, availability falls away steadily all the way down, and the fourth band is much the least available
+of the four. The two columns are answering different questions, and the reversal is entirely the
+conditioning.
 
 `AVAILABILITY` carries those retention rates onto the board, and `ACQUIRE` is `max(price, value + 1)` for a
 restricted player: to win you must clear what he is worth to the incumbent, not merely what the market
