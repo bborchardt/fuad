@@ -62,6 +62,22 @@ class AuctionValuationSpec extends Specification {
         }
     }
 
+    /**
+     * A spend rate above one is not a high number, it is a broken measurement.
+     *
+     * The league cannot spend more than the cap it has free, so any season measuring over 1.0 is one where
+     * what counts as an auction signing has gone wrong — a roster snapshot taken on the wrong side of a
+     * structural change, most likely, so that players who were never bid on look like they were. Asserted
+     * separately from the range above and before it, because the range is a claim about the league's
+     * behaviour and this is a claim about the measurement being a measurement at all.
+     *
+     * It is the assertion that decides which seasons {@link AuctionSpend#RECORD_SEASONS} can hold.
+     */
+    def "no season measures as spending more than the cap it had free"() {
+        expect:
+        AuctionSpend.RECORD_SEASONS.every { AuctionSpend.of(it).spendRate <= 1.0 }
+    }
+
     def "five rounds times teams is what the rookie draft actually puts on rosters"() {
         expect: 'within a couple of picks every season, since rookies are almost always kept'
         superflex().every {
