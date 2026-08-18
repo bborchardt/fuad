@@ -216,6 +216,73 @@ class AuctionSpend {
         }
     }
 
+    /**
+     * How deep into a ranking the league actually signs and rosters, against how deep the board prices.
+     *
+     * <b>A signing here is anyone the auction put on a week 1 roster</b>, which is a wider net than the one
+     * {@link Season} casts for dollars: an expiring contract that came back, and also a veteran who was on
+     * no pre-draft roster at all. Both are bid on and both are on the board, so both count towards how deep
+     * bidding goes. Rookies are excluded, being drafted rather than bid on.
+     */
+    static class Depth {
+        final String position
+        /** Consensus rank of every player the auction signed, in no order. */
+        final List<Integer> signed
+        /** The same for everyone on a week 1 roster, which is the wider question of who is worth holding. */
+        final List<Integer> rostered
+
+        Depth(String position, List<Integer> signed, List<Integer> rostered) {
+            this.position = position
+            this.signed = signed
+            this.rostered = rostered
+        }
+
+        /** The deepest rank the league has ever paid for at this position. */
+        int getDeepest() { signed ? signed.max() : 0 }
+
+        /** The rank a given share of signings came at or above. */
+        int rankAt(double share) {
+            if (!signed) {
+                return 0
+            }
+            List<Integer> sorted = signed.sort(false)
+            sorted[Math.min(sorted.size() - 1, Math.max(0, (Math.ceil(share * sorted.size()) as int) - 1))]
+        }
+
+        /** What share of week 1 rosters falls inside a given depth, which is what a cap has to cover. */
+        BigDecimal rosteredWithin(int depth) {
+            rostered ? (rostered.count { it <= depth } as BigDecimal) / rostered.size() : 0.0
+        }
+    }
+
+    /** Signing and roster depth by position, over the seasons given. */
+    static Map<String, Depth> depth(List<String> seasons) {
+        Map<String, List<Integer>> signed = POSITIONS.collectEntries { [(it): []] }
+        Map<String, List<Integer>> rostered = POSITIONS.collectEntries { [(it): []] }
+        seasons.each { String season ->
+            Map<String, List> preDraft = byPlayer(LoadUtils.mflRostersResourcePath(season))
+            Map<String, List> postDraft = byPlayer(LoadUtils.mflPostDraftRostersResourcePath(season))
+            Map<String, Integer> rankById = rankByPlayer(season)
+            List<Map> players = LoadUtils.loadJsonResource(
+                    LoadUtils.mflPlayersResourcePath(season)).players.player as List<Map>
+            Map<String, String> positionById = players.collectEntries { [(it.id as String): it.position as String] }
+            Map<String, String> statusById = players.collectEntries { [(it.id as String): (it.status ?: '') as String] }
+            postDraft.each { String id, List held ->
+                String position = positionById[id]
+                Integer rank = rankById[id]
+                if (!POSITIONS.contains(position) || rank == null) {
+                    return
+                }
+                rostered[position] << rank
+                boolean wasHeld = preDraft.containsKey(id)
+                if (wasHeld ? expiring(preDraft[id]) : statusById[id] != 'R') {
+                    signed[position] << rank
+                }
+            }
+        }
+        POSITIONS.collectEntries { [(it): new Depth(it, signed[it], rostered[it])] }
+    }
+
     /** A season's consensus positional rank by MFL id, which is the join the bands are read through. */
     private static Map<String, Integer> rankByPlayer(String season) {
         Map<String, Integer> ranks = [:]

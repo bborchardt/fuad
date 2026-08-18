@@ -87,11 +87,11 @@ class PointsCurve {
      * about the eleventh is below replacement and worth nothing to anybody, and the curve saying a deep
      * kicker scores points does not give the lineup a slot to score them in.
      *
-     * So kicker is bounded by what the league actually rosters. The deepest kicker ever signed at auction
-     * ranks 25th, and 25 covers 95% of the kickers on a week 1 roster. Half the league carries a second for
-     * bye cover, so about fifteen are rostered rather than ten, and rank predicts little enough at the
-     * position that teams do not sign them in order — the median kicker signed ranks 6th, the 90th
-     * percentile 16th.
+     * So kicker is bounded by what the league actually rosters, and 25 is not a round number: it is exactly
+     * the deepest rank the league has ever paid for at the position. What it covers of a week 1 roster, and
+     * how far down the league signs, are in docs/figures/&lt;year&gt;/depth.tsv as WITHINDEPTH, MEDIANRANK and
+     * P90RANK. Half the league carries a second kicker for bye cover, so more are rostered than start, and
+     * rank predicts little enough at the position that teams do not sign them in order.
      *
      * <b>It is a cap on the priced depth itself, not a filter over the board.</b> It was the second of
      * those, applied where the auction pool was assembled while the curve went on computing to 42, so
@@ -100,8 +100,12 @@ class PointsCurve {
      * jobs, and the seventeen ranks between them are where the position's lost seasons are concentrated, so
      * the distribution the board priced kickers against was largely made of ranks the board would not
      * carry.
+     *
+     * Visible rather than private because it is a measurement like the constants on {@link AuctionValuation}
+     * and is checked like one: {@code AuctionValuationSpec} holds it to the deepest kicker the record shows
+     * anybody paying for.
      */
-    private static final Map<String, Integer> DEPTH_CAP = [PK: 25].asImmutable() as Map<String, Integer>
+    static final Map<String, Integer> DEPTH_CAP = [PK: 25].asImmutable() as Map<String, Integer>
 
     private static final int MINIMUM_OBSERVATIONS = 6
 

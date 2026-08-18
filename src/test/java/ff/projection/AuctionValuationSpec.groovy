@@ -233,6 +233,42 @@ class AuctionValuationSpec extends Specification {
         measured.last().signedShare < 0.5
     }
 
+    /**
+     * The one depth in the model set by hand, held to the record it was set from.
+     *
+     * Every other position is bounded by the relevance floor, which never fires at kicker because the curve
+     * there is nearly flat. So kicker is bounded by what the league actually pays for — and 25 is not a
+     * round number chosen for looking sensible, it is exactly the deepest rank ever signed. Asserted as an
+     * equality for that reason: a hand-set constant that merely happens to be near the record is the kind
+     * that drifts, and this one is answerable to a number the seasons can produce.
+     */
+    def "the kicker depth is exactly the deepest kicker the league has ever paid for"() {
+        given:
+        AuctionSpend.Depth kickers = AuctionSpend.depth(AuctionSpend.SUPERFLEX_SEASONS).PK
+
+        expect:
+        kickers.deepest == PointsCurve.DEPTH_CAP.PK
+
+        and: 'and it covers all but a handful of the kickers anybody actually rosters'
+        kickers.rosteredWithin(PointsCurve.DEPTH_CAP.PK) > 0.95
+    }
+
+    /**
+     * Why the four hand-set depths that preceded the relevance floor had to go.
+     *
+     * They were QB 30, RB 45, WR 50 and TE 25, and the league has signed deeper than every one of them —
+     * which is the whole argument for taking the depth off the curve instead of writing it down.
+     */
+    def "the league signs deeper than the hand-set depths the curve replaced"() {
+        given:
+        Map<String, AuctionSpend.Depth> measured = AuctionSpend.depth(AuctionSpend.SUPERFLEX_SEASONS)
+
+        expect:
+        [QB: 30, RB: 45, WR: 50, TE: 25].every { String position, int wasCappedAt ->
+            measured[position].deepest > wasCappedAt
+        }
+    }
+
     /** Measured and reported, never calibrated on: the case for dropping it has to be checkable. */
     def "2022 is the outlier the calibration excludes, and by a distance"() {
         given:

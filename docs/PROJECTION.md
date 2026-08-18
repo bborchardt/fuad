@@ -825,8 +825,19 @@ quarter of the position's best, and it never fires at kicker because the curve t
 42nd ranked kicker still levels around three fifths of the first, so the whole ranked pool would come onto
 the board. Flat is not the same as valuable: only ten kickers start, so everything past about the eleventh
 is below replacement and worth nothing to anybody. Left uncapped the board carried 29 kickers, 27 of them
-at the minimum bid, and the dollar reserved for each came to more than the position's whole budget. 25 is
-the deepest kicker ever signed at auction, and covers 95% of those on a week 1 roster.
+at the minimum bid, and the dollar reserved for each came to more than the position's whole budget.
+
+**25 is not a round number.** It is exactly the deepest rank the league has ever paid for at the position,
+and it covers all but a handful of the kickers anybody rosters:
+
+<!-- figures: depth -->
+
+| POS | PRICEDDEPTH | SIGNINGS | DEEPEST | MEDIANRANK | P90RANK | WITHINDEPTH |
+| --- | --- | --- | --- | --- | --- | --- |
+| PK | 25 | 40 | 25 | 6 | 18 | 96.3 |
+
+`MEDIANRANK` and `P90RANK` are the other half of the point: teams do not sign kickers in rank order, so the
+depth has to cover a spread rather than a top slice.
 
 **Set by hand, but set in the same place as the others.** It is a cap on `PRICEDDEPTH` itself rather than a
 filter applied where the auction pool is assembled, which is what it used to be — and while it was, kicker
@@ -843,9 +854,22 @@ it. Pricing every expiring contract regardless of rank had put 43 players on the
 applied to free agents — holding 1.9% of all value between them, 36 of them at the minimum bid — while
 excluding unrostered players like Dontayvion Wicks at WR67 who would be signed.
 
-The depth is taken from the curve rather than set by hand. The four numbers it replaced (QB 30, RB 45, WR
-50, TE 25) were too shallow against what the league has actually signed, most badly at receiver, where
-**26% of historical signings — and 18% of those above the minimum bid — fell beyond rank 50**.
+The depth is taken from the curve rather than set by hand. The four numbers it replaced — QB 30, RB 45, WR
+50, TE 25 — were shallower than the deepest rank the league has actually paid for at **every one** of those
+positions, which is the whole argument for reading a depth off the curve instead of writing it down:
+
+<!-- figures: depth -->
+
+| POS | PRICEDDEPTH | DEEPEST | MEDIANRANK | P90RANK |
+| --- | --- | --- | --- | --- |
+| QB | 36 | 45 | 19 | 32 |
+| RB | 65 | 102 | 30 | 63 |
+| WR | 100 | 112 | 40 | 85 |
+| TE | 45 | 57 | 15 | 34 |
+
+`DEEPEST` is one signing and a depth should not chase it, which is why `PRICEDDEPTH` sits below it at every
+position; `P90RANK` is the rank nine signings in ten come at or above, and the curve's own cutoff lands
+above that everywhere.
 
 **Rookies are excluded entirely.** They are drafted separately after the auction and cannot be bid on. Two
 simple allowances stand in for them, both checked against the record by `AuctionValuationSpec`:

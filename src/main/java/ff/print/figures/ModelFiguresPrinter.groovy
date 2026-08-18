@@ -244,6 +244,34 @@ class ModelFiguresPrinter {
         }
     }
 
+    /**
+     * How deep the league actually signs, against how deep the board prices.
+     *
+     * {@code PRICEDDEPTH} is a claim the curve makes and this is the record it is answerable to. The four
+     * hand-set depths it replaced were too shallow against {@code DEEPEST} at every position, and kicker —
+     * the one position the relevance floor cannot bound — is capped by hand at exactly the deepest rank the
+     * league has ever paid for. See {@link PointsCurve#DEPTH_CAP}.
+     */
+    void printDepth(PrintWriter out) {
+        out.println(['POS', 'PRICEDDEPTH', 'SIGNINGS', 'DEEPEST', 'MEDIANRANK', 'P90RANK', 'ROSTERED',
+                     'WITHINDEPTH'].join('\t'))
+        Map<String, AuctionSpend.Depth> measured = AuctionSpend.depth(AuctionSpend.SUPERFLEX_SEASONS)
+        POSITIONS.each { String position ->
+            AuctionSpend.Depth depth = measured[position]
+            int priced = curve.pricedDepth(position)
+            out.println([
+                    position,
+                    priced ?: '',
+                    depth.signed.size(),
+                    depth.deepest,
+                    depth.rankAt(0.5),
+                    depth.rankAt(0.9),
+                    depth.rostered.size(),
+                    priced ? percent(depth.rosteredWithin(priced)) : '',
+            ].join('\t'))
+        }
+    }
+
     private static void printSpendRow(PrintWriter out, String label, List<AuctionSpend.Season> seasons) {
         Map<String, BigDecimal> share = AuctionSpend.shareByPosition(seasons)
         Map<String, BigDecimal> excludingKickers =
