@@ -28,6 +28,34 @@ The rule also has a useful consequence. If a plan needs a figure the board does 
 missing report column, not a licence to reach behind. The gap gets fixed once, in the model, where it can
 be tested — rather than in each plan, where it cannot.
 
+## The same rule, turned at the source
+
+**No comment states a number something else computes.** A javadoc figure is read while the code is being
+edited, by the one person most able to invalidate it, and nothing checks it — which is the arrangement this
+whole file exists to argue against, sitting inside the model rather than in a plan. It rotted exactly as
+predicted: two comments in one file gave different values for the same anchor, a smoothing radius was
+justified by a correlation two to four times weaker than the record supports, and a retired argument about
+the best running back survived in three places after the documentation had dropped it.
+
+Four kinds of figure, and only the last belongs in a comment:
+
+| | Where it goes |
+| --- | --- |
+| What the model computes now — a level, a share, a depth, an anchor | `docs/figures/<year>`, cited by name and field |
+| What the committed data says — a correlation, a retention rate, a spend | a spec that recomputes it, as `AuctionValuationSpec` does |
+| What a superseded implementation used to produce | the commit message that replaced it |
+| A league rule, or the definition of a constant | the comment, because the number *is* the specification |
+
+The first is a hard rule: if a comment wants a generated figure, it names the file and the column. If no
+such figure exists, that is a missing column in `positions.tsv` or `curve.tsv` — the same move a plan makes
+when it needs something the board does not carry, for the same reason. `ANCHOR`, `GAMESCORR`, `RATECV` and
+`GAMESCV` are all columns that exist because a comment wanted to quote them.
+
+The third is worth stating because the alternative looks tempting. A figure measured against a model that no
+longer exists cannot be regenerated and cannot be checked, so a comment carrying one is unfalsifiable
+forever. The commit that made the change is where it belongs: dated, immutable, and attached to the diff
+that made it true.
+
 ## The contract
 
 Every strategy document:

@@ -265,6 +265,52 @@ class PointsCurveSpec extends Specification {
         (curve.census('WR').anchor - 1.0).abs() < 0.001
     }
 
+    /**
+     * The measurement that chose {@link PointsCurve#AVAILABILITY_SMOOTHING_RADIUS}, reported so the argument
+     * for smoothing availability five times wider than the rate can be held to it rather than remembered.
+     */
+    def "measures how weakly rank predicts availability"() {
+        given: 'a position where how much football a rank plays has nothing to do with the rank'
+        Map<Integer, List<RealisedSeason>> flat = (1..30).collectEntries { int rank ->
+            [(rank): (1..9).collect { int season ->
+                // games cycle on the season and ignore the rank entirely
+                new RealisedSeason(points: ((300 - rank * 5) * (7 + season % 7) / 13) as BigDecimal,
+                        games: 7 + season % 7)
+            }]
+        }
+
+        and: 'and one where the deep ranks plainly play less, as quarterback really does'
+        Map<Integer, List<RealisedSeason>> falling = (1..30).collectEntries { int rank ->
+            int games = Math.max(2, 13 - rank / 3 as int)
+            [(rank): (1..9).collect { new RealisedSeason(points: (10 * games) as BigDecimal, games: games) }]
+        }
+
+        expect: 'near nothing where rank says nothing, and strongly negative where it says something'
+        PointsCurve.of([WR: flat]).census('WR').gamesCorrelation.abs() < 0.2
+        PointsCurve.of([QB: falling]).census('QB').gamesCorrelation < -0.8
+    }
+
+    /**
+     * The pair the whole split rests on: a season is two things, and they scatter independently. Where the
+     * two are comparable, as much of the variation in a season total is absence as is form.
+     */
+    def "measures how widely each half of a season scatters"() {
+        given: 'a position whose rate never varies and whose availability varies a lot'
+        Map<Integer, List<RealisedSeason>> byRank = (1..30).collectEntries { int rank ->
+            [(rank): (1..9).collect { int season ->
+                int games = [13, 13, 13, 13, 13, 13, 7, 4, 0][season - 1]
+                new RealisedSeason(points: (12 * games) as BigDecimal, games: games)
+            }]
+        }
+        PointsCurve curve = PointsCurve.of([RB: byRank])
+
+        expect: 'the rate is a constant, so it does not scatter at all'
+        curve.census('RB').rateVariation < 0.001
+
+        and: 'while availability does, the lost season included, which is where it belongs'
+        curve.census('RB').gamesVariation > 0.3
+    }
+
     def "calls a curve that never goes backwards perfectly monotone"() {
         given: 'rank k scores exactly 300 - 5k every year, so nothing ever dips'
         PointsCurve curve = PointsCurve.of([WR: TestSeasons.byRank(steady())])

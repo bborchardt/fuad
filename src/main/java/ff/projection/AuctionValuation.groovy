@@ -109,9 +109,10 @@ class AuctionValuation {
     /**
      * Share of the pot that goes on rookies, who are drafted separately after the auction.
      *
-     * Their prices are set by rule off the previous year's positional prices, and they come out very low:
-     * the whole league spent $42, $52, $69 and $76 on them across 2022-2025, which is 3.0% to 4.0% of the
-     * auction pot each year. That money is committed before any bidding and has to come off the top.
+     * Their prices are set by rule off the previous year's positional prices, and they come out very low —
+     * a few per cent of the auction pot each year. That money is committed before any bidding and has to
+     * come off the top. {@code AuctionValuationSpec} recomputes the share from the committed seasons, so
+     * this constant cannot drift from what the league has actually spent on a rookie class.
      */
     static final BigDecimal ROOKIE_BUDGET_SHARE = 0.035
 

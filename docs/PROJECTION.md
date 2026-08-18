@@ -101,9 +101,21 @@ and per game played:
 ### 2b. A season is a rate times an availability
 
 Those are two numbers because a season is two things, and they are differently caused: how good a player is
-when he plays, and how much football he plays. For ranked quarterback seasons the rate scatters with a
-coefficient of variation of 0.25 and games played with 0.25, so **about half the variation in a season
-total is availability rather than production.**
+when he plays, and how much football he plays. `RATECV` and `GAMESCV` are how widely each scatters, as a
+coefficient of variation:
+
+<!-- figures: positions -->
+
+| POS | RATECV | GAMESCV |
+| --- | --- | --- |
+| QB | 0.32 | 0.34 |
+| RB | 0.52 | 0.33 |
+| WR | 0.49 | 0.31 |
+| TE | 0.50 | 0.32 |
+
+For ranked quarterback seasons the two are level, so **about half the variation in a season total is
+availability rather than production.** At the other three the rate scatters half again as widely as
+availability does, which is a real difference between positions and one a single season total hides.
 
 **How much the two halves have to say about rank is not the same, and it differs by position.** Over the
 same span of ranks, receiver loses almost all of its level to the rate while quarterback loses nearly as
@@ -153,10 +165,29 @@ Better at every position, and by a factor of two to four at three of them.
 > number can be regenerated and an anecdote cannot.
 
 **Availability is smoothed five times harder than the rate**, over ranks ±10 rather than ±2. How much
-football a player misses is nearly unrelated to where he was ranked — the correlation between rank and games
-played is −0.04 at running back, −0.09 at receiver and −0.14 at tight end — so a narrow window fits noise
-and multiplies it straight back into the level. At the rate's own radius the curve came out *less* monotone
-than the season totals it replaced.
+football a player misses is only weakly related to where he was ranked, `GAMESCORR` being the correlation
+between rank and games played over every ranked season that carries money:
+
+<!-- figures: positions -->
+
+| POS | GAMESCORR |
+| --- | --- |
+| QB | -0.41 |
+| RB | -0.16 |
+| WR | -0.25 |
+| TE | -0.20 |
+
+Outside quarterback that is a few per cent of the variance, so a narrow window fits mostly noise and
+multiplies it straight back into the level. **The decisive evidence is not this, though, and it is worth
+saying which is which:** at the rate's own radius the curve came out *less* monotone than the season totals
+it replaced, and monotonicity is measured directly as `BACKWARD`. The correlation says the signal is weak;
+`BACKWARD` says what the window actually did to the curve.
+
+> This paragraph used to put the correlation at −0.04 at running back, −0.09 at receiver and −0.14 at tight
+> end, which is two to four times weaker than the figures above and is not reproducible under any definition
+> the model now supports. It was prose that nothing recomputed. The conclusion is unchanged, because it never
+> rested on this measurement — but "nearly unrelated" was a stronger claim than the record supports, and the
+> figure is generated now so it cannot drift again.
 
 <!-- model: 7556912 -->
 
@@ -644,10 +675,10 @@ Alongside them the board carries what a plan needs in order to reason without go
   [2b](#2b-a-season-is-a-rate-times-an-availability) for the figures.
 
   **`G` does not break a tie inside a tier.** Availability is smoothed across ten ranks either side, because
-  rank predicts it weakly — the correlation is −0.04 at running back — and a tier is a band of neighbouring
-  levels, so the ranks in one share nearly the same figure. Across a whole tier of 2026 the widest spread is
-  0.7 games and the usual one is 0.3. Reading an order into that is the same false precision `TIER` exists
-  to remove.
+  rank predicts it weakly — see `GAMESCORR` in [2b](#2b-a-season-is-a-rate-times-an-availability) — and a
+  tier is a band of neighbouring levels, so the ranks in one share nearly the same figure. Across a whole
+  tier of 2026 the widest spread is 0.7 games and the usual one is 0.3. Reading an order into that is the
+  same false precision `TIER` exists to remove.
 
   **`G` is not `AVAIL`.** `G` is how much football he plays; `AVAIL` is the chance he ever reaches another
   team, which is a fact about the right of first refusal and nothing to do with his health.

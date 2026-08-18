@@ -109,11 +109,17 @@ class ModelFiguresPrinter {
      * {@link PointsCurve} scales a position's shape by to put its level back where its seasons actually
      * were, it differs by position, and it was quoted from memory in two javadoc comments that had drifted
      * apart from each other and from the model alike.
+     *
+     * {@code GAMESCORR}, {@code RATECV} and {@code GAMESCV} are the three measurements the rate-against-
+     * availability split rests on: how weakly rank predicts how much football a player plays, and how widely
+     * each half scatters. They decided {@link PointsCurve#AVAILABILITY_SMOOTHING_RADIUS} and they are the
+     * evidence for treating a season as two things rather than one, so they belong where the argument that
+     * cites them can be held to them.
      */
     void printPositions(PrintWriter out) {
         out.println(['POS', 'DEPTH', 'PRICEDDEPTH', 'STARTED', 'REPLRANK', 'GAMMA', 'PLAYERS', 'RESERVE',
                      'SHARE', 'TARGETSHARE', 'VORSHARE', 'P10', 'P90', 'SEASONS', 'LOST', 'BACKWARD',
-                     'BACKWARDTOTALS', 'ANCHOR'].join('\t'))
+                     'BACKWARDTOTALS', 'ANCHOR', 'GAMESCORR', 'RATECV', 'GAMESCV'].join('\t'))
         Map<String, BigDecimal> share = pricedShareByPosition()
         Map<String, BigDecimal> reserve = reservedShareByPosition()
         Map<String, BigDecimal> worth = valueShareByPosition()
@@ -142,6 +148,9 @@ class ModelFiguresPrinter {
                     levelled ? percent(census.backward) : '',
                     levelled ? percent(census.backwardOfTotals) : '',
                     levelled ? census.anchor.setScale(3, RoundingMode.HALF_UP) : '',
+                    levelled ? census.gamesCorrelation.setScale(2, RoundingMode.HALF_UP) : '',
+                    levelled ? census.rateVariation.setScale(2, RoundingMode.HALF_UP) : '',
+                    levelled ? census.gamesVariation.setScale(2, RoundingMode.HALF_UP) : '',
             ].join('\t'))
         }
     }

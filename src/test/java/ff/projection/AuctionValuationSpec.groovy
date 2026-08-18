@@ -143,7 +143,7 @@ class AuctionValuationSpec extends Specification {
      *
      * <b>That is what was quietly not true.</b> Rate and availability are averaged apart and multiplied,
      * which loses their covariance, so each position's level is anchored back to the season it really had —
-     * by a different factor at each position, 1.032 at receiver against 1.067 at kicker. Value over
+     * by a different factor at each position, reported as {@code ANCHOR} in docs/figures. Value over
      * replacement was taken on the unanchored rate and {@code PTS} on the anchored one, so the two were on
      * different scales and {@code VALUE} carried the difference between positions. Prices never did, which
      * is why it went unseen until the kicker market turned on {@code VALUE}.

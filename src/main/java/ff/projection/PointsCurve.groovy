@@ -15,10 +15,11 @@ import ff.data.RealisedSeason
  * whole rank with him.
  *
  * <b>A season is a rate multiplied by an availability, and the two are levelled separately.</b> How good a
- * player is when he plays and how much football he plays are differently caused and differently variable —
- * for ranked quarterbacks the rate scatters with a coefficient of variation of 0.25 and games played with
- * 0.25, so about half the variation in a season total is availability rather than production. Levelling the
- * product directly lets one unlucky year of injuries at one rank masquerade as a judgement about talent.
+ * player is when he plays and how much football he plays are differently caused and differently variable.
+ * How variable each is, per position, is in docs/figures/&lt;year&gt;/positions.tsv as RATECV against GAMESCV:
+ * where the two are comparable, as much of the variation in a season total is availability as is production.
+ * Levelling the product directly lets one unlucky year of injuries at one rank masquerade as a judgement
+ * about talent.
  *
  * Multiplying two separately averaged halves is also the better estimator, and the curve measures by how
  * much: {@link Census#backward} against {@link Census#backwardOfTotals} is how far each shape travels
@@ -43,11 +44,15 @@ class PointsCurve {
     /**
      * Availability is smoothed five times harder than the rate, because it has far less to say by rank.
      *
-     * How much football a player misses is nearly unrelated to where he was ranked — the correlation
-     * between rank and games played is -0.04 at running back, -0.09 at receiver, -0.14 at tight end — so a
-     * narrow window fits noise and multiplies it back into the level this split exists to take it out of.
-     * Smoothed at the rate's own radius, the curve came out less monotone than the season totals it
-     * replaced.
+     * How much football a player misses is only weakly related to where he was ranked — the correlation is
+     * in docs/figures/&lt;year&gt;/positions.tsv as GAMESCORR, and outside quarterback it accounts for a few
+     * per cent of the variance — so a narrow window fits mostly noise and multiplies it back into the level
+     * this split exists to take it out of.
+     *
+     * <b>That is the weaker half of the case, and the radius does not rest on it.</b> What settles it is
+     * measured directly: smoothed at the rate's own radius the curve came out less monotone than the season
+     * totals it replaced, which is BACKWARD on the same row. The correlation says the signal is weak; the
+     * monotonicity says what a window did to the curve, and only the second is evidence about a radius.
      *
      * <b>Smoothed, though, and not flattened.</b> Holding it constant across the ranks that carry money was
      * the first attempt and it went wrong at quarterback, where availability is not flat at all: there are
@@ -161,13 +166,29 @@ class PointsCurve {
          * out of the sum across positions that divides the pot.
          */
         final BigDecimal anchor
+        /**
+         * How strongly rank predicts availability, over every ranked season that carries money.
+         *
+         * Near zero at every position but quarterback, which is the whole case for smoothing availability
+         * five times wider than the rate: a narrow window over a signal this weak fits noise and multiplies
+         * it straight back into the level. See {@link #AVAILABILITY_SMOOTHING_RADIUS}.
+         */
+        final BigDecimal gamesCorrelation
+        /** How widely the rate scatters, as a coefficient of variation over the seasons that happened. */
+        final BigDecimal rateVariation
+        /** The same for games played, counting the seasons that never happened, which is where it lives. */
+        final BigDecimal gamesVariation
 
-        Census(int seasons, int lost, BigDecimal backward, BigDecimal backwardOfTotals, BigDecimal anchor) {
+        Census(int seasons, int lost, BigDecimal backward, BigDecimal backwardOfTotals, BigDecimal anchor,
+               BigDecimal gamesCorrelation, BigDecimal rateVariation, BigDecimal gamesVariation) {
             this.seasons = seasons
             this.lost = lost
             this.backward = backward
             this.backwardOfTotals = backwardOfTotals
             this.anchor = anchor
+            this.gamesCorrelation = gamesCorrelation
+            this.rateVariation = rateVariation
+            this.gamesVariation = gamesVariation
         }
     }
 
@@ -203,7 +224,7 @@ class PointsCurve {
 
     /** What this position's curve was built from, and how monotone it came out. */
     Census census(String position) {
-        censusByPosition[position] ?: new Census(0, 0, 0.0, 0.0, 1.0)
+        censusByPosition[position] ?: new Census(0, 0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0)
     }
 
     /**
@@ -521,8 +542,50 @@ class PointsCurve {
             rank <= deepest
         }.collectMany { int rank, List<RealisedSeason> seasons -> seasons }
         int window = Math.min(MONOTONICITY_WINDOW, deepest)
+        // Rank against games, one pair per ranked season rather than one per rank, since the question is
+        // whether knowing a player's rank tells you how much football he will play.
+        List<List<BigDecimal>> rankedGames = byRank.findAll { int rank, List<RealisedSeason> seasons ->
+            rank <= deepest
+        }.collectMany { int rank, List<RealisedSeason> seasons ->
+            seasons.collect { [rank as BigDecimal, it.games as BigDecimal] }
+        }
         new Census(counted.size(), counted.count { it.games == 0 } as int,
-                backwardShare(level, window), backwardShare(totalsLevel(byRank, deepest), window), anchor)
+                backwardShare(level, window), backwardShare(totalsLevel(byRank, deepest), window), anchor,
+                correlationOf(rankedGames),
+                variationOf(counted.findAll { it.games > 0 }.collect { it.rate }),
+                variationOf(counted.collect { it.games as BigDecimal }))
+    }
+
+    /** Pearson's correlation, over pairs short enough that nothing cleverer is worth having. */
+    private static BigDecimal correlationOf(List<List<BigDecimal>> pairs) {
+        if (pairs.size() < 2) {
+            return 0.0
+        }
+        double meanX = pairs.collect { it[0].toDouble() }.sum() / pairs.size()
+        double meanY = pairs.collect { it[1].toDouble() }.sum() / pairs.size()
+        double covariance = 0.0d, varianceX = 0.0d, varianceY = 0.0d
+        pairs.each { List<BigDecimal> pair ->
+            double dx = pair[0].toDouble() - meanX
+            double dy = pair[1].toDouble() - meanY
+            covariance += dx * dy
+            varianceX += dx * dx
+            varianceY += dy * dy
+        }
+        varianceX > 0 && varianceY > 0 ? (covariance / Math.sqrt(varianceX * varianceY)) as BigDecimal : 0.0
+    }
+
+    /** The coefficient of variation: how wide a spread is, in units of its own mean. */
+    private static BigDecimal variationOf(List<BigDecimal> values) {
+        if (values.size() < 2) {
+            return 0.0
+        }
+        BigDecimal average = mean(values)
+        if (average <= 0) {
+            return 0.0
+        }
+        double variance = values.collect { double d = (it - average).toDouble(); d * d }.sum() /
+                (values.size() - 1)
+        (Math.sqrt(variance) / average.toDouble()) as BigDecimal
     }
 
     /**

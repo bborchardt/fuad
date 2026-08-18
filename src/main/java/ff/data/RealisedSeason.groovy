@@ -7,9 +7,8 @@ import groovy.transform.Immutable
  * One season a ranked player actually had, split into the two things that make it up.
  *
  * A fantasy season is a rate multiplied by an availability, and they are separately caused: how good a
- * player is when he plays, and how much football he plays. Keeping them apart is what lets the curve say
- * that the consensus best running back has the highest points per game at his position and the fewest
- * games, rather than reporting the product and calling it a bust.
+ * player is when he plays, and how much football he plays. Keeping them apart is what lets the curve say a
+ * rank was absent rather than bad, instead of reporting the product and being unable to tell the two apart.
  *
  * A season lost entirely is {@code games = 0}, which carries no rate at all and is not evidence about one.
  * It belongs in the availability half and is counted there.
