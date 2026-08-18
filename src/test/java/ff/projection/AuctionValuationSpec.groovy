@@ -50,9 +50,8 @@ class AuctionValuationSpec extends Specification {
      * The range is stated over the measurable record, so it is checked over the measurable record.
      *
      * It used to be asserted over the calibration's three seasons against bounds of 0.65 and 0.90, which
-     * matched neither the span nor the figures the documentation gives. The eight seasons that can be
-     * measured run 0.697 to 0.868, which is the 70% to 87% the prose states once each is read to the whole
-     * percentage point it is rounded to.
+     * matched neither the span nor the figures the documentation gives. The bounds below are the claim the
+     * prose makes, read to the whole percentage point each season is rounded to.
      *
      * Both bounds moved when the pot began counting the veterans the auction signs from outside the
      * pre-draft rosters. That is money the league plainly spent, so every season spends a little more of its
@@ -138,7 +137,9 @@ class AuctionValuationSpec extends Specification {
      * against a literal. Neither could fail for any reason the data could supply.
      *
      * What the finding actually rests on is that kicker takes almost nothing in every auction the league
-     * has ever held, which the seasons can answer and a constant cannot. Nine seasons run 0.48% to 1.61%.
+     * has ever held, which the seasons can answer and a constant cannot. The bound below is the claim; the
+     * season by season figures are SHARE on docs/figures/&lt;year&gt;/spend.tsv, and quoting a range here as
+     * well is how this comment came to describe nine seasons after 2021 stopped being measurable.
      *
      * The other half — that the curve puts kicker's share of <i>value</i> near 6% — is a property of a
      * board rather than of the record, so it is reported as {@code VORSHARE} in docs/figures and the
@@ -315,6 +316,45 @@ class AuctionValuationSpec extends Specification {
         List<BigDecimal> stretch = teams.findAll { it.freeCap > 0 }.collect { it.stretch }
         stretch.min() < 0.5
         stretch.max() > 1.5
+    }
+
+    /**
+     * The identification the wider pot rests on, which is the one thing here that depends on somebody
+     * else's vocabulary.
+     *
+     * An auction signing is recognised as a player who reached a week 1 roster by no route the transaction
+     * log records individually — MFL logs a waiver claim and a free agent pickup and does not log the
+     * auction, which arrives as one roster load. That works, and it works because of literal strings in
+     * {@code NON_AUCTION_MOVES} that MFL is under no obligation to keep. If they ever change, this either
+     * collapses to nothing or swallows every in-season pickup in the league, and neither would show up as
+     * anything but a slightly different price.
+     *
+     * So it is bounded from both sides rather than asserted at a value: some of every auction goes to
+     * players from outside the pre-draft rosters, and never most of it.
+     */
+    def "some of every auction goes to players signed from outside the rosters, and never most of it"() {
+        expect:
+        superflex().every { it.freeAgentShare > 0.001 && it.freeAgentShare < 0.15 }
+
+        and: 'the two populations stay far apart, a waiver pickup being worth a fraction of a real signing'
+        superflex().every { it.freeAgentDollars < it.spent / 5 }
+    }
+
+    /**
+     * Why 2021 is not in {@link AuctionSpend#RECORD_SEASONS}, asserted rather than explained.
+     *
+     * The league contracted from ten teams to eight that year and the pre-draft snapshot was taken
+     * afterwards, so the contracts the departing owners released are on no pre-draft roster and read as
+     * players somebody bid on. It measures as spending more than the cap it had free, which is impossible,
+     * and that is the whole of the case for leaving it out. A season excluded for a reason nothing checks
+     * is a season somebody puts back.
+     */
+    def "the excluded contraction season is excluded for a reason the data still shows"() {
+        expect: 'above one, which no real auction can be'
+        AuctionSpend.of('2021').spendRate > 1.0
+
+        and: 'and it is genuinely out of the measured record rather than merely described as out'
+        !AuctionSpend.RECORD_SEASONS.contains('2021')
     }
 
     /** Measured and reported, never calibrated on: the case for dropping it has to be checkable. */

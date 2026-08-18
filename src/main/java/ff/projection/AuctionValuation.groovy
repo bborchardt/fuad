@@ -137,9 +137,11 @@ class AuctionValuation {
      *
      * <b>Counted over every player the auction paid for</b>, which is expiring contracts that came back and
      * also veterans who were on no pre-draft roster. The second group used to be left out, so the pot was
-     * measured without money the board was nevertheless dividing among them — 0.8% to 7.2% of an auction,
-     * and the model prices those players. {@link AuctionSpend} tells them from an in-season pickup by the
-     * transaction log rather than by their salary.
+     * measured without money the board was nevertheless dividing among them — a small share of an auction
+     * and a different one every year, but never nothing, and the model prices those players.
+     * {@link AuctionSpend} tells them from an in-season pickup by the transaction log rather than by their
+     * salary, and carries what they came to as {@code freeAgentShare} so the identification is checked
+     * rather than trusted.
      *
      * Counted over distinct players, never over roster rows. The week 1 snapshots repeat a handful of rows
      * verbatim, same franchise and same salary, and summing rows counts those contracts twice; Cooper Kupp's

@@ -71,8 +71,9 @@ class AuctionPricingSpec extends Specification {
      * behaviour inside a position quietly deciding how much of the pot the position gets.
      *
      * Asserted on two positions given <b>the same curve</b>, so every difference between them is the
-     * steepness: quarterback bends at 1.44 and receiver at 1.07. Their money then has to divide as their
-     * target shares do and in no other proportion.
+     * steepness, quarterback being much the steeper of the two — the fitted figures are GAMMA on
+     * docs/figures/&lt;year&gt;/positions.tsv. Their money then has to divide as their target shares do and
+     * in no other proportion.
      */
     def "each position keeps the share the calibration gave it, however steeply it is bid"() {
         given: 'two positions with identical curves and identical pools'

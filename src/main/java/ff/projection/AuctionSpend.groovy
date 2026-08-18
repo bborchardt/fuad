@@ -100,18 +100,28 @@ class AuctionSpend {
         final Map<String, BigDecimal> committed
         /** What the rookie draft cost, which is spoken for before any bidding and comes off the top. */
         final BigDecimal rookieDollars
+        /**
+         * Of {@link #dollars}, what went to veterans who were on no pre-draft roster.
+         *
+         * Carried so the transaction-log identification can be checked rather than trusted. It rests on
+         * MFL's own type names — see {@link #NON_AUCTION_MOVES} — and if those ever change, this silently
+         * goes to nothing or swallows every waiver pickup in the league. Neither would show up in a price.
+         */
+        final BigDecimal freeAgentDollars
         /** Rookies actually on a week 1 roster, against the picks the draft had to give out. */
         final int rookiesRostered
         /** Teams that season, the league having contracted to eight and expanded back to ten. */
         final int teams
 
         Season(String season, Map<String, BigDecimal> dollars, BigDecimal freeCap,
-               Map<String, BigDecimal> committed, BigDecimal rookieDollars, int rookiesRostered, int teams) {
+               Map<String, BigDecimal> committed, BigDecimal rookieDollars, BigDecimal freeAgentDollars,
+               int rookiesRostered, int teams) {
             this.season = season
             this.dollars = dollars
             this.freeCap = freeCap
             this.committed = committed
             this.rookieDollars = rookieDollars
+            this.freeAgentDollars = freeAgentDollars
             this.rookiesRostered = rookiesRostered
             this.teams = teams
         }
@@ -134,6 +144,9 @@ class AuctionSpend {
 
         /** What rookies cost as a share of the auction, which is what {@code ROOKIE_BUDGET_SHARE} reserves. */
         BigDecimal getRookieShare() { spent > 0 ? rookieDollars / spent : 0.0 }
+
+        /** What share of the auction went to players who reached it from outside the pre-draft rosters. */
+        BigDecimal getFreeAgentShare() { spent > 0 ? freeAgentDollars / spent : 0.0 }
     }
 
     /** What one season's auction paid each position, and what it had to spend. */
@@ -157,11 +170,13 @@ class AuctionSpend {
         // whose money the pot used to omit. Told from an in-season pickup by the transaction log rather
         // than by their salary: the auction arrives as a roster load and a waiver claim does not.
         Set<String> pickedUp = pickedUpAfterAuction(season)
+        BigDecimal freeAgentDollars = 0.0
         postDraft.each { String id, List held ->
             String position = positionById[id]
             if (!preDraft.containsKey(id) && statusById[id] != 'R' && !pickedUp.contains(id) &&
                     POSITIONS.contains(position)) {
                 dollars[position] += held[1] as BigDecimal
+                freeAgentDollars += held[1] as BigDecimal
             }
         }
 
@@ -189,7 +204,7 @@ class AuctionSpend {
 
         new Season(season, POSITIONS.collectEntries { [(it): dollars[it]] }, cap - committed,
                 POSITIONS.collectEntries { [(it): committedByPosition[it]] },
-                rookieDollars, rookies.size(), teams)
+                rookieDollars, freeAgentDollars, rookies.size(), teams)
     }
 
     /**
