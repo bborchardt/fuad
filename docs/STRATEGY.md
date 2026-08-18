@@ -56,6 +56,16 @@ longer exists cannot be regenerated and cannot be checked, so a comment carrying
 forever. The commit that made the change is where it belongs: dated, immutable, and attached to the diff
 that made it true.
 
+**With one exception, and it is the reason the rule is stated in terms of comments.** A rejected alternative
+is worth describing where the choice is described, or somebody retries it — and the documentation already
+has a convention for that: a block marked **Superseded** and stamped `<!-- model: sha -->`, saying plainly
+that the figures in it are not reproducible. That is a different thing from a comment quoting an old number
+as though it were current, which is what the rule is aimed at, and the difference is whether a reader can
+tell. A retraction carrying no figures at all needs no stamp, having nothing to be wrong about.
+
+So: a superseded figure in running prose or a javadoc comment goes to the commit message. A superseded
+figure a reader needs in order not to repeat the mistake stays, marked and stamped, and never anywhere else.
+
 ## The contract
 
 Every strategy document:

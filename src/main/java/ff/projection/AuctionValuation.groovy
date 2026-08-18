@@ -54,10 +54,11 @@ class AuctionValuation {
      * is simply paying for different positions.
      *
      * <b>Shares of the whole auction, kickers included.</b> They used to be shares of what the four scoring
-     * positions took, with a kicker entry on the other basis that summed the map to 1.009 — which cost
+     * positions took, with a kicker entry on the other basis, so the map did not sum to one — which cost
      * nothing while it lasted, because a kicker had no curve, no value over replacement, and so never
      * entered the pool {@link #calibrate} normalises over. His entry was never read. Now that kickers are
-     * levelled they are in that pool, the basis has to be one basis, and the map sums to one.
+     * levelled they are in that pool, the basis has to be one basis, and the map sums to one, which the
+     * spec checks. Commit e440d47 has what it summed to before.
      */
     static final Map<String, BigDecimal> MARKET_SHARE =
             [QB: 0.237, RB: 0.323, WR: 0.335, TE: 0.094, PK: 0.010].asImmutable() as Map<String, BigDecimal>
@@ -365,10 +366,10 @@ class AuctionValuation {
      *
      * <b>Each replayed season is a rate and a number of games, not one blended number.</b> A player who
      * misses half a year was previously modelled as scoring half as much every week, which put him under
-     * replacement in all of them and worth nothing at all: 24 of the 215 top-24 quarterback seasons ran
-     * seven games or fewer, and the old shape valued them at 4.77 points a week when they were in fact
-     * playing at 12.22. Now he plays his own rate in the weeks he plays and contributes nothing in the rest,
-     * which is what actually happened and is worth considerably more.
+     * replacement in all of them and worth nothing at all — and a good many top-24 quarterback seasons are
+     * that shape. Now he plays his own rate in the weeks he plays and contributes nothing in the rest, which
+     * is what actually happened and is worth considerably more. What the old shape valued those seasons at
+     * is in commit 68ad402, that being a figure no model here can produce any more.
      *
      * Which weeks he misses is left as an expectation rather than drawn, since nothing here knows when an
      * injury lands: a season of {@code g} games out of {@code W} playable weeks earns the fraction

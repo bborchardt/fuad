@@ -108,7 +108,7 @@ class AuctionValuationSpec extends Specification {
      * everyone else.
      *
      * <b>One basis, and it has to be one.</b> The four scoring positions used to carry shares of what those
-     * four took, alongside a kicker entry on the whole-pot basis, and the map summed to 1.009. That cost
+     * four took, alongside a kicker entry on the whole-pot basis, so the map did not sum to one. That cost
      * nothing while it lasted: a kicker had no curve and so no value over replacement, which kept him out
      * of the pool {@link AuctionValuation#calibrate} normalises over, and his entry was never read at all.
      * Levelling kickers put them in that pool and made the mixed basis a real error.
