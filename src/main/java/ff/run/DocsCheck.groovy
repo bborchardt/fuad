@@ -362,6 +362,13 @@ class DocsCheck {
      * how the comparison it is making runs. Long format would be checkable and unreadable, so this reads the
      * table the way it is written: {@code across=POS field=PTS} means the heading is the position, the first
      * column is the rank, and the cell is what that rank levels at.
+     *
+     * <b>The row key may be named, and is inferred when it is not.</b> The inference takes whichever column
+     * is not the one spread across the top, which is correct for every figures file here and is nonetheless
+     * positional: a column inserted ahead of the real key would rekey every table reading that file, quietly,
+     * because a row that fails to match was indistinguishable from a heading that was only ever commentary.
+     * Those two are now separated — a heading naming a real value of the key and finding no row is a
+     * failure — so a mis-keyed table reports a fault rather than reporting nothing.
      */
     private static Result checkAcross(Map<String, String> marker, List<Map<String, String>> table,
                                       List<String> headings, List<String> cells, String key, int line) {
@@ -370,8 +377,16 @@ class DocsCheck {
             return new Result(["line $line: '${marker.field}' is not a column of ${marker.table}.tsv" as String],
                     0, 0)
         }
-        // Whichever column is not the one across the top is the one the first column keys on.
-        String keyColumn = table.first().keySet().find { it != marker.across }
+        // Named where the marker says so, inferred otherwise as whichever column is not the one across the
+        // top. The inference is right for every table here and is positional, so a column inserted ahead of
+        // the real key would silently rekey every table reading that file — which is why a heading that
+        // names a real value and then finds no row is reported below rather than passed over.
+        String keyColumn = marker.key ?: table.first().keySet().find { it != marker.across }
+        if (!table.first().containsKey(keyColumn)) {
+            return new Result(["line $line: '$keyColumn' is not a column of ${marker.table}.tsv" as String],
+                    0, 0)
+        }
+        Set<String> acrossValues = table.collect { MarkdownTables.normaliseKey(it[marker.across]) }.toSet()
         List<String> failures = []
         int verified = 0
         headings.eachWithIndex { String heading, int column ->
@@ -388,7 +403,14 @@ class DocsCheck {
                         MarkdownTables.normaliseKey(it[keyColumn]) == key
             }
             if (row == null) {
-                // A heading naming no value of the key is the document's own commentary, not an error.
+                // Two different things used to land here. A heading naming no value of the key is the
+                // document's own commentary and is left alone; a heading that names a real one and still
+                // finds no row means the key is wrong or the row has gone, and passing over that is how a
+                // mis-keyed table would report nothing at all rather than reporting a fault.
+                if (acrossValues.contains(across)) {
+                    failures << "line $line: ${marker.table}.tsv has no $across row keyed " +
+                            "'$key' on $keyColumn"
+                }
                 return
             }
             verified++

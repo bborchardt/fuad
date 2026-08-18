@@ -111,4 +111,58 @@ class FranchiseTagSettlementSpec extends Specification {
                     : player.salary == player.marketSalary
         }
     }
+
+    /**
+     * A team saving the same on two players tags the more valuable of them.
+     *
+     * <b>This is what the loop turns on, not merely a tidier answer.</b> Surpluses are whole dollars off
+     * levels carrying a standard error of seven points, so ties happen — and while the winner of one fell
+     * out of the order the pool happened to iterate in, the loop could flip between them forever. Choosing
+     * the same way every time is what lets it settle.
+     *
+     * Asserted directly on {@link AuctionValuation#predictTags}, since a board built to produce an exact
+     * tie and nothing else would be a fixture arranged to have one answer.
+     */
+    def "a team saving the same on two players tags the one worth more"() {
+        given: 'one franchise, two expiring players, an identical saving and different worth'
+        List<PlayerValuation> board = [
+                tie('cheap', 'f1', 40, 20, 55),
+                tie('dear', 'f1', 40, 20, 70),
+        ]
+
+        expect:
+        AuctionValuation.predictTags(board) == ['dear'] as Set
+
+        and: 'and the order they arrive in decides nothing'
+        AuctionValuation.predictTags(board.reverse()) == ['dear'] as Set
+    }
+
+    def "a larger saving still wins, value breaking ties and never overriding one"() {
+        given: 'the less valuable player saves a dollar more'
+        List<PlayerValuation> board = [
+                tie('saves-more', 'f1', 41, 20, 55),
+                tie('worth-more', 'f1', 40, 20, 70),
+        ]
+
+        expect: 'the tag is what it always was, on the bigger saving'
+        AuctionValuation.predictTags(board) == ['saves-more'] as Set
+    }
+
+    def "a tie on saving and on worth alike still predicts one tag, and the same one twice"() {
+        given:
+        List<PlayerValuation> board = [tie('a', 'f1', 40, 20, 60), tie('b', 'f1', 40, 20, 60)]
+
+        expect: 'arbitrary, but fixed: the same board cannot predict two different tags on two runs'
+        AuctionValuation.predictTags(board).size() == 1
+        AuctionValuation.predictTags(board) == AuctionValuation.predictTags(board.reverse())
+    }
+
+    /** A held player whose market price, tag price and worth are all stated outright. */
+    private static PlayerValuation tie(String id, String franchise, int market, int tagPrice, int worth) {
+        new PlayerValuation(playerId: id, playerName: id, position: 'QB', positionRank: 1,
+                marketSalary: market, franchiseSalary: tagPrice, value: worth, salary: market,
+                acquisitionSalary: market, franchiseId: franchise, points: 0.0, pointsPerGame: 0.0,
+                expectedGames: 0.0, pointsLow: 0.0, pointsHigh: 0.0, valueOverReplacement: 0.0,
+                availability: 1.0)
+    }
 }

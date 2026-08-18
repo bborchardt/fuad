@@ -535,9 +535,16 @@ tagged are gone the best player left is a large share of what remains.
 **It does not always reach a fixed point, and where it does not the board says so.** Two expiring players
 on one roster can each be the better tag once the other is tagged: taking one out of the bidding puts his
 tag price back in the pot and lifts what the other would fetch, which flips the saving back the other way.
-2026 does this for franchise 0001, where Lamar Jackson and Amon-Ra St. Brown each save $17 against their
-market price — a difference well inside the standard error the levels carry, so the model genuinely cannot
-separate them.
+2026 used to do this for franchise 0001, where two expiring players saved the same amount to the dollar.
+
+**A tie is broken on the more valuable player, and that is what stopped it.** Surpluses are whole dollars
+off levels carrying a standard error of seven points or so, so two of them tying says only that the model
+cannot separate what the tag *saves*. It can still separate what the two players are *worth* — `VALUE` is
+worth priced against the cap, before any adjustment for how this league bids — so the tie goes to the
+better contract. Choosing the same way every time is what breaks the cycle: the loop stopped flipping, the
+board settled, and the two surpluses then separated on their own.
+
+The cycle is real all the same and the warning stays, because nothing here proves ties are the only way in.
 
 What matters is that the set the board **reports** is the set it was **priced with**. Those came apart
 once: the loop ran out of rounds part way round the cycle and the tags were re-read from the round after
@@ -663,13 +670,13 @@ league is not.
   board so a plan can weigh this; nothing prices it. See
   [LEAGUE_RULES.md](LEAGUE_RULES.md#contract-length).
 - **Nine of ten teams are predicted to tag**, at the high end of the observed 5-to-9. 2026's tag prices are
-  low against the market because they are computed from 2025 salaries. One of the nine does not settle: see
-  [the tag loop](#6-franchise-tags-iterated-to-a-fixed-point).
+  low against the market because they are computed from 2025 salaries. All nine settle, which they did not
+  before ties were broken on value: see [the tag loop](#6-franchise-tags-iterated-to-a-fixed-point).
 - **Tag surplus asks what a tag saves, never whether the player is worth it.** It is `MARKET` less the tag
-  price, so the tag a team is told to use is the one it saves most on even where that player
-  is priced above what he is worth. For 2026's undecided pair the two readings disagree: Lamar Jackson's
-  $66 tag buys $64 of `VALUE` while Amon-Ra St. Brown's $61 buys $54, so the same saving buys ten dollars
-  more worth on one than the other. Nothing in the model weighs that.
+  price, so the tag a team is told to use is the one it saves most on even where that player is priced above
+  what he is worth. **Value enters only to break a tie**, which is a deliberately small role: it decides
+  between two tags the model cannot otherwise separate, and never overrides a surplus that is genuinely
+  larger. A team whose best saving is on a player it should not want is still told to tag him.
 - **The calibration is fitted on three seasons.** Positional shares swing hard year to year, and dropping
   2022 as a transition year buys accuracy at the cost of a thinner sample.
 - **The market price of a tagged player is never tested.** It is a counterfactual for a player who will not

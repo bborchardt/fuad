@@ -426,4 +426,69 @@ Prose, which ends the table.
         expect:
         DocsCheck.checkProvenance(yearDir).any { it.contains('does not have') }
     }
+
+    /**
+     * A heading that names a real position and finds no row is a fault, not commentary.
+     *
+     * The permissive rule is what lets a table carry a note beside a figure, and it used to swallow this
+     * case too: any row that failed to match was passed over in silence, whatever the reason. So a table
+     * read against the wrong key column reported nothing at all rather than reporting that it could not
+     * find its rows — and the key column is inferred positionally, so inserting a column ahead of the real
+     * one would do exactly that to every table reading the file.
+     */
+    def "reports a row it cannot find under a heading the figures do carry"() {
+        given:
+        File doc = document('''<!-- figures: curve across=POS field=PTS -->
+
+| Rank | QB |
+| --- | --- |
+| 99 | 245.2 |
+''')
+
+        when:
+        List<String> failures = DocsCheck.check(doc, yearDir)
+
+        then:
+        failures.size() == 1
+        failures[0].contains("curve.tsv has no QB row keyed '99' on RANK")
+    }
+
+    def "still leaves a heading the figures do not carry as the document's own commentary"() {
+        given: 'RB is a real position here, so the note column is the only thing that binds to nothing'
+        File doc = document('''<!-- figures: curve across=POS field=PTS -->
+
+| Rank | QB | worth knowing |
+| --- | --- | --- |
+| 1 | 245.2 | the best of them |
+''')
+
+        expect:
+        DocsCheck.check(doc, yearDir) == []
+    }
+
+    def "lets a table across the top name the column its rows are keyed by"() {
+        given: 'the same table with the key stated rather than inferred'
+        File doc = document('''<!-- figures: curve across=POS field=PTS key=RANK -->
+
+| Rank | QB |
+| --- | --- |
+| 1 | 245.2 |
+''')
+
+        expect:
+        DocsCheck.check(doc, yearDir) == []
+    }
+
+    def "says so when the named key is not a column of the figures at all"() {
+        given:
+        File doc = document('''<!-- figures: curve across=POS field=PTS key=SLOT -->
+
+| Rank | QB |
+| --- | --- |
+| 1 | 245.2 |
+''')
+
+        expect:
+        DocsCheck.check(doc, yearDir).any { it.contains("'SLOT' is not a column of curve.tsv") }
+    }
 }

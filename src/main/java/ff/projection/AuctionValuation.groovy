@@ -215,11 +215,25 @@ class AuctionValuation {
     /**
      * One team, one tag, used on whichever expiring player it saves most against. A tag is only worth using
      * when the player would cost more in the auction than the tag does.
+     *
+     * <b>A tie goes to the more valuable player.</b> Surpluses are whole dollars off levels carrying a
+     * standard error of seven points or so, so two players tying is not rare and means only that the model
+     * cannot separate what the tag saves on them. It can still separate what they are worth: {@code value}
+     * is worth priced against the cap, with no adjustment for how this league bids, so the tie is broken on
+     * the better contract rather than on the larger saving.
+     *
+     * This used to fall out of the order {@code available} happened to iterate in, which is neither a reason
+     * nor stable. Where surplus and value both tie the id decides, so that the same board always predicts
+     * the same tags — an arbitrary rule, but arbitrary and fixed beats arbitrary and varying.
      */
     static Set<String> predictTags(List<PlayerValuation> valuations) {
         valuations.findAll { it.franchiseId && it.tagSurplus > 0 }
                 .groupBy { it.franchiseId }
-                .collect { franchise, held -> held.max { it.tagSurplus }.playerId }
+                .collect { franchise, held ->
+                    held.max { PlayerValuation a, PlayerValuation b ->
+                        (a.tagSurplus <=> b.tagSurplus) ?: (a.value <=> b.value) ?: (a.playerId <=> b.playerId)
+                    }.playerId
+                }
                 .toSet()
     }
 
