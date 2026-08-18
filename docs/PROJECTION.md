@@ -408,8 +408,8 @@ avoid.
 
 ### 4. Dollars from a known pot
 
-Teams spend a fairly steady share of the cap they have free — 65% to 85% across the record, **80%** across
-the four superflex seasons — so the pot is knowable before the auction:
+Teams spend a fairly steady share of the cap they have free — 70% to 87% across the measurable record,
+**83%** across the four superflex seasons — so the pot is knowable before the auction:
 
 <!-- figures: board -->
 
@@ -418,7 +418,7 @@ the four superflex seasons — so the pot is knowable before the auction:
 | Free cap | 2438 |
 | Expected spend | 1950 |
 
-The fifth that goes unspent is deliberate, and it is why a model that assumed teams bid to the cap would
+The sixth that goes unspent is deliberate, and it is why a model that assumed teams bid to the cap would
 price everything too high. Cap is what absorbs in-season signings, and it is what a team releasing a bad
 contract pays the penalty out of — charged to the current year and cleared at the end of it, so cap left
 over is also the mechanism by which a mistake is prevented from reaching next season. See
@@ -429,10 +429,27 @@ salary added between the week 1 and end-of-year rosters runs **0.3% to 2.3% of t
 of about 1.2%, though 4 to 8 of the 8 to 10 teams add something every single season. Teams hold far more
 room than they use, every year, and go on holding it.
 
-That 80% is counted over **distinct players**. The week 1 snapshots repeat a handful of roster rows
-verbatim, same franchise and same salary, so summing rows rather than players double counts those
-contracts and puts the figure at 83%. `AuctionValuationSpec` recomputes this and the market shares from the
-committed seasons, so neither constant can drift from the data it came from.
+**That 83% counts every player the auction paid for**, which is expiring contracts that came back and also
+the veterans signed from outside the pre-auction rosters. The second group used to be left out, so the pot
+was measured without money the board was nevertheless dividing among those same players — between 0.8% and
+7.2% of an auction, depending on the year. They are told from an in-season waiver pickup by the transaction
+log rather than by their price: the auction arrives as one roster load, a waiver claim does not, and the
+two look nothing alike — a pickup is almost always the minimum bid.
+
+It is also counted over **distinct players**. The week 1 snapshots repeat a handful of roster rows verbatim,
+same franchise and same salary, so summing rows rather than players double counts those contracts. That
+mistake happens to land near 83% as well, and has nothing to do with this figure — two different errors
+reaching one number, which is worth saying so the agreement is not read as confirmation.
+
+`AuctionValuationSpec` recomputes this and the market shares from the committed seasons, so neither constant
+can drift from the data it came from.
+
+**2021 is not among those seasons, and a spec is what put it out.** The league contracted from ten teams to
+eight that year and the pre-draft snapshot was taken afterwards, so the 47 contracts the departing owners
+released sit on no pre-draft roster and every one of them reads as a player somebody bid on. Measured that
+way the season spends 1.09 of the cap it had free — which is not a league bidding hard, it is a measurement
+that has stopped measuring. Nothing in the data separates those contracts from real signings, so the season
+is excluded from the measurement and used everywhere else as normal.
 
 Each player who must be signed is reserved a dollar and the rest is shared in proportion to value over
 replacement, so **prices sum to the money available**.

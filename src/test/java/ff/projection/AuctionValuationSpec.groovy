@@ -47,18 +47,22 @@ class AuctionValuationSpec extends Specification {
     }
 
     /**
-     * The range is stated over the whole record, so it is checked over the whole record.
+     * The range is stated over the measurable record, so it is checked over the measurable record.
      *
      * It used to be asserted over the calibration's three seasons against bounds of 0.65 and 0.90, which
-     * matched neither the span nor the figures the documentation gives. Nine seasons run 0.652 to 0.854,
-     * which is the 65% to 85% the prose states once each is read to the whole percentage point it is
-     * rounded to.
+     * matched neither the span nor the figures the documentation gives. The eight seasons that can be
+     * measured run 0.697 to 0.868, which is the 70% to 87% the prose states once each is read to the whole
+     * percentage point it is rounded to.
+     *
+     * Both bounds moved when the pot began counting the veterans the auction signs from outside the
+     * pre-draft rosters. That is money the league plainly spent, so every season spends a little more of its
+     * cap than it used to appear to.
      */
     def "no season in the record spent outside the range the model claims"() {
         expect:
         AuctionSpend.RECORD_SEASONS.collect { AuctionSpend.of(it).spendRate }.every {
             BigDecimal rounded = it.setScale(2, RoundingMode.HALF_UP)
-            rounded >= 0.65 && rounded <= 0.85
+            rounded >= 0.70 && rounded <= 0.87
         }
     }
 

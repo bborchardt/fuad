@@ -14,7 +14,7 @@ import ff.data.PlayerValuation
  * quarterbacks and running backs, whose replacements thin out most on bye weeks.
  *
  * <b>Dollars come from dividing a known pot.</b> Teams spend a fairly steady share of the cap they have
- * free, 65 to 85 per cent across the record, so the pot is knowable in advance. Every player who must be
+ * free, 70 to 87 per cent across the measurable record, so the pot is knowable in advance. Every player who must be
  * signed is reserved a dollar, and what is left is shared out in proportion to value over replacement.
  * Prices therefore sum to the money available, which no curve fitted player by player will do.
  *
@@ -59,7 +59,7 @@ class AuctionValuation {
      * levelled they are in that pool, the basis has to be one basis, and the map sums to one.
      */
     static final Map<String, BigDecimal> MARKET_SHARE =
-            [QB: 0.231, RB: 0.327, WR: 0.341, TE: 0.092, PK: 0.009].asImmutable() as Map<String, BigDecimal>
+            [QB: 0.237, RB: 0.323, WR: 0.335, TE: 0.094, PK: 0.010].asImmutable() as Map<String, BigDecimal>
 
     /** 0 leaves value over replacement alone, 1 forces the historical shares exactly. */
     static final BigDecimal MARKET_WEIGHT = 1.0
@@ -133,12 +133,22 @@ class AuctionValuation {
      * cleared at the end of it, so unspent cap is also how a mistake is stopped from reaching next season.
      * A model assuming teams bid to the cap would price the whole board too high.
      *
-     * Counted over distinct players. The week 1 snapshots repeat a handful of roster rows verbatim, same
-     * franchise and same salary, and summing rows rather than players counts those contracts twice and puts
-     * this at 0.83. Cooper Kupp's 94 in 2022 is one of them. `AuctionValuationSpec` recomputes it from the
-     * committed seasons so it cannot drift. See docs/LEAGUE_RULES.md.
+     * <b>Counted over every player the auction paid for</b>, which is expiring contracts that came back and
+     * also veterans who were on no pre-draft roster. The second group used to be left out, so the pot was
+     * measured without money the board was nevertheless dividing among them — 0.8% to 7.2% of an auction,
+     * and the model prices those players. {@link AuctionSpend} tells them from an in-season pickup by the
+     * transaction log rather than by their salary.
+     *
+     * Counted over distinct players, never over roster rows. The week 1 snapshots repeat a handful of rows
+     * verbatim, same franchise and same salary, and summing rows counts those contracts twice; Cooper Kupp's
+     * 94 in 2022 is one of them. <b>That double count also lands near 0.83 and has nothing to do with this
+     * figure</b> — two different mistakes reaching one number, which is worth saying so nobody reads the
+     * agreement as confirmation.
+     *
+     * `AuctionValuationSpec` recomputes it from the committed seasons so it cannot drift. See
+     * docs/LEAGUE_RULES.md.
      */
-    static final BigDecimal SPEND_RATE = 0.80
+    static final BigDecimal SPEND_RATE = 0.83
 
     private static final int MAX_TAG_ITERATIONS = 10
 

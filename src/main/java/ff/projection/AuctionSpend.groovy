@@ -22,6 +22,16 @@ import ff.load.util.LoadUtils
  */
 class AuctionSpend {
 
+    /**
+     * Transaction types that put a player on a roster without anybody bidding at the auction for him.
+     *
+     * The auction has no type of its own — see {@link #pickedUpAfterAuction} — so it is what remains after
+     * these. A trade is in here because a traded player was paid for by whoever signed him originally, and
+     * counting him again would count one contract twice.
+     */
+    private static final List<String> NON_AUCTION_MOVES =
+            ['FREE_AGENT', 'BBID_WAIVER', 'BBID_AUTO_PROCESS_WAIVERS', 'TRADE'].asImmutable() as List<String>
+
     /** What an expiring contract is written down to before the auction, which is what marks it expiring. */
     private static final BigDecimal WIPED_SALARY = new BigDecimal('0.01')
 
@@ -40,16 +50,26 @@ class AuctionSpend {
     static final List<String> EXCLUDING_KICKERS = ['QB', 'RB', 'WR', 'TE'].asImmutable() as List<String>
 
     /**
-     * Every season whose auction can be measured at all, which is every one holding a post-draft snapshot.
+     * Every season whose auction can actually be measured, which is not quite every season on record.
      *
      * Wider than the calibration, deliberately. A share of the pot is only comparable across seasons with
      * the same lineup, so {@link AuctionValuation#MARKET_SHARE} is fitted on the superflex ones alone — but
      * the <b>spend rate</b> is a share of the cap rather than of a position, and the range the
      * documentation states for it is a claim about the whole record. A range stated over nine seasons and
      * checked over three is a range nothing checks.
+     *
+     * <b>2021 is out, and the spec is what put it out.</b> That season contracted the league from ten teams
+     * to eight and its pre-draft snapshot was taken afterwards, so the 47 contracts the departing owners
+     * released are on no pre-draft roster and every one of them reads as a player somebody bid on. Measured
+     * that way the season spends 1.09 of the cap it had free, which is not a league bidding hard but a
+     * measurement that has stopped measuring — see {@code AuctionValuationSpec}. Nothing here can tell those
+     * contracts from genuine signings, so the season is excluded rather than guessed at.
+     *
+     * It is excluded from the <b>measurement</b> only. 2021 is a real season and its rosters, contracts and
+     * statistics are used everywhere else.
      */
     static final List<String> RECORD_SEASONS =
-            (2017..2025).collect { it as String }.asImmutable() as List<String>
+            ((2017..2020) + (2022..2025)).collect { it as String }.asImmutable() as List<String>
 
     /** Every season played under superflex, which is as far back as a share of this pot means anything. */
     static final List<String> SUPERFLEX_SEASONS = ['2022', '2023', '2024', '2025'].asImmutable() as List<String>
@@ -110,6 +130,18 @@ class AuctionSpend {
             String position = positionById[id]
             if (expiring(held) && postDraft.containsKey(id) && POSITIONS.contains(position)) {
                 dollars[position] += postDraft[id][1] as BigDecimal
+            }
+        }
+
+        // And the veterans who were on no pre-draft roster at all, who are bid on at the same auction and
+        // whose money the pot used to omit. Told from an in-season pickup by the transaction log rather
+        // than by their salary: the auction arrives as a roster load and a waiver claim does not.
+        Set<String> pickedUp = pickedUpAfterAuction(season)
+        postDraft.each { String id, List held ->
+            String position = positionById[id]
+            if (!preDraft.containsKey(id) && statusById[id] != 'R' && !pickedUp.contains(id) &&
+                    POSITIONS.contains(position)) {
+                dollars[position] += held[1] as BigDecimal
             }
         }
 
@@ -292,6 +324,36 @@ class AuctionSpend {
             }
         }
         ranks
+    }
+
+    /**
+     * Players who reached a week 1 roster by some route other than the auction.
+     *
+     * <b>The auction is not itself a transaction type.</b> It arrives as {@code LOAD_ROSTERS}, the whole
+     * result loaded at once, so there is no signing to look up player by player. What the log does record
+     * individually is everything else that puts a player on a roster between the pre-draft snapshot and week
+     * 1 — a free agent pickup, a blind bid waiver, a trade — so the auction is identified as what is left
+     * once those are taken out.
+     *
+     * The two populations look nothing alike, which is the check on reading it this way: a waiver pickup is
+     * almost always the minimum bid, while what remains carries real money and recognisable names.
+     */
+    private static Set<String> pickedUpAfterAuction(String season) {
+        Set<String> moved = [] as Set<String>
+        // Loaded rather than tolerated: with no log every newcomer would read as an auction signing, which
+        // inflates the pot silently. A season whose transactions are missing should say so.
+        def log = LoadUtils.loadJsonResource(LoadUtils.mflTransactionsResourcePath(season))
+        List<Map> transactions = (log.transactions.transaction ?: []) as List<Map>
+        transactions.each { Map transaction ->
+            if (!NON_AUCTION_MOVES.contains(transaction.type as String)) {
+                return
+            }
+            // The id lives in a different field per type, and more than one may be listed in each.
+            String listed = [transaction.transaction, transaction.activated, transaction.deactivated]
+                    .findAll { it }.join(',')
+            (listed =~ /\d{4,}/).each { String id -> moved << id }
+        }
+        moved
     }
 
     /** Player id to [franchise, salary], keeping the first row for each player. */
