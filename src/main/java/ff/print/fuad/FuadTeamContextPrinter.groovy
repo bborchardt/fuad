@@ -14,12 +14,12 @@ import java.math.RoundingMode
  *
  * Deliberately context rather than prices. The auction clears at the highest bidder, not the average one,
  * so the outliers come from a particular team being thin at a position with money to fix it. Team state
- * varies enormously — exposure against free cap has run from 0.30 to 1.92, and one team went into 2025 with
- * twenty expiring players worth more than its whole budget and kept three of them.
+ * varies enormously, and how enormously is in docs/figures/&lt;year&gt;/stretch.tsv: MINSTRETCH against
+ * MAXSTRETCH for the range, and a row per team season for the cases behind it.
  *
- * It is reported and not priced because it does not predict well enough to price. Across 29 team seasons
- * the correlation between how stretched a team is and how much of its roster it keeps is +0.13, which is
- * nothing. The situations are real one at a time and invisible on average, so this is the half of the
+ * It is reported and not priced because it does not predict well enough to price. STRETCHCORR on the same
+ * table is the correlation between how stretched a team is and how much of its roster it keeps, and it is
+ * near nothing. The situations are real one at a time and invisible on average, so this is the half of the
  * problem worth handing to a human rather than a model.
  */
 class FuadTeamContextPrinter {

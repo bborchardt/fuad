@@ -346,6 +346,93 @@ class AuctionSpend {
         POSITIONS.collectEntries { [(it): new Depth(it, signed[it], rostered[it])] }
     }
 
+    /**
+     * One team's approach to one auction: how much of its roster was up, and what holding it would cost.
+     *
+     * <b>Exposure is what the expiring players actually fetched</b>, wherever they ended up. For the season
+     * being priced {@code -t teams} uses model prices, which is the only thing available in advance; for a
+     * finished season the record has the real number and there is no reason to model it. A player nobody
+     * re-signed contributes nothing, which understates exposure a little at the teams holding the deepest
+     * expiring contracts — those are exactly the players who go unsigned.
+     */
+    static class TeamSeason {
+        final String season
+        final String franchise
+        /** Contracts the team had expiring, which is what it was choosing whether to keep. */
+        final int expiring
+        /** How many of them it kept. */
+        final int kept
+        /** What keeping all of them would have cost, at what they actually went for. */
+        final BigDecimal exposure
+        /** The cap it had left once the contracts already running were paid for. */
+        final BigDecimal freeCap
+
+        TeamSeason(String season, String franchise, int expiring, int kept, BigDecimal exposure,
+                   BigDecimal freeCap) {
+            this.season = season
+            this.franchise = franchise
+            this.expiring = expiring
+            this.kept = kept
+            this.exposure = exposure
+            this.freeCap = freeCap
+        }
+
+        /** How stretched the team was: what holding its roster would cost against what it had to spend. */
+        BigDecimal getStretch() { freeCap > 0 ? exposure / freeCap : 0.0 }
+
+        /** How much of its expiring roster it actually held. */
+        BigDecimal getKeptShare() { expiring > 0 ? (kept as BigDecimal) / expiring : 0.0 }
+    }
+
+    /** Every team's approach to every auction in the seasons given. */
+    static List<TeamSeason> teamSeasons(List<String> seasons) {
+        seasons.collectMany { String season ->
+            Map<String, List> preDraft = byPlayer(LoadUtils.mflRostersResourcePath(season))
+            Map<String, List> postDraft = byPlayer(LoadUtils.mflPostDraftRostersResourcePath(season))
+            Map league = LoadUtils.loadJsonResource(LoadUtils.mflLeagueResourcePath(season)) as Map
+            BigDecimal perTeamCap = league.league.salaryCapAmount as String as BigDecimal
+            List<String> franchises = (league.league.franchises.franchise as List<Map>).collect { it.id as String }
+
+            franchises.collect { String franchise ->
+                List<String> held = preDraft.keySet().findAll { preDraft[it][0] == franchise }.toList()
+                List<String> up = held.findAll { expiring(preDraft[it]) }
+                BigDecimal committed = (held.findAll { !expiring(preDraft[it]) }
+                        .collect { preDraft[it][1] as BigDecimal }.sum() ?: 0.0) as BigDecimal
+                BigDecimal exposure = (up.collect { String id ->
+                    postDraft.containsKey(id) ? postDraft[id][1] as BigDecimal : 0.0 as BigDecimal
+                }.sum() ?: 0.0) as BigDecimal
+                int kept = up.count { postDraft[it]?.getAt(0) == franchise }
+                new TeamSeason(season, franchise, up.size(), kept, exposure, perTeamCap - committed)
+            }
+        }
+    }
+
+    /**
+     * How strongly being stretched predicts letting players go, over the team seasons given.
+     *
+     * The number the decision to <b>report</b> team context rather than price it rests on. A strong
+     * relation here would mean a team's situation belongs in the price; a weak one means it is real case by
+     * case and invisible on average, which is the half of the problem worth handing to a reader.
+     */
+    static BigDecimal stretchAgainstKept(List<TeamSeason> teams) {
+        List<TeamSeason> measurable = teams.findAll { it.expiring > 0 && it.freeCap > 0 }
+        if (measurable.size() < 2) {
+            return 0.0
+        }
+        double meanStretch = measurable.collect { it.stretch.toDouble() }.sum() / measurable.size()
+        double meanKept = measurable.collect { it.keptShare.toDouble() }.sum() / measurable.size()
+        double covariance = 0.0d, varianceStretch = 0.0d, varianceKept = 0.0d
+        measurable.each { TeamSeason team ->
+            double dx = team.stretch.toDouble() - meanStretch
+            double dy = team.keptShare.toDouble() - meanKept
+            covariance += dx * dy
+            varianceStretch += dx * dx
+            varianceKept += dy * dy
+        }
+        varianceStretch > 0 && varianceKept > 0 ?
+                (covariance / Math.sqrt(varianceStretch * varianceKept)) as BigDecimal : 0.0
+    }
+
     /** A season's consensus positional rank by MFL id, which is the join the bands are read through. */
     private static Map<String, Integer> rankByPlayer(String season) {
         Map<String, Integer> ranks = [:]

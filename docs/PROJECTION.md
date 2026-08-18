@@ -616,11 +616,26 @@ $100 in 2025 went to a team holding one quarterback under contract with $251 fre
 position and finished with five.
 
 It is reported rather than priced because it does not predict well enough to price. Team states differ
-enormously — exposure against free cap has run from 0.30 to 1.92, and one team went into 2025 with twenty
-expiring players worth more than its whole budget and kept three — but across 29 team seasons the
-correlation between how stretched a team is and how much of its roster it keeps is **+0.13**. Real one at a
-time, invisible on average. Turning that into a price adjustment would be fitting noise; handing it to a
-reader who knows the league is not.
+enormously, and the relation between being stretched and letting players go is nevertheless nothing:
+
+<!-- figures: stretch key=SEASON+FRANCHISE -->
+
+| SEASON | FRANCHISE | TEAMSEASONS | MINSTRETCH | MAXSTRETCH | STRETCHCORR |
+| --- | --- | --- | --- | --- | --- |
+| 2023-2025 | ALL | 29 | 0.30 | 1.92 | 0.13 |
+
+A team may go into an auction owing six times what it has to spend or a third of it, and knowing which
+tells you almost nothing about how much of its roster it will hold. The extreme case is on the same table:
+
+<!-- figures: stretch key=SEASON+FRANCHISE -->
+
+| SEASON | FRANCHISE | EXPIRING | KEPT | EXPOSURE | FREECAP |
+| --- | --- | --- | --- | --- | --- |
+| 2025 | 0003 | 20 | 3 | 355 | 289 |
+
+Twenty players up, worth more than the whole budget, and three kept. Real one at a time, invisible on
+average. Turning that into a price adjustment would be fitting noise; handing it to a reader who knows the
+league is not.
 
 ## Known limits
 

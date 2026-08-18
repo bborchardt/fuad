@@ -295,6 +295,28 @@ class AuctionValuationSpec extends Specification {
         }
     }
 
+    /**
+     * The evidence for reporting team context rather than pricing it.
+     *
+     * {@code -t teams} deliberately moves no price. That decision rests on a correlation which was, until
+     * this, a figure in two javadoc comments and a line of prose that nothing recomputed — and it is the
+     * kind of figure a later reader would reasonably want to overturn, since a strong relation would mean a
+     * team's situation belongs in the price after all. Asserted as weak rather than as any exact value: the
+     * claim being made is that there is nothing here to price.
+     */
+    def "how stretched a team is barely predicts how much of its roster it keeps"() {
+        given:
+        List<AuctionSpend.TeamSeason> teams = AuctionSpend.teamSeasons(AuctionSpend.CALIBRATED_SEASONS)
+
+        expect: 'a relation far too weak to price, over every team season in the calibrated span'
+        AuctionSpend.stretchAgainstKept(teams).abs() < 0.25
+
+        and: 'and the spread of team states is real, which is why it is worth reporting at all'
+        List<BigDecimal> stretch = teams.findAll { it.freeCap > 0 }.collect { it.stretch }
+        stretch.min() < 0.5
+        stretch.max() > 1.5
+    }
+
     /** Measured and reported, never calibrated on: the case for dropping it has to be checkable. */
     def "2022 is the outlier the calibration excludes, and by a distance"() {
         given:

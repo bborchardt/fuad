@@ -277,6 +277,45 @@ class ModelFiguresPrinter {
         }
     }
 
+    /**
+     * How stretched each team was going into an auction, and how much of its roster it then held.
+     *
+     * <b>The evidence for reporting team context rather than pricing it.</b> {@code -t teams} puts exposure
+     * against free cap in front of a reader and deliberately moves no price, on the grounds that the
+     * relation is real one team at a time and invisible on average. {@code STRETCHCORR} is that claim: a
+     * strong number here would mean a team's situation belongs in the price after all.
+     *
+     * A pooled row carries the figures that belong to the span rather than to a team, on the same convention
+     * {@link #printSpend} uses. The per-team rows are what let an example be checked instead of remembered.
+     */
+    void printStretch(PrintWriter out) {
+        out.println(['SEASON', 'FRANCHISE', 'EXPIRING', 'KEPT', 'EXPOSURE', 'FREECAP', 'STRETCH', 'KEPTSHARE',
+                     'TEAMSEASONS', 'MINSTRETCH', 'MAXSTRETCH', 'STRETCHCORR'].join('\t'))
+        List<AuctionSpend.TeamSeason> teams = AuctionSpend.teamSeasons(AuctionSpend.CALIBRATED_SEASONS)
+        teams.each { AuctionSpend.TeamSeason team ->
+            out.println([
+                    team.season,
+                    team.franchise,
+                    team.expiring,
+                    team.kept,
+                    team.exposure.setScale(0, RoundingMode.HALF_UP),
+                    team.freeCap.setScale(0, RoundingMode.HALF_UP),
+                    team.stretch.setScale(2, RoundingMode.HALF_UP),
+                    team.keptShare.setScale(2, RoundingMode.HALF_UP),
+                    '', '', '', '',
+            ].join('\t'))
+        }
+        List<AuctionSpend.TeamSeason> measurable = teams.findAll { it.expiring > 0 && it.freeCap > 0 }
+        out.println([
+                AuctionSpend.CALIBRATED_SEASONS.first() + '-' + AuctionSpend.CALIBRATED_SEASONS.last(),
+                'ALL', '', '', '', '', '', '',
+                measurable.size(),
+                measurable.collect { it.stretch }.min().setScale(2, RoundingMode.HALF_UP),
+                measurable.collect { it.stretch }.max().setScale(2, RoundingMode.HALF_UP),
+                AuctionSpend.stretchAgainstKept(teams).setScale(2, RoundingMode.HALF_UP),
+        ].join('\t'))
+    }
+
     private static void printSpendRow(PrintWriter out, String label, List<AuctionSpend.Season> seasons) {
         Map<String, BigDecimal> share = AuctionSpend.shareByPosition(seasons)
         Map<String, BigDecimal> excludingKickers =

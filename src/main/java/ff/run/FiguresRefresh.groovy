@@ -27,6 +27,7 @@ class FiguresRefresh {
             spend    : 'printSpend',
             retention: 'printRetention',
             depth    : 'printDepth',
+            stretch  : 'printStretch',
             tags     : 'printTags',
             rates    : 'printRates',
     ].asImmutable() as Map<String, String>
