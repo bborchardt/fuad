@@ -90,6 +90,14 @@ class AuctionSpend {
         final Map<String, BigDecimal> dollars
         /** Cap the league had free once contracts already running were paid for. */
         final BigDecimal freeCap
+        /**
+         * Salary already running by position, which is the other side of the repricing.
+         *
+         * A league can look as though it has changed what it pays for when all that happened is a stock of
+         * old contracts expiring. Committed money answers that: if the auction is buying more quarterback
+         * and the contracts already on the books are also becoming more quarterback, nothing is running off.
+         */
+        final Map<String, BigDecimal> committed
         /** What the rookie draft cost, which is spoken for before any bidding and comes off the top. */
         final BigDecimal rookieDollars
         /** Rookies actually on a week 1 roster, against the picks the draft had to give out. */
@@ -97,17 +105,29 @@ class AuctionSpend {
         /** Teams that season, the league having contracted to eight and expanded back to ten. */
         final int teams
 
-        Season(String season, Map<String, BigDecimal> dollars, BigDecimal freeCap, BigDecimal rookieDollars,
-               int rookiesRostered, int teams) {
+        Season(String season, Map<String, BigDecimal> dollars, BigDecimal freeCap,
+               Map<String, BigDecimal> committed, BigDecimal rookieDollars, int rookiesRostered, int teams) {
             this.season = season
             this.dollars = dollars
             this.freeCap = freeCap
+            this.committed = committed
             this.rookieDollars = rookieDollars
             this.rookiesRostered = rookiesRostered
             this.teams = teams
         }
 
         BigDecimal getSpent() { (dollars.values().sum() ?: 0.0) as BigDecimal }
+
+        /** Total salary already running, which is what free cap is the cap less. */
+        BigDecimal getCommittedTotal() { (committed.values().sum() ?: 0.0) as BigDecimal }
+
+        /** What share of money already committed each position holds. */
+        Map<String, BigDecimal> getCommittedShare() {
+            BigDecimal total = committedTotal
+            committed.collectEntries { String position, BigDecimal held ->
+                [(position): total > 0 ? held / total : 0.0 as BigDecimal]
+            }
+        }
 
         /** Share of the free cap the league spent, which is what {@code SPEND_RATE} averages. */
         BigDecimal getSpendRate() { freeCap > 0 ? spent / freeCap : 0.0 }
@@ -157,7 +177,18 @@ class AuctionSpend {
         BigDecimal committed = (preDraft.values().findAll { !expiring(it) }
                 .collect { it[1] as BigDecimal }.sum() ?: 0.0) as BigDecimal
 
+        // The same money split by position. Taken over the scoring positions only, so the shares are of
+        // what the league commits to players it can start rather than of every contract on a roster.
+        Map<String, BigDecimal> committedByPosition = [:].withDefault { 0.0 as BigDecimal }
+        preDraft.each { String id, List held ->
+            String position = positionById[id]
+            if (!expiring(held) && POSITIONS.contains(position)) {
+                committedByPosition[position] += held[1] as BigDecimal
+            }
+        }
+
         new Season(season, POSITIONS.collectEntries { [(it): dollars[it]] }, cap - committed,
+                POSITIONS.collectEntries { [(it): committedByPosition[it]] },
                 rookieDollars, rookies.size(), teams)
     }
 

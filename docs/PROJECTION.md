@@ -348,7 +348,7 @@ As priced, which is generated:
 | FIGURE | VALUE | Actual 2025 |
 | --- | --- | --- |
 | Players above $1 | 79 | 70 |
-| Top cost | 81 | $100 |
+| Top cost | 82 | $100 |
 | Top 40 cost | 87.4 | 87% |
 
 <!-- model: 59b4f91 -->
@@ -496,9 +496,24 @@ tenths — enough to be mistaken for rounding and enough to matter to a constant
 `SHARE` the model calibrates to now that kickers are priced along with everyone else.
 
 The repricing is real, and it is not a stock of old contracts running off. Money already committed says the
-same thing from the other side: quarterback contracts have gone from 16% to 30% of committed salary since
-2022 and running back from 43% to 20%, while **wide receiver has stayed flat at 36-42%**. Nothing is
-expiring away; the league is simply buying different positions.
+same thing from the other side. `COMMITTEDSHARE` is what each position holds of the salary already on the
+books before a bid is made, so it moves only as contracts are signed and expire rather than with one
+auction:
+
+<!-- figures: spend key=SEASON+POS -->
+
+| SEASON | POS | COMMITTEDSHARE |
+| --- | --- | --- |
+| 2022 | QB | 16.1 |
+| 2025 | QB | 33.0 |
+| 2022 | RB | 42.6 |
+| 2025 | RB | 17.9 |
+| 2022 | WR | 36.5 |
+| 2025 | WR | 35.3 |
+
+Quarterback doubles its share of committed money over the same span the auction turns towards it, running
+back more than halves, and **wide receiver ends where it started**. Nothing is expiring away; the league is
+simply buying different positions.
 
 ### 6. Franchise tags, iterated to a fixed point
 
@@ -541,7 +556,7 @@ The highest `PRICE` is Ja'Marr Chase, which no one pays because he is tagged wel
 | FIGURE | VALUE | Actual 2025 |
 | --- | --- | --- |
 | Players | 106 | |
-| Total cost | 1928 | |
+| Total cost | 1934 | |
 | Top price | 92 | $100 |
 | Players above $1 | 79 | 70 |
 | Top 40 price | 88.2 | 87% |
@@ -554,10 +569,10 @@ board came out at and `TARGETSHARE` what the calibration aimed for:
 
 | POS | PLAYERS | RESERVE | SHARE | TARGETSHARE |
 | --- | --- | --- | --- | --- |
-| QB | 19 | 0.9 | 23.6 | 23.7 |
+| QB | 19 | 0.9 | 23.7 | 23.7 |
 | RB | 23 | 1.1 | 32.0 | 32.3 |
 | WR | 25 | 1.2 | 33.1 | 33.5 |
-| TE | 21 | 1.0 | 10.0 | 9.4 |
+| TE | 21 | 1.0 | 9.9 | 9.4 |
 | PK | 18 | 0.9 | 1.3 | 1.0 |
 
 **Those two columns do not match, and the reason is not a failure of the calibration.** It hits the target
@@ -892,9 +907,9 @@ simple allowances stand in for them, both checked against the record by `Auction
 
 - **Roster spots**: five rounds times teams. Nearly every pick is kept — 38, 46, 52 and 49 rookies rostered
   at week 1 across 2022-2025, against 40, 45, 50 and 50 picks.
-- **Budget**: 3.5% of the pot, taken off the top. Rookie prices are set by rule off the previous year's
-  positional prices and come out very low: $42, $52, $69 and $76 for the whole league, which is 3.0% to
-  4.0% of the auction pot.
+- **Budget**: 3.3% of the pot, taken off the top. Rookie prices are set by rule off the previous year's
+  positional prices and come out very low: $42, $52, $69 and $76 for the whole league, which is 2.9% to
+  3.9% of the auction pot.
 
 That leaves the spots the auction has to fill, as `teams x 30 - under contract - 5 x teams`. It predicts
 what the league actually signs closely: 65 against 71 in 2022, 90 against 93 in 2023, 103 against 96 in

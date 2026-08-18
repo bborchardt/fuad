@@ -48,9 +48,10 @@ class AuctionValuation {
      * rather than a number repeated here.
      *
      * The repricing is real and not a stock of old contracts running off. Money already committed tells the
-     * same story from the other side: quarterback contracts have gone 16% to 30% of committed salary since
-     * 2022 and running back 43% to 20%, while wide receiver has stayed flat around 36-42%. Nothing is
-     * expiring away, the league is simply paying for different positions.
+     * same story from the other side, and it is generated alongside the auction shares as COMMITTEDSHARE on
+     * docs/figures/&lt;year&gt;/spend.tsv: quarterback climbs across the same seasons the auction turns
+     * towards it, running back falls, and receiver stays where it was. Nothing is expiring away, the league
+     * is simply paying for different positions.
      *
      * <b>Shares of the whole auction, kickers included.</b> They used to be shares of what the four scoring
      * positions took, with a kicker entry on the other basis that summed the map to 1.009 — which cost
@@ -114,7 +115,7 @@ class AuctionValuation {
      * come off the top. {@code AuctionValuationSpec} recomputes the share from the committed seasons, so
      * this constant cannot drift from what the league has actually spent on a rookie class.
      */
-    static final BigDecimal ROOKIE_BUDGET_SHARE = 0.035
+    static final BigDecimal ROOKIE_BUDGET_SHARE = 0.033
 
     /**
      * Roster spots the rookie draft fills, as rounds times teams.

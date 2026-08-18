@@ -195,6 +195,11 @@ class ModelFiguresPrinter {
      * exclusion a reader has to take on trust. The documentation quoted all sixteen of them and claimed a
      * spec recomputed them, which no spec did.
      *
+     * <b>{@code COMMITTED} is the other side of the same question.</b> A league can look as though it has
+     * changed what it pays for when all that has happened is a stock of old contracts expiring. If the
+     * auction is buying more quarterback and the money already on the books is also becoming more
+     * quarterback, then nothing is running off and the repricing is real.
+     *
      * <b>Both bases, because the two are genuinely different questions.</b> {@code SHARE} is the share of
      * every auction dollar; {@code SHAREXPK} leaves kickers out of the denominator, which is how the
      * positional comparison reads and is what the prose tabulates. They differ by a few tenths at every
@@ -204,7 +209,7 @@ class ModelFiguresPrinter {
      * 2022 is reported and not calibrated on. The pooled row is the span that is.
      */
     void printSpend(PrintWriter out) {
-        out.println(['SEASON', 'POS', 'DOLLARS', 'SHARE', 'SHAREXPK'].join('\t'))
+        out.println(['SEASON', 'POS', 'DOLLARS', 'SHARE', 'SHAREXPK', 'COMMITTED', 'COMMITTEDSHARE'].join('\t'))
         List<AuctionSpend.Season> measured = AuctionSpend.SUPERFLEX_SEASONS.collect { AuctionSpend.of(it) }
         measured.each { AuctionSpend.Season season -> printSpendRow(out, season.season, [season]) }
         List<AuctionSpend.Season> calibrated =
@@ -276,6 +281,14 @@ class ModelFiguresPrinter {
         Map<String, BigDecimal> share = AuctionSpend.shareByPosition(seasons)
         Map<String, BigDecimal> excludingKickers =
                 AuctionSpend.shareByPosition(seasons, AuctionSpend.EXCLUDING_KICKERS)
+        // Pooled by dollars like the auction shares, so a season with more money on the books counts for
+        // more of the answer, which is what a share of committed salary means.
+        BigDecimal committedTotal =
+                (seasons.collect { it.committedTotal }.sum() ?: 0.0) as BigDecimal
+        Map<String, BigDecimal> committedShare = POSITIONS.collectEntries { String position ->
+            BigDecimal held = (seasons.collect { it.committed[position] ?: 0.0 }.sum() ?: 0.0) as BigDecimal
+            [(position): committedTotal > 0 ? held / committedTotal : 0.0 as BigDecimal]
+        }
         AuctionSpend.POSITIONS.each { String position ->
             out.println([
                     label,
@@ -285,6 +298,9 @@ class ModelFiguresPrinter {
                     percent(share[position]),
                     // A kicker has no share of a total he is not in, which is not the same as a share of nil.
                     excludingKickers.containsKey(position) ? percent(excludingKickers[position]) : '',
+                    (seasons.collect { it.committed[position] ?: 0.0 }.sum() ?: 0.0)
+                            .setScale(0, RoundingMode.HALF_UP),
+                    percent(committedShare[position]),
             ].join('\t'))
         }
     }

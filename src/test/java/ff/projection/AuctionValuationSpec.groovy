@@ -89,12 +89,18 @@ class AuctionValuationSpec extends Specification {
         }
     }
 
+    /**
+     * <b>Held to two tenths of a point, not to one.</b> A tolerance of 0.01 on a constant of 0.033 is a
+     * third of the constant, which no drift the data could produce would ever breach — the reserve moved
+     * when the pot began counting the veterans signed from outside the pre-auction rosters, and this went on
+     * passing throughout. A tolerance wide enough to admit any answer is not a check.
+     */
     def "rookies cost about the share of the pot the model reserves for them"() {
         given:
         List<BigDecimal> shares = superflex().collect { it.rookieShare }
 
         expect:
-        (shares.sum() / shares.size() - AuctionValuation.ROOKIE_BUDGET_SHARE).abs() < 0.01
+        (shares.sum() / shares.size() - AuctionValuation.ROOKIE_BUDGET_SHARE).abs() < 0.002
     }
 
     /**
