@@ -21,7 +21,7 @@ gives no sign of which is which.
 **Reasoning double-counts.** The board has already priced everything the model knows. Arguing that the
 2026 tight end premium makes the position worth spending on is arguing a point `PTS` has already
 capitalised, and which the flex allocation has capitalised a second time by giving tight end three starting
-spots. Reasoning from the ~80% spend rate about money left over is the same error: prices already sum to
+spots. Reasoning from the spend rate about money left over is the same error: prices already sum to
 that pot. Each of these is a real premium paid twice.
 
 The rule also has a useful consequence. If a plan needs a figure the board does not carry, that is a

@@ -347,9 +347,9 @@ As priced, which is generated:
 
 | FIGURE | VALUE | Actual 2025 |
 | --- | --- | --- |
-| Players above $1 | 77 | 70 |
-| Top cost | 83 | $100 |
-| Top 40 cost | 87.6 | 87% |
+| Players above $1 | 79 | 70 |
+| Top cost | 81 | $100 |
+| Top 40 cost | 87.4 | 87% |
 
 <!-- model: 59b4f91 -->
 
@@ -416,7 +416,7 @@ Teams spend a fairly steady share of the cap they have free — 70% to 87% acros
 | FIGURE | VALUE |
 | --- | --- |
 | Free cap | 2438 |
-| Expected spend | 1950 |
+| Expected spend | 2024 |
 
 The sixth that goes unspent is deliberate, and it is why a model that assumed teams bid to the cap would
 price everything too high. Cap is what absorbs in-season signings, and it is what a team releasing a bad
@@ -460,20 +460,19 @@ Value over replacement puts far more of the pot on running backs than this leagu
 wide receivers, so prices are scaled to the shares the league actually pays.
 
 **Calibrated on 2023-2025, not on 2022.** Superflex arrived in 2022 and the league had not adjusted to it:
-wide receivers took **56.2%** of that auction against 30.4% to 37.8% in every season since, and
-quarterbacks 13.9% against 16.7% to 29.8%. Averaging that year in drags wide receiver up by four points of
-the pot and holds quarterback down, which showed up as top receivers priced above anything the league has
-ever paid.
+wide receivers took **56.0%** of that auction against 30.6% to 36.5% in every season since, and
+quarterbacks 13.8% against 17.6% to 29.4%. Averaging that year in drags wide receiver up and holds
+quarterback down, which showed up as top receivers priced above anything the league has ever paid.
 
 <!-- figures: spend across=POS field=SHAREXPK -->
 
 | Share of auction spend | QB | RB | WR | TE | |
 | --- | --- | --- | --- | --- | --- |
-| 2022 | 13.9% | 22.3% | **56.2%** | 7.6% | excluded |
-| 2023 | 21.8% | 27.3% | 37.8% | 13.1% | |
-| 2024 | 16.7% | 42.5% | 30.4% | 10.4% | |
-| 2025 | 29.8% | 29.8% | 34.9% | 5.5% | |
-| 2023-2025 | 23.3% | 33.0% | 34.4% | 9.3% | what the model calibrates to |
+| 2022 | 13.8% | 22.3% | **56.0%** | 7.9% | excluded |
+| 2023 | 23.9% | 27.3% | 36.5% | 12.2% | |
+| 2024 | 17.6% | 41.8% | 30.6% | 10.0% | |
+| 2025 | 29.4% | 29.4% | 34.4% | 6.8% | |
+| 2023-2025 | 24.0% | 32.7% | 33.9% | 9.5% | what the model calibrates to |
 
 Those rows are what the league paid, generated from the committed seasons into
 `docs/figures/<year>/spend.tsv` and checked cell by cell, so the case for dropping 2022 is evidence a
@@ -484,14 +483,14 @@ fitted over, and it is `TARGETSHARE`:
 
 | POS | TARGETSHARE |
 | --- | --- |
-| QB | 23.1 |
-| RB | 32.7 |
-| WR | 34.1 |
-| TE | 9.2 |
-| PK | 0.9 |
+| QB | 23.7 |
+| RB | 32.3 |
+| WR | 33.5 |
+| TE | 9.4 |
+| PK | 1.0 |
 
 **The table above is on the four-position basis; `TARGETSHARE` is on the whole-auction one.** Kickers take
-0.5% to 1.6% a season, and leaving them in or out of the denominator moves every other position by a few
+0.6% to 1.7% a season, and leaving them in or out of the denominator moves every other position by a few
 tenths — enough to be mistaken for rounding and enough to matter to a constant compared against them.
 `spend.tsv` carries both: `SHAREXPK` is the table's basis, `SHARE` is the share of every dollar, and it is
 `SHARE` the model calibrates to now that kickers are priced along with everyone else.
@@ -542,10 +541,10 @@ The highest `PRICE` is Ja'Marr Chase, which no one pays because he is tagged wel
 | FIGURE | VALUE | Actual 2025 |
 | --- | --- | --- |
 | Players | 106 | |
-| Total cost | 1862 | |
-| Top price | 89 | $100 |
-| Players above $1 | 77 | 70 |
-| Top 40 price | 88.3 | 87% |
+| Total cost | 1928 | |
+| Top price | 92 | $100 |
+| Players above $1 | 79 | 70 |
+| Top 40 price | 88.2 | 87% |
 | Teams tagging | 9 | 7 |
 
 Position shares are the ones the league actually spends, since `MARKET_WEIGHT` is 1.0. `SHARE` is what the
@@ -555,11 +554,11 @@ board came out at and `TARGETSHARE` what the calibration aimed for:
 
 | POS | PLAYERS | RESERVE | SHARE | TARGETSHARE |
 | --- | --- | --- | --- | --- |
-| QB | 19 | 1.0 | 23.1 | 23.1 |
-| RB | 23 | 1.2 | 32.4 | 32.7 |
-| WR | 25 | 1.3 | 33.6 | 34.1 |
-| TE | 21 | 1.1 | 9.6 | 9.2 |
-| PK | 18 | 0.9 | 1.2 | 0.9 |
+| QB | 19 | 0.9 | 23.6 | 23.7 |
+| RB | 23 | 1.1 | 32.0 | 32.3 |
+| WR | 25 | 1.2 | 33.1 | 33.5 |
+| TE | 21 | 1.0 | 10.0 | 9.4 |
+| PK | 18 | 0.9 | 1.3 | 1.0 |
 
 **Those two columns do not match, and the reason is not a failure of the calibration.** It hits the target
 exactly — the shares of value it hands on are `TARGETSHARE` to the decimal, and bending each position's
@@ -576,7 +575,7 @@ Nine tags are predicted, one per team.
 
 The concentration is the number to watch. Splitting rate from availability raised the top of the board — the
 best players lose less to the injury smear than the deep ones did — and the top forty now hold a little
-under 89% of what open bidding would pay, against the 87% the league actually spent in 2025. A two point
+under 89% of what open bidding would pay, against the 87% the league actually spent in 2025. A point of
 drift toward a more top-heavy board than the record, small but in the direction the model is least able to
 check, since the tag keeps the very top from ever being priced in the open.
 
@@ -744,8 +743,8 @@ calibration touches it.
 
 | POS | TARGETSHARE | VORSHARE |
 | --- | --- | --- |
-| WR | 34.1 | 25.7 |
-| RB | 32.7 | 36.7 |
+| WR | 33.5 | 25.7 |
+| RB | 32.3 | 36.7 |
 
 Receiver is bought a third above what it is worth and running back at about nine tenths of it. Named by
 position rather than by player for the reason [STRATEGY.md](STRATEGY.md#what-the-board-carries) gives about
@@ -919,7 +918,7 @@ anything — a dead constant that looked live, and which cost an afternoon of mi
 
 | POS | SHARE | TARGETSHARE | PRICEDDEPTH | SEASONS | LOST | P10 | P90 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| PK | 1.2 | 0.9 | 25 | 225 | 11 | 0.36 | 1.43 |
+| PK | 1.3 | 1.0 | 25 | 225 | 11 | 0.36 | 1.43 |
 
 Rank predicts kicker scoring better than the position's reputation suggests. Over 2017-2025 the preseason
 PK1 finished inside the top ten kickers in **every one of the nine seasons**, and the curve separates the
@@ -954,16 +953,19 @@ any calibration touches it, which is what makes the pair worth reading:
 
 | POS | TARGETSHARE | VORSHARE |
 | --- | --- | --- |
-| QB | 23.1 | 25.2 |
-| RB | 32.7 | 36.7 |
-| WR | 34.1 | 25.7 |
-| TE | 9.2 | 6.7 |
-| PK | 0.9 | 5.7 |
+| QB | 23.7 | 25.2 |
+| RB | 32.3 | 36.7 |
+| WR | 33.5 | 25.7 |
+| TE | 9.4 | 6.7 |
+| PK | 1.0 | 5.7 |
 
-Kicker is out by a factor of six and nothing else is out by a factor at all. Quarterback and running back
-are bought at about nine tenths of their worth; receiver is bought a third above it and tight end a third
-below, which is the same mispricing
-[§5](#5-pulled-towards-how-this-league-actually-bids) reports from the price side. Kicker is a different
+Kicker is out by a factor of nearly six and nothing else is out by a factor at all. Quarterback and running
+back are bought at about nine tenths of their worth; receiver is bought a third above it and **tight end
+two fifths above**, which is the same mispricing
+[§5](#5-pulled-towards-how-this-league-actually-bids) reports from the price side. This sentence had tight
+end the wrong way round for as long as it has existed, saying a third below where the two columns beside it
+have always said above — which is what a figure nothing recomputed buys you even when the figure itself is
+generated. Kicker is a different
 kind of disagreement from those, and the top kickers carry the largest `EDGE` on the whole board.
 
 **This is reported and not acted on, and the caution is specific.** Value over replacement assumes the
