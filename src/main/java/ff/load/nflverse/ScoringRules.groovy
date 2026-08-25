@@ -13,10 +13,13 @@ package ff.load.nflverse
 class ScoringRules {
 
     /**
-     * 2026: 4.5 point passing touchdowns, a point per completed thirty passing yards, tight end premium,
-     * and field goals scored by the decade they were kicked from.
+     * The dynasty league, 2026: 4.5 point passing touchdowns, a point per completed thirty passing yards,
+     * tight end premium, and field goals scored by the decade they were kicked from.
+     *
+     * Named for its league rather than called CURRENT, which read as a fact about time while there was only
+     * one league and reads as a claim about which league matters now that there are two.
      */
-    static final ScoringRules CURRENT = new ScoringRules(
+    static final ScoringRules FUAD_2026 = new ScoringRules(
             passingTouchdown: 4.5,
             passingYardsPerPoint: 30,
             interception: -1.0,
@@ -31,11 +34,42 @@ class ScoringRules {
      * 2026 a further point for every decade beyond — six for the sixties up to nine for the nineties.
      * Before 2026 it stopped at five, which {@link #longestFieldGoalTier} expresses.
      */
+    /**
+     * The Greenfield league, unchanged in all ten seasons collected.
+     *
+     * Six point passing touchdowns, a point per twenty five passing yards, and a full point per reception at
+     * every position alike — no tight end premium. Field goals are the pre-2026 tiers, three up to forty
+     * yards, four for the forties and five for anything longer, which is what {@link #longestFieldGoalTier}
+     * already defaults to.
+     *
+     * Yahoo scores the yardage fractionally, which MFL does not. See {@link #fractionalPassingYards}.
+     *
+     * There is only one of these because the league has never repriced: across every rules export from 2017
+     * to 2026 the only differences are two IR slots that came and went and a column of Yahoo's own defaults.
+     * So unlike the dynasty league, no season here has to be restated to be compared with another.
+     */
+    static final ScoringRules GREENFIELD = new ScoringRules(
+            passingTouchdown: 6.0,
+            passingYardsPerPoint: 25,
+            fractionalPassingYards: true,
+            interception: -1.0,
+            receptionsByPosition: [:].withDefault { 1.0 as BigDecimal },
+            extraPoint: 1.0)
+
     private static final BigDecimal SHORT_FIELD_GOAL = 3.0
     private static final int FIRST_TIER_YARDS = 40
 
     BigDecimal passingTouchdown
     int passingYardsPerPoint
+    /**
+     * Whether a part of {@link #passingYardsPerPoint} scores, rather than being thrown away.
+     *
+     * MFL truncates: at a point per thirty yards, 299 yards and 270 yards both score nine. Yahoo, with
+     * fractional scoring switched on, pays the remainder. It is a small difference on any one week and a
+     * systematic one over a season, falling only on quarterbacks and always downward, so a league scored
+     * under the wrong setting has its quarterback curve quietly shifted under it.
+     */
+    boolean fractionalPassingYards = false
     BigDecimal interception
     Map<String, BigDecimal> receptionsByPosition
     BigDecimal extraPoint = 0.0
@@ -53,9 +87,11 @@ class ScoringRules {
                 : [SHORT_FIELD_GOAL + yards.intdiv(10) - 3, longestFieldGoalTier as BigDecimal].min()
     }
 
-    /** Scored a week at a time, since a point per thirty yards truncates and rounding once is not the same. */
+    /** Scored a week at a time, since a truncating yardage rate rounds once a week and not once a season. */
     BigDecimal score(Map<String, String> line) {
-        int passingPoints = num(line.passing_yards).toInteger().intdiv(passingYardsPerPoint)
+        BigDecimal passing = num(line.passing_yards)
+        BigDecimal passingPoints = fractionalPassingYards ? passing / passingYardsPerPoint
+                : passing.toInteger().intdiv(passingYardsPerPoint) as BigDecimal
         (passingTouchdown * num(line.passing_tds)
                 + passingPoints
                 + interception * num(line.passing_interceptions)

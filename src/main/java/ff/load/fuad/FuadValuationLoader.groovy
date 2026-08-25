@@ -5,9 +5,9 @@ import ff.data.RealisedSeason
 import ff.data.fantasypros.FpRankedPlayer
 import ff.data.fuad.FuadData
 import ff.data.fuad.FuadPlayer
+import ff.league.League
 import ff.load.fantasypros.FantasyProsLoader
 import ff.load.nflverse.NflverseStatsLoader
-import ff.load.nflverse.ScoringRules
 import ff.load.util.LoadUtils
 import ff.projection.AuctionValuation
 import ff.projection.ByeWeeks
@@ -24,15 +24,8 @@ import ff.projection.StarterRequirements
  */
 class FuadValuationLoader {
 
-    /**
-     * Finished seasons the curve is built from, every one nflverse statistics are held for.
-     *
-     * Pooled flat rather than weighted towards the recent ones. Restating 2017-19 and 2022-24 under a single
-     * rule set leaves them within a few per cent at every position, so there is no era left to correct for,
-     * and nine seasons is what gives a rank about 45 observations instead of 15.
-     */
-    private static final List<String> REALISED_SEASONS =
-            (2017..2025).collect { it as String }.asImmutable()
+    /** Which league is being priced, and so how every season is restated before it is levelled. */
+    private static final League LEAGUE = League.FUAD
 
     private static final List<String> POSITIONS = ['QB', 'RB', 'WR', 'TE', 'PK'].asImmutable()
 
@@ -43,7 +36,7 @@ class FuadValuationLoader {
      * consequence was that no kicker could be levelled, every one priced at the minimum bid, and none added
      * anything to any lineup. See docs/PROJECTION.md.
      */
-    private static final List<String> SCORED_POSITIONS = ['QB', 'RB', 'WR', 'TE', 'PK'].asImmutable()
+    private static final List<String> SCORED_POSITIONS = LEAGUE.scoredPositions.asImmutable()
 
     /**
      * Prefix lengths tried in turn when a ranked name has no exact match in the statistics.
@@ -219,8 +212,8 @@ class FuadValuationLoader {
      */
     private Map<String, Map<Integer, List<RealisedSeason>>> realisedByRank() {
         Map<String, Map<Integer, List<RealisedSeason>>> realised = [:].withDefault { [:].withDefault { [] } }
-        REALISED_SEASONS.each { String season ->
-            Map<String, BigDecimal> scored = NflverseStatsLoader.seasonPoints(season, ScoringRules.CURRENT)
+        LEAGUE.seasons.each { String season ->
+            Map<String, BigDecimal> scored = NflverseStatsLoader.seasonPoints(season, LEAGUE.scoring)
                     .collectEntries { String name, BigDecimal points -> [(LoadUtils.aliasedName(name)): points] }
             Map<String, Integer> games = NflverseStatsLoader.gamesPlayed(season)
                     .collectEntries { String name, Integer played -> [(LoadUtils.aliasedName(name)): played] }

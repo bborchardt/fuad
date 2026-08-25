@@ -14,7 +14,7 @@ class ScoringRulesSpec extends Specification {
     @Unroll
     def "a #yards yard field goal is worth #points under the current rules"() {
         expect:
-        ScoringRules.CURRENT.fieldGoal(yards) == points
+        ScoringRules.FUAD_2026.fieldGoal(yards) == points
 
         where:
         yards | points
@@ -57,13 +57,13 @@ class ScoringRulesSpec extends Specification {
         Map<String, String> week = [position: 'PK', fg_made_list: '25;43;62', pat_made: '2']
 
         expect: '3 for the 25, 4 for the 43, 6 for the 62, and a point each for the extras'
-        ScoringRules.CURRENT.score(week) == 15.0
+        ScoringRules.FUAD_2026.score(week) == 15.0
     }
 
     def "a kicker who attempted nothing scores nothing, rather than failing on an empty list"() {
         expect:
-        ScoringRules.CURRENT.score([position: 'PK', fg_made_list: '', pat_made: '']) == 0.0
-        ScoringRules.CURRENT.score([position: 'PK']) == 0.0
+        ScoringRules.FUAD_2026.score([position: 'PK', fg_made_list: '', pat_made: '']) == 0.0
+        ScoringRules.FUAD_2026.score([position: 'PK']) == 0.0
     }
 
     def "leaves the scoring positions exactly as they were, kicking being empty for them"() {
@@ -71,12 +71,12 @@ class ScoringRulesSpec extends Specification {
         Map<String, String> week = [position: 'WR', receiving_yards: '100', receiving_tds: '1', receptions: '6']
 
         expect: '10 yards, 6 for the score, half a point a catch'
-        ScoringRules.CURRENT.score(week) == 19.0
+        ScoringRules.FUAD_2026.score(week) == 19.0
     }
 
     def "gives the tight end a whole point a reception from 2026 and everyone else a half"() {
         expect:
-        ScoringRules.CURRENT.score([position: 'TE', receptions: '6']) == 6.0
-        ScoringRules.CURRENT.score([position: 'WR', receptions: '6']) == 3.0
+        ScoringRules.FUAD_2026.score([position: 'TE', receptions: '6']) == 6.0
+        ScoringRules.FUAD_2026.score([position: 'WR', receptions: '6']) == 3.0
     }
 }
