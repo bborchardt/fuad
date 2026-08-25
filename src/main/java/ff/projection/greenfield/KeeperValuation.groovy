@@ -48,6 +48,22 @@ class KeeperValuation {
     static List<KeeperSurplus> value(List<Map> keepers, Map<String, Integer> slots,
                                      Closure<BigDecimal> valueOf, List<String> board,
                                      Map<String, Integer> priorRounds, int teams) {
+        value(keepers, slots, valueOf, board, priorRounds, teams, [:])
+    }
+
+    /**
+     * The same, bracketed against what this league has actually left on the board at each pick.
+     *
+     * Two readings, and the pair is the answer. Consensus order asks what a drafter following the rankings
+     * would get with the pick; the measured curve asks what was really still there. Neither is the truth on
+     * its own — nobody drafts in consensus order, and nobody is guaranteed the best player the model can see
+     * either — but an owner drafting off this board should weigh the measured one, because it is the value
+     * he is actually giving up.
+     */
+    static List<KeeperSurplus> value(List<Map> keepers, Map<String, Integer> slots,
+                                     Closure<BigDecimal> valueOf, List<String> board,
+                                     Map<String, Integer> priorRounds, int teams,
+                                     Map<Integer, BigDecimal> measuredAtPick) {
         Set<String> kept = keepers.collect { it.player as String } as Set
         List<String> pool = board.findAll { !kept.contains(it) }
 
@@ -72,6 +88,7 @@ class KeeperValuation {
                     alternative: alternative,
                     alternativeValue: alternative ? (valueOf(alternative) ?: 0.0) : 0.0,
                     priorRound: prior,
+                    measuredAlternativeValue: measuredAtPick[pick],
                     eligible: eligible(costRound, prior))
         }.sort { -it.surplus() }
     }

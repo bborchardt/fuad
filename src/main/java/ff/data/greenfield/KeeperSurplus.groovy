@@ -28,8 +28,27 @@ class KeeperSurplus {
     String alternative
     BigDecimal alternativeValue
 
-    /** What keeping gains over spending the pick. Negative means the pick is worth more than the player. */
+    /** What keeping gains over spending the pick, if the pick is spent in consensus order. */
     BigDecimal surplus() { keeperValue - alternativeValue }
+
+    /**
+     * The best player this league has actually left on the board at that pick, over nine drafts.
+     *
+     * Null where no draft reached the pick. See {@code DraftHistory}.
+     */
+    BigDecimal measuredAlternativeValue
+
+    /**
+     * What keeping gains against the pick's measured worth rather than its assumed worth.
+     *
+     * <b>This is the lower of the two and the one an owner using this board should act on.</b> The consensus
+     * reading asks what a drafter who follows the rankings would get; this asks what was actually still
+     * there. They differ most in the late rounds, where this league reliably leaves a startable quarterback
+     * sitting until round eight, so an eighth round pick is worth far more than its number suggests.
+     */
+    BigDecimal measuredSurplus() {
+        measuredAlternativeValue == null ? null : keeperValue - measuredAlternativeValue
+    }
 
     /** Whether the prior season's draft round permits this player to be kept at this price. */
     boolean eligible

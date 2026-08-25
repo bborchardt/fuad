@@ -109,4 +109,35 @@ class KeeperValuationSpec extends Specification {
         valued.collect { it.player } == ['p1', 'p9']
         valued[0].surplus() > valued[1].surplus()
     }
+
+    def "the measured reading brackets the consensus one, and is the lower of the two here"() {
+        given: 'the league has historically left a 100 point player on the board at pick 7'
+        List<Map> keepers = [[owner: 'b', player: 'p3', costRound: 2]]
+
+        when:
+        List<KeeperSurplus> valued = KeeperValuation.value(
+                keepers, [a: 1, b: 2, c: 3, d: 4], VALUE, BOARD, [p3: 5], TEAMS, [7: 100.0 as BigDecimal])
+
+        then: 'consensus order says the pick returns p8 at 70; the record says it returns 100'
+        valued[0].alternativeValue == 70
+        valued[0].measuredAlternativeValue == 100
+
+        and: 'so keeping is worth 50 on the assumption and 20 against what was really there'
+        valued[0].surplus() == 50
+        valued[0].measuredSurplus() == 20
+    }
+
+    def "a pick no draft ever reached has no measured reading rather than a zero"() {
+        given:
+        List<Map> keepers = [[owner: 'b', player: 'p3', costRound: 2]]
+
+        when:
+        List<KeeperSurplus> valued = KeeperValuation.value(
+                keepers, [a: 1, b: 2, c: 3, d: 4], VALUE, BOARD, [p3: 5], TEAMS, [:])
+
+        then: 'absent is not the same as worthless, and a null says which of the two it is'
+        valued[0].measuredAlternativeValue == null
+        valued[0].measuredSurplus() == null
+        valued[0].surplus() == 50
+    }
 }
