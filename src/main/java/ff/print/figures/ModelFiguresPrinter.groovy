@@ -5,6 +5,7 @@ import ff.data.PlayerValuation
 import ff.projection.AuctionSpend
 import ff.projection.AuctionValuation
 import ff.projection.ByeWeeks
+import ff.projection.ExpectedValue
 import ff.projection.PointsCurve
 import ff.projection.StarterRequirements
 import ff.projection.TagHistory
@@ -64,8 +65,8 @@ class ModelFiguresPrinter {
         this.byes = byes
         this.valuations = valuations
         this.freeCap = freeCap
-        this.starters = AuctionValuation.startersOf(curve, requirements)
-        this.replacement = AuctionValuation.replacementLevels(curve, requirements, byes)
+        this.starters = ExpectedValue.startersOf(curve, requirements)
+        this.replacement = ExpectedValue.replacementLevels(curve, requirements, byes)
     }
 
     /**
@@ -88,9 +89,9 @@ class ModelFiguresPrinter {
                         curve.expectedGames(position, rank).setScale(2, RoundingMode.HALF_UP),
                         curve.standardError(position, rank).setScale(1, RoundingMode.HALF_UP),
                         curve.tier(position, rank),
-                        AuctionValuation.expectedValueOverReplacement(curve, replacement, position, rank, byes)
+                        ExpectedValue.expectedValueOverReplacement(curve, replacement, position, rank, byes)
                                 .setScale(1, RoundingMode.HALF_UP),
-                        AuctionValuation.valueOverReplacementAtExpectation(curve, replacement, position, rank, byes)
+                        ExpectedValue.valueOverReplacementAtExpectation(curve, replacement, position, rank, byes)
                                 .setScale(1, RoundingMode.HALF_UP),
                 ].join('\t'))
             }
@@ -139,9 +140,9 @@ class ModelFiguresPrinter {
                     percent(share[position]),
                     percent(AuctionValuation.MARKET_SHARE[position]),
                     percent(worth[position]),
-                    levelled ? curve.outcomePercentile(position, AuctionValuation.LOW_OUTCOME)
+                    levelled ? curve.outcomePercentile(position, ExpectedValue.LOW_OUTCOME)
                             .setScale(2, RoundingMode.HALF_UP) : '',
-                    levelled ? curve.outcomePercentile(position, AuctionValuation.HIGH_OUTCOME)
+                    levelled ? curve.outcomePercentile(position, ExpectedValue.HIGH_OUTCOME)
                             .setScale(2, RoundingMode.HALF_UP) : '',
                     levelled ? census.seasons : '',
                     levelled ? census.lost : '',

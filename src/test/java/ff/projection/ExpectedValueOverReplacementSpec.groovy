@@ -47,7 +47,7 @@ class ExpectedValueOverReplacementSpec extends Specification {
         PointsCurve curve = curveWith(certain())
 
         expect:
-        AuctionValuation.expectedValueOverReplacement(curve, replacementAt(5.0), 'WR', 28, NO_BYES) == 0.0
+        ExpectedValue.expectedValueOverReplacement(curve, replacementAt(5.0), 'WR', 28, NO_BYES) == 0.0
     }
 
     def "the same player is worth something once outcomes can vary"() {
@@ -55,7 +55,7 @@ class ExpectedValueOverReplacementSpec extends Specification {
         PointsCurve curve = curveWith(uncertain())
 
         expect: 'the seasons he comes in high clear replacement, and those are the ones he is started in'
-        AuctionValuation.expectedValueOverReplacement(curve, replacementAt(5.0), 'WR', 28, NO_BYES) > 0.0
+        ExpectedValue.expectedValueOverReplacement(curve, replacementAt(5.0), 'WR', 28, NO_BYES) > 0.0
     }
 
     def "spread never lowers what a player is worth, at any rank"() {
@@ -65,14 +65,14 @@ class ExpectedValueOverReplacementSpec extends Specification {
 
         expect: 'exact in theory, so only rounding is allowed for'
         (1..30).every { int rank ->
-            AuctionValuation.expectedValueOverReplacement(uncertain, replacementAt(5.0), 'WR', rank, NO_BYES) >=
-                    AuctionValuation.expectedValueOverReplacement(certain, replacementAt(5.0), 'WR', rank, NO_BYES) -
+            ExpectedValue.expectedValueOverReplacement(uncertain, replacementAt(5.0), 'WR', rank, NO_BYES) >=
+                    ExpectedValue.expectedValueOverReplacement(certain, replacementAt(5.0), 'WR', rank, NO_BYES) -
                     0.000001
         }
 
         and: 'a player far clear of replacement gains nothing, since the floor never binds on him'
-        (AuctionValuation.expectedValueOverReplacement(uncertain, replacementAt(5.0), 'WR', 1, NO_BYES) -
-                AuctionValuation.expectedValueOverReplacement(certain, replacementAt(5.0), 'WR', 1, NO_BYES)).abs() < 0.01
+        (ExpectedValue.expectedValueOverReplacement(uncertain, replacementAt(5.0), 'WR', 1, NO_BYES) -
+                ExpectedValue.expectedValueOverReplacement(certain, replacementAt(5.0), 'WR', 1, NO_BYES)).abs() < 0.01
     }
 
     def "the gap is widest around replacement, which is where a bench is"() {
@@ -80,8 +80,8 @@ class ExpectedValueOverReplacementSpec extends Specification {
         PointsCurve certain = curveWith(certain())
         PointsCurve uncertain = curveWith(uncertain())
         def gap = { int rank ->
-            AuctionValuation.expectedValueOverReplacement(uncertain, replacementAt(5.0), 'WR', rank, NO_BYES) -
-                    AuctionValuation.expectedValueOverReplacement(certain, replacementAt(5.0), 'WR', rank, NO_BYES)
+            ExpectedValue.expectedValueOverReplacement(uncertain, replacementAt(5.0), 'WR', rank, NO_BYES) -
+                    ExpectedValue.expectedValueOverReplacement(certain, replacementAt(5.0), 'WR', rank, NO_BYES)
         }
 
         expect: 'rank 28 sits just below replacement and gains more than the best player at the position'
@@ -102,8 +102,8 @@ class ExpectedValueOverReplacementSpec extends Specification {
 
         expect:
         (1..30).every { int rank ->
-            AuctionValuation.expectedValueOverReplacement(curve, replacement, 'WR', rank, NO_BYES) >=
-                    AuctionValuation.valueOverReplacementAtExpectation(curve, replacement, 'WR', rank, NO_BYES) -
+            ExpectedValue.expectedValueOverReplacement(curve, replacement, 'WR', rank, NO_BYES) >=
+                    ExpectedValue.valueOverReplacementAtExpectation(curve, replacement, 'WR', rank, NO_BYES) -
                     0.000001
         }
     }
@@ -113,8 +113,8 @@ class ExpectedValueOverReplacementSpec extends Specification {
         PointsCurve curve = curveWith(uncertain())
         Map<String, Map<Integer, BigDecimal>> replacement = replacementAt(5.0)
         def gap = { int rank ->
-            AuctionValuation.expectedValueOverReplacement(curve, replacement, 'WR', rank, NO_BYES) -
-                    AuctionValuation.valueOverReplacementAtExpectation(curve, replacement, 'WR', rank, NO_BYES)
+            ExpectedValue.expectedValueOverReplacement(curve, replacement, 'WR', rank, NO_BYES) -
+                    ExpectedValue.valueOverReplacementAtExpectation(curve, replacement, 'WR', rank, NO_BYES)
         }
 
         expect: 'the player level with replacement gains most, and the best player nothing at all'
@@ -141,8 +141,8 @@ class ExpectedValueOverReplacementSpec extends Specification {
 
         when:
         Map<Integer, BigDecimal> weekly = curve.weeklyRate('WR', 1, 5, 10)
-        BigDecimal withBye = AuctionValuation.expectedValueOverReplacement(curve, replacementAt(5.0), 'WR', 1, byes)
-        BigDecimal without = AuctionValuation.expectedValueOverReplacement(curve, replacementAt(5.0), 'WR', 1, NO_BYES)
+        BigDecimal withBye = ExpectedValue.expectedValueOverReplacement(curve, replacementAt(5.0), 'WR', 1, byes)
+        BigDecimal without = ExpectedValue.expectedValueOverReplacement(curve, replacementAt(5.0), 'WR', 1, NO_BYES)
 
         then: 'he scores nothing in the week he is off'
         weekly[5] == 0.0
