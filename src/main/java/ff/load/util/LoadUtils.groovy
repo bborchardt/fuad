@@ -29,6 +29,16 @@ class LoadUtils {
     static String fpRedraftRankingsHalfPprResourcePath(String year) { "/ff/fantasypros/data/$year/redraft_rankings_half_ppr.csv" }
 
     /**
+     * Full PPR redraft ranks, which is the Greenfield league's format.
+     *
+     * Held only for the season being drafted. No PPR export can still be had for a finished preseason, so the
+     * half PPR sets stand in for the seasons the curve is built from — the two disagree by about a rank
+     * within a position, which is inside the curve's own smoothing radius. Unlike the half PPR files this one
+     * carries kickers and team defences in the same export, so no separate file has to be merged into it.
+     */
+    static String fpRedraftRankingsPprResourcePath(String year) { "/ff/fantasypros/data/$year/redraft_rankings_ppr.csv" }
+
+    /**
      * Kickers, where a season's redraft ranking leaves them out.
      *
      * Fantasypros does not carry kickers in a superflex ranking, which is the one this league needs, so
