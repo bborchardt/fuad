@@ -1,0 +1,79 @@
+Setting	Value
+League ID#:	159586
+League Name:	Theodore Kim Football League
+League Logo:	
+Auto-renew Enabled:	Yes
+Draft Type:	Live Standard Draft
+Draft Time:	Fri Sep 1 9:30pm CDT
+Cash League Settings:	Not a cash league
+Max Teams:	14
+Live Draft Pick Time:	1 Minute
+Keeper Settings:	Yes, enable Keeper League Management tools
+Keeper Deadline Date:	Thu Aug 31 2:00am CDT
+Scoring Type:	Head-to-Head
+Start Scoring on:	Week 1
+Can't Cut List Provider:	Yahoo Sports
+Max Acquisitions for Entire Season:	No maximum
+Max Acquisitions per Week:	No maximum
+Max Trades for Entire Season	No maximum
+Trade End Date:	November 18, 2023
+Allow Draft Pick Trades:	Yes
+Trade Review:	None
+Waiver Time:	2 days
+Waiver Type:	FAB w/ Continual rolling list tiebreak
+Weekly Waivers	Game Time - Tuesday
+Allow injured players from waivers or free agents to be added directly to injury slot:	No
+Post Draft Players:	Follow Waiver Rules
+Playoffs:	6 teams - Week 15, 16 and 17 (ends Monday, Jan 1)
+Playoff Tie-Breaker:	Best regular season record vs opponent wins
+Playoff Reseeding:	No
+Divisions:	No
+Lock Eliminated Teams:	Yes
+Play Against Median Score:	No
+Play Against a Second Opponent:	No
+Apply Injured Status For Postponed Games	Yes
+Roster Positions:	QB, WR, WR, RB, RB, TE, W/R/T, K, DEF, BN, BN, BN, BN, BN, BN, IR, IR
+Fractional Points:	Yes
+Negative Points:	Yes
+Lock Benched Players:	No
+Make League Publicly Viewable:	No
+Invite Permissions:	Commissioner Only
+Offense	League Value	Yahoo Default Value
+Passing Yards	25 yards per point	
+Passing Touchdowns
+Yahoo Default
+6	4
+Interceptions	-1	
+Rushing Yards	10 yards per point	
+Rushing Touchdowns	6	
+Receptions
+Yahoo Default
+1	0.5
+Receiving Yards	10 yards per point	
+Receiving Touchdowns	6	
+Return Touchdowns	6	
+2-Point Conversions	2	
+Fumbles Lost	-2	
+Offensive Fumble Return TD	6	
+Kickers	League Value	Yahoo Default Value
+Field Goals 0-19 Yards	3	
+Field Goals 20-29 Yards	3	
+Field Goals 30-39 Yards	3	
+Field Goals 40-49 Yards	4	
+Field Goals 50+ Yards	5	
+Point After Attempt Made	1	
+Defense/Special Teams	League Value	Yahoo Default Value
+Sack	1	
+Interception	2	
+Fumble Recovery	2	
+Touchdown	6	
+Safety	2	
+Block Kick	2	
+Points Allowed 0 points	10	
+Points Allowed 1-6 points	7	
+Points Allowed 7-13 points	4	
+Points Allowed 14-20 points	1	
+Points Allowed 21-27 points	0	
+Points Allowed 28-34 points	-1	
+Points Allowed 35+ points	-4	
+Extra Point Returned	2

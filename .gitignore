@@ -14,3 +14,7 @@ reports/
 .env
 # Strategy documents: the convention is tracked, the plans are not.
 strategy/
+
+# Raw Yahoo exports: they carry manager emails and full names. Only the
+# scrubbed extract under src/main/resources/ff/greenfield is committed.
+/greenfield/
