@@ -4,6 +4,7 @@ import ff.data.fantasypros.FpRankedPlayer
 import ff.league.League
 import ff.load.fantasypros.FantasyProsLoader
 import ff.load.util.LoadUtils
+import ff.load.util.NflTeams
 import ff.projection.greenfield.SnakeDraft
 
 /**
@@ -18,12 +19,14 @@ import ff.projection.greenfield.SnakeDraft
  * pick joined to the consensus rank the player held that preseason. What comes out is how many of each
  * position have gone by the end of each round, and the pick at which a given positional rank typically goes.
  *
- * <b>Team defences are in the residual.</b> The rankings name them by city and nickname — "Denver Broncos",
- * or "Chicago (CHI)" in the older exports, which carries no nickname at all — where the draft export names
- * them by nickname alone. They cannot be joined without a team map, and nothing here prices a defence
- * anyway, so they fall into {@link #UNRANKED} along with the deep fliers no ranking carried. That bucket is
- * reported rather than hidden, because a reader counting positions would otherwise find the rounds do not
- * add up.
+ * <b>Team defences are counted here even though nothing prices them.</b> The league starts one and every
+ * team has to fill the slot, so when they come off the board is a real question whatever the model can say
+ * about their worth. They are joined through {@link NflTeams}, because none of the name matching that works
+ * for players helps: the rankings write "Denver Broncos", or "Chicago (CHI)" in the older exports, where the
+ * draft export writes "Bears", and there is no common prefix between the last two at all.
+ *
+ * {@link #UNRANKED} is what is left after that — the deep fliers no ranking carried. It is reported rather
+ * than hidden, because a reader counting positions would otherwise find the rounds do not add up.
  */
 class PositionDemand {
 
@@ -46,8 +49,10 @@ class PositionDemand {
         this.league = league
     }
 
-    /** The positions reported, in board order, with the residual last. */
-    List<String> positions() { league.scoredPositions + UNRANKED }
+    /** The positions reported, in board order, then the unpriced slots, then the residual. */
+    List<String> positions() {
+        league.scoredPositions + league.unpricedStarters.keySet().toList() + UNRANKED
+    }
 
     /**
      * How many players at each position have gone by the end of each round, as a median over the seasons.
@@ -130,10 +135,15 @@ class PositionDemand {
                 .values().collectEntries { [(key(it.player.name)): it] }
         List<List<String>> rows = LoadUtils.loadCsvResource("/ff/greenfield/data/$season/draft.tsv")
                 .drop(1).collect { it.split('\t') as List<String> }
+        Map<String, FpRankedPlayer> defences = new FantasyProsLoader().loadRedraftRankedPlayers(season)
+                .values().findAll { NflTeams.isTeam(it.player.name) }
+                .collectEntries { [(NflTeams.abbreviationOf(it.player.name)): it] }
         rows.withIndex().collect { List<String> row, int i ->
-            FpRankedPlayer player = ranked[key(row[2])]
-            String position = player && league.scoredPositions.contains(player.player.position)
-                    ? player.player.position : UNRANKED
+            String team = NflTeams.abbreviationOf(row[2])
+            FpRankedPlayer player = team ? defences[team] : ranked[key(row[2])]
+            String position = team ? (player ? player.player.position : UNRANKED)
+                    : (player && league.scoredPositions.contains(player.player.position)
+                    ? player.player.position : UNRANKED)
             [overall     : i + 1,
              round       : SnakeDraft.roundOf(i + 1, league.teams),
              position    : position,

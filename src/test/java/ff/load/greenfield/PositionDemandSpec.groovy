@@ -37,8 +37,22 @@ class PositionDemandSpec extends Specification {
         last.values().sum() > 190
         last.values().sum() <= 15 * 14
 
-        and: 'team defences cannot be joined by name, so they are in the residual and not lost'
-        last[PositionDemand.UNRANKED] > 0
+        and: 'defences are counted as themselves, being a slot every team has to fill'
+        last.DST >= 14
+
+        and: 'what is left over is a handful of fliers no ranking carried, not a whole position'
+        last[PositionDemand.UNRANKED] < 5
+    }
+
+    def "defences come off the board late, and only just fill the slots the league starts"() {
+        given:
+        Map<Integer, Map<String, Integer>> taken = demand.takenByRound()
+
+        expect: 'none in the first six rounds, when every pick is still a skill player'
+        taken[6].DST == 0
+
+        and: 'and they are still being taken in the last round'
+        taken[15].DST > taken[14].DST
     }
 
     def "running back runs out before receiver, and receiver before quarterback"() {

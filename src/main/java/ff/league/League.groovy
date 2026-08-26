@@ -59,7 +59,8 @@ class League {
             teams: 14,
             startersPerTeam: 8,
             starterMinimums: [QB: 1, RB: 2, WR: 2, TE: 1, PK: 1],
-            starterMaximums: [QB: 1, RB: 3, WR: 3, TE: 2, PK: 1])
+            starterMaximums: [QB: 1, RB: 3, WR: 3, TE: 2, PK: 1],
+            unpricedStarters: [DST: 1])
 
     String name
 
@@ -80,8 +81,27 @@ class League {
 
     Integer teams
     Integer startersPerTeam
+
+    /**
+     * Slots the league starts that the model cannot value, per team.
+     *
+     * A team defence is scored by the league and carried by no per-player statistics, so it has no curve and
+     * is deliberately absent from {@link #scoredPositions} and from {@link #startersPerTeam} — pricing one at
+     * a guess, or handing its slot to a flex that cannot fill it, are both worse than leaving it out.
+     *
+     * <b>It is still a slot every team has to fill</b>, so anything asking when a position comes off the
+     * board has to count it. Unvalued is not the same as absent, and this is where the difference is kept.
+     */
+    Map<String, Integer> unpricedStarters = [:]
     Map<String, Integer> starterMinimums
     Map<String, Integer> starterMaximums
+
+    /** Every position the league starts, priced or not, and how many of each it starts in total. */
+    Map<String, Integer> startedLeagueWide(Map<String, Integer> pricedStarters) {
+        pricedStarters + unpricedStarters.collectEntries { String position, Integer perTeam ->
+            [(position): perTeam * (teams ?: 0)]
+        }
+    }
 
     /** True where the lineup is a property of the league rather than of one of its seasons. */
     boolean hasFixedLineup() {

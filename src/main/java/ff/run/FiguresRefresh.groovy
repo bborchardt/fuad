@@ -57,10 +57,13 @@ class FiguresRefresh {
                     new GreenfieldPickPrinter(board.pickValues(), League.GREENFIELD.teams).print(out)
                 },
                 greenfield_demand   : { PrintWriter out ->
-                    new GreenfieldDemandPrinter(board.demand(), board.starters()).print(out)
+                    new GreenfieldDemandPrinter(board.demand(),
+                            League.GREENFIELD.startedLeagueWide(board.starters())).print(out)
                 },
                 greenfield_adp      : { PrintWriter out ->
-                    new GreenfieldAdpPrinter(board.demand(), League.GREENFIELD.scoredPositions).print(out)
+                    new GreenfieldAdpPrinter(board.demand(),
+                            League.GREENFIELD.scoredPositions +
+                                    League.GREENFIELD.unpricedStarters.keySet().toList()).print(out)
                 },
                 greenfield_keepers  : { PrintWriter out ->
                     GreenfieldFiguresPrinter.printKeepers(out, board.keepers())

@@ -90,12 +90,15 @@ class GreenfieldRunner {
         }
         if (TYPE_DEMAND == type) {
             return { PrintWriter out ->
-                new GreenfieldDemandPrinter(board.demand(), board.starters()).print(out)
+                new GreenfieldDemandPrinter(board.demand(),
+                        League.GREENFIELD.startedLeagueWide(board.starters())).print(out)
             }
         }
         if (TYPE_ADP == type) {
             return { PrintWriter out ->
-                new GreenfieldAdpPrinter(board.demand(), League.GREENFIELD.scoredPositions).print(out)
+                new GreenfieldAdpPrinter(board.demand(),
+                        League.GREENFIELD.scoredPositions +
+                                League.GREENFIELD.unpricedStarters.keySet().toList()).print(out)
             }
         }
         if (TYPE_BOARD == type) {
