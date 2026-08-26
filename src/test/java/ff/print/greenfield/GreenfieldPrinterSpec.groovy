@@ -6,6 +6,13 @@ import spock.lang.Specification
 /** The two sheets that are pure arithmetic on what they are handed, asserted without building a curve. */
 class GreenfieldPrinterSpec extends Specification {
 
+    /** Split keeping trailing blanks, and index by heading so added columns do not break a spec. */
+    private static Map<String, String> row(List<String> lines, int index) {
+        List<String> headings = lines[0].split('\t', -1) as List<String>
+        List<String> values = lines[index].split('\t', -1) as List<String>
+        [headings, values].transpose().collectEntries { [(it[0]): it[1]] }
+    }
+
     private static List<String> print(Closure<Void> printing) {
         StringWriter text = new StringWriter()
         text.withPrintWriter { PrintWriter out -> printing(out) }
@@ -31,7 +38,8 @@ class GreenfieldPrinterSpec extends Specification {
         lines[2].startsWith('a\tThin\t')
 
         and: 'a keeper worth less than the pick shows negative rather than being dropped'
-        lines[2].endsWith('\t5.7\t-5.6')
+        row(lines, 2).SURPLUS == '5.7'
+        row(lines, 2).MEASUREDSURPLUS == '-5.6'
     }
 
     def "a keeper with no measurement leaves the column blank rather than calling it zero"() {
@@ -44,8 +52,12 @@ class GreenfieldPrinterSpec extends Specification {
         List<String> lines = print { out -> new GreenfieldKeeperPrinter(keepers).print(out) }
 
         then: 'absent and worthless are different claims, and an undrafted prior year says so in words'
-        lines[1].endsWith('\t50.0\t20.0\t\t30.0\t')
-        lines[1].contains('undrafted')
+        row(lines, 1).VOR == '50.0'
+        row(lines, 1).CONSENSUS == '20.0'
+        row(lines, 1).MEASURED == ''
+        row(lines, 1).SURPLUS == '30.0'
+        row(lines, 1).MEASUREDSURPLUS == ''
+        row(lines, 1).PRIORROUND == 'undrafted'
     }
 
     def "an ineligible keeper is marked rather than silently priced"() {
@@ -58,7 +70,7 @@ class GreenfieldPrinterSpec extends Specification {
         List<String> lines = print { out -> new GreenfieldKeeperPrinter(keepers).print(out) }
 
         then:
-        lines[1].contains('\tNO\t')
+        row(lines, 1).ELIGIBLE == 'NO'
     }
 
     def "the pick sheet reports a round by its ends and the drop across it"() {

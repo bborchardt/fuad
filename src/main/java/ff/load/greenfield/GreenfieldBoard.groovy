@@ -8,6 +8,7 @@ import ff.projection.ByeWeeks
 import ff.projection.ExpectedValue
 import ff.projection.PointsCurve
 import ff.projection.greenfield.KeeperValuation
+import ff.projection.greenfield.SnakeDraft
 
 /**
  * Everything a Greenfield sheet is written from, assembled once.
@@ -60,11 +61,44 @@ class GreenfieldBoard {
                 curve, replacement, player.player.position, player.rank.positionRank, byes) : null
     }
 
+    /**
+     * What the best usable player at a position is worth when a given pick comes round.
+     *
+     * <b>Best available and best available <i>at a position</i> are different questions, and the second is
+     * usually the one being asked.</b> This league caps a team at one quarterback, two tight ends, one
+     * kicker and one defence, so the best player left on the board is frequently one the asker cannot field.
+     * Pricing a forfeited pick at him overstates what the pick was worth by the whole difference.
+     *
+     * Returns null where the position has nothing left the drafts can speak to, or nothing the curve still
+     * prices.
+     */
+    BigDecimal positionalValueAt(String position, int pick) {
+        Integer rank = demand().bestRankAvailableAt(position, pick)
+        rank && rank <= curve.pricedDepth(position)
+                ? ExpectedValue.expectedValueOverReplacement(curve, replacement, position, rank, byes)
+                : null
+    }
+
+    /** The rank behind {@link #positionalValueAt}, for a sheet that has to say who it means. */
+    Integer positionalRankAt(String position, int pick) {
+        demand().bestRankAvailableAt(position, pick)
+    }
+
     /** Each declared keeper against the pick it costs, both readings. */
     List<KeeperSurplus> keepers() {
         keeperSurpluses ?: (keeperSurpluses = KeeperValuation.value(
                 declaredKeepers(), slots(), this.&valueOf, consensusOrder(), priorRounds(),
-                League.GREENFIELD.teams, pickValues()))
+                League.GREENFIELD.teams, pickValues(), this.&positionalValueAt, this.&positionalRankAt))
+    }
+
+    /**
+     * The picks a slot no longer owns, having spent them on keepers.
+     *
+     * Empty for a slot that kept nobody, which is a real answer rather than a missing one.
+     */
+    Set<Integer> forfeitedBy(int slot) {
+        declaredKeepers().findAll { slots()[it.owner as String] == slot }
+                .collect { SnakeDraft.overallPick(it.costRound as int, slot, League.GREENFIELD.teams) } as Set
     }
 
     /** Who has already taken each player off the board. */

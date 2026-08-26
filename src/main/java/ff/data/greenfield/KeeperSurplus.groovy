@@ -38,6 +38,28 @@ class KeeperSurplus {
      */
     BigDecimal measuredAlternativeValue
 
+    /** The best rank at the keeper's own position that the pick would typically have returned. */
+    Integer positionalAlternativeRank
+
+    /** What that rank is worth, which is the alternative when the slot has to be filled from the position. */
+    BigDecimal positionalAlternativeValue
+
+    /**
+     * What keeping gains over the best player at the same position the pick would have returned.
+     *
+     * <b>This is the reading to use when the keeper is a starter.</b> The other two price the pick at the
+     * best player available of any position, and this league caps a team at one quarterback, two tight ends,
+     * one kicker and one defence — so the best player left is frequently one the owner cannot field. A
+     * forfeited pick priced at a second quarterback nobody can start overstates what was given up by the
+     * whole difference, and it is enough to turn a positive decision negative.
+     *
+     * It is the other end of a bracket rather than the answer. An owner who is set at the position really
+     * would spend the pick elsewhere, and for him the measured reading is right.
+     */
+    BigDecimal positionalSurplus() {
+        positionalAlternativeValue == null ? null : keeperValue - positionalAlternativeValue
+    }
+
     /**
      * What keeping gains against the pick's measured worth rather than its assumed worth.
      *

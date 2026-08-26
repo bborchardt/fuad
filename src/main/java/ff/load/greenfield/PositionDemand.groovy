@@ -129,6 +129,20 @@ class PositionDemand {
         }
     }
 
+    /**
+     * The best rank at a position that this league has typically left on the board at a given pick.
+     *
+     * The inverse of {@link #averageDraftPosition}, and the question a drafter actually has: not "when does
+     * QB5 go" but "what is the best quarterback still there when I pick". Null where the position has
+     * nothing left that the drafts have enough to say about.
+     *
+     * <b>This is a median, not a promise.</b> Half the time the rank named here is already gone.
+     */
+    Integer bestRankAvailableAt(String position, int pick) {
+        Map<Integer, Integer> byRank = averageDraftPosition()[position]
+        byRank?.findAll { int rank, int typical -> typical > pick }?.keySet()?.min()
+    }
+
     /** Every pick of a season, with the position and positional rank the consensus gave the player. */
     private List<Map<String, Object>> picks(String season) {
         Map<String, FpRankedPlayer> ranked = new FantasyProsLoader().loadRedraftRankedPlayers(season)

@@ -13,6 +13,13 @@ Run it with:
 declared keeper against the pick it costs, `picks` is what a pick has actually been worth here, and `demand`
 and `adp` are when each position comes off the board.
 
+`outlook` is separate: it answers for one draft slot rather than for the league, so it takes `-s` and is not
+part of `all`.
+
+```
+./greenfield_report.sh -t outlook -s 13
+```
+
 ## What the league is
 
 Fourteen teams, fifteen rounds, snake order. Nine starters: QB, WR, WR, RB, RB, TE, W/R/T, K, DEF, with six
@@ -216,26 +223,42 @@ carried, rather than a whole position hiding in the residual. The first defence 
 
 <!-- figures: greenfield_keepers -->
 
-| PLAYER | POS | RANK | COSTROUND | VOR | MEASURED | MEASUREDSURPLUS |
-| --- | --- | --- | --- | --- | --- | --- |
-| Drake Maye | QB | 3 | 8 | 67.1 | 37.0 | 30.1 |
-| Chris Olave | WR | 10 | 8 | 64.3 | 37.0 | 27.3 |
-| Javonte Williams | RB | 17 | 8 | 52.0 | 37.0 | 15.0 |
-| Luther Burden III | WR | 23 | 8 | 49.6 | 35.7 | 13.8 |
-| Travis Etienne Jr. | RB | 18 | 8 | 45.9 | 37.0 | 8.9 |
-| Omarion Hampton | RB | 9 | 2 | 79.2 | 77.0 | 2.2 |
-| Trevor Lawrence | QB | 9 | 8 | 36.8 | 37.0 | -0.2 |
-| Cam Skattebo | RB | 20 | 8 | 33.5 | 37.0 | -3.5 |
-| Tucker Kraft | TE | 6 | 8 | 31.4 | 37.0 | -5.6 |
-| Kyle Pitts Sr. | TE | 7 | 8 | 28.0 | 37.0 | -9.1 |
-| Rashee Rice | WR | 12 | 2 | 58.2 | 76.7 | -18.5 |
-| Jacory Croskey-Merritt | RB | 39 | 8 | 6.9 | 35.7 | -28.8 |
+| PLAYER | POS | RANK | VOR | MEASURED | POSVALUE | MEASUREDSURPLUS | POSSURPLUS |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Chris Olave | WR | 10 | 64.3 | 37.0 | 16.8 | 27.3 | 47.5 |
+| Javonte Williams | RB | 17 | 52.0 | 37.0 | 7.7 | 15.0 | 44.2 |
+| Travis Etienne Jr. | RB | 18 | 45.9 | 37.0 | 7.7 | 8.9 | 38.1 |
+| Luther Burden III | WR | 23 | 49.6 | 35.7 | 15.9 | 13.8 | 33.6 |
+| Drake Maye | QB | 3 | 67.1 | 37.0 | 36.9 | 30.1 | 30.1 |
+| Cam Skattebo | RB | 20 | 33.5 | 37.0 | 7.7 | -3.5 | 25.8 |
+| Omarion Hampton | RB | 9 | 79.2 | 77.0 | 73.6 | 2.2 | 5.7 |
+| Tucker Kraft | TE | 6 | 31.4 | 37.0 | 26.6 | -5.6 | 4.8 |
+| Kyle Pitts Sr. | TE | 7 | 28.0 | 37.0 | 26.6 | -9.1 | 1.4 |
+| Jacory Croskey-Merritt | RB | 39 | 6.9 | 35.7 | 7.7 | -28.8 | -0.8 |
+| Trevor Lawrence | QB | 9 | 36.8 | 37.0 | 42.3 | -0.2 | -5.5 |
+| Rashee Rice | WR | 12 | 58.2 | 76.7 | 67.1 | -18.5 | -9.0 |
 
-**Half of them are losses.** The board reports two readings and this is the lower: `MEASURED` prices the
-forfeited pick at what this league has really left on it, where the report's `SURPLUS` column prices it at
-whoever consensus says is next. Neither is the truth alone — nobody drafts in consensus order, and nobody is
-handed the best player the model can see either — but an owner drafting off this board should weigh the
-measured one, because that is the value he is actually giving up.
+**Which column decides depends on whether the keeper is a starter, and the two disagree about six of the
+twelve.**
+
+`MEASURED` prices the forfeited pick at the best player this league has really left on the board there.
+`POSVALUE` prices it at the best player *at the keeper's own position*. The gap between them is the whole
+subject, because this league caps a team at one quarterback, two tight ends, one kicker and one defence —
+so the best player available is frequently one the owner cannot field. A pick priced at a second
+quarterback nobody can start overstates what was given up by the whole difference.
+
+Cam Skattebo is the case. The best player left at pick 100 is QB12, worth 42, so the measured reading makes
+keeping him a loss of 3.5. But the best *back* left is RB40, worth 7.7 — and an owner keeping a starting
+back is choosing between Skattebo and that, not between Skattebo and a quarterback he already has. Read
+positionally he is worth 25.8. Kyle Pitts and Tucker Kraft flip the same way for the same reason.
+
+**Trevor Lawrence flips the other way**, and that is the reading working rather than failing. Quarterbacks
+are the one position this league leaves on the board, so QB12 really is there at pick 99 and really is worth
+more than QB9 — keeping him is a loss on both readings, and more clearly on the positional one.
+
+An owner already set at a position should read `MEASUREDSURPLUS`; one whose keeper is a starter he would
+otherwise have to replace should read `POSSURPLUS`. The two bracket the decision and neither is the truth
+alone.
 
 Both second round keepers were drafted in rounds three to five and so could not reach the cheap slot at all.
 Neither owner chose the dear price; both were forced into it by the dead zone.

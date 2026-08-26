@@ -81,10 +81,13 @@ class GreenfieldFiguresPrinter {
 
     /** Every keeper declared this season, against the pick it costs. */
     static void printKeepers(PrintWriter out, List<KeeperSurplus> keepers) {
-        out.println(['PLAYER', 'POS', 'RANK', 'COSTROUND', 'VOR', 'MEASURED', 'MEASUREDSURPLUS'].join('\t'))
-        keepers.sort { -(it.measuredSurplus() ?: it.surplus()) }.each { KeeperSurplus k ->
+        out.println(['PLAYER', 'POS', 'RANK', 'COSTROUND', 'VOR', 'MEASURED', 'POSVALUE',
+                     'MEASUREDSURPLUS', 'POSSURPLUS'].join('\t'))
+        keepers.sort { -(it.positionalSurplus() ?: it.measuredSurplus() ?: it.surplus()) }.each { KeeperSurplus k ->
             out.println([k.player, k.position ?: '', k.positionRank ?: '', k.costRound,
-                         one(k.keeperValue), one(k.measuredAlternativeValue), one(k.measuredSurplus())].join('\t'))
+                         one(k.keeperValue), one(k.measuredAlternativeValue),
+                         one(k.positionalAlternativeValue),
+                         one(k.measuredSurplus()), one(k.positionalSurplus())].join('\t'))
         }
     }
 

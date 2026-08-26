@@ -140,4 +140,37 @@ class KeeperValuationSpec extends Specification {
         valued[0].measuredSurplus() == null
         valued[0].surplus() == 50
     }
+
+    def "the positional reading prices the pick at a player the owner can actually field"() {
+        given: 'p2 is the best left overall, but at a position this owner already fills'
+        List<Map> keepers = [[owner: 'b', player: 'p3', costRound: 2, position: 'RB']]
+
+        when:
+        List<KeeperSurplus> valued = KeeperValuation.value(
+                keepers, [a: 1, b: 2, c: 3, d: 4], VALUE, BOARD, [p3: 5], TEAMS,
+                [7: 100.0 as BigDecimal], { String pos, int pick -> 20.0 as BigDecimal },
+                { String pos, int pick -> 40 })
+
+        then: 'the measured reading says keeping loses, because it prices the pick at a player he cannot use'
+        valued[0].measuredSurplus() == 20
+
+        and: 'the positional reading says it gains, pricing it at the best back the pick would have returned'
+        valued[0].positionalAlternativeValue == 20
+        valued[0].positionalAlternativeRank == 40
+        valued[0].positionalSurplus() == 100
+    }
+
+    def "a keeper with no position carries no positional reading rather than a wrong one"() {
+        given:
+        List<Map> keepers = [[owner: 'b', player: 'p3', costRound: 2]]
+
+        when:
+        List<KeeperSurplus> valued = KeeperValuation.value(
+                keepers, [a: 1, b: 2, c: 3, d: 4], VALUE, BOARD, [p3: 5], TEAMS, [:],
+                { String pos, int pick -> 20.0 as BigDecimal }, { String pos, int pick -> 40 })
+
+        then:
+        valued[0].positionalAlternativeValue == null
+        valued[0].positionalSurplus() == null
+    }
 }

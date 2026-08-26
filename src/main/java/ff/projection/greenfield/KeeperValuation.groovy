@@ -48,11 +48,17 @@ class KeeperValuation {
     static List<KeeperSurplus> value(List<Map> keepers, Map<String, Integer> slots,
                                      Closure<BigDecimal> valueOf, List<String> board,
                                      Map<String, Integer> priorRounds, int teams) {
-        value(keepers, slots, valueOf, board, priorRounds, teams, [:])
+        value(keepers, slots, valueOf, board, priorRounds, teams, [:], null, null)
     }
 
     /**
      * The same, bracketed against what this league has actually left on the board at each pick.
+     *
+     * <b>Three readings now, and the third is usually the one that decides.</b> Consensus order and the
+     * measured curve both price the forfeited pick at the best player available of any position, and this
+     * league caps a team at one quarterback, two tight ends, one kicker and one defence — so that player is
+     * frequently one the owner cannot field. {@code positionalValueAt} prices the pick at the best player at
+     * the keeper's own position instead, which is what an owner replacing a starter would actually get.
      *
      * Two readings, and the pair is the answer. Consensus order asks what a drafter following the rankings
      * would get with the pick; the measured curve asks what was really still there. Neither is the truth on
@@ -63,7 +69,9 @@ class KeeperValuation {
     static List<KeeperSurplus> value(List<Map> keepers, Map<String, Integer> slots,
                                      Closure<BigDecimal> valueOf, List<String> board,
                                      Map<String, Integer> priorRounds, int teams,
-                                     Map<Integer, BigDecimal> measuredAtPick) {
+                                     Map<Integer, BigDecimal> measuredAtPick,
+                                     Closure<BigDecimal> positionalValueAt = null,
+                                     Closure<Integer> positionalRankAt = null) {
         Set<String> kept = keepers.collect { it.player as String } as Set
         List<String> pool = board.findAll { !kept.contains(it) }
 
@@ -89,6 +97,10 @@ class KeeperValuation {
                     alternativeValue: alternative ? (valueOf(alternative) ?: 0.0) : 0.0,
                     priorRound: prior,
                     measuredAlternativeValue: measuredAtPick[pick],
+                    positionalAlternativeValue: positionalValueAt && keeper.position
+                            ? positionalValueAt(keeper.position as String, pick) : null,
+                    positionalAlternativeRank: positionalRankAt && keeper.position
+                            ? positionalRankAt(keeper.position as String, pick) : null,
                     eligible: eligible(costRound, prior))
         }.sort { -it.surplus() }
     }

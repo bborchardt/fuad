@@ -7,6 +7,13 @@ import java.math.RoundingMode
 /**
  * What each declared keeper is worth against the pick it costs, both ways of reading the pick.
  *
+ * <b>{@code POSSURPLUS} is the column to read for a keeper who is a starter.</b> The other two price the
+ * forfeited pick at the best player available of any position, and this league caps a team at one
+ * quarterback, two tight ends, one kicker and one defence — so that player is often one the owner cannot
+ * field. {@code ATPOS} names the best player at the keeper's own position the pick would really have
+ * returned, and {@code POSVALUE} is what he is worth. An owner already set at the position should read
+ * {@code MEASUREDSURPLUS} instead; the two bracket the decision.
+ *
  * {@code SURPLUS} takes the pick at consensus order — whoever the rankings say is next. {@code MEASURED}
  * takes it at what this league has actually left on the board there, over nine of its own drafts. The pair
  * is the answer: nobody drafts in consensus order, and nobody is handed the best player the model can see
@@ -28,9 +35,11 @@ class GreenfieldKeeperPrinter {
 
     void print(PrintWriter out) {
         out.println(['OWNER', 'PLAYER', 'POS', 'RANK', 'COSTROUND', 'COSTPICK', 'PRIORROUND', 'ELIGIBLE',
-                     'VOR', 'CONSENSUS', 'MEASURED', 'SURPLUS', 'MEASUREDSURPLUS'].join('\t'))
+                     'VOR', 'CONSENSUS', 'MEASURED', 'ATPOS', 'POSVALUE',
+                     'SURPLUS', 'MEASUREDSURPLUS', 'POSSURPLUS'].join('\t'))
         keepers.sort { a, b ->
-            (b.measuredSurplus() ?: b.surplus()) <=> (a.measuredSurplus() ?: a.surplus())
+            (b.positionalSurplus() ?: b.measuredSurplus() ?: b.surplus()) <=>
+                    (a.positionalSurplus() ?: a.measuredSurplus() ?: a.surplus())
         }.each { KeeperSurplus k ->
             out.println([
                     k.owner, k.player, k.position ?: '', k.positionRank ?: '',
@@ -38,7 +47,9 @@ class GreenfieldKeeperPrinter {
                     k.priorRound ?: 'undrafted',
                     k.eligible ? 'Y' : 'NO',
                     one(k.keeperValue), one(k.alternativeValue), one(k.measuredAlternativeValue),
-                    one(k.surplus()), one(k.measuredSurplus()),
+                    k.positionalAlternativeRank ? "${k.position}${k.positionalAlternativeRank}" : '',
+                    one(k.positionalAlternativeValue),
+                    one(k.surplus()), one(k.measuredSurplus()), one(k.positionalSurplus()),
             ].join('\t'))
         }
     }
