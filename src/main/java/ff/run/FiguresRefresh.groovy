@@ -4,7 +4,11 @@ import ff.data.fuad.FuadData
 import ff.load.fuad.FuadLoader
 import ff.load.fuad.FuadValuationLoader
 import ff.load.util.LoadUtils
+import ff.league.League
+import ff.load.greenfield.GreenfieldBoard
+import ff.print.figures.GreenfieldFiguresPrinter
 import ff.print.figures.ModelFiguresPrinter
+import ff.print.greenfield.GreenfieldPickPrinter
 import ff.run.fuad.ReportManifest
 
 /**
@@ -32,6 +36,36 @@ class FiguresRefresh {
             rates    : 'printRates',
     ].asImmutable() as Map<String, String>
 
+    /**
+     * The other league's figures, written beside the auction's under names that carry the league.
+     *
+     * One directory and one manifest, so a single {@code ./check_docs.sh} run holds both leagues'
+     * documentation to both leagues' models. They are separate tables rather than extra columns because
+     * they describe a different lineup, a different scoring and a different currency, and a reader
+     * comparing a row across the two would be comparing nothing.
+     */
+    private static List<String> greenfield(String year, File outputDir) {
+        GreenfieldBoard board = new GreenfieldBoard(year)
+        GreenfieldFiguresPrinter printer = new GreenfieldFiguresPrinter(board.curve, board.replacement,
+                board.byes, board.starters(), board.ranked)
+        Map<String, Closure<Void>> tables = [
+                greenfield_curve    : { PrintWriter out -> printer.printCurve(out) },
+                greenfield_positions: { PrintWriter out -> printer.printPositions(out) },
+                greenfield_picks    : { PrintWriter out ->
+                    new GreenfieldPickPrinter(board.pickValues(), League.GREENFIELD.teams).print(out)
+                },
+                greenfield_keepers  : { PrintWriter out ->
+                    GreenfieldFiguresPrinter.printKeepers(out, board.keepers())
+                },
+        ]
+        tables.collect { String name, Closure<Void> print ->
+            File file = new File(outputDir, "${name}.tsv")
+            file.withPrintWriter { PrintWriter out -> print(out) }
+            println "Wrote $file"
+            name
+        }
+    }
+
     static void main(String[] args) {
         if (args.length < 1 || args.length > 2) {
             System.err.println('Usage: FiguresRefresh <year> [out-dir]')
@@ -51,6 +85,7 @@ class FiguresRefresh {
                 loader.byes(year), loader.valuations(year, fuadData), loader.freeCap(year))
 
         List<String> written = []
+        written.addAll(greenfield(year, outputDir))
         TABLES.each { String name, String method ->
             File file = new File(outputDir, "${name}.tsv")
             file.withPrintWriter { PrintWriter out -> printer."$method"(out) }

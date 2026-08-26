@@ -1,18 +1,11 @@
 package ff.run.greenfield
 
-import ff.data.fantasypros.FpRankedPlayer
-import ff.data.greenfield.KeeperSurplus
 import ff.league.League
-import ff.load.greenfield.DraftHistory
+import ff.load.greenfield.GreenfieldBoard
 import ff.load.greenfield.GreenfieldValuationLoader
-import ff.load.util.LoadUtils
 import ff.print.greenfield.GreenfieldBoardPrinter
 import ff.print.greenfield.GreenfieldKeeperPrinter
 import ff.print.greenfield.GreenfieldPickPrinter
-import ff.projection.ByeWeeks
-import ff.projection.ExpectedValue
-import ff.projection.PointsCurve
-import ff.projection.greenfield.KeeperValuation
 import ff.run.fuad.ReportManifest
 import groovy.cli.commons.CliBuilder
 import groovy.util.logging.Slf4j
@@ -85,74 +78,18 @@ class GreenfieldRunner {
     }
 
     private static Closure<Void> printer(String type, String year, GreenfieldValuationLoader loader) {
-        PointsCurve curve = loader.curve()
-        ByeWeeks byes = loader.byes(year)
-        Map<String, Map<Integer, BigDecimal>> replacement = loader.replacement(year)
-        Collection<FpRankedPlayer> ranked = loader.ranked(year)
-                .findAll { League.GREENFIELD.scoredPositions.contains(it.player.position) }
-
+        GreenfieldBoard board = new GreenfieldBoard(year, loader)
         if (TYPE_PICKS == type) {
-            Map<Integer, BigDecimal> byPick =
-                    new DraftHistory(curve, loader.requirements(), League.GREENFIELD).bestAvailableByPick()
             return { PrintWriter out ->
-                new GreenfieldPickPrinter(byPick, League.GREENFIELD.teams).print(out)
+                new GreenfieldPickPrinter(board.pickValues(), League.GREENFIELD.teams).print(out)
             }
         }
         if (TYPE_BOARD == type) {
-            Map<String, String> keptBy = keepers(year).collectEntries { [(it.player as String): it.owner] }
             return { PrintWriter out ->
-                new GreenfieldBoardPrinter(ranked, curve, replacement, byes, keptBy).print(out)
+                new GreenfieldBoardPrinter(board.ranked, board.curve, board.replacement, board.byes,
+                        board.keptBy()).print(out)
             }
         }
-        Map<Integer, BigDecimal> byPick =
-                new DraftHistory(curve, loader.requirements(), League.GREENFIELD).bestAvailableByPick()
-        List<KeeperSurplus> valued = valueKeepers(year, ranked, curve, replacement, byes, byPick)
-        return { PrintWriter out -> new GreenfieldKeeperPrinter(valued).print(out) }
-    }
-
-    private static List<KeeperSurplus> valueKeepers(String year, Collection<FpRankedPlayer> ranked,
-                                                    PointsCurve curve,
-                                                    Map<String, Map<Integer, BigDecimal>> replacement,
-                                                    ByeWeeks byes, Map<Integer, BigDecimal> byPick) {
-        Map<String, FpRankedPlayer> byName = ranked.collectEntries { [(it.player.name): it] }
-        Closure<BigDecimal> valueOf = { String name ->
-            FpRankedPlayer player = byName[name]
-            player ? ExpectedValue.expectedValueOverReplacement(
-                    curve, replacement, player.player.position, player.rank.positionRank, byes) : null
-        }
-        List<String> board = ranked.sort { a, b ->
-            (a.rank.overallRank ?: Integer.MAX_VALUE) <=> (b.rank.overallRank ?: Integer.MAX_VALUE)
-        }.collect { it.player.name }
-
-        List<Map> keepers = keepers(year).collect { Map row ->
-            FpRankedPlayer player = byName[row.player as String]
-            row + [position: player?.player?.position, positionRank: player?.rank?.positionRank]
-        }
-        KeeperValuation.value(keepers, slots(year), valueOf, board, priorRounds(year),
-                League.GREENFIELD.teams, byPick)
-    }
-
-    private static List<Map> keepers(String year) {
-        rows("/ff/greenfield/data/$year/keepers.tsv")
-                .collect { [owner: it[0], player: it[1], costRound: it[2] as int] }
-    }
-
-    private static Map<String, Integer> slots(String year) {
-        rows("/ff/greenfield/data/$year/draft_order.tsv").collectEntries { [(it[1]): it[0] as int] }
-    }
-
-    /**
-     * The round each player was drafted in last season, which is what decides whether he may be kept.
-     *
-     * A player absent from it went undrafted and qualifies at either price, which is why this is a lookup
-     * that may miss rather than one that must hit.
-     */
-    private static Map<String, Integer> priorRounds(String year) {
-        rows("/ff/greenfield/data/${(year as int) - 1}/draft.tsv")
-                .collectEntries { [(it[2]): it[0] as int] }
-    }
-
-    private static List<List<String>> rows(String resource) {
-        LoadUtils.loadCsvResource(resource).drop(1).collect { it.split('\t') as List<String> }
+        return { PrintWriter out -> new GreenfieldKeeperPrinter(board.keepers()).print(out) }
     }
 }
