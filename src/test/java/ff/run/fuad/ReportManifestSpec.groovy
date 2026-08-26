@@ -1,5 +1,6 @@
 package ff.run.fuad
 
+import ff.run.ModelHistory
 import spock.lang.Specification
 import spock.lang.TempDir
 
@@ -82,9 +83,9 @@ class ReportManifestSpec extends Specification {
         ReportManifest.modelMovedSince('HEAD') == false
     }
 
-    def "says the model has moved across the commit that levelled the kickers"() {
-        expect: 'e440d47 rewrote the curve and the fetch, which is exactly what MODEL_PATHS covers'
-        ReportManifest.modelMovedSince('e440d47')
+    def "says the model has moved across a commit the model has moved since"() {
+        expect: 'taken from this repository at run time, since a sha written down here goes stale silently'
+        ReportManifest.modelMovedSince(ModelHistory.supersededModel())
     }
 
     def "declines to answer for a sha this repository does not have"() {

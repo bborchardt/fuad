@@ -300,10 +300,15 @@ is high, so the mid tier is where the points per dollar sit.
      *
      * Asserted against this repository, since that is the only place the question means anything: a sha is
      * current or superseded relative to a working tree, not in the abstract.
+     *
+     * The commit is found at run time rather than named. This spec used to name one, and it stopped existing
+     * when the history was rewritten — after which the assertion still ran, still failed, and was failing on
+     * the wrong path entirely: a sha this repository does not have takes a different branch from a sha it
+     * has and has moved past, so the guarantee in the title went unchecked. See {@link ModelHistory}.
      */
     def "catches a plan whose model has been superseded, however well it agrees with its board"() {
-        expect: 'the commit STRATEGY.md quotes as an example is a long way behind by now'
-        StrategyCheck.checkCurrent('86277a2')
+        expect:
+        StrategyCheck.checkCurrent(ModelHistory.supersededModel())
                 .any { it.contains('the model has moved since') }
     }
 

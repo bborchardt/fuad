@@ -62,7 +62,8 @@ class AuctionValuation {
      * nothing while it lasted, because a kicker had no curve, no value over replacement, and so never
      * entered the pool {@link #calibrate} normalises over. His entry was never read. Now that kickers are
      * levelled they are in that pool, the basis has to be one basis, and the map sums to one, which the
-     * spec checks. Commit e440d47 has what it summed to before.
+     * spec checks. What it summed to before was recorded in a commit this repository no longer has, the history
+     * having been rewritten since.
      */
     static final Map<String, BigDecimal> MARKET_SHARE =
             [QB: 0.237, RB: 0.323, WR: 0.335, TE: 0.094, PK: 0.010].asImmutable() as Map<String, BigDecimal>

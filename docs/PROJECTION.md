@@ -189,7 +189,9 @@ it replaced, and monotonicity is measured directly as `BACKWARD`. The correlatio
 > rested on this measurement — but "nearly unrelated" was a stronger claim than the record supports, and the
 > figure is generated now so it cannot drift again.
 
-<!-- model: 7556912 -->
+<!-- The model this was measured against is no longer in the repository: the history was rewritten and the
+     sha it named went with it. The blockquote below stands as a record of what was measured, not as
+     something a reader can go and check. -->
 
 > Measured when the radius was chosen, against a model since superseded, and not reproducible: the
 > alternative is a constant the curve no longer accepts. Backward movement at ±2 ran 24% at quarterback,

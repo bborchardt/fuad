@@ -41,7 +41,8 @@ class ExpectedValue {
      * replacement in all of them and worth nothing at all — and a good many top-24 quarterback seasons are
      * that shape. Now he plays his own rate in the weeks he plays and contributes nothing in the rest, which
      * is what actually happened and is worth considerably more. What the old shape valued those seasons at
-     * is in commit 68ad402, that being a figure no model here can produce any more.
+     * was recorded in a commit this repository no longer has, the history having been rewritten since, and is a
+     * figure no model here can produce any more.
      *
      * Which weeks he misses is left as an expectation rather than drawn, since nothing here knows when an
      * injury lands: a season of {@code g} games out of {@code W} playable weeks earns the fraction
