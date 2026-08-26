@@ -64,7 +64,7 @@ class StrategyCheck {
     private static final String DATA_FILE = /\b[\w.]+\.(?:json|csv|tsv)\b/
 
     private static final String MODEL_MARKER = /<!--\s*model:\s*(\S+)\s*-->/
-    private static final String SOURCE_MARKER = /<!--\s*source:\s*(\S+)\s*-->/
+    private static final String SOURCE_MARKER = /<!--\s*source:\s*([^>]*?)\s*-->/
 
     static void main(String[] args) {
         if (args.length < 1 || args.length > 2) {
@@ -205,6 +205,25 @@ class StrategyCheck {
         matcher.find() ? new File(reportsDir, matcher.group(1)) : null
     }
 
+    /**
+     * {@code salaries} or {@code outlook_13 key=PICK+POS} into the report and its options.
+     *
+     * The same grammar DocsCheck's figure markers use, deliberately. The two checks ask the same question of
+     * two kinds of table and had grown two answers to it; a plan and a document should not have to be
+     * written differently to say the same thing.
+     */
+    private static Map<String, String> parseMarker(String body) {
+        List<String> parts = body.trim().split(/\s+/) as List
+        Map<String, String> marker = [source: parts.first()]
+        parts.drop(1).each { String part ->
+            List<String> pair = part.split('=', 2) as List
+            if (pair.size() == 2) {
+                marker[pair[0]] = pair[1]
+            }
+        }
+        marker
+    }
+
     private static List<String> checkPaths(List<String> lines) {
         List<String> failures = []
         lines.eachWithIndex { String line, int index ->
@@ -334,15 +353,19 @@ class StrategyCheck {
                                             Map<String, ReportManifest.Stamp> stamps) {
         List<String> failures = []
         Set<String> provenanceChecked = []
-        Map<String, Map<String, Map<String, String>>> cache = [:]
+        Map<String, List<Map<String, String>>> cache = [:]
         String source = null
+        String sourceKey = null
         List<String> headings = null
 
         for (int i = 0; i < lines.size(); i++) {
             String line = lines[i]
             def sourceMatcher = line =~ SOURCE_MARKER
             if (sourceMatcher.find()) {
-                source = sourceMatcher.group(1)
+                // `salaries` or `outlook_13 key=PICK+POS`, the same grammar DocsCheck's markers use.
+                Map<String, String> marker = parseMarker(sourceMatcher.group(1))
+                source = marker.source
+                sourceKey = marker.key
                 headings = null
                 if (provenanceChecked.add(source)) {
                     failures.addAll(checkProvenance(source, model, stamps, i + 1))
@@ -356,6 +379,7 @@ class StrategyCheck {
                 // A blank line between the marker and its table is fine; anything else ends the table.
                 if (line.trim() && headings != null) {
                     source = null
+                    sourceKey = null
                 }
                 continue
             }
@@ -367,7 +391,7 @@ class StrategyCheck {
             if (isDivider(cells)) {
                 continue
             }
-            failures.addAll(checkRow(source, yearDir, headings, cells, i + 1, cache))
+            failures.addAll(checkRow(source, sourceKey, yearDir, headings, cells, i + 1, cache))
         }
         failures
     }
@@ -389,69 +413,76 @@ class StrategyCheck {
         []
     }
 
-    private static List<String> checkRow(String source, File yearDir, List<String> headings,
+    private static List<String> checkRow(String source, String sourceKey, File yearDir, List<String> headings,
                                          List<String> cells, int line,
                                          Map<String, Map<String, Map<String, String>>> cache) {
-        Map<String, List<Map<String, String>>> report = report(yearDir, source, cache)
+        List<Map<String, String>> report = report(yearDir, source, cache)
         if (report == null) {
             return ["line $line: no report file for '$source'"]
         }
-        String keyColumn = headings ? headings[0] : null
-        String key = cells ? clean(cells[0]) : null
-        if (!key) {
+        if (!report) {
+            return ["line $line: the $source board holds no rows"]
+        }
+        List<String> keyColumns = MarkdownTables.keyColumns(sourceKey, report, headings)
+        int keyWidth = keyColumns.size()
+        String composite = MarkdownTables.compositeKey(cells, keyWidth)
+        // What the plan wrote, not what it normalises to: a reader looking for "Lamar Jackson" should not
+        // have to recognise himself in LAMARJACKSON.
+        String shown = (0..<keyWidth).collect { it < cells.size() ? clean(cells[it]) : null }
+                .findAll().join(' ')
+        if (!composite.replace('|', '')) {
             return []
         }
-        List<Map<String, String>> matched = report[key]
+        List<Map<String, String>> matched = MarkdownTables.rowsMatching(report, keyColumns, composite)
         if (!matched) {
-            return ["line $line: '$key' is not on the $source board"]
+            return ["line $line: '$shown' is not on the $source board"]
         }
         // A key that picks out several rows picks out none. Resolving it to whichever came last is how a
         // plan citing pick 13 of the outlook was answered from round 13 — sometimes a wrong failure,
         // sometimes a wrong pass, and never a question anybody asked.
         if (matched.size() > 1) {
-            return ["line $line: '$key' matches ${matched.size()} rows of the $source board, so it names " +
-                            'no one row' as String]
+            return ["line $line: '$shown' matches ${matched.size()} rows of the $source board keyed on " +
+                            "${keyColumns.join('+')}, so it names no one row — name a key with " +
+                            '<!-- source: ' + source + ' key=' + keyColumns.join('+') + '+... -->' as String]
         }
         Map<String, String> row = matched.first()
-        if (!row.containsKey(keyColumn)) {
-            return ["line $line: '$keyColumn' is not a column of $source"]
-        }
 
         List<String> failures = []
         headings.eachWithIndex { String heading, int column ->
-            if (column == 0 || column >= cells.size() || !row.containsKey(heading)) {
+            if (column < keyWidth || column >= cells.size() || !row.containsKey(heading)) {
                 return
             }
             String cited = clean(cells[column])
             String actual = row[heading]
             if (cited && !matches(cited, actual)) {
-                failures << "line $line: $key $heading is $actual on the board, cited as $cited"
+                failures << "line $line: $shown $heading is $actual on the board, cited as $cited"
             }
         }
         failures
     }
 
     /**
-     * A report as rows by key, cached because a document cites one many times.
+     * A report as its rows in file order, cached because a document cites one many times.
      *
-     * <b>Every row a key matches, not the last one.</b> Keeping only the last silently answered an ambiguous
-     * citation from an arbitrary row; keeping them all lets the caller refuse.
+     * <b>Unkeyed.</b> Which column names a row is the citation's business — see
+     * {@link MarkdownTables#keyColumns} — and indexing here is what produced the PLAYER and OWNER special
+     * cases: two column names hardcoded because they were the two that happened to be wanted.
      */
-    private static Map<String, List<Map<String, String>>> report(File yearDir, String source,
-                                                                 Map<String, Map<String, List<Map<String, String>>>> cache) {
+    private static List<Map<String, String>> report(File yearDir, String source,
+                                                    Map<String, List<Map<String, String>>> cache) {
         String path = new File(yearDir, "${source}.tsv").path
         if (cache.containsKey(path)) {
             return cache[path]
         }
         File file = new File(path)
-        Map<String, List<Map<String, String>>> rows = null
+        List<Map<String, String>> rows = null
         if (file.exists()) {
             // A report may open with commentary — which team it is for, what its roster already scores —
             // before the single table that is the report proper.
             List<String> lines = file.readLines().dropWhile { it.startsWith('#') || !it.trim() }
             if (lines) {
                 List<String> headings = lines[0].split('\t', -1) as List
-                rows = [:].withDefault { [] }
+                rows = []
                 lines.drop(1).each { String line ->
                     if (line.trim()) {
                         List<String> values = line.split('\t', -1) as List
@@ -459,14 +490,7 @@ class StrategyCheck {
                         headings.eachWithIndex { String heading, int i ->
                             row[heading] = i < values.size() ? values[i].trim() : ''
                         }
-                        rows.get(row[headings[0]], []) << row
-                        // Boards are keyed by name for a reader; PLAYER is the useful key on salaries.
-                        if (row.containsKey('PLAYER')) {
-                            rows.get(row['PLAYER'], []) << row
-                        }
-                        if (row.containsKey('OWNER')) {
-                            rows.get(row['OWNER'], []) << row
-                        }
+                        rows << row
                     }
                 }
             }

@@ -398,7 +398,7 @@ Prose, which ends the table.
 ''')
 
         expect:
-        DocsCheck.check(doc, figuresDir, '2026').any { it.contains("'2024 TOMBRODY' is not in fuad/tags.tsv") }
+        DocsCheck.check(doc, figuresDir, '2026').any { it.contains("'2024 Tom Brody' is not in fuad/tags.tsv") }
     }
 
     def "refuses to check against figures that have never been stamped"() {

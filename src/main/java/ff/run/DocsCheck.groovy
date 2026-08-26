@@ -268,7 +268,7 @@ class DocsCheck {
                 table.first().keySet()
 
         // The leading columns label the key rather than naming a figure, so they bind to nothing by design.
-        int keyWidth = marker.across ? 1 : keyColumnsOf(marker, table).size()
+        int keyWidth = marker.across ? 1 : MarkdownTables.keyColumns(marker.key, table, headings).size()
         List<String> failures = []
         headings.eachWithIndex { String heading, int column ->
             if (column < keyWidth) {
@@ -305,25 +305,6 @@ class DocsCheck {
     }
 
     /**
-     * Which of the file's columns the document's leading columns name a row by.
-     *
-     * One by default, being the file's first column, which is every table holding one row per thing. A
-     * table with one row per <b>pair</b> of things needs both named — the tags are one per season and
-     * player, and neither alone picks out a row — so the marker may say {@code key=SEASON+PLAYER} and the
-     * document's first two columns are read together.
-     */
-    private static List<String> keyColumnsOf(Map<String, String> marker, List<Map<String, String>> table) {
-        marker.key ? marker.key.split(/\+/).toList() : [table.first().keySet().first()]
-    }
-
-    /** The document's leading cells, normalised and joined, as one key to look a row up by. */
-    private static String compositeKey(List<String> cells, int width) {
-        (0..<width).collect {
-            it < cells.size() ? MarkdownTables.normaliseKey(MarkdownTables.clean(cells[it])) : ''
-        }.join('|')
-    }
-
-    /**
      * Headings name fields and the leading columns name the row: the plain shape.
      *
      * The row is found on whichever of the file's own columns the key names, so a table may be keyed by
@@ -331,16 +312,23 @@ class DocsCheck {
      */
     private static Result checkDown(Map<String, String> marker, List<Map<String, String>> table,
                                     List<String> headings, List<String> cells, int line) {
-        List<String> keyColumns = keyColumnsOf(marker, table)
+        List<String> keyColumns = MarkdownTables.keyColumns(marker.key, table, headings)
         int keyWidth = keyColumns.size()
-        String composite = compositeKey(cells, keyWidth)
-        Map<String, String> row = table.find { Map<String, String> candidate ->
-            keyColumns.collect { MarkdownTables.normaliseKey(candidate[it]) }.join('|') == composite
+        String composite = MarkdownTables.compositeKey(cells, keyWidth)
+        List<Map<String, String>> matched = MarkdownTables.rowsMatching(table, keyColumns, composite)
+        // What the document wrote, not what it normalises to: a reader looking for "Tom Brady" should not
+        // have to recognise him in TOMBRADY.
+        String shown = (0..<keyWidth).collect { it < cells.size() ? MarkdownTables.clean(cells[it]) : null }
+                .findAll().join(' ')
+        if (!matched) {
+            return new Result(["line $line: '$shown' is not in ${marker.table}.tsv" as String], 0, 0)
         }
-        if (row == null) {
-            return new Result(["line $line: '${composite.replace('|', ' ')}' is not " +
-                                       "in ${marker.table}.tsv" as String], 0, 0)
+        // A key naming several rows names none. See MarkdownTables.rowsMatching.
+        if (matched.size() > 1) {
+            return new Result(["line $line: '$shown' matches ${matched.size()} " +
+                                       "rows of ${marker.table}.tsv, so it names no one row" as String], 0, 0)
         }
+        Map<String, String> row = matched.first()
         List<String> failures = []
         int verified = 0
         headings.eachWithIndex { String heading, int column ->

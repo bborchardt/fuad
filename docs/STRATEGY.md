@@ -96,7 +96,13 @@ the letters have to be a position the board itself uses. Ordinary football abbre
 column for are a short list in `StrategyCheck.PROSE`, and that list is meant to stay short: if a plan wants
 a word the board does not have, the answer is usually a missing column.
 
-A marked table is keyed by its **first column**, which must name a column of that report. Every other
+A marked table is keyed by its **first column**, which must name a column of that report — or, where one
+column does not pick out a row, by the columns a `key=` names: `<!-- source: outlook_13 key=PICK+POS -->`.
+The outlook is the case: it carries a row per position under each pick, so citing a pick alone names
+several rows and is refused rather than answered from one of them. This is the same grammar the figures
+markers use; see [check_docs.sh](../check_docs.sh).
+
+Every other
 heading that matches a report column is verified. Headings that match nothing are the plan's own
 commentary and are left alone, so a table can carry a note, a running total, or a combination the board
 does not price:

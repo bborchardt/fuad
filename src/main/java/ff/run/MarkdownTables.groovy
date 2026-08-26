@@ -57,6 +57,55 @@ class MarkdownTables {
     }
 
     /**
+     * Which of a table's columns a citation names a row by.
+     *
+     * <b>Shared, because both checks ask it and each had invented its own answer.</b> DocsCheck read the
+     * file's first column and let a marker override with {@code key=SEASON+PLAYER}; StrategyCheck read the
+     * file's first column and then quietly also indexed by PLAYER and by OWNER, those being the two that
+     * happened to be wanted. The second is the first with the general case left out.
+     *
+     * The rule is: whatever {@code key=} names, else the citation's own leading heading where that names a
+     * column of the table, else the table's first column. The middle clause is what the PLAYER and OWNER
+     * special cases were reaching for — a document keying its table by player has already said so, in the
+     * heading it put first.
+     *
+     * A table with one row per <b>pair</b> of things needs both named: the franchise tags are one per season
+     * and player and neither alone picks out a row, so a marker may say {@code key=SEASON+PLAYER}.
+     */
+    static List<String> keyColumns(String keySpec, List<Map<String, String>> table,
+                                   List<String> citedHeadings) {
+        if (keySpec) {
+            return keySpec.split(/\+/).toList()
+        }
+        Set<String> columns = table ? table.first().keySet() : [] as Set
+        String leading = citedHeadings ? clean(citedHeadings.first()) : null
+        String named = leading ? columns.find { normaliseKey(it) == normaliseKey(leading) } : null
+        named ? [named] : (columns ? [columns.first()] : [])
+    }
+
+    /** The citation's leading cells, normalised and joined, as one key to look a row up by. */
+    static String compositeKey(List<String> cells, int width) {
+        (0..<width).collect { it < cells.size() ? normaliseKey(clean(cells[it])) : '' }.join('|')
+    }
+
+    /** The key a row of the table carries under these columns. */
+    static String rowKey(Map<String, String> row, List<String> keyColumns) {
+        keyColumns.collect { normaliseKey(row[it]) }.join('|')
+    }
+
+    /**
+     * Every row the key matches.
+     *
+     * All of them rather than the first, so a caller can refuse an ambiguous citation. A key that picks out
+     * several rows picks out none, and answering from whichever came first or last is a wrong answer wearing
+     * the shape of a right one.
+     */
+    static List<Map<String, String>> rowsMatching(List<Map<String, String>> table, List<String> keyColumns,
+                                                  String composite) {
+        table.findAll { rowKey(it, keyColumns) == composite }
+    }
+
+    /**
      * The name this heading was probably meant to be, or null where it names nothing like one.
      *
      * <b>A heading that binds to no field has to be allowed, and that is what makes a typo invisible.</b>
