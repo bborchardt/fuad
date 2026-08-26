@@ -9,8 +9,9 @@ Run it with:
 ./greenfield_report.sh -t all
 ```
 
-`board` is every ranked player with what he is worth, `keepers` is each declared keeper against the pick it
-costs, and `picks` is what a pick has actually been worth in this league's own drafts.
+`board` is every ranked player with what he is worth and when this league has taken him, `keepers` is each
+declared keeper against the pick it costs, `picks` is what a pick has actually been worth here, and `demand`
+and `adp` are when each position comes off the board.
 
 ## What the league is
 
@@ -152,15 +153,15 @@ at every pick is only correct if the board waits for you. It does not.
 
 <!-- figures: greenfield_demand -->
 
-| ROUND | QB | RB | WR | TE | PK |
-| --- | --- | --- | --- | --- | --- |
-| 1 | 0 | 8 | 6 | 1 | 0 |
-| 4 | 4 | 23 | 24 | 4 | 0 |
-| 6 | 7 | 31 | 36 | 9 | 0 |
-| 8 | 12 | 40 | 43 | 12 | 0 |
-| 9 | 15 | 42 | 49 | 13 | 2 |
-| 15 | 25 | 60 | 71 | 24 | 12 |
-| STARTED | 14 | 28 | 42 | 14 | 14 |
+| ROUND | QB | RB | WR | TE | PK | DST |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | 0 | 8 | 6 | 1 | 0 | 0 |
+| 4 | 4 | 23 | 24 | 4 | 0 | 0 |
+| 6 | 7 | 31 | 36 | 9 | 0 | 0 |
+| 8 | 12 | 40 | 43 | 12 | 0 | 3 |
+| 9 | 15 | 42 | 49 | 13 | 2 | 3 |
+| 15 | 25 | 60 | 71 | 24 | 12 | 16 |
+| STARTED | 14 | 28 | 42 | 14 | 14 | 14 |
 
 Read every row against `STARTED`. Once a position's count passes it, everyone drafting after is choosing
 from below the replacement the whole board is priced against.
@@ -168,19 +169,21 @@ from below the replacement the whole board is priced against.
 **Running back is exhausted in round six.** Eight go in the first round alone and thirty one — more than the
 twenty eight the league starts — are gone by the end of the sixth. Receiver lasts until round eight,
 quarterback until nine, tight end until ten. **Kicker never runs out**: twelve are taken in fifteen rounds
-against fourteen starting slots, so the room ends the draft short of a position it has to field.
+against fourteen starting slots, so the room ends the draft short of a position it has to field and fills it
+off waivers. Defences are barely different — sixteen taken against fourteen needed, and none at all before
+round seven.
 
 That is the asymmetry a plan has to be built around, and it is not what value alone would suggest. The typical
 pick each positional rank has gone at:
 
 <!-- figures: greenfield_adp -->
 
-| RANK | QB | RB | WR | TE | PK |
-| --- | --- | --- | --- | --- | --- |
-| 1 | 34 | 2 | 7 | 23 | 139 |
-| 5 | 56 | 8 | 12 | 58 | 175 |
-| 10 | 90 | 16 | 25 | 87 | 191 |
-| 14 | 119 | 25 | 33 | 131 | 199 |
+| RANK | QB | RB | WR | TE | PK | DST |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | 34 | 2 | 7 | 23 | 139 | 106 |
+| 5 | 56 | 8 | 12 | 58 | 175 | 146 |
+| 10 | 90 | 16 | 25 | 87 | 191 | 188 |
+| 14 | 119 | 25 | 33 | 131 | 199 | 197 |
 
 **The best quarterback in the league goes at pick 34.** He is worth 75.4 over replacement, against about 65
 for the best player otherwise available there — so the room leaves roughly ten points on the table at the
@@ -197,10 +200,17 @@ a good team with no startable back; one that reads only `ADP` reaches for scarci
 
 `ADP` is on the board beside `VOR` for exactly this reason.
 
-**Team defences are in the residual.** The rankings name them by city and nickname — "Denver Broncos", or
-"Chicago (CHI)" in the older exports, which carries no nickname at all — where the draft export names them
-by nickname alone. They cannot be joined without a team map, and nothing here prices a defence anyway, so
-they fall into `UNRANKED` with the deep fliers no ranking carried.
+**Team defences are counted, though nothing prices them.** They needed a team map to count at all: the
+rankings write "Denver Broncos", or "Chicago (CHI)" in the 2018 to 2020 exports, where the draft export
+writes "Bears" — and the last two share no prefix, no suffix and no word, so none of the name matching that
+works for players reaches them. `NflTeams` resolves all three forms onto one abbreviation, including the
+three franchises that renamed inside the collected seasons: Washington is Redskins through 2019, Football
+Team in 2020 and 2021, and Commanders since, while the Raiders and Chargers each moved city and kept a
+nickname.
+
+With that, `UNRANKED` falls from seventeen picks a draft to two — a couple of deep fliers no ranking
+carried, rather than a whole position hiding in the residual. The first defence off the board goes at pick
+106, which is round eight: the same round the room is leaving startable quarterbacks sitting.
 
 ## The 2026 keepers
 
@@ -274,7 +284,8 @@ at all.
 
 ## What is not modelled
 
-- **Team defences.** One starting slot of nine, unpriced until team defence statistics are collected.
+- **Team defences.** One starting slot of nine. They are counted — `demand` and `adp` both carry them — but
+  not valued, and will not be until team defence statistics are collected. Nothing on the board prices one.
 - **In-season acquisitions.** The board values a draft, and this league has unlimited FAB waivers.
 - **Draft pick trades.** The league allows them; nothing here prices one, though the pick table is what
   such a price would be read from.
