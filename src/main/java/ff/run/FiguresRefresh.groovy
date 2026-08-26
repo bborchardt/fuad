@@ -8,6 +8,8 @@ import ff.league.League
 import ff.load.greenfield.GreenfieldBoard
 import ff.print.figures.GreenfieldFiguresPrinter
 import ff.print.figures.ModelFiguresPrinter
+import ff.print.greenfield.GreenfieldAdpPrinter
+import ff.print.greenfield.GreenfieldDemandPrinter
 import ff.print.greenfield.GreenfieldPickPrinter
 import ff.run.fuad.ReportManifest
 
@@ -53,6 +55,12 @@ class FiguresRefresh {
                 greenfield_positions: { PrintWriter out -> printer.printPositions(out) },
                 greenfield_picks    : { PrintWriter out ->
                     new GreenfieldPickPrinter(board.pickValues(), League.GREENFIELD.teams).print(out)
+                },
+                greenfield_demand   : { PrintWriter out ->
+                    new GreenfieldDemandPrinter(board.demand(), board.starters()).print(out)
+                },
+                greenfield_adp      : { PrintWriter out ->
+                    new GreenfieldAdpPrinter(board.demand(), League.GREENFIELD.scoredPositions).print(out)
                 },
                 greenfield_keepers  : { PrintWriter out ->
                     GreenfieldFiguresPrinter.printKeepers(out, board.keepers())

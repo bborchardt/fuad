@@ -28,6 +28,7 @@ class GreenfieldBoard {
     final Map<String, Map<Integer, BigDecimal>> replacement
     final Collection<FpRankedPlayer> ranked
 
+    private PositionDemand demand
     private Map<Integer, BigDecimal> pickValues
     private List<KeeperSurplus> keeperSurpluses
 
@@ -42,6 +43,9 @@ class GreenfieldBoard {
     }
 
     Map<String, Integer> starters() { loader.starters() }
+
+    /** When each position actually comes off the board here, which is not when it is worth taking. */
+    PositionDemand demand() { demand ?: (demand = new PositionDemand(League.GREENFIELD)) }
 
     /** What the best player still on the board has been worth at each pick, over every collected draft. */
     Map<Integer, BigDecimal> pickValues() {

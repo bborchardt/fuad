@@ -145,6 +145,63 @@ Dak Prescott and Justin Fields are five of the nine best-available-at-pick-103. 
 apiece against a rank 15 replacement, so a QB10 to QB13 still carries thirty to forty points over
 replacement while the room spends round eight elsewhere.
 
+## When each position comes off the board
+
+Value says who to draft. It does not say when he will be gone, and taking the highest value over replacement
+at every pick is only correct if the board waits for you. It does not.
+
+<!-- figures: greenfield_demand -->
+
+| ROUND | QB | RB | WR | TE | PK |
+| --- | --- | --- | --- | --- | --- |
+| 1 | 0 | 8 | 6 | 1 | 0 |
+| 4 | 4 | 23 | 24 | 4 | 0 |
+| 6 | 7 | 31 | 36 | 9 | 0 |
+| 8 | 12 | 40 | 43 | 12 | 0 |
+| 9 | 15 | 42 | 49 | 13 | 2 |
+| 15 | 25 | 60 | 71 | 24 | 12 |
+| STARTED | 14 | 28 | 42 | 14 | 14 |
+
+Read every row against `STARTED`. Once a position's count passes it, everyone drafting after is choosing
+from below the replacement the whole board is priced against.
+
+**Running back is exhausted in round six.** Eight go in the first round alone and thirty one — more than the
+twenty eight the league starts — are gone by the end of the sixth. Receiver lasts until round eight,
+quarterback until nine, tight end until ten. **Kicker never runs out**: twelve are taken in fifteen rounds
+against fourteen starting slots, so the room ends the draft short of a position it has to field.
+
+That is the asymmetry a plan has to be built around, and it is not what value alone would suggest. The typical
+pick each positional rank has gone at:
+
+<!-- figures: greenfield_adp -->
+
+| RANK | QB | RB | WR | TE | PK |
+| --- | --- | --- | --- | --- | --- |
+| 1 | 34 | 2 | 7 | 23 | 139 |
+| 5 | 56 | 8 | 12 | 58 | 175 |
+| 10 | 90 | 16 | 25 | 87 | 191 |
+| 14 | 119 | 25 | 33 | 131 | 199 |
+
+**The best quarterback in the league goes at pick 34.** He is worth 75.4 over replacement, against about 65
+for the best player otherwise available there — so the room leaves roughly ten points on the table at the
+position, every year, and goes on leaving it: QB5 goes at 56 and QB10 at 90.
+
+Running back is the mirror image. RB1 goes at pick 2 and is worth 103.8, which is about what the pick is
+worth, so there is no bargain at the top — the scarcity is at the other end. RB14 goes at pick 25 and RB28,
+the last starter, at pick 67, after which the position is below replacement for everyone left.
+
+**So the two readings pull in opposite directions and both are right.** Value says take the best back or
+receiver early, because that is where the points are. Demand says the backs will be gone and the
+quarterbacks will not, so the quarterback can wait and the back cannot. A plan that reads only `VOR` drafts
+a good team with no startable back; one that reads only `ADP` reaches for scarcity that is not worth having.
+
+`ADP` is on the board beside `VOR` for exactly this reason.
+
+**Team defences are in the residual.** The rankings name them by city and nickname — "Denver Broncos", or
+"Chicago (CHI)" in the older exports, which carries no nickname at all — where the draft export names them
+by nickname alone. They cannot be joined without a team map, and nothing here prices a defence anyway, so
+they fall into `UNRANKED` with the deep fliers no ranking carried.
+
 ## The 2026 keepers
 
 <!-- figures: greenfield_keepers -->

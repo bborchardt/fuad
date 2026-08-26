@@ -3,7 +3,9 @@ package ff.run.greenfield
 import ff.league.League
 import ff.load.greenfield.GreenfieldBoard
 import ff.load.greenfield.GreenfieldValuationLoader
+import ff.print.greenfield.GreenfieldAdpPrinter
 import ff.print.greenfield.GreenfieldBoardPrinter
+import ff.print.greenfield.GreenfieldDemandPrinter
 import ff.print.greenfield.GreenfieldKeeperPrinter
 import ff.print.greenfield.GreenfieldPickPrinter
 import ff.run.fuad.ReportManifest
@@ -26,8 +28,10 @@ class GreenfieldRunner {
     private static final String TYPE_BOARD = 'board'
     private static final String TYPE_KEEPERS = 'keepers'
     private static final String TYPE_PICKS = 'picks'
+    private static final String TYPE_DEMAND = 'demand'
+    private static final String TYPE_ADP = 'adp'
     private static final String TYPE_ALL = 'all'
-    private static final List<String> TYPES = [TYPE_BOARD, TYPE_KEEPERS, TYPE_PICKS]
+    private static final List<String> TYPES = [TYPE_BOARD, TYPE_KEEPERS, TYPE_PICKS, TYPE_DEMAND, TYPE_ADP]
 
     private static final String DEFAULT_OUTPUT_DIR = 'reports/greenfield'
     private static final String DEFAULT_YEAR = '2026'
@@ -84,10 +88,20 @@ class GreenfieldRunner {
                 new GreenfieldPickPrinter(board.pickValues(), League.GREENFIELD.teams).print(out)
             }
         }
+        if (TYPE_DEMAND == type) {
+            return { PrintWriter out ->
+                new GreenfieldDemandPrinter(board.demand(), board.starters()).print(out)
+            }
+        }
+        if (TYPE_ADP == type) {
+            return { PrintWriter out ->
+                new GreenfieldAdpPrinter(board.demand(), League.GREENFIELD.scoredPositions).print(out)
+            }
+        }
         if (TYPE_BOARD == type) {
             return { PrintWriter out ->
                 new GreenfieldBoardPrinter(board.ranked, board.curve, board.replacement, board.byes,
-                        board.keptBy()).print(out)
+                        board.keptBy(), board.demand().averageDraftPosition()).print(out)
             }
         }
         return { PrintWriter out -> new GreenfieldKeeperPrinter(board.keepers()).print(out) }
