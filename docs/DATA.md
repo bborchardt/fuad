@@ -26,10 +26,10 @@ by the time a season is over, the site no longer knows what its rosters looked l
 salary cap, and the site does not keep those per season — refetching 2021's today reports the $300 cap and
 superflex lineup the league only adopted in 2022, in place of the $250 and single quarterback the
 contemporaneous file records. The committed file is the record. See
-[LEAGUE_RULES.md](LEAGUE_RULES.md#provenance).
+[LEAGUE_RULES.md](fuad/LEAGUE_RULES.md#provenance).
 
 The site's projections are not collected at all, because it rewrites them as the season goes and nothing is
-priced off them. See [PROJECTION.md](PROJECTION.md#provenance).
+priced off them. See [PROJECTION.md](fuad/PROJECTION.md#provenance).
 
 Everything else is a genuine record of a finished season and can be refetched at any time. `rules.json` in
 particular is period correct.
@@ -71,7 +71,7 @@ roster loads, which is how the 2023 one was reconstructed.
 this league has ever made is a cut penalty, and each carries the contract it was charged for in its
 description — `Treylon Burks (2yrs@1)`, sometimes several to a row. That is what turned the cut penalty
 from an unverifiable bylaw into a rule checked against 384 charges. See
-[LEAGUE_RULES.md](LEAGUE_RULES.md#confirmed-against-every-penalty-ever-charged).
+[LEAGUE_RULES.md](fuad/LEAGUE_RULES.md#confirmed-against-every-penalty-ever-charged).
 
 Under `src/main/resources/ff/fantasypros/data/<year>`: `dynasty_rankings_ppr.csv`,
 `redraft_rankings_half_ppr.csv`, `rookie_rankings_ppr.csv`. Through 2025 these are tab separated with

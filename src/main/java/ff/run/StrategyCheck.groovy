@@ -1,6 +1,6 @@
 package ff.run
 
-import ff.run.fuad.ReportManifest
+import ff.run.ReportManifest
 
 /**
  * Check that a strategy document reasons only from a current board.
@@ -130,7 +130,7 @@ class StrategyCheck {
         }
         if (moved) {
             return ["written against model $model and the model has moved since: regenerate with " +
-                            './generate_report.sh and work through what changed' as String]
+                            './fuad_report.sh and work through what changed' as String]
         }
         // Last, because it is the one thing a sha cannot describe: the reports may be exactly what that
         // commit produced and still not be what the model would produce now.

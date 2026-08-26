@@ -1,12 +1,12 @@
-package ff.print.figures
+package ff.print.figures.fuad
 
 import ff.data.PlayerValuation
-import ff.projection.AuctionSpend
-import ff.projection.AuctionValuation
+import ff.projection.fuad.AuctionSpend
+import ff.projection.fuad.AuctionValuation
 import ff.projection.ByeWeeks
 import ff.projection.PointsCurve
 import ff.projection.StarterRequirements
-import ff.projection.TagHistory
+import ff.projection.fuad.TagHistory
 import ff.projection.TestSeasons
 import spock.lang.Specification
 
@@ -14,7 +14,7 @@ import spock.lang.Specification
  * The figures the documentation cites have to be the model's, and have to hold together.
  *
  * These assert the properties a reader relies on when they read a row rather than the values of any one
- * season, which would only be the drift problem again with a spec around it. See docs/PROJECTION.md.
+ * season, which would only be the drift problem again with a spec around it. See docs/fuad/PROJECTION.md.
  */
 class ModelFiguresPrinterSpec extends Specification {
 

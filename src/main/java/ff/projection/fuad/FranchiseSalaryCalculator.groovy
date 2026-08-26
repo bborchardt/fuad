@@ -1,4 +1,4 @@
-package ff.projection
+package ff.projection.fuad
 
 import java.math.RoundingMode
 
@@ -13,7 +13,7 @@ import java.math.RoundingMode
  *
  * This is the one auction price in the data that is set by rule rather than by bidding, so a salary model
  * fitted over signings should treat tagged players as fixed points rather than as evidence of what the
- * market pays. See docs/LEAGUE_RULES.md.
+ * market pays. See docs/fuad/LEAGUE_RULES.md.
  */
 class FranchiseSalaryCalculator {
 

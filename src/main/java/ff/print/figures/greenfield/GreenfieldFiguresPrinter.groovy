@@ -1,4 +1,4 @@
-package ff.print.figures
+package ff.print.figures.greenfield
 
 import ff.data.fantasypros.FpRankedPlayer
 import ff.data.greenfield.KeeperSurplus
@@ -10,7 +10,7 @@ import ff.projection.PointsCurve
 import java.math.RoundingMode
 
 /**
- * The Greenfield model's account of itself, for docs/GREENFIELD.md to cite instead of quote.
+ * The Greenfield model's account of itself, for docs/greenfield/README.md to cite instead of quote.
  *
  * Same discipline as {@link ModelFiguresPrinter} and for the same reason: every number a document makes an
  * argument from is generated, committed, and checked, so one that moves fails the check in the commit that

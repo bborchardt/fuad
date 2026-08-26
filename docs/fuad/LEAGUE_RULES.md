@@ -217,7 +217,7 @@ The price of tagging a player at each position, coming into that season's auctio
 to the nearest dollar; five salaries average to a fifth of a dollar and never to a half, so no tie-breaking
 rule is needed and none of the values below is ambiguous.
 
-<!-- figures: rates across=POS field=RATE -->
+<!-- figures: fuad/rates across=POS field=RATE -->
 
 | Season | QB | RB | WR | TE | PK |
 | --- | --- | --- | --- | --- | --- |
@@ -300,7 +300,7 @@ invisible. Their confirmed counts are uncontested tags only.
 
 ### Confirmed tags
 
-<!-- figures: tags key=SEASON+PLAYER -->
+<!-- figures: fuad/tags key=SEASON+PLAYER -->
 
 | Season | Player | Pos | Salary | Rate | Basis |
 | --- | --- | --- | --- | --- | --- |
@@ -506,4 +506,4 @@ is at `https://www44.myfantasyleague.com/2025/mb/board_show.pl?bid=202548571` an
 ## Refreshing
 
 `rules.json` is collected by both refresh scripts, alongside the roster snapshots and transaction log.
-`league.json` is written by neither, for the reason above. See [DATA.md](DATA.md#refreshing).
+`league.json` is written by neither, for the reason above. See [DATA.md](../DATA.md#refreshing).

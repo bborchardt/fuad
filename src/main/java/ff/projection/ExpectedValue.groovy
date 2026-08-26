@@ -16,7 +16,7 @@ package ff.projection
  *
  * The pricing that used to sit alongside this is in {@link AuctionValuation}, which reads from here.
  *
- * See docs/PROJECTION.md.
+ * See docs/fuad/PROJECTION.md.
  */
 class ExpectedValue {
     /**

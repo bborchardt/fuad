@@ -11,7 +11,7 @@ import ff.print.MultiListPrinter
  * fetch.
  *
  * <b>The dollars are the auction board's, not a second opinion.</b> This used to price its own column from
- * a curve fitted straight from positional rank to dollars, which is the model docs/PROJECTION.md rules out:
+ * a curve fitted straight from positional rank to dollars, which is the model docs/fuad/PROJECTION.md rules out:
  * it pools caps and lineups the league has since changed, reads franchise tags as bids, and prices each
  * player alone so nothing makes the answers add up to the money that exists. Two sheets quoting different
  * numbers for the same player is worse than either, so there is now one price and this reads it.
@@ -21,7 +21,7 @@ import ff.print.MultiListPrinter
  * salaries board as {@code COST}.
  *
  * A player the board does not carry prices blank rather than at zero: rookies, who are drafted separately
- * and cannot be bid on, and ranks past the depth the curve still makes a claim at. See docs/PROJECTION.md.
+ * and cannot be bid on, and ranks past the depth the curve still makes a claim at. See docs/fuad/PROJECTION.md.
  */
 class FuadRankingsDraftPrinter {
 

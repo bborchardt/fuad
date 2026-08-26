@@ -1,4 +1,4 @@
-package ff.projection
+package ff.projection.fuad
 
 import ff.data.FranchiseTag
 import ff.load.util.LoadUtils
@@ -11,7 +11,7 @@ import spock.lang.Unroll
  * Hurts, Joe Burrow, Patrick Mahomes and CeeDee Lamb were tagged, plus Jahmyr Gibbs and Saquon Barkley,
  * whose omission from that list was recall rather than absence. Every one of the seven is recovered here.
  *
- * See docs/LEAGUE_RULES.md.
+ * See docs/fuad/LEAGUE_RULES.md.
  */
 class FranchiseTagIdentifierSpec extends Specification {
 

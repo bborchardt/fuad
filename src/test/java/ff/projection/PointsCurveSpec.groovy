@@ -7,7 +7,7 @@ import java.math.RoundingMode
 
 /**
  * The curve takes its order from the consensus ranking and its level from what those ranks have historically
- * been worth. Nothing about a particular player enters it. See docs/PROJECTION.md.
+ * been worth. Nothing about a particular player enters it. See docs/fuad/PROJECTION.md.
  */
 class PointsCurveSpec extends Specification {
 
@@ -324,7 +324,7 @@ class PointsCurveSpec extends Specification {
      *
      * Availability is the noisy half here — every rank plays at the same rate and the games alternate — so
      * levelling the totals carries that noise straight into the level, while smoothing availability over ten
-     * ranks either side takes it out. This is the measurement behind the comparison in docs/PROJECTION.md,
+     * ranks either side takes it out. This is the measurement behind the comparison in docs/fuad/PROJECTION.md,
      * which is why it is computed rather than remembered.
      */
     def "travels backwards less than levelling the season totals does"() {

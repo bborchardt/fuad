@@ -33,7 +33,7 @@ class FuadRunner {
     /** Asks what a player adds to one named team, so it has no answer without being told which. */
     private static final List<String> TYPES_NEEDING_FRANCHISE = [TYPE_ROSTER]
 
-    private static final String DEFAULT_OUTPUT_DIR = 'reports'
+    private static final String DEFAULT_OUTPUT_DIR = 'reports/fuad'
 
     static void main(String[] args) {
         try {

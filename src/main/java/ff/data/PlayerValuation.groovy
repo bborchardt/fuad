@@ -19,7 +19,7 @@ class PlayerValuation {
      * Reported and never priced. It says nothing about this season, which is what a salary buys, and the
      * model deliberately levels every rank on the redraft ranking alone. It is here because the length of a
      * contract is a second decision taken at the same moment as the price, and nothing else on the board
-     * speaks to it. See docs/LEAGUE_RULES.md#contract-length.
+     * speaks to it. See docs/fuad/LEAGUE_RULES.md#contract-length.
      */
     Integer dynastyRank
     /** Expected points over the regular season: what this rank has historically been worth. */

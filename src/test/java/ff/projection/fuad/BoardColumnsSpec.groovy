@@ -1,8 +1,12 @@
-package ff.projection
+package ff.projection.fuad
 
 import ff.data.PlayerValuation
 import ff.data.RealisedSeason
 import spock.lang.Specification
+import ff.projection.ByeWeeks
+import ff.projection.PointsCurve
+import ff.projection.StarterRequirements
+import ff.projection.TestSeasons
 
 /**
  * The board is the only thing a draft plan may reason from, so what a plan needs has to be on it.

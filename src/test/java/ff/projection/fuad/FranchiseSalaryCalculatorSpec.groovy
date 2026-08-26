@@ -1,4 +1,4 @@
-package ff.projection
+package ff.projection.fuad
 
 import ff.data.FranchiseTag
 import ff.load.util.LoadUtils
@@ -8,7 +8,7 @@ import spock.lang.Unroll
 /**
  * The franchise tag is the one auction price the league sets by rule, so it can be checked rather than
  * inferred: every tag in the collected data should come out at exactly the average of the top five salaries
- * at that position the previous season. See docs/LEAGUE_RULES.md.
+ * at that position the previous season. See docs/fuad/LEAGUE_RULES.md.
  */
 class FranchiseSalaryCalculatorSpec extends Specification {
 

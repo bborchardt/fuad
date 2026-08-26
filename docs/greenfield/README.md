@@ -64,7 +64,7 @@ purposes. Those are discarded, and with them the only two seasons that appeared 
 The chain is the auction's chain as far as points over replacement, and is the same code: order from the
 FantasyPros consensus, level from what those ranks have historically scored restated under the rules being
 priced, replacement taken one past what the league actually starts, week by week. See
-[PROJECTION.md](PROJECTION.md) for how the curve is built and why it is indexed by rank rather than by
+[PROJECTION.md](../fuad/PROJECTION.md) for how the curve is built and why it is indexed by rank rather than by
 player.
 
 **The order comes from a full PPR ranking and the level from half PPR seasons.** No PPR export survives for
@@ -74,7 +74,7 @@ already smooths over. It is a stand-in nonetheless.
 
 ### Where the flex goes decides everything
 
-<!-- figures: greenfield_positions -->
+<!-- figures: greenfield/positions -->
 
 | POS | STARTED | REPLRANK |
 | --- | --- | --- |
@@ -94,7 +94,7 @@ fourteen are started however the rest falls — **replacement at rank 15, agains
 
 What that does to the top of each position:
 
-<!-- figures: greenfield_curve across=POS field=PTS -->
+<!-- figures: greenfield/curve across=POS field=PTS -->
 
 | Rank | QB | RB | WR | TE |
 | --- | --- | --- | --- | --- |
@@ -103,7 +103,7 @@ What that does to the top of each position:
 
 and to what those ranks are worth over the player who would take the slot instead:
 
-<!-- figures: greenfield_curve across=POS field=VOR -->
+<!-- figures: greenfield/curve across=POS field=VOR -->
 
 | Rank | QB | RB | WR | TE |
 | --- | --- | --- | --- | --- |
@@ -127,7 +127,7 @@ own — same fourteen teams, same scoring, same keeper rule. `DraftHistory` walk
 ordered by what the model says players are worth and records, at every pick, what the best undrafted player
 was worth.
 
-<!-- figures: greenfield_picks -->
+<!-- figures: greenfield/picks -->
 
 | ROUND | BESTFIRST | BESTLAST | DROP |
 | --- | --- | --- | --- |
@@ -159,7 +159,7 @@ replacement while the room spends round eight elsewhere.
 Value says who to draft. It does not say when he will be gone, and taking the highest value over replacement
 at every pick is only correct if the board waits for you. It does not.
 
-<!-- figures: greenfield_demand -->
+<!-- figures: greenfield/demand -->
 
 | ROUND | QB | RB | WR | TE | PK | DST |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -184,7 +184,7 @@ round seven.
 That is the asymmetry a plan has to be built around, and it is not what value alone would suggest. The typical
 pick each positional rank has gone at:
 
-<!-- figures: greenfield_adp -->
+<!-- figures: greenfield/adp -->
 
 | RANK | QB | RB | WR | TE | PK | DST |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -256,7 +256,7 @@ checked — there is no canonical slot to generate them for. Run the command.
 
 ## The 2026 keepers
 
-<!-- figures: greenfield_keepers -->
+<!-- figures: greenfield/keepers -->
 
 | PLAYER | POS | RANK | VOR | MEASURED | POSVALUE | MEASUREDSURPLUS | POSSURPLUS |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -315,7 +315,7 @@ with email used as the join key and then discarded and names cut to a first name
 Email earns that role by being the only stable identity in the exports: nineteen addresses, each mapping to
 exactly one manager across ten years, against team names that change for two to six of the fourteen teams
 every season. Joining seasons on team name would silently merge unrelated franchises, which is the same trap
-franchise ids set in the other league — see [DATA.md](DATA.md#franchises). The owners export also carries
+franchise ids set in the other league — see [DATA.md](../DATA.md#franchises). The owners export also carries
 team names in full where the draft export truncates them, so `Good But Not...` resolves against
 `Good But Not Great`, and all 1,890 picks join to an owner with nothing unresolved.
 
@@ -333,7 +333,7 @@ was his.
 Suffix drift between Yahoo and FantasyPros held the measurement at one board position, and the alias map
 held it at another until it was applied to both sides. The Yahoo export backdates Robby Anderson to
 "Robbie Chosen" exactly as nflverse does, so 2019 reported him as the best player available in round eight
-of a draft he was taken in. See [DATA.md](DATA.md#player-names).
+of a draft he was taken in. See [DATA.md](../DATA.md#player-names).
 
 Keeper markers themselves are a private use character, `U+E03E`, carried out of Yahoo's icon font by the
 copy and paste and sitting inside the player name. It is parsed to a boolean at load, because it is

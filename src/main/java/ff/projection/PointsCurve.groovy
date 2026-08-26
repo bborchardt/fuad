@@ -16,14 +16,14 @@ import ff.data.RealisedSeason
  *
  * <b>A season is a rate multiplied by an availability, and the two are levelled separately.</b> How good a
  * player is when he plays and how much football he plays are differently caused and differently variable.
- * How variable each is, per position, is in docs/figures/&lt;year&gt;/positions.tsv as RATECV against GAMESCV:
+ * How variable each is, per position, is in docs/figures/fuad/&lt;year&gt;/positions.tsv as RATECV against GAMESCV:
  * where the two are comparable, as much of the variation in a season total is availability as is production.
  * Levelling the product directly lets one unlucky year of injuries at one rank masquerade as a judgement
  * about talent.
  *
  * Multiplying two separately averaged halves is also the better estimator, and the curve measures by how
  * much: {@link Census#backward} against {@link Census#backwardOfTotals} is how far each shape travels
- * backwards, and the split wins at every position. The figures are in docs/figures/&lt;year&gt;/positions.tsv
+ * backwards, and the split wins at every position. The figures are in docs/figures/fuad/&lt;year&gt;/positions.tsv
  * as BACKWARD against BACKWARDTOTALS, rather than quoted here where nothing would notice them going stale.
  *
  * Nine seasons are pooled flat. Restating 2017-19 and 2022-24 under one rule set brings them to within a
@@ -34,7 +34,7 @@ import ff.data.RealisedSeason
  * rate, being no evidence about one, and count in the availability half. Dropping them would bias the curve
  * upward and flatten the left tail a bench is priced against.
  *
- * See docs/PROJECTION.md.
+ * See docs/fuad/PROJECTION.md.
  */
 class PointsCurve {
 
@@ -45,7 +45,7 @@ class PointsCurve {
      * Availability is smoothed five times harder than the rate, because it has far less to say by rank.
      *
      * How much football a player misses is only weakly related to where he was ranked — the correlation is
-     * in docs/figures/&lt;year&gt;/positions.tsv as GAMESCORR, and outside quarterback it accounts for a few
+     * in docs/figures/fuad/&lt;year&gt;/positions.tsv as GAMESCORR, and outside quarterback it accounts for a few
      * per cent of the variance — so a narrow window fits mostly noise and multiplies it back into the level
      * this split exists to take it out of.
      *
@@ -59,7 +59,7 @@ class PointsCurve {
      * 32 starting jobs in the league, so a quarterback ranked past about 26 is a backup who plays when
      * somebody gets hurt. Availability there falls away sharply over the back of the priced range, and a flat
      * figure overstated that end by half while understating the elite. It also left a cliff wherever the flat
-     * region ended. The figures are in docs/figures/&lt;year&gt;/curve.tsv as G.
+     * region ended. The figures are in docs/figures/fuad/&lt;year&gt;/curve.tsv as G.
      *
      * A wide window keeps what flattening was for and gives all of that back. It is less monotone at no
      * position and more monotone at every one.
@@ -89,7 +89,7 @@ class PointsCurve {
      *
      * So kicker is bounded by what the league actually rosters, and 25 is not a round number: it is exactly
      * the deepest rank the league has ever paid for at the position. What it covers of a week 1 roster, and
-     * how far down the league signs, are in docs/figures/&lt;year&gt;/depth.tsv as WITHINDEPTH, MEDIANRANK and
+     * how far down the league signs, are in docs/figures/fuad/&lt;year&gt;/depth.tsv as WITHINDEPTH, MEDIANRANK and
      * P90RANK. Half the league carries a second kicker for bye cover, so more are rostered than start, and
      * rank predicts little enough at the position that teams do not sign them in order.
      *
@@ -311,7 +311,7 @@ class PointsCurve {
      *
      * {@link #weeklyRate} therefore takes {@link #levelledRate}. Kept public because the two are worth
      * telling apart, and because the difference between them is the anchor itself, which is in
-     * docs/figures/&lt;year&gt;/positions.tsv as ANCHOR. An unanchored rate tilted {@code VALUE} between
+     * docs/figures/fuad/&lt;year&gt;/positions.tsv as ANCHOR. An unanchored rate tilted {@code VALUE} between
      * positions by the spread of that column — invisible while {@code VALUE} was a secondary one, and load
      * bearing once the kicker market turned on it.
      */
@@ -443,7 +443,7 @@ class PointsCurve {
      *
      * That is deliberate for the <b>shape</b> — the rank-to-rank wobble it removes is the noise this whole
      * split exists to take out — but it is wrong for the <b>level</b>, and unevenly so. How unevenly is in
-     * docs/figures/&lt;year&gt;/positions.tsv as ANCHOR, rather than quoted here where nothing would notice
+     * docs/figures/fuad/&lt;year&gt;/positions.tsv as ANCHOR, rather than quoted here where nothing would notice
      * it going stale, which is what happened to the two figures that used to stand in this paragraph.
      * {@link StarterRequirements} compares positions against each other to allocate the flex, so a
      * differential of that size is enough to move a starting slot between them.
@@ -653,7 +653,7 @@ class PointsCurve {
      * This is what bounds the auction pool as well. A rank the curve says is not really a claim is a rank
      * nobody will bid on, and that is as true of a player whose contract is expiring as of one nobody
      * holds — an expiring contract does not have to be re-signed, and if nobody bids he returns to the free
-     * agent pool like anyone else. See docs/PROJECTION.md.
+     * agent pool like anyone else. See docs/fuad/PROJECTION.md.
      */
     int pricedDepth(String position) {
         Map<Integer, BigDecimal> level = levelByPosition[position]

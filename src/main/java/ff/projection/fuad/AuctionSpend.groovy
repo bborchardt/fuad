@@ -1,4 +1,4 @@
-package ff.projection
+package ff.projection.fuad
 
 import ff.load.util.LoadUtils
 
@@ -9,7 +9,7 @@ import ff.load.util.LoadUtils
  * They are measurements rather than choices, so the measurement belongs in the model beside the constants
  * it produced, and not in a spec that happens to check them — it was in a spec, which meant the figures the
  * documentation quoted about the league's spending were computed by test code and could not be generated,
- * cited or checked. See docs/PROJECTION.md.
+ * cited or checked. See docs/fuad/PROJECTION.md.
  *
  * <b>A signing is a wiped contract that came back.</b> An expiring player carries {@link #WIPED_SALARY} on
  * the pre-draft roster; if he is on the post-draft roster too, what he carries there is what somebody paid

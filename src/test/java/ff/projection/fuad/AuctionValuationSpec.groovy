@@ -1,9 +1,13 @@
-package ff.projection
+package ff.projection.fuad
 
 import ff.data.PlayerValuation
 import spock.lang.Specification
 
 import java.math.RoundingMode
+import ff.projection.ByeWeeks
+import ff.projection.PointsCurve
+import ff.projection.StarterRequirements
+import ff.projection.TestSeasons
 
 /**
  * The constants this model divides money by are measurements, not choices, so they are checked against the
@@ -13,7 +17,7 @@ import java.math.RoundingMode
  * figures the documentation quotes about what the league pays were computed by test code, which meant they
  * could not be generated, could not be cited, and could not be checked. {@link AuctionSpend} owns them now,
  * so the constants below and the tables in docs/figures come from one implementation reading one set of
- * committed seasons. See docs/PROJECTION.md.
+ * committed seasons. See docs/fuad/PROJECTION.md.
  */
 class AuctionValuationSpec extends Specification {
 
@@ -138,7 +142,7 @@ class AuctionValuationSpec extends Specification {
      *
      * What the finding actually rests on is that kicker takes almost nothing in every auction the league
      * has ever held, which the seasons can answer and a constant cannot. The bound below is the claim; the
-     * season by season figures are SHARE on docs/figures/&lt;year&gt;/spend.tsv, and quoting a range here as
+     * season by season figures are SHARE on docs/figures/fuad/&lt;year&gt;/spend.tsv, and quoting a range here as
      * well is how this comment came to describe nine seasons after 2021 stopped being measurable.
      *
      * The other half — that the curve puts kicker's share of <i>value</i> near 6% — is a property of a

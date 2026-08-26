@@ -1,4 +1,4 @@
-package ff.projection
+package ff.projection.fuad
 
 import ff.load.util.LoadUtils
 import spock.lang.Specification
@@ -10,7 +10,7 @@ import java.util.regex.Pattern
 /**
  * The cut penalty was the least verified rule the league has, stated by the commissioner and absent from
  * every export. The salary adjustments are the record of it being charged, so it is now checked against all
- * 384 of them rather than taken on trust. See docs/LEAGUE_RULES.md.
+ * 384 of them rather than taken on trust. See docs/fuad/LEAGUE_RULES.md.
  */
 class CutPenaltySpec extends Specification {
 

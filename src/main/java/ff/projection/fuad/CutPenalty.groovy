@@ -1,4 +1,4 @@
-package ff.projection
+package ff.projection.fuad
 
 import java.math.RoundingMode
 
@@ -17,7 +17,7 @@ import java.math.RoundingMode
  * constrained differently rather than one of them being free.
  *
  * Confirmed against every penalty the league has charged: 383 of 384 adjustments across 2017-2025 come back
- * exactly, and the one that does not is a six-cut batch a dollar light. See docs/LEAGUE_RULES.md.
+ * exactly, and the one that does not is a six-cut batch a dollar light. See docs/fuad/LEAGUE_RULES.md.
  */
 class CutPenalty {
 

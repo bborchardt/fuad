@@ -1,7 +1,11 @@
-package ff.projection
+package ff.projection.fuad
 
 import ff.data.PlayerValuation
 import spock.lang.Specification
+import ff.projection.ByeWeeks
+import ff.projection.PointsCurve
+import ff.projection.StarterRequirements
+import ff.projection.TestSeasons
 
 /**
  * The tags a board reports have to be the tags it was priced with.

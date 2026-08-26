@@ -23,7 +23,7 @@ import ff.data.greenfield.KeeperSurplus
  * may be kept for an eighth, one drafted in round three or later for a second, and a player who went
  * undrafted for either. It says nothing about who drafted him, so a player traded midseason is keepable by
  * whoever holds him — which is why 21 of the 98 keepers in the record were kept by an owner who did not
- * draft them. See docs/GREENFIELD.md.
+ * draft them. See docs/greenfield/README.md.
  */
 class KeeperValuation {
 

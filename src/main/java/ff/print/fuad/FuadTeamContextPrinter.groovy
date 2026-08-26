@@ -4,7 +4,7 @@ import ff.data.PlayerValuation
 import ff.data.fuad.FuadData
 import ff.data.mfl.MflFranchise
 import ff.data.mfl.MflPlayer
-import ff.projection.AuctionValuation
+import ff.projection.fuad.AuctionValuation
 import ff.projection.StarterRequirements
 
 import java.math.RoundingMode
@@ -14,7 +14,7 @@ import java.math.RoundingMode
  *
  * Deliberately context rather than prices. The auction clears at the highest bidder, not the average one,
  * so the outliers come from a particular team being thin at a position with money to fix it. Team state
- * varies enormously, and how enormously is in docs/figures/&lt;year&gt;/stretch.tsv: MINSTRETCH against
+ * varies enormously, and how enormously is in docs/figures/fuad/&lt;year&gt;/stretch.tsv: MINSTRETCH against
  * MAXSTRETCH for the range, and a row per team season for the cases behind it.
  *
  * It is reported and not priced because it does not predict well enough to price. STRETCHCORR on the same
@@ -26,7 +26,7 @@ class FuadTeamContextPrinter {
 
     private static final List<String> POSITIONS = ['QB', 'RB', 'WR', 'TE', 'PK'].asImmutable()
 
-    /** A full roster, from the league bylaws. See docs/LEAGUE_RULES.md. */
+    /** A full roster, from the league bylaws. See docs/fuad/LEAGUE_RULES.md. */
     private static final int MAX_ROSTER = 30
 
     /**

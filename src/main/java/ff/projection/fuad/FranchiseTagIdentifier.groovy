@@ -1,4 +1,4 @@
-package ff.projection
+package ff.projection.fuad
 
 import ff.data.FranchiseTag
 
@@ -24,7 +24,7 @@ import ff.data.FranchiseTag
  * a team gets **one** tag, so an above-rate signing by a team that already tagged somebody was not a tag.
  * That rules out most of them and leaves a residue this reports as {@link FranchiseTag.Status#CANDIDATE}.
  *
- * See docs/LEAGUE_RULES.md.
+ * See docs/fuad/LEAGUE_RULES.md.
  */
 class FranchiseTagIdentifier {
 

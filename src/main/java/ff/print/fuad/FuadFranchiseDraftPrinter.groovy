@@ -13,7 +13,7 @@ import ff.data.mfl.MflPlayer
  * what turns a roster listing into a picture of what keeping that roster would take.
  *
  * <b>Those dollars are the auction board's, not a second opinion.</b> This used to project them from a curve
- * fitted straight from positional rank, which is the model docs/PROJECTION.md rules out, and which meant two
+ * fitted straight from positional rank, which is the model docs/fuad/PROJECTION.md rules out, and which meant two
  * sheets in the same pack quoted different numbers for the same player. There is now one price and this
  * reads it.
  *

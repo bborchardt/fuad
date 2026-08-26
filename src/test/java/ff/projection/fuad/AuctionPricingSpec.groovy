@@ -1,8 +1,12 @@
-package ff.projection
+package ff.projection.fuad
 
 import ff.data.PlayerValuation
 import spock.lang.Specification
 import spock.lang.Unroll
+import ff.projection.ByeWeeks
+import ff.projection.PointsCurve
+import ff.projection.StarterRequirements
+import ff.projection.TestSeasons
 
 /**
  * What the chain from points to dollars promises, asserted on boards small enough to check by hand.
@@ -14,7 +18,7 @@ import spock.lang.Unroll
  *
  * Every board here is synthetic. These are properties the arithmetic has to hold for any curve, so pinning
  * them to a season's figures would only be the drift problem with a spec around it — see
- * {@link ff.print.figures.ModelFiguresPrinterSpec}.
+ * {@link ff.print.figures.fuad.ModelFiguresPrinterSpec}.
  */
 class AuctionPricingSpec extends Specification {
 
@@ -72,7 +76,7 @@ class AuctionPricingSpec extends Specification {
      *
      * Asserted on two positions given <b>the same curve</b>, so every difference between them is the
      * steepness, quarterback being much the steeper of the two — the fitted figures are GAMMA on
-     * docs/figures/&lt;year&gt;/positions.tsv. Their money then has to divide as their target shares do and
+     * docs/figures/fuad/&lt;year&gt;/positions.tsv. Their money then has to divide as their target shares do and
      * in no other proportion.
      */
     def "each position keeps the share the calibration gave it, however steeply it is bid"() {

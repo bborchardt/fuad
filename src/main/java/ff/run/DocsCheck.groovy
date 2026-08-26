@@ -1,6 +1,6 @@
 package ff.run
 
-import ff.run.fuad.ReportManifest
+import ff.run.ReportManifest
 
 /**
  * Hold the model's documentation to the figures the model actually produces.
@@ -90,16 +90,20 @@ class DocsCheck {
             System.exit(2)
         }
 
-        File yearDir = new File(figuresDir, year)
         boolean failed = false
 
         // Before any document, the figures themselves. Checking prose against figures an older model wrote
         // proves only that the prose matches something, which is the question nobody asked.
-        List<String> stale = checkProvenance(yearDir)
-        if (stale) {
-            println "FAIL  $yearDir"
-            stale.each { println "  $it" }
-            System.exit(1)
+        //
+        // Every league's, not one league's: a document may cite either, and figures for a league nobody
+        // happened to read would otherwise go unchecked until the day something read them.
+        leagueDirs(figuresDir, year).each { File leagueYear ->
+            List<String> stale = checkProvenance(leagueYear)
+            if (stale) {
+                println "FAIL  $leagueYear"
+                stale.each { println "  $it" }
+                System.exit(1)
+            }
         }
 
         documents.each { File document ->
@@ -109,7 +113,7 @@ class DocsCheck {
                 failed = true
                 return
             }
-            Result result = inspect(document, yearDir)
+            Result result = inspect(document, figuresDir, year)
             if (result.failures) {
                 println "FAIL  $document"
                 result.failures.each { println "  $it" }
@@ -176,12 +180,12 @@ class DocsCheck {
     }
 
     /** Every way the document disagrees with the figures, in the order they appear. */
-    static List<String> check(File document, File yearDir) {
-        inspect(document, yearDir).failures
+    static List<String> check(File document, File figuresDir, String year) {
+        inspect(document, figuresDir, year).failures
     }
 
     /** The same, alongside how much of the document was actually held to anything. */
-    static Result inspect(File document, File yearDir) {
+    static Result inspect(File document, File figuresDir, String year) {
         List<String> lines = document.readLines()
         List<String> failures = []
         Map<String, List<Map<String, String>>> cache = [:]
@@ -214,13 +218,13 @@ class DocsCheck {
                 tables++
                 // Once for the table rather than once per row: a mistyped heading is one mistake, and
                 // reporting it against every row below would bury the rows that are genuinely wrong.
-                failures.addAll(checkHeadings(marker, yearDir, headings, i + 1, cache))
+                failures.addAll(checkHeadings(marker, figuresDir, year, headings, i + 1, cache))
                 continue
             }
             if (MarkdownTables.isDivider(cells)) {
                 continue
             }
-            Result row = checkRow(marker, yearDir, headings, cells, i + 1, cache)
+            Result row = checkRow(marker, figuresDir, year, headings, cells, i + 1, cache)
             failures.addAll(row.failures)
             verified += row.verified
         }
@@ -251,9 +255,10 @@ class DocsCheck {
      * The candidates differ by orientation. Read down, a heading names a field of the figures file. Read
      * across, it names a value of the key the table is spread over — a position, usually.
      */
-    private static List<String> checkHeadings(Map<String, String> marker, File yearDir, List<String> headings,
+    private static List<String> checkHeadings(Map<String, String> marker, File figuresDir, String year,
+                                              List<String> headings,
                                               int line, Map<String, List<Map<String, String>>> cache) {
-        List<Map<String, String>> table = table(yearDir, marker.table, cache)
+        List<Map<String, String>> table = table(figuresDir, year, marker.table, cache)
         if (!table) {
             // Missing or empty: the rows report that themselves, and better than a heading can.
             return []
@@ -283,10 +288,11 @@ class DocsCheck {
         failures
     }
 
-    private static Result checkRow(Map<String, String> marker, File yearDir, List<String> headings,
+    private static Result checkRow(Map<String, String> marker, File figuresDir, String year,
+                                   List<String> headings,
                                    List<String> cells, int line,
                                    Map<String, List<Map<String, String>>> cache) {
-        List<Map<String, String>> table = table(yearDir, marker.table, cache)
+        List<Map<String, String>> table = table(figuresDir, year, marker.table, cache)
         if (table == null) {
             return new Result(["line $line: no figures file for '${marker.table}'" as String], 0, 0)
         }
@@ -422,11 +428,37 @@ class DocsCheck {
         new Result(failures, verified, 0)
     }
 
-    private static List<Map<String, String>> table(File yearDir, String name,
+    /**
+     * A figure named as {@code <league>/<table>}, which is what the marker carries.
+     *
+     * <b>The league is part of the name because the table names collide.</b> Both leagues have a curve and
+     * a positions table, and they describe different lineups, different scoring and different currencies —
+     * a document citing the wrong one would be checked against real figures and pass.
+     */
+    private static List<Map<String, String>> table(File figuresDir, String year, String name,
                                                    Map<String, List<Map<String, String>>> cache) {
         if (cache.containsKey(name)) {
             return cache[name]
         }
-        cache[name] = MarkdownTables.read(new File(yearDir, "${name}.tsv"))
+        List<String> parts = name.split('/', 2) as List
+        if (parts.size() != 2) {
+            throw new IllegalArgumentException(
+                    "Figure '$name' names no league: markers read <!-- figures: <league>/<table> -->, " +
+                            "the leagues being ${leagues(figuresDir, year)}")
+        }
+        cache[name] = MarkdownTables.read(
+                new File(figuresDir, "${parts[0]}/$year/${parts[1]}.tsv"))
+    }
+
+    /** Every league that has figures for this year, which is a directory each. */
+    private static List<File> leagueDirs(File figuresDir, String year) {
+        (figuresDir.listFiles() ?: [] as File[])
+                .findAll { it.isDirectory() && new File(it, year).isDirectory() }
+                .collect { new File(it, year) }
+                .sort { it.parentFile.name }
+    }
+
+    private static List<String> leagues(File figuresDir, String year) {
+        leagueDirs(figuresDir, year)*.parentFile*.name
     }
 }

@@ -3,7 +3,7 @@
 How `-t salaries` decides what a player will cost at auction. Run it with:
 
 ```
-./generate_report.sh -t salaries -y 2026
+./fuad_report.sh -t salaries -y 2026
 ```
 
 Built for the season being auctioned, and not meant to run on past ones.
@@ -65,7 +65,7 @@ Bell's 2018 holdout, Gus Edwards' 2021 knee, Joe Mixon's 2025 foot. They are exa
 hardest, so dropping them biases every curve upward and cuts off the left tail a bench is priced against.
 How many of each there are, per position:
 
-<!-- figures: positions -->
+<!-- figures: fuad/positions -->
 
 | POS | SEASONS | LOST |
 | --- | --- | --- |
@@ -76,11 +76,11 @@ How many of each there are, per position:
 
 Which is why the name matching between the rankings and the statistics has to be careful before it gives
 up: **an unmatched name and a season lost to injury are indistinguishable, and both score zero.** See
-[DATA.md](DATA.md#player-names) for how names are matched.
+[DATA.md](../DATA.md#player-names) for how names are matched.
 
 What that produces at the top of each position, in points over the fourteen week regular season:
 
-<!-- figures: curve across=POS field=PTS -->
+<!-- figures: fuad/curve across=POS field=PTS -->
 
 | Rank | QB | RB | WR | TE |
 | --- | --- | --- | --- | --- |
@@ -90,7 +90,7 @@ What that produces at the top of each position, in points over the fourteen week
 
 and per game played:
 
-<!-- figures: curve across=POS field=PPG -->
+<!-- figures: fuad/curve across=POS field=PPG -->
 
 | Rank | QB | RB | WR | TE |
 | --- | --- | --- | --- | --- |
@@ -104,7 +104,7 @@ Those are two numbers because a season is two things, and they are differently c
 when he plays, and how much football he plays. `RATECV` and `GAMESCV` are how widely each scatters, as a
 coefficient of variation:
 
-<!-- figures: positions -->
+<!-- figures: fuad/positions -->
 
 | POS | RATECV | GAMESCV |
 | --- | --- | --- |
@@ -121,14 +121,14 @@ availability does, which is a real difference between positions and one a single
 same span of ranks, receiver loses almost all of its level to the rate while quarterback loses nearly as
 much of its own to availability as to the rate:
 
-<!-- figures: curve across=POS field=PPG -->
+<!-- figures: fuad/curve across=POS field=PPG -->
 
 | Rank | QB | WR |
 | --- | --- | --- |
 | 1 | 21.39 | 16.09 |
 | 34 | 11.22 | 9.86 |
 
-<!-- figures: curve across=POS field=G -->
+<!-- figures: fuad/curve across=POS field=G -->
 
 | Rank | QB | WR |
 | --- | --- | --- |
@@ -147,7 +147,7 @@ Where rank *r+1* levels above rank *r*, the step is noise the smoothing failed t
 priced ranks and taken against the curve's range, it is how far a curve travels backwards. Levelling the
 season totals against splitting them, over a rank window common to all four positions:
 
-<!-- figures: positions -->
+<!-- figures: fuad/positions -->
 
 | POS | BACKWARDTOTALS | BACKWARD |
 | --- | --- | --- |
@@ -168,7 +168,7 @@ Better at every position, and by a factor of two to four at three of them.
 football a player misses is only weakly related to where he was ranked, `GAMESCORR` being the correlation
 between rank and games played over every ranked season that carries money:
 
-<!-- figures: positions -->
+<!-- figures: fuad/positions -->
 
 | POS | GAMESCORR |
 | --- | --- |
@@ -199,7 +199,7 @@ it replaced, and monotonicity is measured directly as `BACKWARD`. The correlatio
 
 Smoothed, though, and not held flat, which was the first attempt. Quarterback is why:
 
-<!-- figures: curve across=POS field=G -->
+<!-- figures: fuad/curve across=POS field=G -->
 
 | Rank | QB |
 | --- | --- |
@@ -227,7 +227,7 @@ the split.
 setting to read off: the lineup is ten of QB 1-2, RB 1-3, WR 2-5, TE 1-3, PK 1, so six slots are fixed by
 the minimums and four are flex. Allocating the flex greedily across the league gives, for 2026:
 
-<!-- figures: positions -->
+<!-- figures: fuad/positions -->
 
 | POS | STARTED | REPLRANK |
 | --- | --- | --- |
@@ -243,7 +243,7 @@ and compresses what the best ones are worth over it. That much is decisive and s
 **The last few flex spots are not.** The comparison that decides them is between a league's 32nd to 34th
 receiver and its 11th to 13th tight end, and those are the same players:
 
-<!-- figures: curve across=POS field=PTS -->
+<!-- figures: fuad/curve across=POS field=PTS -->
 
 | Rank | TE |
 | --- | --- |
@@ -251,7 +251,7 @@ receiver and its 11th to 13th tight end, and those are the same players:
 | 12 | 110.3 |
 | 13 | 107.2 |
 
-<!-- figures: curve across=POS field=PTS -->
+<!-- figures: fuad/curve across=POS field=PTS -->
 
 | Rank | WR |
 | --- | --- |
@@ -279,7 +279,7 @@ good. The second is never smaller, and the gap is widest at replacement level �
 `VOR` is the first, which is what the board prices with; `VOREXP` is the second, carried only so the two can
 be compared. Read down a position at a time:
 
-<!-- figures: curve across=POS field=VOR -->
+<!-- figures: fuad/curve across=POS field=VOR -->
 
 | Rank | QB | WR | RB |
 | --- | --- | --- | --- |
@@ -288,7 +288,7 @@ be compared. Read down a position at a time:
 | 38 | | 14.1 | |
 | 48 | | | 4.9 |
 
-<!-- figures: curve across=POS field=VOREXP -->
+<!-- figures: fuad/curve across=POS field=VOREXP -->
 
 | Rank | QB | WR | RB |
 | --- | --- | --- | --- |
@@ -345,7 +345,7 @@ tag holds the very best players well below their `PRICE`.
 
 As priced, which is generated:
 
-<!-- figures: board -->
+<!-- figures: fuad/board -->
 
 | FIGURE | VALUE | Actual 2025 |
 | --- | --- | --- |
@@ -380,13 +380,13 @@ roster in one sitting, so what covers an injured starter is another player it al
 starter for his own absence *and* making the team buy a backup pays for the same week twice. `-t roster`
 prices that backup and finds him expensive — a third quarterback is worth 57 points to Brett, nearly all of
 it bye and injury cover. So absence is charged in the report that can see a roster, and a league-wide
-clearing price, which cannot see one, leaves it alone. See [STRATEGY.md](STRATEGY.md#the-roster-reports).
+clearing price, which cannot see one, leaves it alone. See [STRATEGY.md](../STRATEGY.md#the-roster-reports).
 
 **The distribution is used as observed, not fitted.** It is badly lopsided. Almost all the variance is a left
 tail of seasons lost to injury, reaching zero at every position, while the upside is far more compressed —
 nine seasons in ten land under about one and three quarters times expectation:
 
-<!-- figures: positions -->
+<!-- figures: fuad/positions -->
 
 | POS | P10 | P90 |
 | --- | --- | --- |
@@ -413,7 +413,7 @@ avoid.
 Teams spend a fairly steady share of the cap they have free — 70% to 87% across the measurable record,
 **83%** across the four superflex seasons — so the pot is knowable before the auction:
 
-<!-- figures: board -->
+<!-- figures: fuad/board -->
 
 | FIGURE | VALUE |
 | --- | --- |
@@ -466,7 +466,7 @@ wide receivers took **56.0%** of that auction against 30.6% to 36.5% in every se
 quarterbacks 13.8% against 17.6% to 29.4%. Averaging that year in drags wide receiver up and holds
 quarterback down, which showed up as top receivers priced above anything the league has ever paid.
 
-<!-- figures: spend across=POS field=SHAREXPK -->
+<!-- figures: fuad/spend across=POS field=SHAREXPK -->
 
 | Share of auction spend | QB | RB | WR | TE | |
 | --- | --- | --- | --- | --- | --- |
@@ -477,11 +477,11 @@ quarterback down, which showed up as top receivers priced above anything the lea
 | 2023-2025 | 24.0% | 32.7% | 33.9% | 9.5% | what the model calibrates to |
 
 Those rows are what the league paid, generated from the committed seasons into
-`docs/figures/<year>/spend.tsv` and checked cell by cell, so the case for dropping 2022 is evidence a
+`docs/figures/fuad/<year>/spend.tsv` and checked cell by cell, so the case for dropping 2022 is evidence a
 reader can check rather than a claim they have to take. The last row is the pooled span the calibration is
 fitted over, and it is `TARGETSHARE`:
 
-<!-- figures: positions -->
+<!-- figures: fuad/positions -->
 
 | POS | TARGETSHARE |
 | --- | --- |
@@ -502,7 +502,7 @@ same thing from the other side. `COMMITTEDSHARE` is what each position holds of 
 books before a bid is made, so it moves only as contracts are signed and expire rather than with one
 auction:
 
-<!-- figures: spend key=SEASON+POS -->
+<!-- figures: fuad/spend key=SEASON+POS -->
 
 | SEASON | POS | COMMITTEDSHARE |
 | --- | --- | --- |
@@ -560,7 +560,7 @@ that.
 
 The highest `PRICE` is Ja'Marr Chase, which no one pays because he is tagged well below it.
 
-<!-- figures: board -->
+<!-- figures: fuad/board -->
 
 | FIGURE | VALUE | Actual 2025 |
 | --- | --- | --- |
@@ -574,7 +574,7 @@ The highest `PRICE` is Ja'Marr Chase, which no one pays because he is tagged wel
 Position shares are the ones the league actually spends, since `MARKET_WEIGHT` is 1.0. `SHARE` is what the
 board came out at and `TARGETSHARE` what the calibration aimed for:
 
-<!-- figures: positions -->
+<!-- figures: fuad/positions -->
 
 | POS | PLAYERS | RESERVE | SHARE | TARGETSHARE |
 | --- | --- | --- | --- | --- |
@@ -627,7 +627,7 @@ position and finished with five.
 It is reported rather than priced because it does not predict well enough to price. Team states differ
 enormously, and the relation between being stretched and letting players go is nevertheless nothing:
 
-<!-- figures: stretch key=SEASON+FRANCHISE -->
+<!-- figures: fuad/stretch key=SEASON+FRANCHISE -->
 
 | SEASON | FRANCHISE | TEAMSEASONS | MINSTRETCH | MAXSTRETCH | STRETCHCORR |
 | --- | --- | --- | --- | --- | --- |
@@ -636,7 +636,7 @@ enormously, and the relation between being stretched and letting players go is n
 A team may go into an auction owing six times what it has to spend or a third of it, and knowing which
 tells you almost nothing about how much of its roster it will hold. The extreme case is on the same table:
 
-<!-- figures: stretch key=SEASON+FRANCHISE -->
+<!-- figures: fuad/stretch key=SEASON+FRANCHISE -->
 
 | SEASON | FRANCHISE | EXPIRING | KEPT | EXPOSURE | FREECAP |
 | --- | --- | --- | --- | --- | --- |
@@ -658,7 +658,7 @@ league is not.
 - **Prices are still per player, so nothing on this board sees a roster.** Two players are priced
   identically whether they cover each other's byes or share one, and a spare at a position a team already
   starts two of is priced as though it were his first. `-t roster` answers that separately, in points and
-  for one named team; see [STRATEGY.md](STRATEGY.md#the-roster-reports). It is deliberately not fed back
+  for one named team; see [STRATEGY.md](../STRATEGY.md#the-roster-reports). It is deliberately not fed back
   into price, which is a league-wide clearing rate and would stop being one. That division is also what
   keeps the cost of a missed week from being charged twice; see [3c](#3c-why-a-missed-week-costs-nothing-which-is-not-the-same-as-being-free).
 - **The spread cannot tell volatility from disagreement.** It is realised variation, so a genuinely erratic
@@ -693,7 +693,7 @@ league is not.
 - **Two ranked seasons a year or so go missing to source quirks rather than to injury.** nflverse takes a
   player's position from the roster, so Travis Hunter is a `CB` in 2025 and his receiving never enters. A
   player the extract does not carry is indistinguishable from one who never played, and scores zero either
-  way. See [DATA.md](DATA.md).
+  way. See [DATA.md](../DATA.md).
 
 ## Value and price are separate numbers
 
@@ -716,7 +716,7 @@ Alongside them the board carries what a plan needs in order to reason without go
   had, which sits above the product of the two separate means, so `PPG` is the rate that level implies
   rather than the raw mean behind it. The factor is `ANCHOR`, and it differs by position:
 
-  <!-- figures: positions -->
+  <!-- figures: fuad/positions -->
 
   | POS | ANCHOR |
   | --- | --- |
@@ -758,7 +758,7 @@ Alongside them the board carries what a plan needs in order to reason without go
 Within-position steepness is fitted per position as `price ~ value^gamma` over historical signings by
 consensus rank over the same seasons:
 
-<!-- figures: positions -->
+<!-- figures: fuad/positions -->
 
 | POS | GAMMA |
 | --- | --- |
@@ -778,7 +778,7 @@ for running backs**, and the size of it is on a committed figure rather than in 
 is the share of the pot a position takes and `VORSHARE` the share of the board's value it holds, before any
 calibration touches it.
 
-<!-- figures: positions -->
+<!-- figures: fuad/positions -->
 
 | POS | TARGETSHARE | VORSHARE |
 | --- | --- | --- |
@@ -786,7 +786,7 @@ calibration touches it.
 | RB | 32.3 | 36.7 |
 
 Receiver is bought a third above what it is worth and running back at about nine tenths of it. Named by
-position rather than by player for the reason [STRATEGY.md](STRATEGY.md#what-the-board-carries) gives about
+position rather than by player for the reason [STRATEGY.md](../STRATEGY.md#what-the-board-carries) gives about
 ranks: a position is on a figure that is committed and checked, where the two players this paragraph used
 to name were on a board that is regenerated and never kept — and both of their numbers had gone stale.
 
@@ -798,7 +798,7 @@ of a position that is a false precision, and it shows up as an ordering the evid
 Quarterback is the clearest case. The curve is nearly flat across the middle of the position, and each
 level carries a standard error of seven to nine points:
 
-<!-- figures: curve across=POS field=PTS -->
+<!-- figures: fuad/curve across=POS field=PTS -->
 
 | Rank | QB |
 | --- | --- |
@@ -808,7 +808,7 @@ level carries a standard error of seven to nine points:
 | 12 | 207.2 |
 | 14 | 195.6 |
 
-<!-- figures: curve across=POS field=SE -->
+<!-- figures: fuad/curve across=POS field=SE -->
 
 | Rank | QB |
 | --- | --- |
@@ -818,7 +818,7 @@ level carries a standard error of seven to nine points:
 | 12 | 7.8 |
 | 14 | 8.8 |
 
-<!-- figures: curve across=POS field=TIER -->
+<!-- figures: fuad/curve across=POS field=TIER -->
 
 | Rank | QB |
 | --- | --- |
@@ -865,7 +865,7 @@ for the reason in the next section.
 **Both are cut off at the same depth**, which is the point below which the curve stops making a claim — the
 last rank levelling above a quarter of the position's best:
 
-<!-- figures: positions -->
+<!-- figures: fuad/positions -->
 
 | POS | PRICEDDEPTH |
 | --- | --- |
@@ -885,7 +885,7 @@ at the minimum bid, and the dollar reserved for each came to more than the posit
 **25 is not a round number.** It is exactly the deepest rank the league has ever paid for at the position,
 and it covers all but a handful of the kickers anybody rosters:
 
-<!-- figures: depth -->
+<!-- figures: fuad/depth -->
 
 | POS | PRICEDDEPTH | SIGNINGS | DEEPEST | MEDIANRANK | P90RANK | WITHINDEPTH |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -913,7 +913,7 @@ The depth is taken from the curve rather than set by hand. The four numbers it r
 50, TE 25 — were shallower than the deepest rank the league has actually paid for at **every one** of those
 positions, which is the whole argument for reading a depth off the curve instead of writing it down:
 
-<!-- figures: depth -->
+<!-- figures: fuad/depth -->
 
 | POS | PRICEDDEPTH | DEEPEST | MEDIANRANK | P90RANK |
 | --- | --- | --- | --- | --- |
@@ -953,7 +953,7 @@ anything — a dead constant that looked live, and which cost an afternoon of mi
 
 **Levelled, the position turns out to be the one place the board and the league disagree by a factor.**
 
-<!-- figures: positions -->
+<!-- figures: fuad/positions -->
 
 | POS | SHARE | TARGETSHARE | PRICEDDEPTH | SEASONS | LOST | P10 | P90 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -963,7 +963,7 @@ Rank predicts kicker scoring better than the position's reputation suggests. Ove
 PK1 finished inside the top ten kickers in **every one of the nine seasons**, and the curve separates the
 top of the position from replacement by more than five standard errors:
 
-<!-- figures: curve across=POS field=PTS -->
+<!-- figures: fuad/curve across=POS field=PTS -->
 
 | Rank | PK |
 | --- | --- |
@@ -975,7 +975,7 @@ top of the position from replacement by more than five standard errors:
 
 Most of that is **rate** rather than availability:
 
-<!-- figures: curve across=POS field=PPG -->
+<!-- figures: fuad/curve across=POS field=PPG -->
 
 | Rank | PK |
 | --- | --- |
@@ -988,7 +988,7 @@ Set against what the league pays, that value has nowhere to go. `TARGETSHARE` is
 position takes and `VORSHARE` the share of the board's value over replacement it holds — the second before
 any calibration touches it, which is what makes the pair worth reading:
 
-<!-- figures: positions -->
+<!-- figures: fuad/positions -->
 
 | POS | TARGETSHARE | VORSHARE |
 | --- | --- | --- |
@@ -1025,7 +1025,7 @@ player loose is only 4%. The friction is spent on availability, not on cost.
 expiring contracts somebody re-signed, which is the question a bidder is asking and what `AVAILABILITY`
 carries. `MOVEDOFEXPIRING` is of every contract that expired, re-signed or not.
 
-<!-- figures: retention -->
+<!-- figures: fuad/retention -->
 
 | BAND | EXPIRING | SIGNED | MOVEDSHARE | MOVEDOFEXPIRING | SIGNEDSHARE |
 | --- | --- | --- | --- | --- | --- |

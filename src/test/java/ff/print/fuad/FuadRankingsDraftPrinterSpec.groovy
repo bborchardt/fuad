@@ -14,7 +14,7 @@ import spock.lang.Specification
  *
  * It used to carry a second model — a curve fitted straight from positional rank to dollars — so the same
  * player could be worth one number here and another on the salaries board, with nothing to say which was
- * meant. See docs/PROJECTION.md.
+ * meant. See docs/fuad/PROJECTION.md.
  */
 class FuadRankingsDraftPrinterSpec extends Specification {
 

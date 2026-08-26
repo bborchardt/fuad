@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
 # Builds the project and invokes FuadRunner, forwarding all arguments.
 #
-# Reports are written to <out>/<year>/<type>.tsv (schedule.csv), defaulting to reports/<year>.
+# Reports are written to <out>/<year>/<type>.tsv (schedule.csv), defaulting to reports/fuad/<year>.
 #
 # Usage:
-#   ./generate_report.sh -t <franchises|franchise_projections|rankings|rookies|salaries|teams|schedule|all> [-y <year>] [-o <dir>]
-#   ./generate_report.sh -t roster -f <franchise-id> [-y <year>] [-o <dir>]
+#   ./fuad_report.sh -t <franchises|franchise_projections|rankings|rookies|salaries|teams|schedule|all> [-y <year>] [-o <dir>]
+#   ./fuad_report.sh -t roster -f <franchise-id> [-y <year>] [-o <dir>]
 #
 # `roster` reports for one team and is not part of `all`. It writes two files, the per-player fit and the
 # depth curve, and takes about half a minute: it replays the season several hundred times.
 #
 # Examples:
-#   ./generate_report.sh -t rankings
-#   ./generate_report.sh -t rookies -y 2024
-#   ./generate_report.sh -t salaries -y 2026
-#   ./generate_report.sh -t roster -f 0001 -y 2026
-#   ./generate_report.sh -t all
+#   ./fuad_report.sh -t rankings
+#   ./fuad_report.sh -t rookies -y 2024
+#   ./fuad_report.sh -t salaries -y 2026
+#   ./fuad_report.sh -t roster -f 0001 -y 2026
+#   ./fuad_report.sh -t all
 set -euo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

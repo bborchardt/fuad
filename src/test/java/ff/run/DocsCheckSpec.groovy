@@ -7,17 +7,19 @@ import spock.lang.TempDir
  * The documentation is held to the figures the model produces, the way a draft plan is held to its board.
  *
  * What is asserted here is the checking, not any season's numbers — pinning those in a spec would be the
- * drift problem again with a ceremony around it. See docs/PROJECTION.md.
+ * drift problem again with a ceremony around it. See docs/fuad/PROJECTION.md.
  */
 class DocsCheckSpec extends Specification {
 
     @TempDir
     File temp
 
+    private File figuresDir
     private File yearDir
 
     def setup() {
-        yearDir = new File(temp, 'figures/2026')
+        figuresDir = new File(temp, 'figures')
+        yearDir = new File(figuresDir, 'fuad/2026')
         yearDir.mkdirs()
         new File(yearDir, 'curve.tsv').text =
                 "POS\tRANK\tPTS\tPPG\tG\tTIER\n" +
@@ -44,7 +46,7 @@ class DocsCheckSpec extends Specification {
 
     def "passes a table whose cells are the model's"() {
         given:
-        File doc = document('''<!-- figures: positions -->
+        File doc = document('''<!-- figures: fuad/positions -->
 
 | POS | PRICEDDEPTH | STARTED |
 | --- | --- | --- |
@@ -53,12 +55,12 @@ class DocsCheckSpec extends Specification {
 ''')
 
         expect:
-        DocsCheck.check(doc, yearDir) == []
+        DocsCheck.check(doc, figuresDir, '2026') == []
     }
 
     def "catches a figure that has drifted from what the model says"() {
         given: 'the depth moved from 35 to 36 and the prose did not'
-        File doc = document('''<!-- figures: positions -->
+        File doc = document('''<!-- figures: fuad/positions -->
 
 | POS | PRICEDDEPTH |
 | --- | --- |
@@ -66,11 +68,11 @@ class DocsCheckSpec extends Specification {
 ''')
 
         when:
-        List<String> failures = DocsCheck.check(doc, yearDir)
+        List<String> failures = DocsCheck.check(doc, figuresDir, '2026')
 
         then:
         failures.size() == 1
-        failures[0].contains('QB PRICEDDEPTH is 36 in positions.tsv, cited as 35')
+        failures[0].contains('QB PRICEDDEPTH is 36 in fuad/positions.tsv, cited as 35')
     }
 
     /**
@@ -79,7 +81,7 @@ class DocsCheckSpec extends Specification {
      */
     def "checks a table written with the positions across the top"() {
         given:
-        File doc = document('''<!-- figures: curve across=POS field=PTS -->
+        File doc = document('''<!-- figures: fuad/curve across=POS field=PTS -->
 
 | | QB | RB |
 | --- | --- | --- |
@@ -88,12 +90,12 @@ class DocsCheckSpec extends Specification {
 ''')
 
         expect:
-        DocsCheck.check(doc, yearDir) == []
+        DocsCheck.check(doc, figuresDir, '2026') == []
     }
 
     def "catches one drifted cell in a table read across"() {
         given: 'the running back level moved and the quarterback one did not'
-        File doc = document('''<!-- figures: curve across=POS field=PTS -->
+        File doc = document('''<!-- figures: fuad/curve across=POS field=PTS -->
 
 | | QB | RB |
 | --- | --- | --- |
@@ -101,7 +103,7 @@ class DocsCheckSpec extends Specification {
 ''')
 
         when:
-        List<String> failures = DocsCheck.check(doc, yearDir)
+        List<String> failures = DocsCheck.check(doc, figuresDir, '2026')
 
         then: 'named by position, rank and field, so the fix is mechanical'
         failures.size() == 1
@@ -111,7 +113,7 @@ class DocsCheckSpec extends Specification {
 
     def "reads a row label the way prose writes it"() {
         given: 'the document says Top price where the model wrote TOPPRICE'
-        File doc = document('''<!-- figures: board -->
+        File doc = document('''<!-- figures: fuad/board -->
 
 | FIGURE | VALUE |
 | --- | --- |
@@ -120,12 +122,12 @@ class DocsCheckSpec extends Specification {
 ''')
 
         expect:
-        DocsCheck.check(doc, yearDir) == []
+        DocsCheck.check(doc, figuresDir, '2026') == []
     }
 
     def "leaves a heading the model does not produce alone, as the document's own commentary"() {
         given: 'what the league actually did is not something the model outputs'
-        File doc = document('''<!-- figures: board -->
+        File doc = document('''<!-- figures: fuad/board -->
 
 | FIGURE | VALUE | Actual 2025 |
 | --- | --- | --- |
@@ -133,12 +135,12 @@ class DocsCheckSpec extends Specification {
 ''')
 
         expect:
-        DocsCheck.check(doc, yearDir) == []
+        DocsCheck.check(doc, figuresDir, '2026') == []
     }
 
     def "leaves a column heading naming no position alone in a table read across"() {
         given:
-        File doc = document('''<!-- figures: curve across=POS field=PTS -->
+        File doc = document('''<!-- figures: fuad/curve across=POS field=PTS -->
 
 | | QB | RB | what a flat curve would use |
 | --- | --- | --- | --- |
@@ -146,7 +148,7 @@ class DocsCheckSpec extends Specification {
 ''')
 
         expect:
-        DocsCheck.check(doc, yearDir) == []
+        DocsCheck.check(doc, figuresDir, '2026') == []
     }
 
     def "ignores prose and any table that is not marked"() {
@@ -161,12 +163,12 @@ The curve resolves QB2 from QB17 and has no business resolving QB10 from QB14.
 ''')
 
         expect: 'an unmarked table is the document making a point, not citing a figure'
-        DocsCheck.check(doc, yearDir) == []
+        DocsCheck.check(doc, figuresDir, '2026') == []
     }
 
     def "names a row the model does not carry"() {
         given:
-        File doc = document('''<!-- figures: positions -->
+        File doc = document('''<!-- figures: fuad/positions -->
 
 | POS | PRICEDDEPTH |
 | --- | --- |
@@ -174,12 +176,12 @@ The curve resolves QB2 from QB17 and has no business resolving QB10 from QB14.
 ''')
 
         expect:
-        DocsCheck.check(doc, yearDir).any { it.contains("'DEF' is not in positions.tsv") }
+        DocsCheck.check(doc, figuresDir, '2026').any { it.contains("'DEF' is not in fuad/positions.tsv") }
     }
 
     def "says so when a marked table cites a field the model does not produce"() {
         given:
-        File doc = document('''<!-- figures: curve across=POS field=NOTATHING -->
+        File doc = document('''<!-- figures: fuad/curve across=POS field=NOTATHING -->
 
 | | QB |
 | --- | --- |
@@ -187,12 +189,12 @@ The curve resolves QB2 from QB17 and has no business resolving QB10 from QB14.
 ''')
 
         expect:
-        DocsCheck.check(doc, yearDir).any { it.contains("'NOTATHING' is not a column of curve.tsv") }
+        DocsCheck.check(doc, figuresDir, '2026').any { it.contains("'NOTATHING' is not a column of fuad/curve.tsv") }
     }
 
     def "says so when a marked table names no figures file"() {
         given:
-        File doc = document('''<!-- figures: nosuchtable -->
+        File doc = document('''<!-- figures: fuad/nosuchtable -->
 
 | POS | X |
 | --- | --- |
@@ -200,12 +202,12 @@ The curve resolves QB2 from QB17 and has no business resolving QB10 from QB14.
 ''')
 
         expect:
-        DocsCheck.check(doc, yearDir).any { it.contains("no figures file for 'nosuchtable'") }
+        DocsCheck.check(doc, figuresDir, '2026').any { it.contains("no figures file for 'fuad/nosuchtable'") }
     }
 
     def "stops checking at the end of the table, so a later unmarked one is left alone"() {
         given:
-        File doc = document('''<!-- figures: positions -->
+        File doc = document('''<!-- figures: fuad/positions -->
 
 | POS | PRICEDDEPTH |
 | --- | --- |
@@ -219,7 +221,7 @@ Prose in between, which ends the marked table.
 ''')
 
         expect:
-        DocsCheck.check(doc, yearDir) == []
+        DocsCheck.check(doc, figuresDir, '2026') == []
     }
 
     /**
@@ -231,7 +233,7 @@ Prose in between, which ends the marked table.
      */
     def "counts what it actually held the document to, so a pass cannot mean nothing was checked"() {
         given: 'two tables, five cells between them that name a figure, and one heading that names none'
-        File doc = document('''<!-- figures: positions -->
+        File doc = document('''<!-- figures: fuad/positions -->
 
 | POS | PRICEDDEPTH | STARTED | note |
 | --- | --- | --- | --- |
@@ -240,7 +242,7 @@ Prose in between, which ends the marked table.
 
 Prose, which ends the table.
 
-<!-- figures: board -->
+<!-- figures: fuad/board -->
 
 | FIGURE | VALUE |
 | --- | --- |
@@ -248,7 +250,7 @@ Prose, which ends the table.
 ''')
 
         when:
-        DocsCheck.Result result = DocsCheck.inspect(doc, yearDir)
+        DocsCheck.Result result = DocsCheck.inspect(doc, figuresDir, '2026')
 
         then: 'the commentary column is not counted, because nothing was compared for it'
         result.failures == []
@@ -266,7 +268,7 @@ Prose, which ends the table.
 ''')
 
         when:
-        DocsCheck.Result result = DocsCheck.inspect(doc, yearDir)
+        DocsCheck.Result result = DocsCheck.inspect(doc, figuresDir, '2026')
 
         then: 'no failures, and no claim to have verified anything either'
         result.failures == []
@@ -291,7 +293,7 @@ Prose, which ends the table.
      */
     def "catches a heading that is one slip from a figure, where a plain miss is commentary"() {
         given: 'VALUEE for VALUE, which used to disable the column and pass, over two wrong rows'
-        File doc = document('''<!-- figures: board -->
+        File doc = document('''<!-- figures: fuad/board -->
 
 | FIGURE | VALUEE |
 | --- | --- |
@@ -300,7 +302,7 @@ Prose, which ends the table.
 ''')
 
         when:
-        List<String> failures = DocsCheck.check(doc, yearDir)
+        List<String> failures = DocsCheck.check(doc, figuresDir, '2026')
 
         then: 'named, and pointed at what it was probably meant to be'
         failures.any { it.contains("'VALUEE'") && it.contains("'VALUE'") }
@@ -311,7 +313,7 @@ Prose, which ends the table.
 
     def "catches a mistyped position in a table read across, which is two letters and used to be exempt"() {
         given: 'WB for WR, the commonest shape of table in the documentation'
-        File doc = document('''<!-- figures: curve across=POS field=PTS -->
+        File doc = document('''<!-- figures: fuad/curve across=POS field=PTS -->
 
 | Rank | QB | WB |
 | --- | --- | --- |
@@ -319,12 +321,12 @@ Prose, which ends the table.
 ''')
 
         expect: 'every position it is equally near, since at two letters several usually are'
-        DocsCheck.check(doc, yearDir).any { it.contains("'WB'") && it.contains("'RB'") }
+        DocsCheck.check(doc, figuresDir, '2026').any { it.contains("'WB'") && it.contains("'RB'") }
     }
 
     def "leaves real commentary alone, being nowhere near anything the model produces"() {
         given: 'a note and a column of what the league actually paid, neither of them a figure'
-        File doc = document('''<!-- figures: board -->
+        File doc = document('''<!-- figures: fuad/board -->
 
 | FIGURE | VALUE | Actual 2025 | note |
 | --- | --- | --- | --- |
@@ -332,7 +334,7 @@ Prose, which ends the table.
 ''')
 
         expect:
-        DocsCheck.check(doc, yearDir) == []
+        DocsCheck.check(doc, figuresDir, '2026') == []
     }
 
     /**
@@ -351,7 +353,7 @@ Prose, which ends the table.
                 "2025\tLamar Jackson\tQB\t100\n"
 
         and: 'the same player twice, at two prices, which a season-keyed lookup would confuse'
-        File doc = document('''<!-- figures: tags key=SEASON+PLAYER -->
+        File doc = document('''<!-- figures: fuad/tags key=SEASON+PLAYER -->
 
 | Season | Player | Pos | Salary |
 | --- | --- | --- | --- |
@@ -361,7 +363,7 @@ Prose, which ends the table.
 ''')
 
         expect:
-        DocsCheck.check(doc, yearDir) == []
+        DocsCheck.check(doc, figuresDir, '2026') == []
     }
 
     def "catches a drifted cell in a table keyed by a pair, naming both halves of the key"() {
@@ -370,7 +372,7 @@ Prose, which ends the table.
                 "SEASON\tPLAYER\tPOS\tSALARY\n" +
                 "2024\tLamar Jackson\tQB\t45\n" +
                 "2025\tLamar Jackson\tQB\t100\n"
-        File doc = document('''<!-- figures: tags key=SEASON+PLAYER -->
+        File doc = document('''<!-- figures: fuad/tags key=SEASON+PLAYER -->
 
 | Season | Player | Pos | Salary |
 | --- | --- | --- | --- |
@@ -378,7 +380,7 @@ Prose, which ends the table.
 ''')
 
         expect: 'the 2025 row, not the 2024 one that carries a 45'
-        DocsCheck.check(doc, yearDir).any {
+        DocsCheck.check(doc, figuresDir, '2026').any {
             it.contains('2025 LAMARJACKSON') && it.contains('is 100') && it.contains('cited as 45')
         }
     }
@@ -388,7 +390,7 @@ Prose, which ends the table.
         new File(yearDir, 'tags.tsv').text =
                 "SEASON\tPLAYER\tPOS\tSALARY\n" +
                 "2024\tLamar Jackson\tQB\t45\n"
-        File doc = document('''<!-- figures: tags key=SEASON+PLAYER -->
+        File doc = document('''<!-- figures: fuad/tags key=SEASON+PLAYER -->
 
 | Season | Player | Pos | Salary |
 | --- | --- | --- | --- |
@@ -396,7 +398,7 @@ Prose, which ends the table.
 ''')
 
         expect:
-        DocsCheck.check(doc, yearDir).any { it.contains("'2024 TOMBRODY' is not in tags.tsv") }
+        DocsCheck.check(doc, figuresDir, '2026').any { it.contains("'2024 TOMBRODY' is not in fuad/tags.tsv") }
     }
 
     def "refuses to check against figures that have never been stamped"() {
@@ -438,7 +440,7 @@ Prose, which ends the table.
      */
     def "reports a row it cannot find under a heading the figures do carry"() {
         given:
-        File doc = document('''<!-- figures: curve across=POS field=PTS -->
+        File doc = document('''<!-- figures: fuad/curve across=POS field=PTS -->
 
 | Rank | QB |
 | --- | --- |
@@ -446,7 +448,7 @@ Prose, which ends the table.
 ''')
 
         when:
-        List<String> failures = DocsCheck.check(doc, yearDir)
+        List<String> failures = DocsCheck.check(doc, figuresDir, '2026')
 
         then:
         failures.size() == 1
@@ -455,7 +457,7 @@ Prose, which ends the table.
 
     def "still leaves a heading the figures do not carry as the document's own commentary"() {
         given: 'RB is a real position here, so the note column is the only thing that binds to nothing'
-        File doc = document('''<!-- figures: curve across=POS field=PTS -->
+        File doc = document('''<!-- figures: fuad/curve across=POS field=PTS -->
 
 | Rank | QB | worth knowing |
 | --- | --- | --- |
@@ -463,12 +465,12 @@ Prose, which ends the table.
 ''')
 
         expect:
-        DocsCheck.check(doc, yearDir) == []
+        DocsCheck.check(doc, figuresDir, '2026') == []
     }
 
     def "lets a table across the top name the column its rows are keyed by"() {
         given: 'the same table with the key stated rather than inferred'
-        File doc = document('''<!-- figures: curve across=POS field=PTS key=RANK -->
+        File doc = document('''<!-- figures: fuad/curve across=POS field=PTS key=RANK -->
 
 | Rank | QB |
 | --- | --- |
@@ -476,12 +478,12 @@ Prose, which ends the table.
 ''')
 
         expect:
-        DocsCheck.check(doc, yearDir) == []
+        DocsCheck.check(doc, figuresDir, '2026') == []
     }
 
     def "says so when the named key is not a column of the figures at all"() {
         given:
-        File doc = document('''<!-- figures: curve across=POS field=PTS key=SLOT -->
+        File doc = document('''<!-- figures: fuad/curve across=POS field=PTS key=SLOT -->
 
 | Rank | QB |
 | --- | --- |
@@ -489,6 +491,6 @@ Prose, which ends the table.
 ''')
 
         expect:
-        DocsCheck.check(doc, yearDir).any { it.contains("'SLOT' is not a column of curve.tsv") }
+        DocsCheck.check(doc, figuresDir, '2026').any { it.contains("'SLOT' is not a column of fuad/curve.tsv") }
     }
 }

@@ -15,7 +15,7 @@ import ff.fetch.nflverse.NflverseStatsRefresh
  *
  * It also leaves league.json alone, which matters for the same reason: the league site does not keep that
  * one period correct. Refetching 2021's today reports the salary cap and superflex lineup the league only
- * adopted in 2022. See docs/LEAGUE_RULES.md.
+ * adopted in 2022. See docs/fuad/LEAGUE_RULES.md.
  */
 class SeasonHistoryRefresh {
 

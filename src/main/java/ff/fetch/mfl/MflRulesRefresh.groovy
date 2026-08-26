@@ -8,7 +8,7 @@ import groovy.json.JsonOutput
  *
  * The league has rescored the passing game twice and the receiving game once, so a player's fantasy points
  * are not comparable across seasons without knowing which rules were in force. Unlike rosters this is kept
- * per season by the league site and can be refetched for any year. See docs/LEAGUE_RULES.md.
+ * per season by the league site and can be refetched for any year. See docs/fuad/LEAGUE_RULES.md.
  */
 class MflRulesRefresh implements Runnable {
 

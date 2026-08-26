@@ -7,7 +7,7 @@ import groovy.transform.Immutable
  * A signing that the franchise tag priced, or may have.
  *
  * Nothing in the league data flags a tag, so every one of these is inferred. {@link #status} says how far
- * the evidence goes and {@link #basis} says what the evidence was. See docs/LEAGUE_RULES.md.
+ * the evidence goes and {@link #basis} says what the evidence was. See docs/fuad/LEAGUE_RULES.md.
  */
 @CompileStatic
 @Immutable(copyWith = true)

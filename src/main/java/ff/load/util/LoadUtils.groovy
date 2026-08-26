@@ -17,12 +17,12 @@ class LoadUtils {
     static String mflDraftResourcePath(String year) { "/ff/mfl/data/$year/draft.json" }
     /** Every move made that season, including the pick compensation that marks a contested franchise tag. */
     static String mflTransactionsResourcePath(String year) { "/ff/mfl/data/$year/transactions.json" }
-    /** That season's scoring rules, which changed in 2021, 2023 and 2026. See docs/LEAGUE_RULES.md. */
+    /** That season's scoring rules, which changed in 2021, 2023 and 2026. See docs/fuad/LEAGUE_RULES.md. */
     static String mflRulesResourcePath(String year) { "/ff/mfl/data/$year/rules.json" }
 
-    /** What releasing a player cost, which is the only record of the cut penalty. See docs/LEAGUE_RULES.md. */
+    /** What releasing a player cost, which is the only record of the cut penalty. See docs/fuad/LEAGUE_RULES.md. */
     static String mflSalaryAdjustmentsResourcePath(String year) { "/ff/mfl/data/$year/salary_adjustments.json" }
-    /** Raw weekly statistics, so any season can be restated under any rules. See docs/PROJECTION.md. */
+    /** Raw weekly statistics, so any season can be restated under any rules. See docs/fuad/PROJECTION.md. */
     static String nflverseStatsResourcePath(String year) { "/ff/nflverse/data/$year/player_stats.tsv" }
     static String fpDynastyRankingsPprResourcePath(String year) { "/ff/fantasypros/data/$year/dynasty_rankings_ppr.csv" }
     static String fpRookieRankingsPprResourcePath(String year) { "/ff/fantasypros/data/$year/rookie_rankings_ppr.csv" }

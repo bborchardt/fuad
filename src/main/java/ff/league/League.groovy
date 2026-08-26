@@ -22,7 +22,7 @@ import ff.projection.StarterRequirements
  * <b>Starting requirements are here only where they are constant.</b> Greenfield has started the same nine
  * every year, so its lineup is a property of the league. The dynasty league's has changed twice and is read
  * per season from that season's {@code league.json}, so it has none here and {@link #requirements} refuses
- * rather than inventing one. See docs/LEAGUE_RULES.md.
+ * rather than inventing one. See docs/fuad/LEAGUE_RULES.md.
  */
 class League {
 

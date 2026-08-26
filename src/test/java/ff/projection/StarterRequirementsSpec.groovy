@@ -6,7 +6,7 @@ import spock.lang.Unroll
 
 /**
  * How many players at each position the league starts is not a setting, it is what happens when every team
- * fills its flex with the best player it has. See docs/PROJECTION.md.
+ * fills its flex with the best player it has. See docs/fuad/PROJECTION.md.
  */
 class StarterRequirementsSpec extends Specification {
 

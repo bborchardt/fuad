@@ -12,7 +12,7 @@ import groovy.json.JsonOutput
  *
  * It is the only place the cut penalty is visible at all. The rule is a bylaw, absent from both
  * {@code league.json} and {@code rules.json}, and before this was collected it was the least verified rule
- * in the league — stated by the commissioner and checkable against nothing. See docs/LEAGUE_RULES.md.
+ * in the league — stated by the commissioner and checkable against nothing. See docs/fuad/LEAGUE_RULES.md.
  */
 class MflSalaryAdjustmentsRefresh implements Runnable {
 

@@ -6,12 +6,12 @@ import ff.load.fuad.FuadValuationLoader
 import ff.load.util.LoadUtils
 import ff.league.League
 import ff.load.greenfield.GreenfieldBoard
-import ff.print.figures.GreenfieldFiguresPrinter
-import ff.print.figures.ModelFiguresPrinter
+import ff.print.figures.greenfield.GreenfieldFiguresPrinter
+import ff.print.figures.fuad.ModelFiguresPrinter
 import ff.print.greenfield.GreenfieldAdpPrinter
 import ff.print.greenfield.GreenfieldDemandPrinter
 import ff.print.greenfield.GreenfieldPickPrinter
-import ff.run.fuad.ReportManifest
+import ff.run.ReportManifest
 
 /**
  * Write the model's own figures under docs/figures, so the documentation can cite them rather than quote
@@ -20,7 +20,7 @@ import ff.run.fuad.ReportManifest
  * Separate from {@code FuadRunner} and from {@code reports/} on purpose. A report describes one auction, is
  * regenerated constantly and is not committed. This describes the <b>model</b>: it changes only when the
  * model or the data behind it changes, it is committed, and the point of committing it is that a change to
- * the model shows up as a diff in the figures in the same commit. See docs/PROJECTION.md.
+ * the model shows up as a diff in the figures in the same commit. See docs/fuad/PROJECTION.md.
  */
 class FiguresRefresh {
 
@@ -39,42 +39,31 @@ class FiguresRefresh {
     ].asImmutable() as Map<String, String>
 
     /**
-     * The other league's figures, written beside the auction's under names that carry the league.
-     *
-     * One directory and one manifest, so a single {@code ./check_docs.sh} run holds both leagues'
-     * documentation to both leagues' models. They are separate tables rather than extra columns because
-     * they describe a different lineup, a different scoring and a different currency, and a reader
-     * comparing a row across the two would be comparing nothing.
-     */
-    private static List<String> greenfield(String year, File outputDir) {
+    /** The other league's tables, by the name each takes inside its own directory. */
+    private static Map<String, Closure<Void>> greenfield(String year) {
         GreenfieldBoard board = new GreenfieldBoard(year)
         GreenfieldFiguresPrinter printer = new GreenfieldFiguresPrinter(board.curve, board.replacement,
                 board.byes, board.starters(), board.ranked)
         Map<String, Closure<Void>> tables = [
-                greenfield_curve    : { PrintWriter out -> printer.printCurve(out) },
-                greenfield_positions: { PrintWriter out -> printer.printPositions(out) },
-                greenfield_picks    : { PrintWriter out ->
+                curve    : { PrintWriter out -> printer.printCurve(out) },
+                positions: { PrintWriter out -> printer.printPositions(out) },
+                picks    : { PrintWriter out ->
                     new GreenfieldPickPrinter(board.pickValues(), League.GREENFIELD.teams).print(out)
                 },
-                greenfield_demand   : { PrintWriter out ->
+                demand   : { PrintWriter out ->
                     new GreenfieldDemandPrinter(board.demand(),
                             League.GREENFIELD.startedLeagueWide(board.starters())).print(out)
                 },
-                greenfield_adp      : { PrintWriter out ->
+                adp      : { PrintWriter out ->
                     new GreenfieldAdpPrinter(board.demand(),
                             League.GREENFIELD.scoredPositions +
                                     League.GREENFIELD.unpricedStarters.keySet().toList()).print(out)
                 },
-                greenfield_keepers  : { PrintWriter out ->
+                keepers  : { PrintWriter out ->
                     GreenfieldFiguresPrinter.printKeepers(out, board.keepers())
                 },
         ]
-        tables.collect { String name, Closure<Void> print ->
-            File file = new File(outputDir, "${name}.tsv")
-            file.withPrintWriter { PrintWriter out -> print(out) }
-            println "Wrote $file"
-            name
-        }
+        tables
     }
 
     static void main(String[] args) {
@@ -87,24 +76,40 @@ class FiguresRefresh {
             System.err.println("Invalid year: $year")
             Runtime.getRuntime().exit(2)
         }
-        File outputDir = new File(args.length > 1 ? args[1] : DEFAULT_OUTPUT_DIR, year)
-        outputDir.mkdirs()
+        File figuresDir = new File(args.length > 1 ? args[1] : DEFAULT_OUTPUT_DIR)
 
         FuadData fuadData = new FuadLoader().loadData(year)
         FuadValuationLoader loader = new FuadValuationLoader()
         ModelFiguresPrinter printer = new ModelFiguresPrinter(loader.curve(), loader.requirements(year),
                 loader.byes(year), loader.valuations(year, fuadData), loader.freeCap(year))
 
-        List<String> written = []
-        written.addAll(greenfield(year, outputDir))
-        TABLES.each { String name, String method ->
+        write(figuresDir, 'fuad', year, TABLES.collectEntries { String name, String method ->
+            [(name): { PrintWriter out -> printer."$method"(out) } as Closure<Void>]
+        })
+        write(figuresDir, 'greenfield', year, greenfield(year))
+    }
+
+    /**
+     * One league's figures, into its own directory and under its own stamp.
+     *
+     * A directory each because the table names collide: both leagues have a curve and a positions table,
+     * describing different lineups, different scoring and different currencies. Prefixing them into one
+     * directory was the first arrangement and it made every greenfield figure read as a variant of a fuad
+     * one, which is the opposite of what they are.
+     *
+     * A stamp each for the same reason it exists at all — a reader asks of a figure which model produced it,
+     * and one manifest covering two leagues cannot answer separately for them.
+     */
+    private static void write(File figuresDir, String league, String year,
+                              Map<String, Closure<Void>> tables) {
+        File outputDir = new File(figuresDir, "$league/$year")
+        outputDir.mkdirs()
+        List<String> written = tables.collect { String name, Closure<Void> print ->
             File file = new File(outputDir, "${name}.tsv")
-            file.withPrintWriter { PrintWriter out -> printer."$method"(out) }
-            written << name
+            file.withPrintWriter { PrintWriter out -> print(out) }
             println "Wrote $file"
+            name
         }
-        // Stamped like a report, since the question a reader asks of a figure is the same one they ask of a
-        // board: which model produced it.
         ReportManifest.stamp(outputDir, written, 'figures_refresh.sh')
     }
 }

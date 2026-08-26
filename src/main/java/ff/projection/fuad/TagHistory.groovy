@@ -1,4 +1,4 @@
-package ff.projection
+package ff.projection.fuad
 
 import ff.data.FranchiseTag
 import ff.load.util.LoadUtils
@@ -9,12 +9,12 @@ import ff.load.util.LoadUtils
  * <b>This is the one thing in the repository that is reconstructed rather than read.</b> The league records
  * a tag nowhere, so {@link FranchiseTagIdentifier} infers all 46 of them from what they leave behind — a
  * contract wiped and re-signed at exactly the rate, or a first round pick moving with nothing coming back.
- * Every other figure in docs/LEAGUE_RULES.md is a rule that could be looked up; these are the model's own
+ * Every other figure in docs/fuad/LEAGUE_RULES.md is a rule that could be looked up; these are the model's own
  * account of what happened, which makes them the figures most worth checking and the ones hardest to check
  * by eye.
  *
  * The per-season loading lived in two specs, which is why none of it could be generated into a figure. It
- * lives here so the documentation and the specs read one implementation. See docs/LEAGUE_RULES.md.
+ * lives here so the documentation and the specs read one implementation. See docs/fuad/LEAGUE_RULES.md.
  */
 class TagHistory {
 

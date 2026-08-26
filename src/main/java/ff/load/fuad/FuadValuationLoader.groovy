@@ -9,9 +9,9 @@ import ff.league.League
 import ff.load.fantasypros.FantasyProsLoader
 import ff.load.RealisedSeasons
 import ff.load.util.LoadUtils
-import ff.projection.AuctionValuation
+import ff.projection.fuad.AuctionValuation
 import ff.projection.ByeWeeks
-import ff.projection.FranchiseSalaryCalculator
+import ff.projection.fuad.FranchiseSalaryCalculator
 import ff.projection.LineupValue
 import ff.projection.PointsCurve
 import ff.projection.StarterRequirements
@@ -20,7 +20,7 @@ import ff.projection.StarterRequirements
  * Assemble everything an auction valuation needs for a season and run it.
  *
  * Three things have to come together: what a consensus rank has historically been worth, which players are
- * up for auction, and how much cap the league has left. See docs/PROJECTION.md.
+ * up for auction, and how much cap the league has left. See docs/fuad/PROJECTION.md.
  */
 class FuadValuationLoader {
 
@@ -34,13 +34,13 @@ class FuadValuationLoader {
      *
      * Kicking is among them now. It was left out on the belief that nflverse does not carry it, and the
      * consequence was that no kicker could be levelled, every one priced at the minimum bid, and none added
-     * anything to any lineup. See docs/PROJECTION.md.
+     * anything to any lineup. See docs/fuad/PROJECTION.md.
      */
     private static final List<String> SCORED_POSITIONS = LEAGUE.scoredPositions.asImmutable()
 
     private static final String WIPED_SALARY = '0.01'
 
-    /** A full roster, from the league bylaws. See docs/LEAGUE_RULES.md. */
+    /** A full roster, from the league bylaws. See docs/fuad/LEAGUE_RULES.md. */
     private static final int MAX_ROSTER = 30
 
 
@@ -119,7 +119,7 @@ class FuadValuationLoader {
         if (!LoadUtils.hasResource(LoadUtils.mflEndOfYearRostersResourcePath(priorYear))) {
             throw new IllegalArgumentException("Cannot price $year: the franchise tag is the average of the " +
                     "top five salaries at each position in $priorYear, and no $priorYear end of year " +
-                    'rosters are held. See docs/LEAGUE_RULES.md.')
+                    'rosters are held. See docs/fuad/LEAGUE_RULES.md.')
         }
     }
 
@@ -181,7 +181,7 @@ class FuadValuationLoader {
         }.collectEntries { FuadPlayer player ->
             // The dynasty rank rides along to the board and is priced by nothing: a salary buys one
             // season, and the model levels every rank on the redraft ranking alone. It is carried because
-            // a contract's length is decided at the same moment as its price. See docs/LEAGUE_RULES.md.
+            // a contract's length is decided at the same moment as its price. See docs/fuad/LEAGUE_RULES.md.
             [(player.mflId): [player.player.name, player.player.position,
                               player.redraftRank.positionRank, franchiseByPlayer[player.mflId],
                               player.dynastyRank?.positionRank]]

@@ -41,7 +41,7 @@ Four kinds of figure, and only the last belongs in a comment:
 
 | | Where it goes |
 | --- | --- |
-| What the model computes now — a level, a share, a depth, an anchor | `docs/figures/<year>`, cited by name and field |
+| What the model computes now — a level, a share, a depth, an anchor | `docs/figures/fuad/<year>`, cited by name and field |
 | What the committed data says — a correlation, a retention rate, a spend | a spec that recomputes it, as `AuctionValuationSpec` does |
 | What a superseded implementation used to produce | the commit message that replaced it |
 | A league rule, or the definition of a constant | the comment, because the number *is* the specification |
@@ -141,7 +141,7 @@ where it can be tested, rather than working it out in the plan, where it cannot.
 or so, so within a tier the ordering is noise and a plan that ranks players by price inside one has
 invented a distinction. QB10, QB11 and QB14 are all tier 5 in 2026:
 
-<!-- figures: curve across=POS field=PTS -->
+<!-- figures: fuad/curve across=POS field=PTS -->
 
 | Rank | QB |
 | --- | --- |
@@ -149,7 +149,7 @@ invented a distinction. QB10, QB11 and QB14 are all tier 5 in 2026:
 | 11 | 202.4 |
 | 14 | 195.6 |
 
-<!-- figures: curve across=POS field=SE -->
+<!-- figures: fuad/curve across=POS field=SE -->
 
 | Rank | QB |
 | --- | --- |
@@ -157,7 +157,7 @@ invented a distinction. QB10, QB11 and QB14 are all tier 5 in 2026:
 | 11 | 7.3 |
 | 14 | 8.8 |
 
-<!-- figures: curve across=POS field=TIER -->
+<!-- figures: fuad/curve across=POS field=TIER -->
 
 | Rank | QB |
 | --- | --- |
@@ -177,7 +177,7 @@ never kept.
 
 **`G` is not one of them.** It is a per-rank figure and it moves a long way across a position:
 
-<!-- figures: curve across=POS field=G -->
+<!-- figures: fuad/curve across=POS field=G -->
 
 | Rank | QB |
 | --- | --- |
@@ -194,7 +194,7 @@ mistake as ordering it by price.
 
 ## The roster reports
 
-`./generate_report.sh -t roster -f 0001` writes two files. They answer the question the auction board
+`./fuad_report.sh -t roster -f 0001` writes two files. They answer the question the auction board
 cannot: the board prices a player against a league-wide replacement, which is nobody's actual alternative,
 and a team holding one quarterback is not choosing between the same things as a team holding four.
 
@@ -273,7 +273,7 @@ plan did exactly that, in a hand-written aside: *"Kicker is a checklist item, no
 forget to draft one."*
 
 **Kickers are levelled now**, and the aside turns out to have been wrong on the substance as well as out of
-bounds. See [PROJECTION.md](PROJECTION.md#kickers) — the position is the one place on the board where what
+bounds. See [PROJECTION.md](fuad/PROJECTION.md#kickers) — the position is the one place on the board where what
 the model thinks a player is worth and what this league pays for him differ by a factor rather than by a
 margin. `NEEDS` stays all the same: a team short at a position should be told so by the report.
 
@@ -309,7 +309,7 @@ against one: the sha does not then describe what actually ran. Commit the model,
 
 ## The manifest
 
-`generate_report.sh` writes `reports/<year>/MANIFEST`, one line per report, recording the model that
+`fuad_report.sh` writes `reports/<year>/MANIFEST`, one line per report, recording the model that
 produced it:
 
 ```

@@ -1,6 +1,6 @@
 package ff.run
 
-import ff.run.fuad.ReportManifest
+import ff.run.ReportManifest
 import spock.lang.Specification
 import spock.lang.TempDir
 import spock.lang.Unroll
@@ -147,7 +147,7 @@ class StrategyCheckSpec extends Specification {
         'SPEND_RATE'         | 'SPEND_RATE'
         'nflverse'           | 'nflverse'
         'src/main/java'      | 'src/'
-        'docs/PROJECTION.md' | 'docs/'
+        'docs/fuad/PROJECTION.md' | 'docs/'
     }
 
     /**

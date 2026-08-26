@@ -1,21 +1,21 @@
-package ff.print.figures
+package ff.print.figures.fuad
 
 import ff.data.FranchiseTag
 import ff.data.PlayerValuation
-import ff.projection.AuctionSpend
-import ff.projection.AuctionValuation
+import ff.projection.fuad.AuctionSpend
+import ff.projection.fuad.AuctionValuation
 import ff.projection.ByeWeeks
 import ff.projection.ExpectedValue
 import ff.projection.PointsCurve
 import ff.projection.StarterRequirements
-import ff.projection.TagHistory
+import ff.projection.fuad.TagHistory
 
 import java.math.RoundingMode
 
 /**
  * The model's own account of itself, written out so the documentation can cite it instead of quoting it.
  *
- * <b>Why this exists.</b> docs/PROJECTION.md carries something like 221 hard figures — what each rank levels
+ * <b>Why this exists.</b> docs/fuad/PROJECTION.md carries something like 221 hard figures — what each rank levels
  * at, how much football it plays, how deep the curve still makes a claim, how many players the league
  * starts. Every one was a number somebody read off a run and typed into prose, and nothing checked them
  * afterwards, so they drifted: the per-game table stopped multiplying out to the season beside it, the
@@ -421,7 +421,7 @@ class ModelFiguresPrinter {
      * rather than by a factor. The four numbers that say so are the row this method writes, and the
      * documentation cites them from it: they were prose that nothing recomputed, which is the very
      * arrangement that put the league's spending into a spec and out of reach of a citation. See
-     * {@link ff.projection.AuctionSpend}.
+     * {@link ff.projection.fuad.AuctionSpend}.
      */
     private Map<String, BigDecimal> valueShareByPosition() {
         BigDecimal total = (valuations.collect { it.valueOverReplacement }.sum() ?: 0.0) as BigDecimal

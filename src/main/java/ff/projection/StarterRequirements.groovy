@@ -9,15 +9,15 @@ package ff.projection
  * off, it is the outcome of every team filling its flex with the best player available.
  *
  * Allocating the flex greedily across the whole league is what decides the rest. What it comes out at for a
- * given season is in docs/figures/<year>/positions.tsv as STARTED, rather than repeated here where nothing
+ * given season is in docs/figures/fuad/<year>/positions.tsv as STARTED, rather than repeated here where nothing
  * would notice it going stale.
  *
  * The quarterback figure is decisive: superflex doubles the position's starters and sets a very high
  * replacement. The last few flex spots are not. They turn on whether a league's 12th tight end outscores
  * its 33rd receiver, and the curve separates those two by about the standard error each of them carries, so
- * which position they land on is inside the noise. The figures are in docs/figures/&lt;year&gt;/curve.tsv
+ * which position they land on is inside the noise. The figures are in docs/figures/fuad/&lt;year&gt;/curve.tsv
  * rather than repeated here, where nothing would notice them going stale — as the ones that used to stand
- * in this paragraph did. See docs/PROJECTION.md.
+ * in this paragraph did. See docs/fuad/PROJECTION.md.
  */
 class StarterRequirements {
 

@@ -7,7 +7,7 @@ import spock.lang.Unroll
  * The league scores a field goal by how far it was kicked, and from 2026 it keeps going by the decade.
  *
  * Kicking was not scored at all until kickers were levelled, on the belief that nflverse does not carry
- * it — which was true of this project's extract and of nothing else. See docs/LEAGUE_RULES.md.
+ * it — which was true of this project's extract and of nothing else. See docs/fuad/LEAGUE_RULES.md.
  */
 class ScoringRulesSpec extends Specification {
 

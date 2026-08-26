@@ -9,7 +9,7 @@ import ff.print.greenfield.GreenfieldDemandPrinter
 import ff.print.greenfield.GreenfieldKeeperPrinter
 import ff.print.greenfield.GreenfieldOutlookPrinter
 import ff.print.greenfield.GreenfieldPickPrinter
-import ff.run.fuad.ReportManifest
+import ff.run.ReportManifest
 import groovy.cli.commons.CliBuilder
 import groovy.util.logging.Slf4j
 

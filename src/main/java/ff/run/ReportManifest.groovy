@@ -1,4 +1,4 @@
-package ff.run.fuad
+package ff.run
 
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -23,7 +23,7 @@ class ReportManifest {
      * What counts as the model, for the purpose of saying whether it has changed.
      *
      * <b>Main sources and the build, and deliberately not the tests.</b> Every generated file here is
-     * written by a runner launched against {@code target/classes} — see generate_report.sh and
+     * written by a runner launched against {@code target/classes} — see fuad_report.sh and
      * figures_refresh.sh, which put nothing else on the classpath — so test code cannot reach a report or a
      * figure even in principle. Counting it meant a commit that only added a spec reported the model as
      * moved, and the fix was to regenerate figures that could not have changed and commit the new stamp:
@@ -34,7 +34,7 @@ class ReportManifest {
      */
     private static final List<String> MODEL_PATHS = ['src/main', 'pom.xml'].asImmutable()
 
-    private static final String DEFAULT_WRITER = 'generate_report.sh'
+    private static final String DEFAULT_WRITER = 'fuad_report.sh'
 
     private static String header(String writtenBy) {
         "# Written by $writtenBy: which model produced each file here. See docs/STRATEGY.md."

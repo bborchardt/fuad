@@ -1,4 +1,4 @@
-package ff.run.fuad
+package ff.run
 
 import ff.run.ModelHistory
 import spock.lang.Specification

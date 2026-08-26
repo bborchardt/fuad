@@ -24,7 +24,7 @@ import ff.load.util.LoadUtils
  * private to the auction loader until there was a second league that needed it, and the part worth not
  * copying is {@link #claim}, where the careless version of the same twenty lines is silently wrong.
  *
- * See docs/PROJECTION.md.
+ * See docs/fuad/PROJECTION.md.
  */
 class RealisedSeasons {
 

@@ -1,6 +1,10 @@
-package ff.projection
+package ff.projection.fuad
 
 import ff.data.PlayerValuation
+import ff.projection.ByeWeeks
+import ff.projection.ExpectedValue
+import ff.projection.PointsCurve
+import ff.projection.StarterRequirements
 
 /**
  * Price an auction: turn expected points into dollars, subject to the money that actually exists.
@@ -33,11 +37,11 @@ import ff.data.PlayerValuation
  * headcount rather than by worth, spread evenly over players whose value is anything but even. A position
  * carrying many cheap players therefore lands above its target and one carrying fewer dearer players below
  * it. Kicker is the clearest case, holding many of the board's players for very little of its money. The
- * figures are in docs/figures/&lt;year&gt;/positions.tsv as PLAYERS and RESERVE against SHARE and
+ * figures are in docs/figures/fuad/&lt;year&gt;/positions.tsv as PLAYERS and RESERVE against SHARE and
  * TARGETSHARE.
  *
  * Franchise tags are settled last and change the answer, so the whole thing is iterated. See
- * docs/PROJECTION.md.
+ * docs/fuad/PROJECTION.md.
  */
 class AuctionValuation {
 
@@ -47,13 +51,13 @@ class AuctionValuation {
      * 2022 is deliberately excluded. Superflex arrived that year and the league had not adjusted to it yet:
      * wide receivers took far more of that auction than of any since, and quarterbacks far less. Averaging
      * it in drags wide receiver up and holds quarterback down. What each position took, season by season, is
-     * in docs/figures/&lt;year&gt;/spend.tsv as SHARE and SHAREXPK — generated from the committed seasons and
-     * checked against docs/PROJECTION.md, so the case for dropping the year is evidence a reader can check
+     * in docs/figures/fuad/&lt;year&gt;/spend.tsv as SHARE and SHAREXPK — generated from the committed seasons and
+     * checked against docs/fuad/PROJECTION.md, so the case for dropping the year is evidence a reader can check
      * rather than a number repeated here.
      *
      * The repricing is real and not a stock of old contracts running off. Money already committed tells the
      * same story from the other side, and it is generated alongside the auction shares as COMMITTEDSHARE on
-     * docs/figures/&lt;year&gt;/spend.tsv: quarterback climbs across the same seasons the auction turns
+     * docs/figures/fuad/&lt;year&gt;/spend.tsv: quarterback climbs across the same seasons the auction turns
      * towards it, running back falls, and receiver stays where it was. Nothing is expiring away, the league
      * is simply paying for different positions.
      *
@@ -96,7 +100,7 @@ class AuctionValuation {
      * against every expiring contract, availability falls away steadily with rank, because most deep players
      * are re-signed by nobody at all. Taken against the ones somebody did sign — which is the question a
      * bidder is actually asking — the deep band comes back up. Both readings are in
-     * docs/figures/&lt;year&gt;/retention.tsv, and {@code AuctionSpend.retention} measures them from the
+     * docs/figures/fuad/&lt;year&gt;/retention.tsv, and {@code AuctionSpend.retention} measures them from the
      * committed seasons so these four numbers cannot drift from the record they came from.
      */
     static final List<List> AVAILABILITY = [[12, 0.30], [24, 0.47], [40, 0.58], [Integer.MAX_VALUE, 0.46]]
@@ -146,7 +150,7 @@ class AuctionValuation {
      * agreement as confirmation.
      *
      * `AuctionValuationSpec` recomputes it from the committed seasons so it cannot drift. See
-     * docs/LEAGUE_RULES.md.
+     * docs/fuad/LEAGUE_RULES.md.
      */
     static final BigDecimal SPEND_RATE = 0.83
 

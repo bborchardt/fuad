@@ -8,7 +8,7 @@ import spock.lang.Specification
  * Value over replacement taken at a player's expected points is `max(0, E[X] - replacement)`. What a roster
  * spot is actually worth is `E[max(0, X - replacement)]`, since a player only has to be started in the weeks
  * he is good. The second is never smaller and the gap is widest at replacement level, which is exactly where
- * a bench sits. See docs/PROJECTION.md.
+ * a bench sits. See docs/fuad/PROJECTION.md.
  */
 class ExpectedValueOverReplacementSpec extends Specification {
 

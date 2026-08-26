@@ -8,7 +8,7 @@ package ff.load.nflverse
  * scored under its own rules says nothing about what a rank is worth today.
  *
  * Only the rules the league has varied are modelled. Return and recovery touchdowns score six throughout
- * and are too rare to matter. See docs/LEAGUE_RULES.md.
+ * and are too rare to matter. See docs/fuad/LEAGUE_RULES.md.
  */
 class ScoringRules {
 

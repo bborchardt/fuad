@@ -16,7 +16,7 @@ import spock.lang.Specification
  *
  * It used to project expiring contracts from a curve fitted straight from positional rank to dollars, so a
  * roster could be totalled here at one figure and on the salaries board at another. The column is now
- * {@code COST} — what the holding team actually pays, tag included. See docs/PROJECTION.md.
+ * {@code COST} — what the holding team actually pays, tag included. See docs/fuad/PROJECTION.md.
  */
 class FuadFranchiseDraftPrinterSpec extends Specification {
 
