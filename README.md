@@ -3,6 +3,10 @@
 Draft sheets for a dynasty salary cap league, built from myfantasyleague.com league data and fantasypros
 consensus rankings.
 
+It carries **two leagues**. The commands below are the dynasty auction's, except the last, which is the
+Greenfield keeper league's — a fourteen team full PPR snake draft that shares the model underneath and none
+of the rules on top.
+
 ```
 ./data_refresh.sh <year>                       # pull this year's league and rankings data
 ./season_history_refresh.sh <year> ...         # pull snapshots and transactions for completed seasons
@@ -11,6 +15,8 @@ consensus rankings.
 ./check_strategy.sh <plan.md>                  # hold a plan to the board it was written from
 ./figures_refresh.sh <year>                    # write the model's own figures to docs/figures/<year>
 ./check_docs.sh [<year>] [<doc.md> ...]        # hold the docs to those figures
+
+./greenfield_report.sh -t all                  # the other league: board, keepers, pick values
 ```
 
 Report types: `franchises`, `franchise_projections`, `rankings`, `rookies`, `salaries`, `teams`, `schedule`, or `all`.
@@ -27,6 +33,10 @@ against the cap the league has left, and settled against the franchise tags it e
 See [docs/LEAGUE_RULES.md](docs/LEAGUE_RULES.md) for what the rules were in each season — starting
 requirements, salary cap, roster limits, franchise tag prices and scoring — all of which have changed, and
 none of which a projection can assume is constant across years.
+
+See [docs/GREENFIELD.md](docs/GREENFIELD.md) for the second league: a fourteen team full PPR snake draft
+with keepers priced at a second and an eighth round pick. It shares the curve, replacement and value over
+replacement with the auction and none of its rules, and its currency is picks rather than dollars.
 
 See [docs/STRATEGY.md](docs/STRATEGY.md) for the rule a draft plan follows: it reasons from the reports and
 from nothing behind them, so it cannot drift off a stale board or argue a premium the model has already
