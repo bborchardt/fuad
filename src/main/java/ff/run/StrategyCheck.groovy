@@ -142,8 +142,11 @@ class StrategyCheck {
                             'reports and revisit the plan' as String]
         }
         if (moved) {
-            return ["written against model $model and the model has moved since: regenerate with " +
-                            './fuad_report.sh and work through what changed' as String]
+            // Which script regenerates them is the league's business and this does not know the league:
+            // checkCurrent is asked about a sha alone. Naming one league's script here was harmless while
+            // there was one, and became advice to run the wrong tool the moment there were two.
+            return ["written against model $model and the model has moved since: regenerate this " +
+                            "league's reports and work through what changed" as String]
         }
         // Last, because it is the one thing a sha cannot describe: the reports may be exactly what that
         // commit produced and still not be what the model would produce now.
