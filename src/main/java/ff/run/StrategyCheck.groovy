@@ -392,7 +392,7 @@ class StrategyCheck {
     private static List<String> checkRow(String source, File yearDir, List<String> headings,
                                          List<String> cells, int line,
                                          Map<String, Map<String, Map<String, String>>> cache) {
-        Map<String, Map<String, String>> report = report(yearDir, source, cache)
+        Map<String, List<Map<String, String>>> report = report(yearDir, source, cache)
         if (report == null) {
             return ["line $line: no report file for '$source'"]
         }
@@ -401,10 +401,18 @@ class StrategyCheck {
         if (!key) {
             return []
         }
-        Map<String, String> row = report[key]
-        if (row == null) {
+        List<Map<String, String>> matched = report[key]
+        if (!matched) {
             return ["line $line: '$key' is not on the $source board"]
         }
+        // A key that picks out several rows picks out none. Resolving it to whichever came last is how a
+        // plan citing pick 13 of the outlook was answered from round 13 — sometimes a wrong failure,
+        // sometimes a wrong pass, and never a question anybody asked.
+        if (matched.size() > 1) {
+            return ["line $line: '$key' matches ${matched.size()} rows of the $source board, so it names " +
+                            'no one row' as String]
+        }
+        Map<String, String> row = matched.first()
         if (!row.containsKey(keyColumn)) {
             return ["line $line: '$keyColumn' is not a column of $source"]
         }
@@ -423,22 +431,27 @@ class StrategyCheck {
         failures
     }
 
-    /** A report as rows keyed by their first column, cached because a document cites one many times. */
-    private static Map<String, Map<String, String>> report(File yearDir, String source,
-                                                           Map<String, Map<String, Map<String, String>>> cache) {
+    /**
+     * A report as rows by key, cached because a document cites one many times.
+     *
+     * <b>Every row a key matches, not the last one.</b> Keeping only the last silently answered an ambiguous
+     * citation from an arbitrary row; keeping them all lets the caller refuse.
+     */
+    private static Map<String, List<Map<String, String>>> report(File yearDir, String source,
+                                                                 Map<String, Map<String, List<Map<String, String>>>> cache) {
         String path = new File(yearDir, "${source}.tsv").path
         if (cache.containsKey(path)) {
             return cache[path]
         }
         File file = new File(path)
-        Map<String, Map<String, String>> rows = null
+        Map<String, List<Map<String, String>>> rows = null
         if (file.exists()) {
             // A report may open with commentary — which team it is for, what its roster already scores —
             // before the single table that is the report proper.
             List<String> lines = file.readLines().dropWhile { it.startsWith('#') || !it.trim() }
             if (lines) {
                 List<String> headings = lines[0].split('\t', -1) as List
-                rows = [:]
+                rows = [:].withDefault { [] }
                 lines.drop(1).each { String line ->
                     if (line.trim()) {
                         List<String> values = line.split('\t', -1) as List
@@ -446,13 +459,13 @@ class StrategyCheck {
                         headings.eachWithIndex { String heading, int i ->
                             row[heading] = i < values.size() ? values[i].trim() : ''
                         }
-                        rows[row[headings[0]]] = row
+                        rows.get(row[headings[0]], []) << row
                         // Boards are keyed by name for a reader; PLAYER is the useful key on salaries.
                         if (row.containsKey('PLAYER')) {
-                            rows[row['PLAYER']] = row
+                            rows.get(row['PLAYER'], []) << row
                         }
                         if (row.containsKey('OWNER')) {
-                            rows[row['OWNER']] = row
+                            rows.get(row['OWNER'], []) << row
                         }
                     }
                 }

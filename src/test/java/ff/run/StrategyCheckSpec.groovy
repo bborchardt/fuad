@@ -359,4 +359,52 @@ is high, so the mid tier is where the points per dollar sit.
         StrategyCheck.check(document('<!-- model: 86277a2 -->\n\n<!-- source: salaries -->\n'),
                 reportsDir) == []
     }
+
+    def "refuses a key that picks out several rows rather than answering from one of them"() {
+        given: 'a report with a row per position under each pick, as the outlook has'
+        new File(yearDir, 'outlook.tsv').text =
+                "ROUND\tPICK\tPOS\tVOR\n" +
+                "1\t13\tRB\t86.7\n" +
+                "1\t13\tWR\t80.8\n" +
+                "1\t13\tQB\t75.4\n"
+        manifest('86277a2', ['salaries', 'teams', 'outlook'])
+        File plan = document('''<!-- model: 86277a2 -->
+
+<!-- source: outlook -->
+
+| ROUND | POS | VOR |
+| --- | --- | --- |
+| 1 | RB | 86.7 |
+''')
+
+        when:
+        List<String> failures = StrategyCheck.check(plan, reportsDir)
+
+        then: 'it says the key names no one row, rather than answering from whichever came last'
+        failures.any { it.contains("'1' matches 3 rows of the outlook board") }
+
+        and: 'and does not report the cell as wrong, which is the answer it would have given'
+        !failures.any { it.contains('VOR') }
+    }
+
+    def "still answers a key that picks out exactly one row"() {
+        given:
+        new File(yearDir, 'outlook.tsv').text =
+                "ROUND\tPICK\tPOS\tVOR\n" +
+                "1\t13\tRB\t86.7\n" +
+                "2\t16\tRB\t73.6\n"
+        manifest('86277a2', ['salaries', 'teams', 'outlook'])
+        File plan = document('''<!-- model: 86277a2 -->
+
+<!-- source: outlook -->
+
+| ROUND | POS | VOR |
+| --- | --- | --- |
+| 1 | RB | 86.7 |
+| 2 | RB | 73.6 |
+''')
+
+        expect:
+        StrategyCheck.check(plan, reportsDir) == []
+    }
 }
