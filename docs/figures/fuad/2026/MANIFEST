@@ -1,16 +1,10 @@
 # Written by figures_refresh.sh: which model produced each file here. See docs/STRATEGY.md.
-board 6fcbf4f 2026-08-26T03:00:52Z
-curve 6fcbf4f 2026-08-26T03:00:52Z
-depth 6fcbf4f 2026-08-26T03:00:52Z
-greenfield_adp 5af733b 2026-08-26T02:40:25Z
-greenfield_curve 5af733b 2026-08-26T02:40:25Z
-greenfield_demand 5af733b 2026-08-26T02:40:25Z
-greenfield_keepers 5af733b 2026-08-26T02:40:25Z
-greenfield_picks 5af733b 2026-08-26T02:40:25Z
-greenfield_positions 5af733b 2026-08-26T02:40:25Z
-positions 6fcbf4f 2026-08-26T03:00:52Z
-rates 6fcbf4f 2026-08-26T03:00:52Z
-retention 6fcbf4f 2026-08-26T03:00:52Z
-spend 6fcbf4f 2026-08-26T03:00:52Z
-stretch 6fcbf4f 2026-08-26T03:00:52Z
-tags 6fcbf4f 2026-08-26T03:00:52Z
+board 38e2e26-dirty 2026-08-26T03:01:49Z
+curve 38e2e26-dirty 2026-08-26T03:01:49Z
+depth 38e2e26-dirty 2026-08-26T03:01:49Z
+positions 38e2e26-dirty 2026-08-26T03:01:49Z
+rates 38e2e26-dirty 2026-08-26T03:01:49Z
+retention 38e2e26-dirty 2026-08-26T03:01:49Z
+spend 38e2e26-dirty 2026-08-26T03:01:49Z
+stretch 38e2e26-dirty 2026-08-26T03:01:49Z
+tags 38e2e26-dirty 2026-08-26T03:01:49Z

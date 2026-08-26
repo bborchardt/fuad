@@ -63,6 +63,16 @@ class ReportManifest {
         types.each { String type ->
             stamps[type] = new Stamp(type: type, model: model, generated: generated)
         }
+        // A stamp for a file that is no longer here is not evidence about anything, and it fails the
+        // provenance check forever: nothing rewrites it, because nothing writes that file any more. This is
+        // how the two leagues' figures parted company -- greenfield's moved to their own directory and their
+        // stamps stayed behind, naming a model that had moved on and tables that were not there.
+        //
+        // Names carried by neither a .tsv nor a .csv are dropped. Both are report extensions here; a stamp is
+        // for a report type rather than for a filename, so it has to ask about each.
+        stamps.keySet().removeAll { String type ->
+            !(new File(outputDir, "${type}.tsv").exists() || new File(outputDir, "${type}.csv").exists())
+        }
         new File(outputDir, FILE_NAME).withPrintWriter { out ->
             out.println(header(writtenBy))
             stamps.keySet().sort().each { out.println(stamps[it].toString()) }

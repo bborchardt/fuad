@@ -19,6 +19,10 @@ class ReportManifestSpec extends Specification {
     File temp
 
     def "stamps each report type separately, so one run does not erase another's provenance"() {
+        given: 'the reports themselves, since a stamp for a file that is not here is dropped'
+        new File(temp, 'salaries.tsv').text = 'x'
+        new File(temp, 'teams.tsv').text = 'x'
+
         when: 'the salaries board is written, and the teams report an hour later'
         ReportManifest.stamp(temp, ['salaries'])
         ReportManifest.stamp(temp, ['teams'])
@@ -29,6 +33,7 @@ class ReportManifestSpec extends Specification {
 
     def "rewrites the stamp of a type that is regenerated"() {
         given:
+        new File(temp, 'salaries.tsv').text = 'x'
         ReportManifest.stamp(temp, ['salaries'])
         String first = ReportManifest.read(temp).salaries.generated
 
@@ -42,6 +47,9 @@ class ReportManifestSpec extends Specification {
     }
 
     def "reads back what it wrote, past the comment header"() {
+        given:
+        new File(temp, 'salaries.tsv').text = 'x'
+
         when:
         ReportManifest.stamp(temp, ['salaries'], 'figures_refresh.sh')
 
@@ -113,5 +121,30 @@ class ReportManifestSpec extends Specification {
 
         and: 'and the stamp a report would carry says the same thing'
         ReportManifest.currentModel().endsWith('-dirty') == !changed.isEmpty()
+    }
+
+    def "drops a stamp whose report is no longer here"() {
+        given: 'a directory stamped for two reports, one of which has since moved elsewhere'
+        new File(temp, 'kept.tsv').text = 'x'
+        ReportManifest.stamp(temp, ['kept', 'gone'])
+
+        when: 'it is stamped again, the moved report having taken its file with it'
+        ReportManifest.stamp(temp, ['kept'])
+
+        then: 'the orphan goes, since a stamp for a file that is not here is evidence about nothing'
+        ReportManifest.read(temp).keySet() == ['kept'] as Set
+    }
+
+    def "keeps a stamp for a report written this time but not that time"() {
+        given:
+        new File(temp, 'first.tsv').text = 'x'
+        new File(temp, 'second.tsv').text = 'x'
+        ReportManifest.stamp(temp, ['first', 'second'])
+
+        when: 'only one is regenerated'
+        ReportManifest.stamp(temp, ['first'])
+
+        then: 'the other keeps its stamp -- it is still here, and still attributable'
+        ReportManifest.read(temp).keySet() == ['first', 'second'] as Set
     }
 }
