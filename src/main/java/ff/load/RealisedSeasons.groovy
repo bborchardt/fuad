@@ -3,7 +3,9 @@ package ff.load
 import ff.data.RealisedSeason
 import ff.data.fantasypros.FpRankedPlayer
 import ff.league.League
+import ff.load.nflverse.NflverseTeamStatsLoader
 import ff.load.nflverse.NflverseStatsLoader
+import ff.load.util.NflTeams
 import ff.load.util.LoadUtils
 
 /**
@@ -47,13 +49,16 @@ class RealisedSeasons {
             League league, Closure<Collection<FpRankedPlayer>> ranked) {
         Map<String, Map<Integer, List<RealisedSeason>>> realised = [:].withDefault { [:].withDefault { [] } }
         league.seasons.each { String season ->
+            if (league.dstScoring) {
+                defences(league, season, ranked(season), realised)
+            }
             Map<String, BigDecimal> scored = NflverseStatsLoader.seasonPoints(season, league.scoring)
                     .collectEntries { String name, BigDecimal points -> [(LoadUtils.aliasedName(name)): points] }
             Map<String, Integer> games = NflverseStatsLoader.gamesPlayed(season)
                     .collectEntries { String name, Integer played -> [(LoadUtils.aliasedName(name)): played] }
             Set<String> unclaimed = NflverseStatsLoader.played(season).collect { LoadUtils.aliasedName(it) } as Set
             ranked(season).each { FpRankedPlayer player ->
-                if (league.scoredPositions.contains(player.player.position)) {
+                if (league.scoredPositions.contains(player.player.position) && !NflTeams.isTeam(player.player.name)) {
                     String name = claim(unclaimed, player.player.name)
                     // No stat line at all is a season that never happened: no points and no games, which is
                     // an observation about availability and none about how he plays.
@@ -64,6 +69,28 @@ class RealisedSeasons {
             }
         }
         realised
+    }
+
+    /**
+     * Every ranked defence that season, keyed by the rank the consensus gave it.
+     *
+     * Kept apart from the players because a defence is a franchise rather than a person: it is joined on an
+     * abbreviation both sources agree on once {@link NflTeams} has been through them, so none of the name
+     * matching applies and none of its failure modes do either. A defence that fails to join is a mistake in
+     * the map rather than a season that never happened, and there is no third possibility to confuse it with.
+     */
+    private static void defences(League league, String season, Collection<FpRankedPlayer> ranked,
+                                 Map<String, Map<Integer, List<RealisedSeason>>> realised) {
+        Map<String, BigDecimal> scored =
+                NflverseTeamStatsLoader.seasonPoints(season, league.dstScoring)
+        Map<String, Integer> games = NflverseTeamStatsLoader.gamesPlayed(season)
+        ranked.findAll { NflTeams.isTeam(it.player.name) }.each { FpRankedPlayer defence ->
+            String team = NflTeams.abbreviationOf(defence.player.name)
+            if (scored.containsKey(team)) {
+                realised[defence.player.position][defence.rank.positionRank] << new RealisedSeason(
+                        points: scored[team], games: games[team] ?: 0)
+            }
+        }
     }
 
     /**

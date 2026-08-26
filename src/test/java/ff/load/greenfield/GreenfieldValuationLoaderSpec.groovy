@@ -25,16 +25,17 @@ class GreenfieldValuationLoaderSpec extends Specification {
         League.GREENFIELD.scoredPositions.every { curve.pricedDepth(it) > 0 }
     }
 
-    def "the league starts eight a team, and the flex is the only thing free to move"() {
+    def "the league starts nine a team, and the flex is the only thing free to move"() {
         given:
         Map<String, Integer> started = loader.starters()
 
-        expect: 'fourteen teams starting eight modelled slots apiece'
-        started.values().sum() == 8 * 14
+        expect: 'fourteen teams starting nine apiece'
+        started.values().sum() == 9 * 14
 
-        and: 'quarterback and kicker are capped at one a team, so neither can take a flex'
+        and: 'quarterback, kicker and defence are capped at one a team, so none can take a flex'
         started.QB == 14
         started.PK == 14
+        started.DST == 14
 
         and: 'the minimums are floors: nobody starts fewer than two backs or two receivers a team'
         started.RB >= 28

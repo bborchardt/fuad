@@ -6,6 +6,7 @@ import ff.fetch.mfl.MflSalaryAdjustmentsRefresh
 import ff.fetch.mfl.MflTransactionsRefresh
 import ff.fetch.mfl.RosterSnapshot
 import ff.fetch.nflverse.NflverseStatsRefresh
+import ff.fetch.nflverse.NflverseTeamStatsRefresh
 
 /**
  * Collect the record of a completed season: both roster snapshots, the transaction log, the scoring rules,
@@ -34,7 +35,8 @@ class SeasonHistoryRefresh {
                  new MflRulesRefresh(Integer.parseInt(year), LEAGUE_ID, HOST) as Runnable,
                  new MflSalaryAdjustmentsRefresh(Integer.parseInt(year), LEAGUE_ID, HOST) as Runnable,
                  // Not the league site at all, and the one thing here every expected point is built from.
-                 new NflverseStatsRefresh(Integer.parseInt(year)) as Runnable]
+                 new NflverseStatsRefresh(Integer.parseInt(year)) as Runnable,
+                 new NflverseTeamStatsRefresh(Integer.parseInt(year)) as Runnable]
             refreshes.each { refresh ->
                 try {
                     refresh.run()

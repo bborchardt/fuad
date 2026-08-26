@@ -1,5 +1,6 @@
 package ff.league
 
+import ff.load.nflverse.DstScoringRules
 import ff.load.nflverse.ScoringRules
 import ff.projection.StarterRequirements
 
@@ -54,18 +55,27 @@ class League {
     static final League GREENFIELD = new League(
             name: 'greenfield',
             scoring: ScoringRules.GREENFIELD,
-            scoredPositions: ['QB', 'RB', 'WR', 'TE', 'PK'],
+            scoredPositions: ['QB', 'RB', 'WR', 'TE', 'PK', 'DST'],
+            dstScoring: DstScoringRules.GREENFIELD,
             seasons: (2017..2025).collect { it as String },
             teams: 14,
-            startersPerTeam: 8,
-            starterMinimums: [QB: 1, RB: 2, WR: 2, TE: 1, PK: 1],
-            starterMaximums: [QB: 1, RB: 3, WR: 3, TE: 2, PK: 1],
-            unpricedStarters: [DST: 1])
+            startersPerTeam: 9,
+            starterMinimums: [QB: 1, RB: 2, WR: 2, TE: 1, PK: 1, DST: 1],
+            starterMaximums: [QB: 1, RB: 3, WR: 3, TE: 2, PK: 1, DST: 1])
 
     String name
 
     /** How this league scores, which is what every season is restated under before anything is levelled. */
     ScoringRules scoring
+
+    /**
+     * How this league scores a team defence, or null where it starts none.
+     *
+     * Separate because a defence is scored on a different kind of thing — the largest term is what the other
+     * team failed to do, read off the scoreboard rather than out of a stat line. Null rather than an empty
+     * rule set, so a league that does not start one cannot accidentally level a position it never plays.
+     */
+    DstScoringRules dstScoring
 
     /** Positions a curve can be built for: those the statistics carry and the league scores. */
     List<String> scoredPositions

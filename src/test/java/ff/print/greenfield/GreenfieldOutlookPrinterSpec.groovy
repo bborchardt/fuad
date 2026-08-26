@@ -83,7 +83,7 @@ class GreenfieldOutlookPrinterSpec extends Specification {
 
     def "a position that cannot start another player is never recommended"() {
         given: 'a roster already at every cap the league allows'
-        Map<String, Integer> full = [QB: 1, RB: 3, WR: 3, TE: 2, PK: 1]
+        Map<String, Integer> full = [QB: 1, RB: 3, WR: 3, TE: 2, PK: 1, DST: 1]
 
         when:
         List<String> lines = outlook(13, [] as Set, full)

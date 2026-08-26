@@ -46,22 +46,28 @@ class LeagueSpec extends Specification {
         League.FUAD.scoring.fieldGoal(62) == 6.0
     }
 
-    def "Greenfield starts eight modelled slots of a nine slot lineup, one of them flex"() {
+    def "Greenfield starts all nine of its slots, one of them flex"() {
         given:
         StarterRequirements requirements = League.GREENFIELD.requirements()
 
-        expect: 'QB, RB, RB, WR, WR, TE, K are fixed, leaving exactly one flex from RB, WR or TE'
-        requirements.perTeamStarters() == 8
-        requirements.perTeamMinimums() == [QB: 1, RB: 2, WR: 2, TE: 1, PK: 1]
-        requirements.perTeamMinimums().values().sum() == 7
-        requirements.perTeamMaximums() == [QB: 1, RB: 3, WR: 3, TE: 2, PK: 1]
+        expect: 'QB, RB, RB, WR, WR, TE, K, DEF are fixed, leaving one flex from RB, WR or TE'
+        requirements.perTeamStarters() == 9
+        requirements.perTeamMinimums() == [QB: 1, RB: 2, WR: 2, TE: 1, PK: 1, DST: 1]
+        requirements.perTeamMinimums().values().sum() == 8
+        requirements.perTeamMaximums() == [QB: 1, RB: 3, WR: 3, TE: 2, PK: 1, DST: 1]
     }
 
-    def "the defence's slot is left out rather than handed to a flex that cannot fill it"() {
-        expect: 'nine are started, but only eight can be modelled, and the ninth is absent not reassigned'
-        League.GREENFIELD.startersPerTeam == 8
-        !League.GREENFIELD.scoredPositions.contains('DST')
-        !League.GREENFIELD.starterMaximums.containsKey('DST')
+    def "the defence is a position the model prices, not a slot it works around"() {
+        expect: 'it has its own scoring, since it is scored on what the other team failed to do'
+        League.GREENFIELD.scoredPositions.contains('DST')
+        League.GREENFIELD.dstScoring != null
+
+        and: 'capped at one a team, so it can take no flex and cannot move what anything else is worth'
+        League.GREENFIELD.starterMinimums.DST == League.GREENFIELD.starterMaximums.DST
+
+        and: 'and the auction, which starts none, has no rules for one rather than empty ones'
+        League.FUAD.dstScoring == null
+        !League.FUAD.scoredPositions.contains('DST')
     }
 
     def "the dynasty league refuses to name a lineup, having started two different ones"() {
@@ -79,7 +85,7 @@ class LeagueSpec extends Specification {
 
     def "quarterback replacement is fixed at fifteen however the flex falls"() {
         given: 'plausible descending points, the flex free to go wherever it likes'
-        Map<String, List<BigDecimal>> points = ['QB', 'RB', 'WR', 'TE', 'PK'].collectEntries { String position ->
+        Map<String, List<BigDecimal>> points = League.GREENFIELD.scoredPositions.collectEntries { String position ->
             [(position): (1..60).collect { (200 - it * 2) as BigDecimal }]
         }
 
@@ -89,9 +95,10 @@ class LeagueSpec extends Specification {
         then: 'quarterback is capped at one a team, so no flex can reach it and the count cannot move'
         started.QB == 14
         started.PK == 14
+        started.DST == 14
 
         and: 'the flex goes among the three positions that can take it, and every slot is filled'
-        started.values().sum() == 8 * 14
+        started.values().sum() == 9 * 14
         started.RB + started.WR + started.TE == 84
 
         and: 'which is the whole quarterback difference between the two leagues: replacement at rank 15,'
