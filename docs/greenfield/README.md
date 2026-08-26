@@ -114,11 +114,45 @@ Tight ends level identically in both leagues, which is not an error. A tight end
 tenth a yard and a full point a reception under both rule sets, and neither the passing yardage rate nor the
 touchdown value nor the kicking tiers touch him. The two leagues really do score the position the same way.
 
-**Team defences are started and not priced.** The league scores one, the statistics here are per player, and
-a position with no curve is reported as having none rather than guessed at. That is why eight slots are
-modelled against a nine slot lineup: the starter count is what the flex is allocated against, so a slot no
-modelled position can fill has to come out of it, or the defence's slot is handed to an extra back and
-replacement is pushed a rank deeper at whichever position wins it.
+### The defence is priced, and is worth almost nothing
+
+It was left out at first on the belief that the statistics here are per player and a defence is not a
+player. That was the belief that kept kickers out too, and levelling them found real value — so the same
+question was asked of the defence, and answered the same way. See [DATA.md](../DATA.md#team-defences).
+
+<!-- figures: greenfield/positions -->
+
+| POS | BEST | REPLPTS |
+| --- | --- | --- |
+| WR | 224.0 | 116.4 |
+| RB | 213.4 | 108.9 |
+| QB | 306.1 | 243.4 |
+| TE | 161.5 | 99.8 |
+| PK | 113.0 | 87.2 |
+| DST | 94.9 | 88.8 |
+
+**Six points across a season**, against the kicker's twenty six and the tight end's sixty two. It is the
+flattest position in the league by a wide margin, and the curve is not even monotone through the ranks that
+start:
+
+<!-- figures: greenfield/curve across=POS field=PTS -->
+
+| Rank | DST |
+| --- | --- |
+| 1 | 94.9 |
+| 8 | 96.8 |
+| 15 | 88.8 |
+
+The eighth defence levels above the first. Preseason rank carries almost nothing about which defence will
+be good, and none of what little spread there is comes from availability — every defence plays all thirteen
+games, so the games column is a constant.
+
+**Which is why one is taken in the last third of the draft, and why that is right.** No defence comes off
+the board here before round seven and the first goes at pick 106. The room's behaviour and the model agree,
+which is worth more than either alone.
+
+The defence is capped at one a team, so it takes no flex and changes nothing about what any other position
+is worth.
 
 ## What a pick is worth
 
@@ -342,8 +376,9 @@ at all.
 
 ## What is not modelled
 
-- **Team defences.** One starting slot of nine. They are counted — `demand` and `adp` both carry them — but
-  not valued, and will not be until team defence statistics are collected. Nothing on the board prices one.
+- **Streaming a defence.** The board values a draft. Points allowed is the largest term in a defence's
+  score and it depends on the opponent, which is a schedule fact known weekly — so which defence to start in
+  a given week is a real question and not one anything here answers.
 - **In-season acquisitions.** The board values a draft, and this league has unlimited FAB waivers.
 - **Draft pick trades.** The league allows them; nothing here prices one, though the pick table is what
   such a price would be read from.

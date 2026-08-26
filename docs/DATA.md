@@ -103,6 +103,42 @@ files, where the positional rank is read from `POS`, and not harmless in the kic
 *is* the positional rank. Ranks are now taken as written. No tab separated export has tier rows at all, so
 nothing before 2026 is affected either way.
 
+## Team defences
+
+Under `src/main/resources/ff/nflverse/data/<year>`: `team_stats.tsv`, one row per team per week.
+
+| | |
+| --- | --- |
+| Source | nflverse-data release `stats_team`, plus nfldata `games.csv` for the scores |
+| Collected by | `./season_history_refresh.sh <year>`, alongside the player statistics |
+| Kept | the counts a defence is scored on, weeks 1-14, all 32 teams |
+| Size | 144KB for nine seasons, against 2.2MB for the players |
+
+**Points allowed comes from a different file and is folded in at collection.** The team release carries
+every defensive count a league scores and no scores at all, and points allowed is the largest term in
+Yahoo's defence scoring by a wide margin. `games.csv` is one file for every season rather than one per
+season, joined on the game id the team release already carries.
+
+Three things need care, and none of them says so in its name.
+
+`def_tds` **excludes fumble returns.** Of 220 team weeks with a fumble recovery touchdown, 197 carry
+`def_tds` at zero, so interception returns are counted in one column and fumble returns in the other. They
+are added, and it is not double counting.
+
+`fumble_recovery_tds` **does not say whose fumble it was.** A team recovering its own in the end zone has
+scored on offence, not defence. Where it recovered no opponent fumble that week it cannot have been the
+defence, and `fumble_recovery_opp` is kept so the loader can tell — that rules out 11 of the 220. The
+remaining 102 weeks carry both kinds and no column here separates them.
+
+**The two sources disagree about relocated franchises, in opposite directions.** The team release writes
+today's abbreviation into every season a franchise ever played, so the Raiders are `LV` in 2017; the scores
+write the abbreviation of the day, `OAK`. Joined as written, thirteen team weeks of 2017 have no score. It
+is the same forward-dating nflverse does to [player names](#player-names), done to teams, and both sides go
+through `NflTeams`.
+
+The fetch **refuses a team week it cannot score** rather than dropping it, which is what surfaced the
+relocation problem. Dropped silently, it would have read as a defence that played fewer games than it did.
+
 ## The rollover rule
 
 Each season's `rosters.json` is the prior season's `rosters_end_of_year.json` rolled over:
