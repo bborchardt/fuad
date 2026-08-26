@@ -101,6 +101,24 @@ class GreenfieldBoard {
                 .collect { SnakeDraft.overallPick(it.costRound as int, slot, League.GREENFIELD.teams) } as Set
     }
 
+    /**
+     * What a slot already holds: its keepers, plus anything taken since the draft started.
+     *
+     * Keepers are counted without being asked for, being a matter of record. Everything else has to be told,
+     * since nothing here watches a draft happen.
+     */
+    Map<String, Integer> heldBy(int slot, Map<String, Integer> alsoHeld) {
+        Map<String, FpRankedPlayer> byName = byName()
+        Map<String, Integer> held = new LinkedHashMap<>(alsoHeld)
+        declaredKeepers().findAll { slots()[it.owner as String] == slot }.each { Map keeper ->
+            String position = byName[keeper.player as String]?.player?.position
+            if (position) {
+                held[position] = (held[position] ?: 0) + 1
+            }
+        }
+        held
+    }
+
     /** Who has already taken each player off the board. */
     Map<String, String> keptBy() {
         declaredKeepers().collectEntries { [(it.player as String): it.owner] }

@@ -17,7 +17,8 @@ and `adp` are when each position comes off the board.
 part of `all`.
 
 ```
-./greenfield_report.sh -t outlook -s 13
+./greenfield_report.sh -t outlook -s 13            # the plan, from the keepers alone
+./greenfield_report.sh -t outlook -s 13 -r RB,WR   # re-planned around what has been taken since
 ```
 
 ## What the league is
@@ -218,6 +219,40 @@ nickname.
 With that, `UNRANKED` falls from seventeen picks a draft to two — a couple of deep fliers no ranking
 carried, rather than a whole position hiding in the residual. The first defence off the board goes at pick
 106, which is round eight: the same round the room is leaving startable quarterbacks sitting.
+
+## Drafting from one slot
+
+`outlook` is the sheet to have open while the draft runs. For one slot, at each of its picks, it reports the
+best rank still likely to be there at every position and what that position loses by the time this slot
+picks again.
+
+**`DECAY` is the column to draft from.** Value says which player is worth most now; decay says which
+position will have fallen furthest by the next turn, and only the second can be acted on. A back and a
+receiver worth the same today are not the same pick if the backs will be gone in two rounds and the
+receivers will not. It is the same asymmetry the demand table shows, applied to one slot's actual picks.
+
+**It is roster-aware, which is what makes it a plan rather than a list.** Each position carries `HELD` and a
+`STATUS` — `NEED` for a starting slot still unfilled, `FLEX` for one that can still take a better player up
+to the position's cap, `FULL` for one that cannot start another however he grades. Only positions that can
+still improve a lineup are candidates, so a team holding its quarterback stops being offered quarterbacks.
+
+The row marked `TAKE` is the recommendation: the usable position that falls furthest before the next pick.
+Taking it is then assumed, so each pick is advised against a roster holding everything advised before it.
+Keepers are counted without being asked for; `-r` is for what has really been taken as the draft runs, and
+the rest re-plans around it.
+
+**Two things it does not do, both deliberate.** It stops recommending once every starting slot the model
+prices is full: what a bench is worth is bye cover, injury cover and optionality, which is `LineupValue`'s
+question and not this sheet's, and inventing a preference it cannot support would be worse than saying
+`BENCH`. And it has no defence in it, so the plan covers eight of the nine starting slots and the ninth has
+to be remembered — though no defence comes off the board here before round seven.
+
+**A forfeited pick shows up as a longer gap, and that is the cost of a keeper beyond its price.** Giving up
+an eighth does not only cost the player it would have returned; it doubles the wait around it, and a
+position that runs out inside that gap runs out without this team.
+
+The figures here are per slot, so unlike every other table in this document they are not committed and not
+checked — there is no canonical slot to generate them for. Run the command.
 
 ## The 2026 keepers
 

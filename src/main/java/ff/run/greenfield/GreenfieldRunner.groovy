@@ -51,6 +51,8 @@ class GreenfieldRunner {
                     "The type of sheet to generate: ${TYPES + TYPE_OUTLOOK + TYPE_ALL}")
             cli.s(longOpt: 'slot', args: 1, argName: 'slot', required: false,
                     "The draft slot to report for, required by: $TYPE_OUTLOOK")
+            cli.r(longOpt: 'held', args: 1, argName: 'positions', required: false,
+                    "Positions already taken, comma separated, for re-planning mid draft: -r QB,RB,RB")
             cli.o(longOpt: 'out', args: 1, argName: 'dir', required: false,
                     "The directory to write reports to, defaults to $DEFAULT_OUTPUT_DIR.")
             def options = cli.parse(args)
@@ -65,6 +67,9 @@ class GreenfieldRunner {
             }
             // Left out of `all`, since it reports for one slot and there is no slot to assume.
             Integer slot = options.slot ? options.slot as int : null
+            // Keepers are known and always counted; -r is what has been taken since the draft started.
+            Map<String, Integer> held = (options.held ?: '').toString().split(',')
+                    *.trim().findAll().countBy { it.toUpperCase() }
             if (TYPE_OUTLOOK == type && !slot) {
                 throw new IllegalArgumentException("$TYPE_OUTLOOK needs a slot: pass -s <1..${League.GREENFIELD.teams}>")
             }
@@ -84,7 +89,7 @@ class GreenfieldRunner {
                     // rather than one file that silently depends on the last -s passed.
                     String name = TYPE_OUTLOOK == t ? "${t}_${slot}" : t
                     File file = new File(outputDir, "${name}.tsv")
-                    file.withPrintWriter { PrintWriter out -> printer(t, year, loader, slot)(out) }
+                    file.withPrintWriter { PrintWriter out -> printer(t, year, loader, slot, held)(out) }
                     written << name
                     println "Wrote $file"
                 }
@@ -98,12 +103,14 @@ class GreenfieldRunner {
     }
 
     private static Closure<Void> printer(String type, String year, GreenfieldValuationLoader loader,
-                                         Integer slot) {
+                                         Integer slot, Map<String, Integer> held = [:]) {
         GreenfieldBoard board = new GreenfieldBoard(year, loader)
         if (TYPE_OUTLOOK == type) {
             return { PrintWriter out ->
                 new GreenfieldOutlookPrinter(board, slot, League.GREENFIELD.teams, ROUNDS,
-                        board.forfeitedBy(slot), League.GREENFIELD.scoredPositions).print(out)
+                        board.forfeitedBy(slot), League.GREENFIELD.scoredPositions,
+                        League.GREENFIELD.starterMinimums, League.GREENFIELD.starterMaximums,
+                        board.heldBy(slot, held)).print(out)
             }
         }
         if (TYPE_PICKS == type) {
