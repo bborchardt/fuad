@@ -5,11 +5,15 @@
 # tables matches that report, and that it reasons from no model input. See docs/STRATEGY.md.
 #
 # Usage:
-#   ./check_strategy.sh <document.md> [reports-dir]
+#   ./check_strategy.sh <document.md> <reports-dir>
+#
+# The reports directory is the league's, not the root: the year comes from the plan's own filename, so
+# reports/greenfield holds 2026 for 2026-greenfield-plan.md. There is no default, both leagues being equal.
 #
 # Examples:
 #   ./check_strategy.sh strategy/2026-draft-plan.md
-#   ./check_strategy.sh strategy/2026-draft-plan.md reports
+#   ./check_strategy.sh strategy/2026-draft-plan.md reports/fuad
+#   ./check_strategy.sh strategy/2026-greenfield-plan.md reports/greenfield
 set -euo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
