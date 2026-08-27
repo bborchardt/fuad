@@ -1,6 +1,7 @@
 package ff.print.greenfield
 
 import ff.load.greenfield.GreenfieldBoard
+import ff.projection.greenfield.DraftPlan
 import ff.projection.greenfield.SnakeDraft
 
 import java.math.RoundingMode
@@ -26,10 +27,14 @@ import java.math.RoundingMode
  * carries a status against what is already held, and only the ones that can still improve a lineup are
  * candidates.
  *
- * The row marked {@code TAKE} at each pick is the one to act on: the position that can still be used and
- * falls furthest before this slot picks again. Taking it is then assumed, so the pick after it is advised
- * against a roster that already holds it. Feed the {@code -r} flag what has really been taken as the draft
- * runs and the rest re-plans around it.
+ * <b>The row marked {@code TAKE} is chosen for the whole draft, not for the pick it sits on.</b> Taking
+ * whichever position falls furthest before the next pick is a different thing and a worse one — it looks one
+ * gap ahead, so it cannot see that a position it defers will be far worse by the time it comes back. See
+ * {@link ff.projection.greenfield.DraftPlan}, which solves the ordering instead.
+ *
+ * {@code DECAY} is still what to read when the board disagrees with the plan, since it says which of the
+ * positions actually in front of you will not wait. Feed the {@code -r} flag what has really been taken as
+ * the draft runs and the rest re-plans around it.
  *
  * <b>The defence is not in it.</b> The league starts one and this project prices none, so the plan covers
  * eight of the nine starting slots and the ninth has to be remembered. It goes late in any case — no defence
@@ -72,9 +77,11 @@ class GreenfieldOutlookPrinter {
     void print(PrintWriter out) {
         out.println(['ROUND', 'PICK', 'POS', 'HELD', 'STATUS', 'BESTRANK', 'VOR', 'NEXTPICK', 'NEXTRANK',
                      'NEXTVOR', 'DECAY', 'TAKE'].join('\t'))
-        Map<String, Integer> roster = new LinkedHashMap<>(held)
         List<Integer> mine = (1..rounds).collect { SnakeDraft.overallPick(it, slot, teams) }
                 .findAll { !forfeited.contains(it) }
+        Map<Integer, String> plan = plan(mine)
+
+        Map<String, Integer> roster = new LinkedHashMap<>(held)
         mine.eachWithIndex { int pick, int i ->
             Integer next = i + 1 < mine.size() ? mine[i + 1] : null
             List<List> rows = positions.collect { String position ->
@@ -87,6 +94,12 @@ class GreenfieldOutlookPrinter {
             }.sort { a, b ->
                 // A position that cannot improve the lineup is not a candidate however it grades, so it
                 // sorts below every one that can before decay is looked at.
+                //
+                // Explicitly against null rather than with an Elvis, because a decay of exactly zero is
+                // falsy in Groovy and would sort as though it were missing. It is not missing: it says the
+                // position does not move before this slot picks again, which is a finding. Decay can also be
+                // negative, the curve not being perfectly monotone, and a negative sorted above a zero is
+                // how that first showed up.
                 int byUse = usable(b[7] as String) <=> usable(a[7] as String)
                 byUse ?: unknownLast(b[6] as BigDecimal) <=> unknownLast(a[6] as BigDecimal)
             }
@@ -94,18 +107,34 @@ class GreenfieldOutlookPrinter {
             // other: two backs held against a minimum of two is FLEX, and reporting the count after the
             // pick made it read as NEED beside a number that already met the need.
             Map<String, Integer> before = new LinkedHashMap<>(roster)
-            List take = rows.find { usable(it[7] as String) == 1 && it[2] != null }
+            String take = plan[pick]
             if (take) {
-                roster[take[0] as String] = (roster[take[0] as String] ?: 0) + 1
+                roster[take] = (roster[take] ?: 0) + 1
             }
             rows.each { List row ->
                 out.println([SnakeDraft.roundOf(pick, teams), pick, row[0],
                              before[row[0] as String] ?: 0, row[7],
                              row[1] ?: '', one(row[2] as BigDecimal), row[3] ?: '', row[4] ?: '',
                              one(row[5] as BigDecimal), one(row[6] as BigDecimal),
-                             row.is(take) ? 'TAKE' : ''].join('\t'))
+                             row[0] == take ? 'TAKE' : ''].join('\t'))
             }
         }
+    }
+
+    /** The ordering solved across every pick at once. See {@link DraftPlan}. */
+    private Map<Integer, String> plan(List<Integer> mine) {
+        Map<String, Map<Integer, Integer>> bestRankAt = positions.collectEntries { String position ->
+            [(position): mine.collectEntries { int pick ->
+                Integer rank = board.positionalRankAt(position, pick)
+                rank == null ? [:] : [(pick): rank]
+            }]
+        }
+        Map<String, Map<Integer, BigDecimal>> value = positions.collectEntries { String position ->
+            [(position): (1..board.curve.pricedDepth(position)).collectEntries { int rank ->
+                [(rank): board.valueOfRank(position, rank)]
+            }]
+        }
+        DraftPlan.best(mine, held, maximums, positions, bestRankAt, value)
     }
 
     /**

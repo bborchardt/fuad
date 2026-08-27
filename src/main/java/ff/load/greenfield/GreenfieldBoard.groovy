@@ -79,6 +79,13 @@ class GreenfieldBoard {
                 : null
     }
 
+    /** What one rank at a position is worth, which is the same question without a pick attached. */
+    BigDecimal valueOfRank(String position, int rank) {
+        rank <= curve.pricedDepth(position)
+                ? ExpectedValue.expectedValueOverReplacement(curve, replacement, position, rank, byes)
+                : null
+    }
+
     /** The rank behind {@link #positionalValueAt}, for a sheet that has to say who it means. */
     Integer positionalRankAt(String position, int pick) {
         demand().bestRankAvailableAt(position, pick)

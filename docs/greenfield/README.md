@@ -274,10 +274,19 @@ receivers will not. It is the same asymmetry the demand table shows, applied to 
 to the position's cap, `FULL` for one that cannot start another however he grades. Only positions that can
 still improve a lineup are candidates, so a team holding its quarterback stops being offered quarterbacks.
 
-The row marked `TAKE` is the recommendation: the usable position that falls furthest before the next pick.
-Taking it is then assumed, so each pick is advised against a roster holding everything advised before it.
-Keepers are counted without being asked for; `-r` is for what has really been taken as the draft runs, and
-the rest re-plans around it.
+The row marked `TAKE` is the recommendation, and it is **chosen for the whole draft rather than for the
+pick it sits on**. Taking whichever position falls furthest before the next pick is a different rule and a
+worse one: it looks one gap ahead, so it cannot see that a position it defers will be far worse by the time
+it comes back.
+
+Against slot 13's real board that cost thirteen points of starting value. The one-gap rule took the third
+best quarterback in round three, which pushed the third receiver out to round seven — where receivers are
+worth a third of what they are in round five. The quarterback deferred instead cost twenty five and the
+receiver gained twenty, and no comparison of a single gap could tell.
+
+`DECAY` is still the column to read when the board disagrees with the plan, because it says which of the
+positions actually in front of you will not wait. Keepers are counted without being asked for; `-r` is for
+what has really been taken as the draft runs, and the rest re-plans around it.
 
 **Two things it does not do, both deliberate.** It stops recommending once every starting slot the model
 prices is full: what a bench is worth is bye cover, injury cover and optionality, which is `LineupValue`'s
