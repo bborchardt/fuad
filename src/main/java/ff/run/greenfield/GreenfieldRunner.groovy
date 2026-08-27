@@ -9,6 +9,7 @@ import ff.print.greenfield.GreenfieldDemandPrinter
 import ff.print.greenfield.GreenfieldKeeperPrinter
 import ff.print.greenfield.GreenfieldOutlookPrinter
 import ff.print.greenfield.GreenfieldPickPrinter
+import ff.print.greenfield.GreenfieldSheetPrinter
 import ff.run.ReportManifest
 import groovy.cli.commons.CliBuilder
 import groovy.util.logging.Slf4j
@@ -32,8 +33,9 @@ class GreenfieldRunner {
     private static final String TYPE_DEMAND = 'demand'
     private static final String TYPE_ADP = 'adp'
     private static final String TYPE_OUTLOOK = 'outlook'
+    private static final String TYPE_SHEET = 'sheet'
     private static final String TYPE_ALL = 'all'
-    private static final List<String> TYPES = [TYPE_BOARD, TYPE_KEEPERS, TYPE_PICKS, TYPE_DEMAND, TYPE_ADP]
+    private static final List<String> TYPES = [TYPE_BOARD, TYPE_KEEPERS, TYPE_PICKS, TYPE_DEMAND, TYPE_ADP, TYPE_SHEET]
 
     private static final String DEFAULT_OUTPUT_DIR = 'reports/greenfield'
     private static final String DEFAULT_YEAR = '2026'
@@ -88,7 +90,7 @@ class GreenfieldRunner {
                     // interchangeable with another's, and separate names mean separate manifest stamps
                     // rather than one file that silently depends on the last -s passed.
                     String name = TYPE_OUTLOOK == t ? "${t}_${slot}" : t
-                    File file = new File(outputDir, "${name}.tsv")
+                    File file = new File(outputDir, "${name}.${TYPE_SHEET == t ? 'csv' : 'tsv'}")
                     file.withPrintWriter { PrintWriter out -> printer(t, year, loader, slot, held)(out) }
                     written << name
                     println "Wrote $file"
@@ -116,6 +118,11 @@ class GreenfieldRunner {
         if (TYPE_PICKS == type) {
             return { PrintWriter out ->
                 new GreenfieldPickPrinter(board.pickValues(), League.GREENFIELD.teams).print(out)
+            }
+        }
+        if (TYPE_SHEET == type) {
+            return { PrintWriter out ->
+                new GreenfieldSheetPrinter(board, League.GREENFIELD.scoredPositions).print(out)
             }
         }
         if (TYPE_DEMAND == type) {

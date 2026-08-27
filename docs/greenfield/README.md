@@ -13,6 +13,10 @@ Run it with:
 declared keeper against the pick it costs, `picks` is what a pick has actually been worth here, and `demand`
 and `adp` are when each position comes off the board.
 
+`sheet` is the one to have open while drafting: the same figures as `board`, in one list across all
+positions ordered by what a player is worth, with the keepers already marked taken. It is comma separated
+rather than tab, being opened by a spreadsheet rather than pasted into one.
+
 `outlook` is separate: it answers for one draft slot rather than for the league, so it takes `-s` and is not
 part of `all`.
 
@@ -287,6 +291,23 @@ position that runs out inside that gap runs out without this team.
 
 The figures here are per slot, so unlike every other table in this document they are not committed and not
 checked — there is no canonical slot to generate them for. Run the command.
+
+### Drafting from a spreadsheet
+
+`sheet` carries two columns that answer different questions, and a plan needs both.
+
+`VOR` is what a player is worth over the one who would take his slot otherwise. `ADP` is the pick this
+league has typically taken him at — its own median over nine drafts, pooled with the two ranks either side,
+and not a national number. `VORRANK` is where he sits by worth, so `EDGE` — `ADP` less `VORRANK` — is how
+far this room lets him fall past his value.
+
+The best back is worth 103.8 and goes at pick 2; the best quarterback is worth 75.4 and goes at 34. He is
+worth less and lasts thirty picks longer, and no single column says that.
+
+**A large edge on a small value is still small.** The widest edges belong to defences, which fall seventy
+picks past their worth and are worth fourteen points. `EDGE` decides between players of similar `VOR`, or
+says a position can wait; it never argues for taking a lesser player. Draft down the `VOR` column and let
+`EDGE` tell you what will still be there next time.
 
 ## The 2026 keepers
 
