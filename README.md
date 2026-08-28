@@ -30,8 +30,10 @@ each has its own report script, its own figures directory and its own documentat
 part of `all`. `greenfield` report types are `board`, `keepers`, `picks`, `demand`, `adp` or `all`, with
 `outlook` separate for the same reason — it answers for one draft slot, so it takes `-s`.
 
-See [docs/DATA.md](docs/DATA.md) for what each data file is, how the league's expansions and contractions
-show up in it, and which seasons needed repair.
+See [docs/DATA.md](docs/DATA.md) for the statistics and rankings both leagues are built from, and the two
+places a source says something other than what it appears to. Each league's own record is beside its own
+documentation: [docs/fuad/DATA.md](docs/fuad/DATA.md) for the auction, where the expansions, contractions
+and repairs are, and [docs/greenfield/DATA.md](docs/greenfield/DATA.md) for the keeper league.
 
 See [docs/fuad/PROJECTION.md](docs/fuad/PROJECTION.md) for how the `salaries` report prices an auction: consensus
 ranks for order, league-scored projections for the curve, corrected for what a rank really delivers, priced
