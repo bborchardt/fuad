@@ -6,7 +6,7 @@ import ff.fetch.mfl.MflPreDraftRosterBuilder
 /**
  * Rebuild a season's rosters.json from the prior season's end of year rosters, for a season whose pre draft
  * snapshot was pulled at the wrong moment. The league site cannot serve that snapshot after the fact, so
- * deriving it is the only repair available. See docs/DATA.md for which seasons this was used on and what
+ * deriving it is the only repair available. See docs/fuad/DATA.md for which seasons this was used on and what
  * the derived rosters can and cannot tell you.
  *
  * Usage: PreDraftRebuild <year>

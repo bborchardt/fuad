@@ -506,4 +506,4 @@ is at `https://www44.myfantasyleague.com/2025/mb/board_show.pl?bid=202548571` an
 ## Refreshing
 
 `rules.json` is collected by both refresh scripts, alongside the roster snapshots and transaction log.
-`league.json` is written by neither, for the reason above. See [DATA.md](../DATA.md#refreshing).
+`league.json` is written by neither, for the reason above. See [DATA.md](DATA.md#refreshing).

@@ -5,7 +5,7 @@ import ff.fetch.mfl.MflExpansionDraftBuilder
 
 /**
  * Apply a season's expansion draft to its pre draft rosters, for a season whose snapshot was taken before
- * the expansion draft rather than after it. See docs/DATA.md for which seasons this was used on.
+ * the expansion draft rather than after it. See docs/fuad/DATA.md for which seasons this was used on.
  *
  * Usage: ExpansionDraftRebuild <year> <expansionFranchiseId>
  */
