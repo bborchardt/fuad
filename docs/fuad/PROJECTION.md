@@ -283,17 +283,17 @@ be compared. Read down a position at a time:
 
 | Rank | QB | WR | RB |
 | --- | --- | --- | --- |
-| 10 | 41.2 | | |
-| 30 | | 19.1 | 15.3 |
-| 38 | | 14.1 | |
-| 48 | | | 4.9 |
+| 10 | 41.7 | | |
+| 30 | | 18.8 | 15.2 |
+| 38 | | 13.8 | |
+| 48 | | | 4.8 |
 
 <!-- figures: fuad/curve across=POS field=VOREXP -->
 
 | Rank | QB | WR | RB |
 | --- | --- | --- | --- |
-| 10 | 31.6 | | |
-| 30 | | 3.7 | 0.2 |
+| 10 | 32.2 | | |
+| 30 | | 3.0 | 0.2 |
 | 38 | | 0.3 | |
 | 48 | | | 0.0 |
 
@@ -349,9 +349,9 @@ As priced, which is generated:
 
 | FIGURE | VALUE | Actual 2025 |
 | --- | --- | --- |
-| Players above $1 | 79 | 70 |
-| Top cost | 82 | $100 |
-| Top 40 cost | 87.4 | 87% |
+| Players above $1 | 78 | 70 |
+| Top cost | 81 | $100 |
+| Top 40 cost | 86.2 | 87% |
 
 <!-- model: 59b4f91 -->
 
@@ -565,10 +565,10 @@ The highest `PRICE` is Ja'Marr Chase, which no one pays because he is tagged wel
 | FIGURE | VALUE | Actual 2025 |
 | --- | --- | --- |
 | Players | 106 | |
-| Total cost | 1934 | |
+| Total cost | 1938 | |
 | Top price | 92 | $100 |
-| Players above $1 | 79 | 70 |
-| Top 40 price | 88.2 | 87% |
+| Players above $1 | 78 | 70 |
+| Top 40 price | 87.0 | 87% |
 | Teams tagging | 9 | 7 |
 
 Position shares are the ones the league actually spends, since `MARKET_WEIGHT` is 1.0. `SHARE` is what the
@@ -579,9 +579,9 @@ board came out at and `TARGETSHARE` what the calibration aimed for:
 | POS | PLAYERS | RESERVE | SHARE | TARGETSHARE |
 | --- | --- | --- | --- | --- |
 | QB | 19 | 0.9 | 23.7 | 23.7 |
-| RB | 23 | 1.1 | 32.0 | 32.3 |
-| WR | 25 | 1.2 | 33.1 | 33.5 |
-| TE | 21 | 1.0 | 9.9 | 9.4 |
+| RB | 22 | 1.1 | 32.0 | 32.3 |
+| WR | 25 | 1.2 | 33.2 | 33.5 |
+| TE | 22 | 1.1 | 9.9 | 9.4 |
 | PK | 18 | 0.9 | 1.3 | 1.0 |
 
 **Those two columns do not match, and the reason is not a failure of the calibration.** It hits the target
@@ -782,8 +782,8 @@ calibration touches it.
 
 | POS | TARGETSHARE | VORSHARE |
 | --- | --- | --- |
-| WR | 33.5 | 25.7 |
-| RB | 32.3 | 36.7 |
+| WR | 33.5 | 25.4 |
+| RB | 32.3 | 37.2 |
 
 Receiver is bought a third above what it is worth and running back at about nine tenths of it. Named by
 position rather than by player for the reason [STRATEGY.md](../STRATEGY.md#what-the-board-carries) gives about
@@ -992,11 +992,11 @@ any calibration touches it, which is what makes the pair worth reading:
 
 | POS | TARGETSHARE | VORSHARE |
 | --- | --- | --- |
-| QB | 23.7 | 25.2 |
-| RB | 32.3 | 36.7 |
-| WR | 33.5 | 25.7 |
-| TE | 9.4 | 6.7 |
-| PK | 1.0 | 5.7 |
+| QB | 23.7 | 24.8 |
+| RB | 32.3 | 37.2 |
+| WR | 33.5 | 25.4 |
+| TE | 9.4 | 7.1 |
+| PK | 1.0 | 5.6 |
 
 Kicker is out by a factor of nearly six and nothing else is out by a factor at all. Quarterback and running
 back are bought at about nine tenths of their worth; receiver is bought a third above it and **tight end

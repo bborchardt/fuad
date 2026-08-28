@@ -112,7 +112,7 @@ and to what those ranks are worth over the player who would take the slot instea
 | Rank | QB | RB | WR | TE |
 | --- | --- | --- | --- | --- |
 | 1 | 75.4 | 103.8 | 105.2 | 71.3 |
-| 15 | 30.5 | 59.4 | 58.1 | 18.3 |
+| 15 | 30.5 | 59.7 | 58.1 | 18.3 |
 
 Tight ends level identically in both leagues, which is not an error. A tight end scores six a touchdown, a
 tenth a yard and a full point a reception under both rule sets, and neither the passing yardage rate nor the
@@ -325,17 +325,17 @@ says a position can wait; it never argues for taking a lesser player. Draft down
 | PLAYER | POS | RANK | VOR | MEASURED | POSVALUE | MEASUREDSURPLUS | POSSURPLUS |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Chris Olave | WR | 10 | 64.3 | 37.0 | 16.8 | 27.3 | 47.5 |
-| Javonte Williams | RB | 17 | 52.0 | 37.0 | 7.7 | 15.0 | 44.2 |
-| Travis Etienne Jr. | RB | 18 | 45.9 | 37.0 | 7.7 | 8.9 | 38.1 |
+| Javonte Williams | RB | 16 | 54.3 | 37.0 | 7.8 | 17.3 | 46.4 |
+| Travis Etienne Jr. | RB | 18 | 45.9 | 37.0 | 7.8 | 8.9 | 38.0 |
 | Luther Burden III | WR | 23 | 49.6 | 35.7 | 15.9 | 13.8 | 33.6 |
-| Drake Maye | QB | 3 | 67.1 | 37.0 | 36.9 | 30.1 | 30.1 |
-| Cam Skattebo | RB | 20 | 33.5 | 37.0 | 7.7 | -3.5 | 25.8 |
-| Omarion Hampton | RB | 9 | 79.2 | 77.0 | 73.6 | 2.2 | 5.7 |
-| Tucker Kraft | TE | 6 | 31.4 | 37.0 | 26.6 | -5.6 | 4.8 |
-| Kyle Pitts Sr. | TE | 7 | 28.0 | 37.0 | 26.6 | -9.1 | 1.4 |
-| Jacory Croskey-Merritt | RB | 39 | 6.9 | 35.7 | 7.7 | -28.8 | -0.8 |
+| Drake Maye | QB | 3 | 67.1 | 37.0 | 36.2 | 30.1 | 30.9 |
+| Cam Skattebo | RB | 20 | 33.5 | 37.0 | 7.8 | -3.5 | 25.7 |
+| Omarion Hampton | RB | 9 | 79.2 | 77.0 | 73.5 | 2.2 | 5.7 |
+| Kyle Pitts Sr. | TE | 6 | 31.4 | 37.0 | 26.6 | -5.6 | 4.8 |
+| Tucker Kraft | TE | 7 | 28.0 | 37.0 | 26.6 | -9.0 | 1.4 |
+| Jacory Croskey-Merritt | RB | 38 | 9.0 | 35.7 | 7.8 | -26.7 | 1.2 |
 | Trevor Lawrence | QB | 9 | 36.8 | 37.0 | 42.3 | -0.2 | -5.5 |
-| Rashee Rice | WR | 12 | 58.2 | 76.7 | 67.1 | -18.5 | -9.0 |
+| Rashee Rice | WR | 13 | 58.4 | 76.7 | 67.1 | -18.2 | -8.7 |
 
 **Which column decides depends on whether the keeper is a starter, and the two disagree about six of the
 twelve.**
