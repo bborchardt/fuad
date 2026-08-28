@@ -268,6 +268,9 @@ class PointsCurve {
                 }
             }
             if (level) {
+                // The rate is made non-increasing before anything is built on it. See monotone().
+                rate = monotone(rate)
+                level = rate.collectEntries { int rank, BigDecimal r -> [(rank): r * played[rank]] }
                 BigDecimal anchor = anchorTo(position, byRank, level, rate, played)
                 Map<Integer, BigDecimal> settled = level.collectEntries { int rank, BigDecimal points ->
                     [(rank): rate[rank] * played[rank] * anchor]
@@ -428,6 +431,65 @@ class PointsCurve {
         }
         int index = (Math.ceil(percentile * sorted.size()) as int) - 1
         sorted[Math.min(sorted.size() - 1, Math.max(0, index))] as BigDecimal
+    }
+
+    /**
+     * The closest non-increasing rate by rank, pooling only the ranks whose order the sample inverts.
+     *
+     * <b>A rank that levels above the rank ahead of it is measuring noise, not talent.</b> Order comes from
+     * the consensus and level from history, so the level at rank <i>r+1</i> ought never to exceed the level
+     * at <i>r</i> — where it does, forty-five observations have failed to separate two ranks the ranking
+     * says are separate. Roughly a third of adjacent pairs did, and the largest inversion at receiver ran to
+     * nine points of a season.
+     *
+     * <b>This is a constraint and not more smoothing, which is the whole point.</b> Widening the window is a
+     * filter: it blurs every gradient whether or not it needed blurring, and doing that here went badly
+     * enough at quarterback to be written down — see {@link #AVAILABILITY_SMOOTHING_RADIUS}. Pooling
+     * adjacent violators is the identity everywhere the sample already behaves and touches only the runs
+     * that go backwards, so a real cliff survives it untouched.
+     *
+     * Where it does pool, the ranks come out sharing one value, which is the honest reading: the model
+     * cannot separate them. A board sorted by worth then shows them level rather than inverted, and a reader
+     * at speed sees a tie instead of a claim.
+     *
+     * <b>The rate only, and deliberately not availability.</b> How much football a rank plays is barely
+     * related to where it was ranked — see {@link Census#gamesCorrelation} — and a workhorse taking more
+     * carries also takes more hits, so a better rank being less available is a thing that happens rather
+     * than a thing the sample got wrong. Constraining it would assert more than the evidence carries. What
+     * that leaves is a handful of small inversions in the season total, none past about a point and a half,
+     * which is well inside the standard error each rank already carries.
+     *
+     * Pool adjacent violators, which yields the least squares closest non-increasing sequence in one pass.
+     */
+    private static Map<Integer, BigDecimal> monotone(Map<Integer, BigDecimal> byRank) {
+        List<Integer> ranks = byRank.keySet().sort()
+        if (ranks.size() < 2) {
+            return byRank
+        }
+        // Each block carries its running total and how many ranks it covers, so a merged block averages.
+        List<List> blocks = ranks.collect { [byRank[it], 1] as List }
+        int i = 0
+        while (i < blocks.size() - 1) {
+            BigDecimal here = (blocks[i][0] as BigDecimal) / (blocks[i][1] as int)
+            BigDecimal next = (blocks[i + 1][0] as BigDecimal) / (blocks[i + 1][1] as int)
+            if (here < next) {
+                blocks[i] = [(blocks[i][0] as BigDecimal) + (blocks[i + 1][0] as BigDecimal),
+                             (blocks[i][1] as int) + (blocks[i + 1][1] as int)]
+                blocks.remove(i + 1)
+                if (i > 0) {
+                    i--
+                }
+            } else {
+                i++
+            }
+        }
+        Map<Integer, BigDecimal> out = [:]
+        int at = 0
+        blocks.each { List block ->
+            BigDecimal value = (block[0] as BigDecimal) / (block[1] as int)
+            (block[1] as int).times { out[ranks[at++]] = value }
+        }
+        out
     }
 
     private static BigDecimal mean(List<BigDecimal> values) {

@@ -195,8 +195,40 @@ class PointsCurveSpec extends Specification {
             }
         }
 
-        and: 'the curve really is non-monotone here, so that invariant was worth asserting'
-        ranks.any { int r -> r < curve.depth('WR') && curve.seasonPoints('WR', r + 1) > curve.seasonPoints('WR', r) }
+        and: 'ranks the scatter could not separate come out level, which is what the invariant guards'
+        ranks.any { int r -> r < curve.depth('WR') && curve.levelledRate('WR', r + 1) == curve.levelledRate('WR', r) }
+    }
+
+    def "the rate never rises with the rank, however the sample scatters"() {
+        given: 'a sample lumpy enough that the means alone run backwards a third of the time'
+        Map<Integer, List<BigDecimal>> lumpy = (1..30).collectEntries { int rank ->
+            BigDecimal expected = (300 - rank * 5) as BigDecimal
+            [(rank): [expected * (rank % 4 == 0 ? 0.4 : 1.3), expected * 0.6, expected * 1.4,
+                      0.0 as BigDecimal] * 2]
+        }
+
+        when:
+        PointsCurve curve = PointsCurve.of([WR: TestSeasons.byRank(lumpy)])
+
+        then: 'order comes from the ranking, so a later rank never levels above an earlier one'
+        (1..<curve.depth('WR')).every {
+            curve.levelledRate('WR', it + 1) <= curve.levelledRate('WR', it)
+        }
+    }
+
+    def "pools only the ranks that run backwards, and leaves a real gradient alone"() {
+        given: 'a clean descending sample with no scatter at all'
+        Map<Integer, List<BigDecimal>> clean = (1..12).collectEntries { int rank ->
+            [(rank): (1..8).collect { (300 - rank * 20) as BigDecimal }]
+        }
+
+        when:
+        PointsCurve curve = PointsCurve.of([WR: TestSeasons.byRank(clean)])
+
+        then: 'nothing violates the order, so nothing is pooled and every rank keeps its own level'
+        List<BigDecimal> rates = (1..curve.depth('WR')).collect { curve.levelledRate('WR', it) }
+        rates == rates.sort(false).reverse()
+        rates.toSet().size() == rates.size()
     }
 
     def "falls back to expectation where a position has no spread to report"() {
