@@ -5,6 +5,7 @@ import ff.data.mfl.MflData
 import ff.load.fuad.FuadLoader
 import ff.load.mfl.MflLoader
 import ff.load.util.LoadUtils
+import ff.run.ReportManifest
 import ff.print.fuad.FuadFranchiseDraftPrinter
 import ff.print.fuad.FuadRankingsDraftPrinter
 import ff.load.fuad.FuadValuationLoader
