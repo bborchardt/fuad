@@ -20,6 +20,15 @@ import java.math.RoundingMode
  * <b>{@code TAKEN} is filled in for the keepers and left empty for everyone else</b>, which is the state the
  * draft actually starts in. Filter the blanks and the sheet is the live board.
  *
+ * <b>Everyone ranked is on it, priced or not.</b> The curve stops where nine seasons stop having enough to
+ * say about a rank, which at running back is rank 65 against the sixty this league drafts — five players of
+ * margin, and a draft where backs go faster than usual would run off the end of it. So the ranks past that
+ * are listed too, in consensus order, with {@code VOR} left blank.
+ *
+ * Blank rather than zero, and last rather than mixed in: a rank the curve declines to price is one nothing
+ * is known about, which is not the same claim as one known to be worthless. Sorting them below every priced
+ * player says the board has run out of opinions, not that these are the worst players available.
+ *
  * Comma separated, unlike every other report here, because this one is opened by a spreadsheet rather than
  * pasted into one — the same reason the auction's schedule is.
  */
@@ -47,30 +56,42 @@ class GreenfieldSheetPrinter {
                      vor     : priced ? board.valueOf(player.player.name) : null,
                      adp     : board.demand().averageDraftPosition()[position]?.get(rank)]
                 }
-                .findAll { it.vor != null }
-                .sort { -(it.vor as BigDecimal) }
+        // Priced first in value order, then the rest in consensus order: the sheet runs out of value
+        // before it runs out of players, and says so by leaving the column empty.
+                .sort { Map a, Map b ->
+                    if (a.vor != null && b.vor != null) {
+                        return -((a.vor as BigDecimal) <=> (b.vor as BigDecimal))
+                    }
+                    if (a.vor != null) return -1
+                    if (b.vor != null) return 1
+                    ((a.player as FpRankedPlayer).rank.overallRank ?: Integer.MAX_VALUE) <=>
+                            ((b.player as FpRankedPlayer).rank.overallRank ?: Integer.MAX_VALUE)
+                }
 
         out.println(['TAKEN', 'VORRANK', 'POS', 'RANK', 'PLAYER', 'TEAM', 'BYE', 'VOR', 'ADP', 'EDGE',
                      'TIER', 'PTS'].join(','))
+        int priced = rows.count { it.vor != null }
         rows.eachWithIndex { Map row, int i ->
             FpRankedPlayer player = row.player as FpRankedPlayer
             String position = row.position as String
             int rank = row.rank as int
-            int vorRank = i + 1
+            // Only the priced part of the list has a value order, so only it carries a place in one.
+            Integer vorRank = row.vor == null ? null : i + 1
             Integer adp = row.adp as Integer
             out.println([
                     quote(keptBy[player.player.name] ?: ''),
-                    vorRank,
+                    vorRank ?: '',
                     position,
                     rank,
                     quote(player.player.name),
                     quote(player.player.team ?: ''),
                     player.bye ?: '',
-                    (row.vor as BigDecimal).setScale(1, RoundingMode.HALF_UP),
+                    row.vor == null ? '' : (row.vor as BigDecimal).setScale(1, RoundingMode.HALF_UP),
                     adp ?: '',
-                    adp ? adp - vorRank : '',
-                    board.curve.tier(position, rank),
-                    board.curve.seasonPoints(position, rank).setScale(1, RoundingMode.HALF_UP),
+                    adp && vorRank ? adp - vorRank : '',
+                    row.vor == null ? '' : board.curve.tier(position, rank),
+                    row.vor == null ? ''
+                            : board.curve.seasonPoints(position, rank).setScale(1, RoundingMode.HALF_UP),
             ].join(','))
         }
     }

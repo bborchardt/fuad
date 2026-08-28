@@ -17,6 +17,13 @@ and `adp` are when each position comes off the board.
 positions ordered by what a player is worth, with the keepers already marked taken. It is comma separated
 rather than tab, being opened by a spreadsheet rather than pasted into one.
 
+**Everyone ranked is on it, priced or not.** The curve stops where nine seasons stop having enough to say
+about a rank, which at running back is rank 65 against the sixty this league drafts — five players of
+margin, and a draft where backs go faster than usual would run off the end of it. The ranks past that are
+listed below every priced player, in consensus order, with `VOR` blank. Blank rather than zero: a rank the
+curve declines to price is one nothing is known about, which is not the same claim as one known to be
+worthless.
+
 `outlook` is separate: it answers for one draft slot rather than for the league, so it takes `-s` and is not
 part of `all`.
 
