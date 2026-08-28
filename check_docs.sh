@@ -9,7 +9,13 @@
 # figures a superseded model wrote is not a pass, and without this it read as one.
 #
 # Each document then reports how many figures it was actually held to. A document with no marker is
-# reported NONE rather than OK, because nothing in it was checked and OK does not say that.
+# reported NONE rather than OK, because no figure in it was checked and OK does not say that.
+#
+# Links to other files in the tree are checked too, paths and headings alike. A broken markdown link fails
+# silently -- nothing renders an error, and a reader concludes the documentation is confused rather than
+# that a file moved underneath it. Splitting the data document by league broke two anchors that way, and
+# both were found by hand. External URLs are left alone: whether a site is up is not this repository's
+# question, and a check that fails when one is down is a check that gets ignored.
 #
 # Unlike check_strategy.sh there is no boundary rule here: a plan may not name a model internal, and
 # documentation of the model is nothing but model internals.

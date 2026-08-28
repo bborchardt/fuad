@@ -52,6 +52,9 @@ class DocsCheck {
 
     private static final String FIGURES_MARKER = /<!--\s*figures:\s*([^>]*?)\s*-->/
 
+    /** `](path.md#anchor)`, `](path.md)` or `](#anchor)` — the file and the heading, either optional. */
+    private static final String LINK = /\]\(([^)#\s]*)(#([^)\s]*))?\)/
+
     /**
      * What checking a document came to: where it disagreed, and how much was actually looked at.
      *
@@ -65,11 +68,14 @@ class DocsCheck {
         final int verified
         /** Tables under a marker, whether or not any of their cells matched a field. */
         final int tables
+        /** Links to another file in the tree, each checked to lead somewhere. */
+        final int links
 
-        Result(List<String> failures, int verified, int tables) {
+        Result(List<String> failures, int verified, int tables, int links = 0) {
             this.failures = failures
             this.verified = verified
             this.tables = tables
+            this.links = links
         }
     }
 
@@ -120,11 +126,12 @@ class DocsCheck {
                 failed = true
             } else if (!result.tables) {
                 // Not a failure: a document about the league's rules or its data files legitimately cites no
-                // model figure. But it must not read as though something was verified here, because nothing was.
+                // model figure. But it must not read as though a figure was verified here, because none was.
                 println "NONE  $document"
-                println '  no <!-- figures: --> marker, so nothing in this document is checked'
+                println "  no <!-- figures: --> marker, so no figure here is checked ($result.links links are)"
             } else {
-                println "OK    $document  ($result.verified figures in $result.tables tables)"
+                println "OK    $document  ($result.verified figures in $result.tables tables, " +
+                        "$result.links links)"
             }
         }
         if (failed) {
@@ -228,7 +235,57 @@ class DocsCheck {
             failures.addAll(row.failures)
             verified += row.verified
         }
-        new Result(failures, verified, tables)
+        Result links = checkLinks(document, lines)
+        failures.addAll(links.failures)
+        new Result(failures, verified, tables, links.links)
+    }
+
+    /**
+     * Every link to another file in the tree, checked to lead somewhere.
+     *
+     * <b>A broken markdown link fails silently, which is why this exists.</b> Nothing renders an error and
+     * no check noticed: a reader follows it, lands somewhere unexpected, and concludes the documentation is
+     * confused rather than that a file moved underneath it. Splitting the data document by league broke two
+     * anchors that way, and both were found by walking the links by hand rather than by anything reporting.
+     *
+     * <b>Anchors are checked and not only paths</b>, since the anchor is what usually rots. Moving a section
+     * from one document to another leaves every link to it pointing at a file that still exists and a
+     * heading that is no longer in it, which is the harder half to notice and the easier half to cause.
+     *
+     * External links are left alone. Whether a URL still resolves is a question about the internet rather
+     * than about this repository, and a check that fails when a site is down is a check that gets ignored.
+     */
+    private static Result checkLinks(File document, List<String> lines) {
+        List<String> failures = []
+        int checked = 0
+        lines.eachWithIndex { String line, int i ->
+            (line =~ LINK).each { List<String> match ->
+                String path = match[1]
+                String anchor = match[3]
+                if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('mailto:')) {
+                    return
+                }
+                checked++
+                File target = path ? new File(document.parentFile ?: new File('.'), path) : document
+                if (!target.exists()) {
+                    failures << "line ${i + 1}: link to '$path', which is not there".toString()
+                    return
+                }
+                if (anchor && target.name.endsWith('.md') && !headings(target).contains(anchor)) {
+                    failures << ("line ${i + 1}: link to '#$anchor' in " +
+                            "${path ?: target.name}, which has no such heading").toString()
+                }
+            }
+        }
+        new Result(failures, 0, 0, checked)
+    }
+
+    /** A document's headings, as the anchors a link would name them by. */
+    private static Set<String> headings(File document) {
+        document.readLines().findAll { it.startsWith('#') }
+                .collect { it.replaceFirst(/^#+\s*/, '') }
+                .collect { it.toLowerCase().replaceAll(/[^a-z0-9]+/, '-').replaceAll(/^-|-$/, '') }
+                .toSet()
     }
 
     /** `curve across=POS field=PTS` into its table name and its options. */

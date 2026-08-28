@@ -493,4 +493,62 @@ Prose, which ends the table.
         expect:
         DocsCheck.check(doc, figuresDir, '2026').any { it.contains("'SLOT' is not a column of fuad/curve.tsv") }
     }
+
+    def "catches a link to a file that is not there"() {
+        given:
+        File doc = document('See [the rules](LEAGUE_RULES.md) for what changed.')
+
+        expect:
+        DocsCheck.check(doc, figuresDir, '2026')
+                .any { it.contains("link to 'LEAGUE_RULES.md', which is not there") }
+    }
+
+    def "catches a link to a heading the target does not carry"() {
+        given: 'a real neighbouring document, linked at a heading it has never had'
+        new File(temp, 'OTHER.md').text = "# Other\n\n## The rollover rule\n\ntext\n"
+        File doc = document('See [franchises](OTHER.md#franchises), which moved.')
+
+        expect: 'the file exists, so only the anchor is wrong -- the half that is easy to cause'
+        DocsCheck.check(doc, figuresDir, '2026')
+                .any { it.contains("link to '#franchises' in OTHER.md, which has no such heading") }
+    }
+
+    def "passes a link whose file and heading are both there"() {
+        given:
+        new File(temp, 'OTHER.md').text = "# Other\n\n## The rollover rule\n\ntext\n"
+        File doc = document('See [the rollover rule](OTHER.md#the-rollover-rule).')
+
+        expect:
+        DocsCheck.check(doc, figuresDir, '2026') == []
+    }
+
+    def "checks a heading in the document itself, written as a bare anchor"() {
+        given:
+        File doc = document('# Doc\n\n## Player names\n\nSee [names](#player-names) and [gone](#no-such).')
+
+        when:
+        List<String> failures = DocsCheck.check(doc, figuresDir, '2026')
+
+        then:
+        failures.any { it.contains("link to '#no-such'") }
+        !failures.any { it.contains('player-names') }
+    }
+
+    def "leaves the internet alone, a URL being no business of this repository"() {
+        given:
+        File doc = document('Source: [nflverse](https://github.com/nflverse/nflverse-data#stats_player).')
+
+        expect: 'a check that fails when a site is down is a check that gets ignored'
+        DocsCheck.check(doc, figuresDir, '2026') == []
+    }
+
+    def "counts the links it checked, so a document with no figures still says what was"() {
+        given:
+        new File(temp, 'OTHER.md').text = "# Other\n"
+        File doc = document('Two: [a](OTHER.md) and [b](OTHER.md).')
+
+        expect:
+        DocsCheck.inspect(doc, figuresDir, '2026').links == 2
+        DocsCheck.inspect(doc, figuresDir, '2026').tables == 0
+    }
 }
