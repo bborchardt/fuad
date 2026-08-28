@@ -109,8 +109,8 @@ What that does to the top of each position:
 
 | Rank | QB | RB | WR | TE |
 | --- | --- | --- | --- | --- |
-| 1 | 306.1 | 213.4 | 224.0 | 161.5 |
-| 15 | 243.4 | 161.9 | 171.3 | 99.8 |
+| 1 | 306.1 | 214.2 | 222.4 | 161.5 |
+| 15 | 243.4 | 161.9 | 169.9 | 99.8 |
 
 and to what those ranks are worth over the player who would take the slot instead:
 
@@ -118,8 +118,8 @@ and to what those ranks are worth over the player who would take the slot instea
 
 | Rank | QB | RB | WR | TE |
 | --- | --- | --- | --- | --- |
-| 1 | 75.4 | 103.8 | 105.2 | 71.3 |
-| 15 | 30.5 | 59.7 | 58.1 | 18.3 |
+| 1 | 75.6 | 104.5 | 105.2 | 71.3 |
+| 15 | 30.7 | 59.6 | 57.4 | 18.3 |
 
 Tight ends level identically in both leagues, which is not an error. A tight end scores six a touchdown, a
 tenth a yard and a full point a reception under both rule sets, and neither the passing yardage rate nor the
@@ -135,12 +135,12 @@ question was asked of the defence, and answered the same way. See [DATA.md](../D
 
 | POS | BEST | REPLPTS |
 | --- | --- | --- |
-| WR | 224.0 | 116.4 |
-| RB | 213.4 | 108.9 |
+| WR | 222.4 | 114.9 |
+| RB | 214.2 | 107.8 |
 | QB | 306.1 | 243.4 |
 | TE | 161.5 | 99.8 |
-| PK | 113.0 | 87.2 |
-| DST | 94.9 | 88.8 |
+| PK | 112.8 | 87.2 |
+| DST | 94.9 | 89.1 |
 
 **Six points across a season**, against the kicker's twenty six and the tight end's sixty two. It is the
 flattest position in the league by a wide margin, and the curve is not even monotone through the ranks that
@@ -151,8 +151,8 @@ start:
 | Rank | DST |
 | --- | --- |
 | 1 | 94.9 |
-| 8 | 96.8 |
-| 15 | 88.8 |
+| 8 | 94.2 |
+| 15 | 89.1 |
 
 The eighth defence levels above the first. Preseason rank carries almost nothing about which defence will
 be good, and none of what little spread there is comes from availability — every defence plays all thirteen
@@ -176,16 +176,16 @@ was worth.
 
 | ROUND | BESTFIRST | BESTLAST | DROP |
 | --- | --- | --- | --- |
-| 1 | 105.2 | 87.2 | 18.0 |
-| 2 | 80.6 | 73.4 | 7.2 |
-| 3 | 68.9 | 61.2 | 7.7 |
-| 4 | 61.2 | 44.7 | 16.4 |
-| 5 | 44.7 | 43.2 | 1.5 |
-| 6 | 43.2 | 43.2 | 0.0 |
-| 7 | 38.9 | 37.0 | 1.9 |
-| 8 | 37.0 | 35.7 | 1.3 |
-| 9 | 35.7 | 26.4 | 9.3 |
-| 10 | 24.9 | 18.6 | 6.3 |
+| 1 | 105.0 | 87.1 | 17.9 |
+| 2 | 80.0 | 73.1 | 7.0 |
+| 3 | 68.8 | 61.2 | 7.6 |
+| 4 | 61.2 | 44.1 | 17.1 |
+| 5 | 44.1 | 41.0 | 3.1 |
+| 6 | 39.3 | 39.3 | 0.0 |
+| 7 | 38.3 | 37.9 | 0.4 |
+| 8 | 37.9 | 35.8 | 2.2 |
+| 9 | 35.8 | 25.8 | 10.0 |
+| 10 | 25.0 | 18.6 | 6.4 |
 
 **Two cliffs and a plateau.** Value falls hard through round one, again across round four, and again at round
 nine. Between rounds five and eight it barely moves at all: an eighth is worth about what a fifth is.
@@ -331,18 +331,18 @@ says a position can wait; it never argues for taking a lesser player. Draft down
 
 | PLAYER | POS | RANK | VOR | MEASURED | POSVALUE | MEASUREDSURPLUS | POSSURPLUS |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Chris Olave | WR | 10 | 64.3 | 37.0 | 16.8 | 27.3 | 47.5 |
-| Javonte Williams | RB | 16 | 54.3 | 37.0 | 7.8 | 17.3 | 46.4 |
-| Travis Etienne Jr. | RB | 18 | 45.9 | 37.0 | 7.8 | 8.9 | 38.0 |
-| Luther Burden III | WR | 23 | 49.6 | 35.7 | 15.9 | 13.8 | 33.6 |
-| Drake Maye | QB | 3 | 67.1 | 37.0 | 36.2 | 30.1 | 30.9 |
-| Cam Skattebo | RB | 20 | 33.5 | 37.0 | 7.8 | -3.5 | 25.7 |
-| Omarion Hampton | RB | 9 | 79.2 | 77.0 | 73.5 | 2.2 | 5.7 |
-| Kyle Pitts Sr. | TE | 6 | 31.4 | 37.0 | 26.6 | -5.6 | 4.8 |
-| Tucker Kraft | TE | 7 | 28.0 | 37.0 | 26.6 | -9.0 | 1.4 |
-| Jacory Croskey-Merritt | RB | 38 | 9.0 | 35.7 | 7.8 | -26.7 | 1.2 |
-| Trevor Lawrence | QB | 9 | 36.8 | 37.0 | 42.3 | -0.2 | -5.5 |
-| Rashee Rice | WR | 13 | 58.4 | 76.7 | 67.1 | -18.2 | -8.7 |
+| Chris Olave | WR | 10 | 63.9 | 37.9 | 16.0 | 25.9 | 47.9 |
+| Javonte Williams | RB | 16 | 54.2 | 37.9 | 7.4 | 16.3 | 46.8 |
+| Travis Etienne Jr. | RB | 18 | 45.8 | 37.9 | 7.4 | 7.9 | 38.4 |
+| Luther Burden III | WR | 23 | 49.1 | 35.8 | 15.2 | 13.3 | 33.9 |
+| Drake Maye | QB | 3 | 67.4 | 37.9 | 36.3 | 29.4 | 31.0 |
+| Cam Skattebo | RB | 20 | 33.5 | 37.9 | 7.4 | -4.5 | 26.1 |
+| Omarion Hampton | RB | 9 | 79.2 | 76.7 | 73.5 | 2.5 | 5.6 |
+| Kyle Pitts Sr. | TE | 6 | 31.4 | 37.9 | 25.9 | -6.6 | 5.5 |
+| Tucker Kraft | TE | 7 | 28.0 | 37.9 | 25.9 | -10.0 | 2.0 |
+| Jacory Croskey-Merritt | RB | 38 | 9.1 | 35.8 | 7.4 | -26.7 | 1.7 |
+| Trevor Lawrence | QB | 9 | 38.3 | 37.9 | 38.6 | 0.3 | -0.3 |
+| Rashee Rice | WR | 13 | 57.8 | 76.4 | 66.7 | -18.6 | -8.9 |
 
 **Which column decides depends on whether the keeper is a starter, and the two disagree about six of the
 twelve.**

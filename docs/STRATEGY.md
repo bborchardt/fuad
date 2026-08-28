@@ -151,8 +151,8 @@ invented a distinction. QB10, QB11 and QB14 are all tier 5 in 2026:
 
 | Rank | QB |
 | --- | --- |
-| 10 | 202.9 |
-| 11 | 202.4 |
+| 10 | 204.3 |
+| 11 | 204.0 |
 | 14 | 195.6 |
 
 <!-- figures: fuad/curve across=POS field=SE -->
@@ -167,8 +167,8 @@ invented a distinction. QB10, QB11 and QB14 are all tier 5 in 2026:
 
 | Rank | QB |
 | --- | --- |
-| 10 | 5 |
-| 11 | 5 |
+| 10 | 4 |
+| 11 | 4 |
 | 14 | 5 |
 
 Seven points of spread on estimates carrying seven to nine. They reach the board a few dollars apart all

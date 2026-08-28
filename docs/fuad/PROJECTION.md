@@ -71,7 +71,7 @@ How many of each there are, per position:
 | --- | --- | --- |
 | QB | 324 | 5 |
 | RB | 584 | 13 |
-| WR | 900 | 16 |
+| WR | 801 | 11 |
 | TE | 405 | 10 |
 
 Which is why the name matching between the rankings and the statistics has to be careful before it gives
@@ -84,9 +84,9 @@ What that produces at the top of each position, in points over the fourteen week
 
 | Rank | QB | RB | WR | TE |
 | --- | --- | --- | --- | --- |
-| 1 | 245.2 | 188.4 | 184.3 | 161.5 |
-| 6 | 220.5 | 178.6 | 161.2 | 116.4 |
-| 24 | 154.3 | 108.5 | 122.1 | 74.6 |
+| 1 | 245.3 | 190.0 | 183.1 | 161.5 |
+| 6 | 220.5 | 178.0 | 160.1 | 116.4 |
+| 24 | 153.4 | 109.5 | 121.3 | 75.0 |
 
 and per game played:
 
@@ -94,9 +94,9 @@ and per game played:
 
 | Rank | QB | RB | WR | TE |
 | --- | --- | --- | --- | --- |
-| 1 | 21.39 | 16.94 | 16.09 | 15.06 |
-| 6 | 19.26 | 16.51 | 14.20 | 10.90 |
-| 24 | 15.26 | 10.41 | 11.16 | 7.18 |
+| 1 | 21.39 | 17.08 | 15.98 | 15.06 |
+| 6 | 19.26 | 16.45 | 14.11 | 10.90 |
+| 24 | 15.17 | 10.50 | 11.09 | 7.22 |
 
 ### 2b. A season is a rate times an availability
 
@@ -110,7 +110,7 @@ coefficient of variation:
 | --- | --- | --- |
 | QB | 0.32 | 0.34 |
 | RB | 0.52 | 0.33 |
-| WR | 0.49 | 0.31 |
+| WR | 0.46 | 0.30 |
 | TE | 0.50 | 0.32 |
 
 For ranked quarterback seasons the two are level, so **about half the variation in a season total is
@@ -125,8 +125,8 @@ much of its own to availability as to the rate:
 
 | Rank | QB | WR |
 | --- | --- | --- |
-| 1 | 21.39 | 16.09 |
-| 34 | 11.22 | 9.86 |
+| 1 | 21.39 | 15.98 |
+| 34 | 11.22 | 9.88 |
 
 <!-- figures: fuad/curve across=POS field=G -->
 
@@ -151,12 +151,25 @@ season totals against splitting them, over a rank window common to all four posi
 
 | POS | BACKWARDTOTALS | BACKWARD |
 | --- | --- | --- |
-| QB | 24.5 | 6.6 |
-| RB | 54.5 | 12.4 |
-| WR | 61.2 | 21.9 |
-| TE | 20.3 | 11.6 |
+| QB | 24.5 | 0.6 |
+| RB | 54.5 | 4.4 |
+| WR | 61.2 | 2.0 |
+| TE | 20.3 | 1.3 |
 
-Better at every position, and by a factor of two to four at three of them.
+Better at every position, and by a long way — but the two columns no longer measure the same thing, and
+the gap between them is not all the split's doing.
+
+**`BACKWARD` is now held down by a constraint as well as by the split.** The rate is pooled by adjacent
+violators before anything is built on it, so a curve that ran backwards because forty five observations
+failed to separate two ranks no longer can; what backward movement survives comes from availability, which
+is deliberately left alone. `BACKWARDTOTALS` has no such constraint on it, being the counterfactual of
+levelling the season totals directly.
+
+So read the two columns as what they are: one curve that is constrained and one that is not. The split's own
+case was made before the constraint existed, when the same measurement ran 6.6 at quarterback, 12.4 at
+running back, 21.9 at receiver and 11.6 at tight end against the totals figures above — better by a factor
+of two to four, on the same footing. That is the comparison the split rests on, and it is recorded here
+because the figures can no longer reproduce it.
 
 > **Superseded.** This section used to argue the split from a single case — that levelling season totals
 > made the consensus best running back appear to be outplayed by RB5 — and that case no longer exists,
@@ -174,7 +187,7 @@ between rank and games played over every ranked season that carries money:
 | --- | --- |
 | QB | -0.41 |
 | RB | -0.16 |
-| WR | -0.25 |
+| WR | -0.22 |
 | TE | -0.20 |
 
 Outside quarterback that is a few per cent of the variance, so a narrow window fits mostly noise and
@@ -233,8 +246,8 @@ the minimums and four are flex. Allocating the flex greedily across the league g
 | --- | --- | --- |
 | QB | 20 | 21 |
 | RB | 26 | 27 |
-| WR | 32 | 33 |
-| TE | 12 | 13 |
+| WR | 31 | 32 |
+| TE | 13 | 14 |
 | PK | 10 | 11 |
 
 Superflex means 20 of about 50 usable quarterbacks start, which pushes quarterback replacement very high
@@ -247,17 +260,17 @@ receiver and its 11th to 13th tight end, and those are the same players:
 
 | Rank | TE |
 | --- | --- |
-| 11 | 109.4 |
-| 12 | 110.3 |
+| 11 | 109.6 |
+| 12 | 109.5 |
 | 13 | 107.2 |
 
 <!-- figures: fuad/curve across=POS field=PTS -->
 
 | Rank | WR |
 | --- | --- |
-| 32 | 103.6 |
-| 33 | 104.8 |
-| 34 | 105.6 |
+| 32 | 106.8 |
+| 33 | 106.5 |
+| 34 | 105.8 |
 
 A handful of points apart, against a standard error near six. Small changes to the curve have moved these
 slots between the two positions more than once, and
@@ -283,18 +296,18 @@ be compared. Read down a position at a time:
 
 | Rank | QB | WR | RB |
 | --- | --- | --- | --- |
-| 10 | 41.7 | | |
-| 30 | | 18.8 | 15.2 |
-| 38 | | 13.8 | |
-| 48 | | | 4.8 |
+| 10 | 43.2 | | |
+| 30 | | 17.6 | 15.6 |
+| 38 | | 12.5 | |
+| 48 | | | 4.1 |
 
 <!-- figures: fuad/curve across=POS field=VOREXP -->
 
 | Rank | QB | WR | RB |
 | --- | --- | --- | --- |
-| 10 | 32.2 | | |
-| 30 | | 3.0 | 0.2 |
-| 38 | | 0.3 | |
+| 10 | 34.0 | | |
+| 30 | | 2.5 | 0.0 |
+| 38 | | 0.0 | |
 | 48 | | | 0.0 |
 
 Every one of those gaps is positive, and it is widest where a player sits near replacement rather than well
@@ -349,9 +362,9 @@ As priced, which is generated:
 
 | FIGURE | VALUE | Actual 2025 |
 | --- | --- | --- |
-| Players above $1 | 78 | 70 |
-| Top cost | 81 | $100 |
-| Top 40 cost | 86.2 | 87% |
+| Players above $1 | 76 | 70 |
+| Top cost | 84 | $100 |
+| Top 40 cost | 86.7 | 87% |
 
 <!-- model: 59b4f91 -->
 
@@ -390,10 +403,10 @@ nine seasons in ten land under about one and three quarters times expectation:
 
 | POS | P10 | P90 |
 | --- | --- | --- |
-| QB | 0.36 | 1.50 |
+| QB | 0.36 | 1.51 |
 | RB | 0.23 | 1.71 |
-| WR | 0.30 | 1.68 |
-| TE | 0.31 | 1.72 |
+| WR | 0.36 | 1.66 |
+| TE | 0.31 | 1.75 |
 
 Note how much further the tenth percentile falls below one than the ninetieth rises above it. Fitting a
 lognormal to that variance mirrors the left tail into a right one, pricing the bench as if every deep player
@@ -564,11 +577,11 @@ The highest `PRICE` is Ja'Marr Chase, which no one pays because he is tagged wel
 
 | FIGURE | VALUE | Actual 2025 |
 | --- | --- | --- |
-| Players | 106 | |
-| Total cost | 1938 | |
-| Top price | 92 | $100 |
-| Players above $1 | 78 | 70 |
-| Top 40 price | 87.0 | 87% |
+| Players | 105 | |
+| Total cost | 1934 | |
+| Top price | 96 | $100 |
+| Players above $1 | 76 | 70 |
+| Top 40 price | 87.6 | 87% |
 | Teams tagging | 9 | 7 |
 
 Position shares are the ones the league actually spends, since `MARKET_WEIGHT` is 1.0. `SHARE` is what the
@@ -578,11 +591,11 @@ board came out at and `TARGETSHARE` what the calibration aimed for:
 
 | POS | PLAYERS | RESERVE | SHARE | TARGETSHARE |
 | --- | --- | --- | --- | --- |
-| QB | 19 | 0.9 | 23.7 | 23.7 |
+| QB | 19 | 0.9 | 23.8 | 23.7 |
 | RB | 22 | 1.1 | 32.0 | 32.3 |
-| WR | 25 | 1.2 | 33.2 | 33.5 |
+| WR | 24 | 1.2 | 33.2 | 33.5 |
 | TE | 22 | 1.1 | 9.9 | 9.4 |
-| PK | 18 | 0.9 | 1.3 | 1.0 |
+| PK | 18 | 0.9 | 1.2 | 1.0 |
 
 **Those two columns do not match, and the reason is not a failure of the calibration.** It hits the target
 exactly — the shares of value it hands on are `TARGETSHARE` to the decimal, and bending each position's
@@ -720,7 +733,7 @@ Alongside them the board carries what a plan needs in order to reason without go
 
   | POS | ANCHOR |
   | --- | --- |
-  | WR | 1.032 |
+  | WR | 1.025 |
   | QB | 1.063 |
 
   They are carried because the two halves are differently caused and the total hides which one a player is
@@ -782,8 +795,8 @@ calibration touches it.
 
 | POS | TARGETSHARE | VORSHARE |
 | --- | --- | --- |
-| WR | 33.5 | 25.4 |
-| RB | 32.3 | 37.2 |
+| WR | 33.5 | 23.8 |
+| RB | 32.3 | 37.0 |
 
 Receiver is bought a third above what it is worth and running back at about nine tenths of it. Named by
 position rather than by player for the reason [STRATEGY.md](../STRATEGY.md#what-the-board-carries) gives about
@@ -802,10 +815,10 @@ level carries a standard error of seven to nine points:
 
 | Rank | QB |
 | --- | --- |
-| 8 | 212.6 |
-| 10 | 202.9 |
-| 11 | 202.4 |
-| 12 | 207.2 |
+| 8 | 210.6 |
+| 10 | 204.3 |
+| 11 | 204.0 |
+| 12 | 203.5 |
 | 14 | 195.6 |
 
 <!-- figures: fuad/curve across=POS field=SE -->
@@ -823,8 +836,8 @@ level carries a standard error of seven to nine points:
 | Rank | QB |
 | --- | --- |
 | 8 | 4 |
-| 10 | 5 |
-| 11 | 5 |
+| 10 | 4 |
+| 11 | 4 |
 | 12 | 4 |
 | 14 | 5 |
 
@@ -871,7 +884,7 @@ last rank levelling above a quarter of the position's best:
 | --- | --- |
 | QB | 36 |
 | RB | 65 |
-| WR | 100 |
+| WR | 89 |
 | TE | 45 |
 | PK | 25 |
 
@@ -919,7 +932,7 @@ positions, which is the whole argument for reading a depth off the curve instead
 | --- | --- | --- | --- | --- |
 | QB | 36 | 45 | 19 | 32 |
 | RB | 65 | 102 | 30 | 63 |
-| WR | 100 | 112 | 40 | 85 |
+| WR | 89 | 112 | 40 | 85 |
 | TE | 45 | 57 | 15 | 34 |
 
 `DEEPEST` is one signing and a depth should not chase it, which is why `PRICEDDEPTH` sits below it at every
@@ -957,7 +970,7 @@ anything — a dead constant that looked live, and which cost an afternoon of mi
 
 | POS | SHARE | TARGETSHARE | PRICEDDEPTH | SEASONS | LOST | P10 | P90 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| PK | 1.3 | 1.0 | 25 | 225 | 11 | 0.36 | 1.43 |
+| PK | 1.2 | 1.0 | 25 | 225 | 11 | 0.36 | 1.41 |
 
 Rank predicts kicker scoring better than the position's reputation suggests. Over 2017-2025 the preseason
 PK1 finished inside the top ten kickers in **every one of the nine seasons**, and the curve separates the
@@ -967,11 +980,11 @@ top of the position from replacement by more than five standard errors:
 
 | Rank | PK |
 | --- | --- |
-| 1 | 113.3 |
-| 3 | 108.0 |
-| 5 | 103.3 |
-| 11 | 92.2 |
-| 20 | 78.5 |
+| 1 | 113.1 |
+| 3 | 107.8 |
+| 5 | 103.1 |
+| 11 | 93.0 |
+| 20 | 78.4 |
 
 Most of that is **rate** rather than availability:
 
@@ -979,8 +992,8 @@ Most of that is **rate** rather than availability:
 
 | Rank | PK |
 | --- | --- |
-| 1 | 9.66 |
-| 11 | 8.16 |
+| 1 | 9.64 |
+| 11 | 8.23 |
 
 so it is a claim about how well a rank kicks, not about who keeps his job.
 
@@ -993,10 +1006,10 @@ any calibration touches it, which is what makes the pair worth reading:
 | POS | TARGETSHARE | VORSHARE |
 | --- | --- | --- |
 | QB | 23.7 | 24.8 |
-| RB | 32.3 | 37.2 |
-| WR | 33.5 | 25.4 |
-| TE | 9.4 | 7.1 |
-| PK | 1.0 | 5.6 |
+| RB | 32.3 | 37.0 |
+| WR | 33.5 | 23.8 |
+| TE | 9.4 | 8.3 |
+| PK | 1.0 | 6.2 |
 
 Kicker is out by a factor of nearly six and nothing else is out by a factor at all. Quarterback and running
 back are bought at about nine tenths of their worth; receiver is bought a third above it and **tight end
