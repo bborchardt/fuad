@@ -1070,53 +1070,52 @@ it.
 
 ### When they actually go
 
-Value says who to take; the drafts say who will still be there. Nine of this league's own rookie drafts,
-each pick joined to the rookie rank the player held that preseason, give the board a team faces at each
-pick:
+Value says who to take; the drafts say who will still be there. Each pick of each draft is joined to the
+rookie rank the player held that preseason, and the board walked down as they go:
 
 <!-- figures: fuad/rookiedemand key=PICK -->
 
 | PICK | BESTQB | BESTRB | BESTWR | BESTTE |
 | --- | --- | --- | --- | --- |
 | 1 | 1 | 1 | 1 | 1 |
-| 5 | 1 | 3 | 2 | 1 |
-| 10 | 1 | 4 | 4 | 1 |
-| 11 | 1 | 4 | 5 | 2 |
-| 15 | 1 | 6 | 6 | 2 |
-| 20 | 3 | 7 | 8 | 2 |
-| 25 | 4 | 8 | 11 | 3 |
-| 30 | 5 | 9 | 12 | 4 |
-| 40 | 6 | 11 | 15 | 5 |
+| 5 | 1 | 3 | 3 | 1 |
+| 10 | 2 | 3 | 5 | 2 |
+| 11 | 3 | 3 | 6 | 2 |
+| 15 | 4 | 5 | 8 | 3 |
+| 20 | 4 | 6 | 9 | 3 |
+| 25 | 4 | 7 | 12 | 3 |
+| 30 | 5 | 9 | 14 | 4 |
+| 40 | 6 | 10 | 15 | 6 |
 | 50 | 6 | 12 | 17 | 7 |
 
-**The best rookie quarterback is typically still on the board at pick 15.** The league has started two
-quarterbacks since 2022 and its rookie drafts have not adjusted: receivers and backs are gone four and six
-deep by then. It is reported rather than corrected — the model says what the room does, and what to do about
-it is a plan's business — but it is the largest standing gap between what this board says and how the room
-behaves.
+**Measured over the four superflex drafts and no others, which is a correction rather than a preference.**
+A curve can pool nine seasons because a level is points and every season is restated under the rules being
+priced. Availability is *behaviour*, and behaviour has no restatement: what the room did in 2019 was done by
+teams starting one quarterback, and nothing converts that into what a team starting two would have done.
+
+The difference is the largest figure this measurement produces. Pooled across all nine drafts, the best
+rookie quarterback appears to last until pick 15 — which reads as a standing inefficiency in the room, and
+is not one. Split at 2022:
+
+| Best QB available at pick | 5 | 8 | 10 | 12 | 15 |
+| --- | --- | --- | --- | --- | --- |
+| 2017-2021, one quarterback started | 1 | 1 | 1 | 1 | 1 |
+| 2022-2025, superflex | 1 | 2 | 2 | 3 | 4 |
+
+**The room adjusted.** Before superflex the best rookie quarterback sat there past the end of round one;
+since superflex he is gone by pick 8. Receivers moved the same way and less sharply — the best available at
+pick 15 was the fifth and is now the eighth — and running backs did not move at all, which is what a real
+lineup effect should look like rather than noise.
+
+Four drafts is thin, and that is the price of measuring the era being drafted in. The floor of three
+sightings then bites hard at the deep picks, which report nothing rather than an average over whichever
+years happened to run long. The auction board makes the same trade for the same reason; see
+`AuctionSpend.SUPERFLEX_SEASONS`.
 
 The ladder is held to only ever emptying. A median over unequal drafts does not do that on its own: a pick
-past 40 exists in five of the nine drafts and one past 50 in one of them, so a five round year that happened
-to leave a good receiver on the board can put pick 41 ahead of pick 40. That is an artefact of which drafts
+past 40 exists in three of the four drafts and one past 50 in one of them, so a long year that happened to
+leave a good receiver on the board can put pick 41 ahead of pick 40. That is an artefact of which drafts
 reached which pick, not a claim that waiting improves the board.
-
-### What it produces for 2026
-
-<!-- figures: fuad/rookieboard -->
-
-| FIGURE | VALUE |
-| --- | --- |
-| RANKED | 117 |
-| TOPTEN | 9 |
-| SURPLUS | 1251 |
-| DEFERRED | 1108 |
-| SALARY | 32 |
-
-Nine rookies expected to go inside the first ten picks, costing $32 between them, holding $1,251 of surplus
-over their contracts — of which **$1,108, or 89%, arrives after the season the pick is spent in**.
-
-That figure is the whole case for the rookie board. It is the part of a pick that no auction dollar can buy
-at any price, and pricing a rookie on his first season would report a tenth of it.
 
 ### One team's picks
 
@@ -1148,6 +1147,15 @@ will not decide. Solving it would put a confident-looking answer on top of an ob
   board rather than as an equal one.
 - **A rookie's bye is his team's.** No ranking carries a bye for a rookie — the dynasty export writes 0 —
   and the same week is used in every contract year, there being no schedule for a season four years out.
+- **Availability is four drafts and the curve is nine seasons**, so the two halves of the board rest on very
+  different amounts of evidence. That is deliberate — see above — but it means the value column is a much
+  firmer claim than the pick column beside it.
+- **A pick is priced as a selection and never as currency.** Bylaw 7.2 makes a first round pick the price of
+  prising away a franchised player, so a first has an exchange value as well as a use value, and bylaw 7.3
+  makes holding one a condition of bidding at all. Nothing here prices either. The board answers which
+  player to take with a pick, deliberately and not for want of finishing: what a pick fetches in a trade is a
+  different question with different evidence behind it, and the league's own trade history is where it would
+  come from.
 
 ## Kickers
 

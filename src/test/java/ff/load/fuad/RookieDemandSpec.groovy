@@ -9,6 +9,9 @@ import spock.lang.Specification
  * The measurement is a median over few observations, so what can be asserted is its shape rather than its
  * cells: that it runs the right way, that it agrees with consensus at the top where the two should agree,
  * and that it declines to answer where the drafts have not been.
+ *
+ * Measured over the superflex drafts alone, which is the correction this class most needed. See
+ * {@link RookieDemand#SEASONS}.
  */
 class RookieDemandSpec extends Specification {
 
@@ -48,25 +51,36 @@ class RookieDemandSpec extends Specification {
         given:
         Map<String, Map<Integer, Integer>> best = demand.bestAvailableByPick()
 
-        expect: 'one draft in nine has ever made a fifty first pick'
+        expect: 'one draft of the four has ever made a fifty first pick'
         best.WR[51] == null
         best.WR[40] != null
     }
 
+    def "is measured over the superflex drafts and no others"() {
+        expect:
+        RookieDemand.SEASONS == ['2022', '2023', '2024', '2025']
+    }
+
     /**
-     * Quarterbacks last, which is the standing anomaly in this league's rookie drafting.
+     * The room adjusted to superflex, and pooling the drafts either side of it said the opposite.
      *
-     * The lineup has started two quarterbacks since 2022 and the rookie board still leaves the best one on
-     * the table into the second round. It is reported rather than corrected: the model says what the room
-     * does, and what to do about it is the plan's business.
+     * Across all nine drafts the best rookie quarterback appeared to sit on the board until pick 15, which
+     * reads as a standing inefficiency worth exploiting. It was five pre-superflex drafts averaged into four
+     * superflex ones: before 2022 he did last that long, and since 2022 he is gone by pick 8. Measured over
+     * the era being drafted in, quarterbacks go faster than receivers, not slower.
+     *
+     * Asserted because the wrong version of it was in the documentation, in a figure, and in this spec, and
+     * because it is the one number here that would change what a plan does at a pick.
      */
-    def "the best rookie quarterback survives longer than the best rookie at any other position"() {
+    def "the best rookie quarterback is gone by the middle of the first round"() {
         given:
         Map<String, Map<Integer, Integer>> best = demand.bestAvailableByPick()
 
-        expect:
-        best.QB[10] == 1
-        best.RB[10] > 1
-        best.WR[10] > 1
+        expect: 'still there in the first handful of picks'
+        best.QB[5] == 1
+
+        and: 'and gone by the eighth, where a pooled measurement had him lasting to fifteen'
+        best.QB[10] > 1
+        best.QB[15] > 3
     }
 }

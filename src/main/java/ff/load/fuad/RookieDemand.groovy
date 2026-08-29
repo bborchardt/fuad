@@ -4,28 +4,53 @@ import ff.data.fantasypros.FpRankedPlayer
 import ff.data.fuad.RookiePick
 import ff.load.fantasypros.FantasyProsLoader
 import ff.load.util.LoadUtils
+import ff.projection.fuad.AuctionSpend
 
 /**
  * When a rookie actually comes off the board, which is not the same as where the consensus ranks him.
  *
  * <b>Value says who to take; this says who will still be there.</b> A plan that takes the best rookie
- * available at every pick is only a plan if the board waits, and nine of this league's own drafts are a far
- * better witness to that than the consensus order is. They agree closely at the top — the first pick has
- * been the consensus first or second rookie in six of nine years — and diverge steadily after it, which is
- * exactly the region a middle pick has to plan around.
+ * available at every pick is only a plan if the board waits, and this league's own drafts are a far better
+ * witness to that than the consensus order is. They agree closely at the top and diverge steadily after it,
+ * which is exactly the region a middle pick has to plan around.
  *
  * Measured the way {@link ff.load.greenfield.PositionDemand} measures it, and for the same reason: a rank
  * with two observations across nine drafts is not evidence, so ranks are pooled with their neighbours and
  * anything still short of a handful of sightings is reported as unknown rather than guessed.
  *
- * <b>Drafts are not the same length, so the deep picks rest on fewer of them.</b> Four rounds through 2020
- * and five since, against eight to eleven teams; 2017 and 2024 carry expansion picks on top. A pick past 40
- * exists in five drafts and a pick past 50 in one, which is why {@link #MINIMUM_OBSERVATIONS} is enforced
- * per pick rather than per draft.
+ * <b>Drafts are not the same length, so the deep picks rest on fewer of them.</b> Five rounds against eight
+ * to ten teams, and 2024 carries expansion picks on top. A pick past 40 exists in three of the four drafts
+ * and a pick past 50 in one, which is why {@link #MINIMUM_OBSERVATIONS} is enforced per pick rather than
+ * per draft.
  */
 class RookieDemand {
 
-    /** Ranks either side of one that are pooled in, to get a usable sample out of nine drafts. */
+    /**
+     * The drafts this is measured over: every season played under superflex.
+     *
+     * <b>Unlike a curve, this is not restated and cannot be.</b> A level is points, and
+     * {@link ff.load.RealisedSeasons} rescores every season under the rules being priced, so nine seasons of
+     * scoring pool honestly. Availability is <i>behaviour</i>, and behaviour has no restatement: what the
+     * room did in 2019 was done by teams starting one quarterback, and no amount of arithmetic converts it
+     * into what a team starting two would have done.
+     *
+     * The difference is not academic, it is the largest single figure this class produces. Pooled across all
+     * nine drafts the best rookie quarterback appears to sit on the board until pick 15, which reads as a
+     * standing inefficiency in the room. Split at 2022 it is an artefact: before superflex he lasted past
+     * pick 15, and since superflex he is gone by pick 8. The room adjusted, and pooling hid it behind five
+     * drafts played under a different lineup.
+     *
+     * Receivers moved the same way and less sharply — the best available at pick 15 was the fifth and is now
+     * the ninth — and running backs did not move at all, which is what a genuine lineup effect should look
+     * like.
+     *
+     * Four drafts is thin, and that is the price. {@link #MINIMUM_OBSERVATIONS} then bites much harder at
+     * the deep picks, which report nothing rather than an average over whichever years ran long. The auction
+     * board makes the same trade for the same reason; see {@link AuctionSpend#SUPERFLEX_SEASONS}.
+     */
+    static final List<String> SEASONS = AuctionSpend.SUPERFLEX_SEASONS
+
+    /** Ranks either side of one that are pooled in, to get a usable sample out of four drafts. */
     private static final int SMOOTHING_RADIUS = 2
 
     /** Below this many sightings a rank or a pick is left unanswered rather than answered badly. */
@@ -61,7 +86,7 @@ class RookieDemand {
 
     /** Every drafted pick that could be joined to a rookie rank, as [overall pick, overall rookie rank]. */
     private List<List<Integer>> rankedPicks() {
-        ranked ?: (ranked = RookieDraftHistory.SEASONS.collectMany { String season ->
+        ranked ?: (ranked = SEASONS.collectMany { String season ->
             Map<String, FpRankedPlayer> rookies = rookieRanking(season)
             RookieDraftHistory.picks(season).collect { RookiePick pick ->
                 FpRankedPlayer matched = match(rookies, pick.playerName)
@@ -93,7 +118,7 @@ class RookieDemand {
      */
     private Map<String, Map<Integer, Integer>> medianBestAvailable() {
         Map<String, Map<Integer, List<Integer>>> seen = [:].withDefault { [:].withDefault { [] } }
-        RookieDraftHistory.SEASONS.each { String season ->
+        SEASONS.each { String season ->
             Map<String, FpRankedPlayer> rookies = rookieRanking(season)
             Map<String, List<FpRankedPlayer>> byPosition = rookies.values()
                     .groupBy { it.player.position }
@@ -149,7 +174,7 @@ class RookieDemand {
      * The ranked rookie a drafted name refers to, tried exactly and then by prefix.
      *
      * The league writes a name last first and the ranking writes it first last, so both go through
-     * {@link LoadUtils#isNameMatch} rather than being compared as strings. Six of 398 picks match nothing:
+     * {@link LoadUtils#isNameMatch} rather than being compared as strings. A handful of picks match nothing:
      * they are the deep fliers no rookie ranking carried at all.
      */
     private static FpRankedPlayer match(Map<String, FpRankedPlayer> rookies, String draftedName) {
