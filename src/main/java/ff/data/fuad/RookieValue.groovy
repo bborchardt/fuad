@@ -1,5 +1,6 @@
 package ff.data.fuad
 
+import ff.data.Draft
 import groovy.transform.CompileStatic
 import groovy.transform.Immutable
 
@@ -24,6 +25,16 @@ class RookieValue {
     /** Where it puts him at his position, which is what the curve levels him at. */
     int positionRank
     String nflTeam
+    /**
+     * Where the NFL took him, or null for an undrafted rookie.
+     *
+     * <b>A third index on the same player, and the only one no fantasy consensus produced.</b> The rookie
+     * ranking orders him within his class and the dynasty ranking places him against the league; this says
+     * what thirty-two front offices did with real money, which is information neither ranking contains and
+     * which arrives before our draft. It is reported rather than priced — nothing here levels off it — and
+     * it is on the sheet because it is what a room actually argues about.
+     */
+    Draft nflDraft
     Integer bye
 
     /** Points over replacement in each year of the contract, first year first. */

@@ -46,7 +46,7 @@ class FuadRookieDraftPrinter {
     /** One ranked rookie a row, in consensus order. */
     void print(PrintWriter out) {
         List<String> years = (1..RookieSeasons.CONTRACT_YEARS).collect { "Y$it" as String }
-        out.println((['OVR', 'POS', 'RANK', 'PLAYER', 'TEAM', 'BYE', 'PICK', 'SALARY'] + years +
+        out.println((['OVR', 'POS', 'RANK', 'PLAYER', 'TEAM', 'NFL', 'BYE', 'PICK', 'SALARY'] + years +
                 ['VOR1', 'LEN', 'SURPLUS', 'DEFER']).join('\t'))
         values.each { RookieValue value ->
             out.println(([
@@ -55,6 +55,7 @@ class FuadRookieDraftPrinter {
                     value.positionRank,
                     value.playerName,
                     value.nflTeam ?: '',
+                    nflDraftOf(value),
                     value.bye ?: '',
                     value.expectedPick ?: '',
                     value.salary,
@@ -117,8 +118,8 @@ class FuadRookieDraftPrinter {
      * The rows are what will fall to you. The decision stays yours.
      */
     void printOutlook(PrintWriter out, String franchiseId) {
-        out.println(['PICK', 'ROUND', 'SLOT', 'POS', 'RANK', 'OVR', 'PLAYER', 'TEAM', 'BYE', 'SALARY',
-                     'Y1', 'LEN', 'SURPLUS', 'DEFER'].join('\t'))
+        out.println(['PICK', 'ROUND', 'SLOT', 'POS', 'RANK', 'OVR', 'PLAYER', 'TEAM', 'NFL', 'BYE',
+                     'SALARY', 'Y1', 'LEN', 'SURPLUS', 'DEFER'].join('\t'))
         fuadData.mflData.draftPicks.eachWithIndex { MflDraftPick pick, int index ->
             if (pick.franchise?.id != franchiseId) {
                 return
@@ -134,6 +135,7 @@ class FuadRookieDraftPrinter {
                         here.overallRank,
                         here.playerName,
                         here.nflTeam ?: '',
+                        nflDraftOf(here),
                         here.bye ?: '',
                         here.salary,
                         here.valueByYear.first(),
@@ -143,6 +145,16 @@ class FuadRookieDraftPrinter {
                 ].join('\t'))
             }
         }
+    }
+
+    /**
+     * Where the NFL took him, as round and pick, or a question mark where it did not take him at all.
+     *
+     * A question mark rather than a blank, which would read as missing data. Going undrafted is a fact
+     * about a player and one of the strongest the sheet carries.
+     */
+    private static String nflDraftOf(RookieValue value) {
+        value.nflDraft ? "${value.nflDraft.round}.${value.nflDraft.pick}" : '?'
     }
 
     /**

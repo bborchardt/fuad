@@ -18,6 +18,14 @@ import ff.projection.PointsCurve
  * rather than bid up by anyone. So the same points over replacement are computed five times against
  * {@link RookieSeasons}, and the cost comes from {@link RookieSalary}.
  *
+ * <b>A rookie's level comes from two indices, not one.</b> The rookie ranking orders a class and says
+ * nothing about how good the class is: "rookie RB1" is the best back of that year whether that is a
+ * generational prospect or a committee back in a bare year, and nine of them are levelled as one object. The
+ * dynasty ranking makes exactly the comparison the rookie ranking refuses to, placing a rookie against
+ * established players, so it carries class quality — and it carries it per position, which is what a year
+ * thin at one position and deep at another requires. The two order rookie outcomes about equally well, so
+ * they are blended rather than one being chosen. See {@link #RATE_CALIBRATION}.
+ *
  * Three things are assumed, none of them small, and all of them stated in docs/fuad/PROJECTION.md:
  *
  * <ul>
@@ -40,10 +48,43 @@ class RookieValuation {
     private static final int WORTH_A_YEAR = 0
 
     /**
+     * What a rookie scores per game against what the veteran curve gives his dynasty rank, by contract year.
+     *
+     * <b>A dynasty rank is a claim about a career and this board buys seasons</b>, so the two need joining
+     * before they can be blended. Measured over 424 rookie seasons: a rookie plays at 79% of his dynasty
+     * rank's rate in the year he is drafted and about 95% of it in every year after, which is the ranking
+     * saying he will be good and being early rather than wrong.
+     *
+     * <b>Measured on rate and never on season totals.</b> The same figures taken over totals run 0.74, 0.91,
+     * 0.89, 0.80 and 0.70 — the fall away in the last two years is rookies leaving the league, which is
+     * availability and belongs to the rookie curve. Calibrating a rate with a number that already contains
+     * availability, and then applying availability again, is the double count this model has made once
+     * already. See {@link ff.projection.fuad.RookieOutcomes}.
+     */
+    static final List<BigDecimal> RATE_CALIBRATION =
+            [0.79g, 0.95g, 0.97g, 0.94g, 0.93g].asImmutable() as List<BigDecimal>
+
+    /**
+     * How far the dynasty index counts against the rookie index in a rookie's level.
+     *
+     * Half, because neither is better. Over 462 rookies carrying both, they order the first season at
+     * Spearman 0.631 and 0.626 and the best of the first three at 0.623 and 0.629 — a tie either way round.
+     * Two estimators that are equally good and imperfectly correlated average to something better than
+     * either, which is the second reason for a blend and the answer to a rookie rank varying more from year
+     * to year than a veteran rank does.
+     *
+     * A rookie the dynasty ranking does not carry is levelled on the rookie index alone rather than being
+     * dropped or given a default: not being ranked among the top few hundred dynasty assets is a fact about
+     * a deep rookie, not a missing measurement, and the rookie index still has him.
+     */
+    static final BigDecimal DYNASTY_WEIGHT = 0.5g
+
+    /**
      * Every ranked rookie, valued over the contract the league would give him.
      *
      * @param seasons      the rookie curves, one per contract year
-     * @param veteran      the board's own curve, which supplies each position's outcome spread
+     * @param outcomes     how widely a rookie rank's seasons run, measured on rookies
+     * @param veteran      the board's own curve, which levels a rookie's dynasty rank against the league
      * @param replacement  weekly replacement level per position, from the veteran board's own curve
      * @param board        this season's priced board, which turns value over replacement into dollars
      * @param baselines    the position baselines bylaw 8.3 decays from, for the season being drafted
@@ -52,6 +93,7 @@ class RookieValuation {
      * @param byeByTeam    which week each NFL team is off, since a rookie ranking does not carry it
      */
     static List<RookieValue> value(RookieSeasons seasons,
+                                   RookieOutcomes outcomes,
                                    PointsCurve veteran,
                                    Map<String, Map<Integer, BigDecimal>> replacement,
                                    List<PlayerValuation> board,
@@ -71,7 +113,10 @@ class RookieValuation {
 
                     List<BigDecimal> vor = (1..RookieSeasons.CONTRACT_YEARS).collect { int contractYear ->
                         ExpectedValue.expectedValueOverReplacement(
-                                seasons.curve(contractYear), veteran, replacement, position, rank, byes)
+                                rateOf(rookie, seasons, veteran, contractYear),
+                                outcomes.of(position, rank, contractYear),
+                                replacement[position] ?: [:],
+                                byes.of(position, rank), byes.lastWeek)
                     }
                     List<Integer> value = vor.collect { BigDecimal points ->
                         priceOf(points, priceCurve[position])
@@ -89,6 +134,7 @@ class RookieValuation {
                             overallRank: rookie.rookieRank.overallRank,
                             positionRank: rank,
                             nflTeam: rookie.player.team,
+                            nflDraft: rookie.draft,
                             bye: byeOf(rookie, byeByTeam),
                             pointsOverReplacement: vor,
                             valueByYear: value,
@@ -97,6 +143,29 @@ class RookieValuation {
                             contractLength: length,
                             surplus: (0..<length).sum { int year -> value[year] - salary } as int)
                 }
+    }
+
+    /**
+     * What a rookie scores in a game he plays, blended across the two indices that order him.
+     *
+     * The rookie index says what rookies at his rank in his class have scored; the dynasty index says what
+     * the consensus thinks he is worth against the whole league, calibrated by
+     * {@link #RATE_CALIBRATION} for the fact that it is pricing a career and this is one year of it. Class
+     * quality enters here and nowhere else: a weak class's best back carries a poor dynasty rank and is
+     * levelled down without anybody grading the class.
+     *
+     * Rate rather than season points, so that availability is left entirely to the outcomes.
+     */
+    private static BigDecimal rateOf(FuadPlayer rookie, RookieSeasons seasons, PointsCurve veteran,
+                                     int contractYear) {
+        String position = rookie.player.position
+        BigDecimal rookieRate = seasons.curve(contractYear).levelledRate(position, rookie.rookieRank.positionRank)
+        if (!rookie.dynastyRank) {
+            return rookieRate
+        }
+        BigDecimal dynastyRate = veteran.levelledRate(position, rookie.dynastyRank.positionRank) *
+                RATE_CALIBRATION[contractYear - 1]
+        rookieRate * (1.0g - DYNASTY_WEIGHT) + dynastyRate * DYNASTY_WEIGHT
     }
 
     /**
@@ -122,27 +191,31 @@ class RookieValuation {
     }
 
     /**
-     * How many years are worth signing: every year the player is expected to be worth more than his salary.
+     * How many years are worth signing: the length that leaves the most value over its cost.
      *
-     * <b>The choice is made once, before any of it is known, which is why it is made this way.</b> Bylaw
-     * 12.4 wants a length by the cut down date of the year he is drafted, so a team commits to year five
-     * without seeing year one. The rule here is the expectation and nothing cleverer, and at a dollar it
-     * almost always says five — which is the finding rather than a defect of the rule. Cutting later costs a
-     * dollar a year remaining by bylaw 9.1, so the downside of five years at the minimum is five dollars
-     * against a surplus that runs to three figures.
+     * <b>Taken as the best total rather than as a run that stops at the first bad year.</b> That was the
+     * first rule here and it is exactly backwards for the shape a rookie has. A rookie quarterback is worth
+     * about what he costs in the season he is drafted and three or four times that in the two after it, so
+     * stopping at a break-even first year signed Fernando Mendoza for one year and reported his contract as
+     * worth nothing — against $172 of surplus sitting in years two to five. The stopping rule suits an asset
+     * that declines, and this is an asset that grows.
      *
-     * Years are taken in order and stop at the first that does not pay, since a contract is a run of years
-     * and not a selection of them.
+     * The choice is still made once, before any of it is known, because bylaw 12.4 wants the length by the
+     * cut down date of the year he is drafted. At a dollar it almost always says five, and cutting later
+     * costs a dollar a year remaining by bylaw 9.1, so the downside of being wrong is five dollars.
      */
     static int contractLength(List<Integer> valueByYear, int salary) {
-        int length = 0
-        for (int year = 0; year < valueByYear.size(); year++) {
-            if (valueByYear[year] - salary <= WORTH_A_YEAR) {
-                break
+        int best = 1
+        int bestSurplus = valueByYear ? valueByYear[0] - salary : 0
+        int running = bestSurplus
+        for (int year = 1; year < valueByYear.size(); year++) {
+            running += valueByYear[year] - salary
+            if (running > bestSurplus) {
+                bestSurplus = running
+                best = year + 1
             }
-            length = year + 1
         }
-        Math.max(1, length)
+        best
     }
 
     /**

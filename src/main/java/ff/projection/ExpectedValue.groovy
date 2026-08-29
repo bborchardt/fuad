@@ -74,50 +74,46 @@ class ExpectedValue {
     }
 
     /**
-     * The same for a rank levelled off a ranking of its own, with the position's spread rather than that
-     * ranking's.
+     * The same for a rank whose rate and outcome spread are supplied rather than read from one curve.
      *
-     * <b>A multiplier is a ratio of season totals, and this applies it to a rate.</b> That is sound only
-     * while a rank's expected games are close to the games behind the seasons the ratios came from, which
-     * is true of every veteran rank and false of a rookie one. A rookie quarterback rank pools a class that
-     * mostly never played with one that started, so its level carries five or six games where its best
-     * seasons carry thirteen — and the ratio of the two arrives as a rate multiplier of three or four, which
-     * is then <b>also</b> scaled by the games that produced it. Availability gets counted twice, in the
-     * direction that inflates.
+     * <b>Why a rookie cannot simply be handed a curve.</b> His rate comes from two places — what rookies at
+     * his rank have scored, and what the consensus says his dynasty rank is worth — and his spread comes
+     * from the rookie population rather than from the veterans his price is quoted against. Neither is a
+     * curve lookup, so the primitive takes the numbers instead of the object holding them.
      *
-     * What it did to the board is worth stating plainly, because it looked like a finding rather than a
-     * defect: rookie quarterbacks priced above every quarterback in the league, a third year value of $151
-     * against a board whose most expensive player is $89, off a level of 112 points against a veteran QB1's
-     * 245. A rookie is a lottery ticket and it is right that convexity is worth something to him, but not
-     * that much and not for that reason.
+     * <b>Availability lives in the outcomes and nowhere else.</b> Each outcome is one realised season: how
+     * the player scored when he played, and how many games he played. Multiplying a rate by a multiplier and
+     * <b>then</b> scaling by a separate expectation of games is how availability gets counted twice, which
+     * is mild at a veteran rank and severe at a rookie one — it is what once priced rookie quarterbacks at
+     * $151 against a board whose most expensive player was $89. Here the games come from the same season the
+     * multiplier does, and a season nobody played contributes nothing rather than a discounted something.
      *
-     * So the rate variation comes from the position — which is what the board has always claimed its spread
-     * is, a position's range scaled to a player and never a claim that this player is the risky one — and
-     * availability comes from the rookie's own curve, at its expectation. How much football a rookie plays
-     * is a fact about rookies and is the half of this that must not be borrowed from a veteran.
-     *
-     * The single curve form above is left exactly as it was. There the two halves of an outcome are a rate
-     * and the games of the <b>same</b> realised season, and that pairing is real evidence which nothing here
-     * should discard.
+     * That makes this correct only for multipliers normalised on <b>rate</b>. See
+     * {@link ff.projection.fuad.RookieOutcomes}, which is the only thing that builds them that way; the
+     * curve's own {@link PointsCurve#outcomeMultipliers} are ratios of season totals and belong to the form
+     * above.
      */
-    static BigDecimal expectedValueOverReplacement(PointsCurve curve, PointsCurve spread,
-                                                   Map<String, Map<Integer, BigDecimal>> replacement,
-                                                   String position, int rank, ByeWeeks byes) {
-        Map<Integer, BigDecimal> weekly = curve.weeklyRate(position, rank, byes.of(position, rank), byes.lastWeek)
-        Map<Integer, BigDecimal> against = replacement[position] ?: [:]
-        if (!weekly) {
+    static BigDecimal expectedValueOverReplacement(BigDecimal rate, List<PointsCurve.Outcome> outcomes,
+                                                   Map<Integer, BigDecimal> against,
+                                                   Integer byeWeek, int lastWeek) {
+        if (!rate || rate <= 0) {
             return 0.0
         }
-        int playable = PointsCurve.playableWeeks(byes.of(position, rank), byes.lastWeek).size()
-        List<PointsCurve.Outcome> outcomes = spread.outcomeSeasons(position)
-        if (!outcomes || !playable) {
+        List<Integer> playableWeeks = PointsCurve.playableWeeks(byeWeek, lastWeek)
+        int playable = playableWeeks.size()
+        if (!playable) {
+            return 0.0
+        }
+        Map<Integer, BigDecimal> weekly = (1..lastWeek)
+                .collectEntries { [(it): it == byeWeek ? 0.0 as BigDecimal : rate] }
+        if (!outcomes) {
             return valueOverReplacement(weekly, against, 1.0d)
         }
-        BigDecimal rated = outcomes.collect { PointsCurve.Outcome outcome ->
-            valueOverReplacement(weekly, against, outcome.rateMultiplier)
+        BigDecimal total = outcomes.collect { PointsCurve.Outcome outcome ->
+            BigDecimal full = valueOverReplacement(weekly, against, outcome.rateMultiplier)
+            full * Math.min(outcome.games, playable) / playable
         }.sum() as BigDecimal
-        BigDecimal games = curve.expectedGames(position, rank)
-        rated / outcomes.size() * (games < playable ? games : playable) / playable
+        total / outcomes.size()
     }
 
     /**

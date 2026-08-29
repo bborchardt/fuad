@@ -12,6 +12,7 @@ import ff.load.RealisedSeasons
 import ff.load.util.LoadUtils
 import ff.load.util.NflTeams
 import ff.projection.fuad.AuctionValuation
+import ff.projection.fuad.RookieOutcomes
 import ff.projection.fuad.RookieSalary
 import ff.projection.fuad.RookieValuation
 import ff.projection.ByeWeeks
@@ -99,13 +100,20 @@ class FuadValuationLoader {
      */
     private RookieSeasons rookieSeasons
 
-    /** When each rookie rank comes off the board, measured over the league's own nine drafts. */
+    private RookieOutcomes rookieOutcomes
+
+    /** When each rookie rank comes off the board, measured over the league's own superflex drafts. */
     private RookieDemand rookieDemand
 
     private final Map<String, List<RookieValue>> rookieValuesByYear = [:]
 
     RookieSeasons rookieSeasons() {
         rookieSeasons ?: (rookieSeasons = new RookieSeasons(LEAGUE))
+    }
+
+    /** How widely a rookie rank's seasons run, measured on rookies rather than borrowed from the veterans. */
+    RookieOutcomes rookieOutcomes() {
+        rookieOutcomes ?: (rookieOutcomes = new RookieOutcomes(rookieSeasons()))
     }
 
     RookieDemand rookieDemand() {
@@ -131,6 +139,7 @@ class FuadValuationLoader {
         ByeWeeks byes = byes(year)
         rookieValuesByYear[year] = RookieValuation.value(
                 rookieSeasons(),
+                rookieOutcomes(),
                 curve(),
                 ExpectedValue.replacementLevels(curve(), requirements(year), byes),
                 valuations(year, fuadData),

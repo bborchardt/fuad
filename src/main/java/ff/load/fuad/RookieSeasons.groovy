@@ -42,6 +42,7 @@ class RookieSeasons {
 
     private final League league
     private final Map<Integer, PointsCurve> curvesByContractYear = [:]
+    private final Map<Integer, Map<String, Map<Integer, List<RealisedSeason>>>> realisedByContractYear = [:]
 
     RookieSeasons() {
         this(League.FUAD)
@@ -58,8 +59,21 @@ class RookieSeasons {
      */
     PointsCurve curve(int contractYear) {
         requireContractYear(contractYear)
-        curvesByContractYear.computeIfAbsent(contractYear) { int year ->
-            PointsCurve.of(RealisedSeasons.byRank(league, { String season -> classIn(season, year) }))
+        curvesByContractYear.computeIfAbsent(contractYear) { int year -> PointsCurve.of(realised(year)) }
+    }
+
+    /**
+     * The seasons behind a contract year's curve, before anything is levelled or smoothed.
+     *
+     * The curve is a summary and {@link ff.projection.fuad.RookieOutcomes} needs the observations
+     * themselves: how wide a rookie rank's outcomes actually run is a question about the individual
+     * seasons, and a mean and a standard error cannot answer it. Held rather than rebuilt, since the curve
+     * is built from the same call.
+     */
+    Map<String, Map<Integer, List<RealisedSeason>>> realised(int contractYear) {
+        requireContractYear(contractYear)
+        realisedByContractYear.computeIfAbsent(contractYear) { int year ->
+            RealisedSeasons.byRank(league, { String season -> classIn(season, year) })
         }
     }
 
