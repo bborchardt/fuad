@@ -401,6 +401,108 @@ Love both to 0003, so at most one of each group is a tag.
   Lamar Jackson was tagged by 0006 in 2025 and signed by 0001, who already had a tag of their own on Jalen
   Hurts. Counting him against 0001 would look like a rule violation.
 
+## The rookie draft
+
+Rookies never reach the auction. Bylaw 5.1 keeps them out of free agency until the draft has run, and bylaw
+4.2 puts the draft after the auction, so a rookie is the one player in this league nobody can bid on.
+
+**Five rounds, no reversal.** Bylaw 8.1 has teams picking worst to first in *every* round, so a team's slot
+is the same number in each of them and the overall pick is the round and the slot read together. That is
+unlike almost every other draft and it matters twice: it makes the arithmetic `(round - 1) x teams + slot`
+rather than a snake, and it makes the last pick of a round adjacent to a team's own next pick, so the gap a
+plan has to wait across is a whole round every time.
+
+Order is by finish, with non-playoff teams sorted by the standings and playoff teams in reverse order of
+playoff finish (8.2). Picks are tradeable two drafts out, three after 1 March (10.2), and they are the
+currency the franchise tag is contested in (7.2). The record bears out that they move: the 2026 draft has
+three picks sitting with a team other than the one whose slot they are.
+
+| Season | Rounds | Picks | Made | Kept at week 1 |
+| --- | --- | --- | --- | --- |
+| 2017 | 4 | 43 | 42 | 33 |
+| 2018 | 4 | 40 | 40 | 39 |
+| 2019 | 4 | 40 | 40 | 38 |
+| 2020 | 4 | 40 | 40 | 39 |
+| 2021 | 5 | 40 | 40 | 38 |
+| 2022 | 5 | 40 | 40 | 38 |
+| 2023 | 5 | 50 | 50 | 46 |
+| 2024 | 5 | 55 | 55 | 52 |
+| 2025 | 5 | 50 | 50 | 47 |
+
+Four rounds through 2020 and five since. The pick counts are not rounds times teams in two years: 2017 and
+2024 carry expansion picks, three and five of them, handed to a new franchise by the commissioner. See
+[DATA.md](DATA.md). 2017 also carries the one slot in nine drafts that was never used — 4.04, skipped by the
+commissioner and written into the export as four dashes. It is kept as a pick with nobody in it, because
+dropping it would renumber every pick after it and the pick number is what a salary is charged off.
+
+### Rookie salaries
+
+Bylaw 8.3 sets the price by rule, and it is the only formula in the league that reads a *single* salary
+rather than an average:
+
+> Salary = Max(1, Baseline x Power(.8, # players picked))
+
+Each position has a baseline, being what the first pick of the draft would cost there: the **QB15, RB20,
+WR35, TE15 and K15** salaries from the previous season, taken at the trading deadline (8.3.1). The baseline
+then loses a fifth for **every pick already made in the draft** — not every pick at that position (8.3.2) —
+so the price falls down the board rather than down a position's own queue. By the third round it has fallen
+through the floor and every rookie costs the minimum dollar.
+
+The bylaw works its own example: a running back taken fourth overall against a baseline of 22 costs
+`22 x 0.8^3`, which is 11.
+
+**The rule reproduces the league's own record.** Run over every pick that survived to week 1, it returns the
+salary actually charged for 330 of 337:
+
+<!-- figures: fuad/rookiesalary key=SEASON -->
+
+| SEASON | QB | RB | WR | TE | PK | KEPT | EXACT | CLASSCOST |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2018 | 3 | 4 | 1 | 1 | 1 | 39 | 35 | 52 |
+| 2019 | 1 | 4 | 1 | 1 | 1 | 38 | 35 | 46 |
+| 2020 | 1 | 4 | 2 | 1 | 1 | 39 | 39 | 47 |
+| 2021 | 1 | 3 | 1 | 1 | 1 | 38 | 38 | 41 |
+| 2022 | 1 | 4 | 1 | 1 | 1 | 38 | 38 | 42 |
+| 2023 | 1 | 5 | 1 | 1 | 1 | 46 | 46 | 52 |
+| 2024 | 15 | 5 | 1 | 1 | 1 | 52 | 52 | 69 |
+| 2025 | 12 | 15 | 2 | 1 | 1 | 47 | 47 | 73 |
+
+`EXACT` short of `KEPT` is 2018 and 2019 running backs and nothing else: seven picks, each a dollar light,
+both years charged off a baseline of 5 where the deadline rosters hold 4. No other position or season
+disagrees at all, and both are minimum-salary years where the whole class cost under $50.
+
+**Read the baselines, not the picks.** In five of these eight seasons every position but running back starts
+at $1, which makes the 0.8 decay irrelevant and the entire class costs a dollar a man. Only 2024 and 2025
+have a baseline worth decaying, and they are the two most expensive classes on record — $69 and $73, against
+a league-wide cap of $3,000. **A rookie class has never cost as much as 3% of the cap.**
+
+### Which snapshot the baseline is read from
+
+The bylaw says the trading deadline, which is kickoff of the first game of week 12 (10.1), and this is the
+one place where that matters. The franchise tag is read off the same words (7.1) and is unaffected: it
+averages the top five at a position, and nobody in a league's top five changes hands between week 12 and the
+end of the season — the two bases give identical tag rates in all six seasons a rate can be computed for.
+
+A rookie baseline is read 15 to 35 salaries deep, which is exactly where the league churns. 2025 running
+backs are **7** at the deadline and **9** at the end of the year, and that one difference moves every running
+back taken in the 2026 draft. `rosters_deadline.json` is collected for this.
+
+### What a pick actually commits
+
+Three bylaws together make a rookie pick cheaper than it looks.
+
+- **A pick can be walked away from for nothing.** A drafted rookie does not count against the cap until a
+  contract length is assigned (4.6), and may be waived before the final cut down date with no cap
+  consequence at all (12.2). Nothing else in the league can be released for free.
+- **The length is the drafting team's choice, one to five years, at a constant salary (2.2)**, declared by
+  the cut down date of the year he is drafted (12.4). So a team commits to a fifth season before it has seen
+  a first.
+- **Getting out later is cheap at these prices.** The cut penalty is 40% of the remaining contract with a
+  floor of $1 per year remaining (9.1), so releasing a five year deal at the minimum costs $5.
+
+That combination is why the model prices a pick over its whole contract rather than over the season it is
+used in. See [PROJECTION.md](PROJECTION.md#rookies).
+
 ## Scoring
 
 Identical for every position in every season except where noted. Values shown are per event.
@@ -498,6 +600,13 @@ bases agree everywhere except 2020 RB, where end-of-year gives 30 and post-draft
 back tags, Aaron Jones and Austin Ekeler, signed at exactly 30. One season decides it, but it decides it
 cleanly.
 
+**The bylaws are published, and they are the source for everything in this section that no export
+carries.** The league's own rules page is `https://www44.myfantasyleague.com/<year>/options?L=48571&O=26`,
+which needs no login and carries the numbered bylaws under "Additional League Rules Setup" — playoffs,
+contracts, free agency, the franchise tag, the rookie draft, waiving, trading and the cut down date. It is a
+live page rather than a per-season export, so it states the rules as they are now and not as they were: the
+per-season tables above remain the record for anything that has changed.
+
 **The message board is nearly all gone.** Only the 2025 board still exists; every earlier year returns
 "Board doesn't exist." So the 2025 rule proposals thread is the only surviving discussion of a rule change,
 and the reasoning behind the 2021, 2022 and 2023 changes is not recoverable from the site. The 2025 board
@@ -505,5 +614,7 @@ is at `https://www44.myfantasyleague.com/2025/mb/board_show.pl?bid=202548571` an
 
 ## Refreshing
 
-`rules.json` is collected by both refresh scripts, alongside the roster snapshots and transaction log.
+`rules.json` is collected by both refresh scripts, alongside the roster snapshots and transaction log. The
+week 12 deadline snapshot and the completed rookie draft are collected by `season_history_refresh.sh` only,
+both of them being facts about a season that has finished.
 `league.json` is written by neither, for the reason above. See [DATA.md](DATA.md#refreshing).
