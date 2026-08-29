@@ -47,6 +47,8 @@ class FuadRosterFitPrinter {
     }
 
     private List<LineupValue.Rostered> roster
+    private List<MflPlayer> priced
+    private Map<String, Integer> ranks
     private List<MflPlayer> unpriced
     private LineupValue.Bracket base
 
@@ -75,9 +77,43 @@ class FuadRosterFitPrinter {
             lineups.rostered(held.player.position, byMflId[held.id]?.redraftRank?.positionRank) != null
         }
         unpriced = split[false] ?: []
-        roster = (split[true] ?: []).collect { MflPlayer held ->
+        // Kept beside the levelled roster so the depth report can name who is already there. A Rostered
+        // carries a rate and a bye and no identity, which is all the lineup needs and none of what a reader
+        // needs to see why a marginal is large.
+        //
+        // <b>In the order it arrived, and sorted only where it is printed.</b> LineupValue draws a player's
+        // season from his slot on the roster, deliberately, so that two evaluations of nearly the same
+        // roster share their draws and the marginal between them carries the noise of neither. Reordering
+        // the list therefore reorders the draws: sorting this by rank moved the lineup nineteen points,
+        // which is Monte Carlo noise wearing the shape of a finding.
+        priced = split[true] ?: []
+        ranks = priced.collectEntries { MflPlayer held ->
+            [(held.id): byMflId[held.id]?.redraftRank?.positionRank ?: Integer.MAX_VALUE]
+        }
+        roster = priced.collect { MflPlayer held ->
             lineups.rostered(held.player.position, byMflId[held.id]?.redraftRank?.positionRank)
         }
+    }
+
+    /**
+     * Who is already signed at a position, best first, as the surnames a draft room uses.
+     *
+     * <b>The column that stops every other number here reading as a mistake.</b> A marginal is large exactly
+     * when the incumbent is weak, and a count cannot say that: this team holds two quarterbacks, which
+     * explains nothing, and holds Shedeur Sanders and Anthony Richardson, which explains everything. The
+     * header already names the unpriced for the same reason.
+     */
+    private String signedAt(String position) {
+        roster()
+        priced.findAll { MflPlayer held -> held.player.position == position }
+                .sort { MflPlayer held -> ranks[held.id] }
+                .collect { MflPlayer held -> surname(held.player.name) }
+                .join(', ')
+    }
+
+    /** The name a draft room uses, from whichever way round the source happens to write it. */
+    private static String surname(String name) {
+        name.contains(',') ? name.split(',').first().trim() : name.split(' ').last()
     }
 
     private LineupValue.Bracket base() {
@@ -148,7 +184,7 @@ class FuadRosterFitPrinter {
     void printDepth(PrintWriter out) {
         List<LineupValue.Rostered> roster = roster()
         out.println(header())
-        out.println(['POS', 'ADD1', 'ADD2', 'ADD3', 'ADD4'].join('\t'))
+        out.println(['POS', 'ADD1', 'ADD2', 'ADD3', 'ADD4', 'SIGNED'].join('\t'))
         lineups.positions().each { String position ->
             List<LineupValue.Rostered> best = valuations
                     .findAll { it.position == position }
@@ -166,16 +202,34 @@ class FuadRosterFitPrinter {
                 added << round(next.onExpectation - previous.onExpectation)
                 previous = next
             }
-            out.println(([position] + added).join('\t'))
+            out.println(([position] + added + [signedAt(position)]).join('\t'))
         }
     }
 
+    /**
+     * What the lineup below is, which is not the roster a reader pictures.
+     *
+     * <b>Everyone expiring is in the pool rather than in the lineup, this team's own included</b>, so the
+     * count of expiring contracts belongs here beside the count of signed ones. Without it "16 in the
+     * lineup" reads as a full roster, and a first quarterback worth 194 points reads as a defect rather
+     * than as the consequence of Jalen Hurts, Lamar Jackson and Tua Tagovailoa all being up for auction.
+     *
+     * <b>How many of them the board prices is on the line too, because {@code teams} counts the other
+     * one.</b> That report's EXPIRING is the expiring players it can put a price on, which is the number a
+     * budget cares about; this one counts contracts that ended, which is the number a lineup cares about.
+     * Franchise 0001 has thirteen and ten, the three between them being ranked past the depth anything is
+     * priced to. Two reports disagreeing about a word is worse than either being wrong, so both are said.
+     */
     private String header() {
-        List<LineupValue.Rostered> priced = roster()
+        List<LineupValue.Rostered> inLineup = roster()
         String missing = unpriced ? ", ${unpriced.size()} unpriced (${unpriced
                 .collect { "$it.player.position $it.player.name" }.join('; ')})" : ''
-        "# franchise $franchiseId (${franchise().ownerName}), ${priced.size()} of " +
-                "${priced.size() + unpriced.size()} signed in the lineup$missing, " +
+        List<MflPlayer> expiring = franchise().players.findAll { MflPlayer held -> !held.contract }
+        int priced = expiring.count { MflPlayer held ->
+            valuations.any { it.playerId == held.id }
+        }
+        "# franchise $franchiseId (${franchise().ownerName}), ${inLineup.size()} under contract and in the " +
+                "lineup$missing, ${expiring.size()} expiring and in the pool ($priced of them priced), " +
                 "lineup ${round(base().onExpectation)} to ${round(base().withHindsight)} points"
     }
 
