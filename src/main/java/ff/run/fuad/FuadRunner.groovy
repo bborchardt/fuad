@@ -141,7 +141,15 @@ class FuadRunner {
             }]
         }
         if (TYPE_ROOKIES == type) {
-            return [(type): { PrintWriter out -> new FuadRookieDraftPrinter(fuadData).print(out) }]
+            // Two tables from one evaluation: the players, and the picks they will be taken with. The
+            // second is not a view of the first — a pick has a price whoever is taken with it, and a team
+            // weighing a trade needs that ladder without a player attached to it.
+            def printer = new FuadRookieDraftPrinter(fuadData,
+                    valuationLoader.rookieValues(year, fuadData),
+                    valuationLoader.rookieBaselines(year),
+                    valuationLoader.rookieDemand().bestAvailableByPick())
+            return [(type)         : { PrintWriter out -> printer.print(out) },
+                    ('rookie_picks'): { PrintWriter out -> printer.printPicks(out) }]
         }
         if (TYPE_SALARIES == type) {
             return [(type): { PrintWriter out ->

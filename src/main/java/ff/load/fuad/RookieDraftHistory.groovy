@@ -29,6 +29,16 @@ class RookieDraftHistory {
     static final List<String> PRICED_SEASONS =
             (2018..2025).collect { it as String }.asImmutable() as List<String>
 
+    /**
+     * What the export writes in place of a player where the pick was never made.
+     *
+     * One pick in nine drafts: 2017's 4.04, skipped by the commissioner. The slot is real and was owned by a
+     * team, so it is kept as a row with nobody in it rather than dropped — a draft of 43 picks in which 42
+     * were made is the fact, and silently reporting 42 picks would put every later overall pick number out
+     * by one, which is what bylaw 8.3 prices off.
+     */
+    private static final String NOBODY = '----'
+
     /** One draft, in pick order. */
     static List<RookiePick> picks(String season) {
         Map draft = LoadUtils.loadJsonResource(LoadUtils.mflDraftResourcePath(season)) as Map
@@ -42,15 +52,16 @@ class RookieDraftHistory {
         Map<String, Map> rostered = rosteredAtWeekOne(season)
 
         drafted.withIndex().collect { Map pick, int index ->
-            Map player = players[pick.player as String]
-            Map contract = rostered[pick.player as String]
+            String playerId = NOBODY == pick.player ? null : pick.player as String
+            Map player = playerId ? players[playerId] : null
+            Map contract = playerId ? rostered[playerId] : null
             new RookiePick(
                     season: season,
                     overall: index + 1,
                     round: (pick.round as String) as int,
                     pick: (pick.pick as String) as int,
                     franchiseId: pick.franchise as String,
-                    playerId: pick.player as String,
+                    playerId: playerId,
                     playerName: player?.name as String,
                     position: player?.position as String,
                     salary: contract ? new BigDecimal(contract.salary as String).intValue() : null,

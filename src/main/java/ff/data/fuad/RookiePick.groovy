@@ -23,6 +23,7 @@ class RookiePick {
     /** Position within the round. The order does not reverse, so this is the team's slot in every round. */
     int pick
     String franchiseId
+    /** Who was taken, or null for a slot the commissioner skipped and nobody ever used. */
     String playerId
     /** As the league writes him, last name first. */
     String playerName
@@ -34,4 +35,7 @@ class RookiePick {
 
     /** Whether the pick was still rostered when the season began. */
     boolean isKept() { salary != null }
+
+    /** Whether anybody was taken with it at all. */
+    boolean isMade() { playerId != null }
 }
