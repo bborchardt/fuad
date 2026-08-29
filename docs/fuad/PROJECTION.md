@@ -1273,19 +1273,22 @@ rather than levelling every class alike.
 
 Two columns exist to stop the rest being over-read.
 
-**`VALUE` is what he is worth; `SURPLUS` is what the contract is worth.** They move for different reasons. A
-rookie's worth is a fact about him, and his salary is a fact about the pick he goes at — which at
-quarterback this year runs from $20 at the first pick to $1 by the fifteenth. So a quarterback's surplus is
-dominated by an assumption about where he lands: Fernando Mendoza is the same $95 asset reading $30 at pick
-three and $80 at pick nine, while Omar Cooper is worth $69 at every pick in the draft. `VALUE` is the column
-to compare players on, and it is the only one that holds still.
+**`VALUE` is the column the sheet sorts on, and it carries no price at all.** What a rookie is worth is a
+fact about him; what he costs is a fact about the pick he goes at, and the two do not belong in one number.
+At quarterback this year the price runs from $20 at the first pick to $1 by the fifteenth, so any column
+mixing them is mostly an assumption about where he lands — and the board reports a rookie at his *expected*
+pick, which is an assumption a reader cannot see.
 
-It is taken over the five years a contract can run rather than over the years the model recommends signing,
-and that distinction cost a correction. Summed over the recommended length it moved with the pick too, and
-by more than the surplus did — a salary large enough to shorten a contract shortens what is being summed, so
-Mendoza read $95 at pick nine and $43 at pick one. A column whose whole purpose is comparing players had a
-price assumption inside it. The cost of the fix is that `VALUE` less `LEN` times salary is the surplus only
-where the contract runs its full five years, which is nearly always.
+So the player sheet carries value and the pick sheet carries price, and they are joined by the reader at the
+pick he is actually making. That removed four columns — salary, the contract length, the surplus and the
+deferred share — of which three were the same statement about an assumed pick and the fourth was almost
+always five.
+
+`VALUE` is taken over the five years a contract can run rather than over the years the model would sign,
+which is a distinction that cost a correction: summed over the recommended length it moved with the pick
+too, and by more than the surplus did, because a salary large enough to shorten a contract shortens what is
+being summed. Mendoza read $95 at pick nine and $43 at pick one. A column whose whole purpose is comparing
+players had a price assumption inside it.
 
 **`TIER` is what the evidence can actually separate.** Same rule the auction board tiers ranks by: walk in
 order of value, keep a rookie in the current tier while his own upper bound reaches the best value in it,
@@ -1328,18 +1331,6 @@ near replacement is worth as much as the whole value.
 
 That is worth carrying to the draft as it stands: the board's quarterback numbers are a statement about how
 little nine classes can say, not a recommendation to avoid the position.
-
-### One team's picks
-
-`-t rookie_outlook -f <id>` reports, at each of a team's own picks, the rookies the room has typically left
-on the board and what each is worth taken *there* — the salary being the pick's rather than the one he is
-expected to go at, so a reach shows its cost.
-
-**It is a report and not a solved plan, which is a departure from the keeper league.** That one solves its
-draft: every ordering of positions across a slot's picks, scored on what it starts. It works there because a
-snake draft fills a starting lineup from nothing. A rookie draft adds five players to a roster of thirty,
-mostly as depth, so "the most starting value across five picks" is a question about a lineup these picks
-will not decide. Solving it would put a confident-looking answer on top of an objective nobody can defend.
 
 ### Known limits of the rookie board
 

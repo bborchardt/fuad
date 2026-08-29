@@ -239,28 +239,6 @@ class RookieValuation {
     }
 
     /**
-     * The same rookie priced at a particular pick rather than at the one he is expected to go at.
-     *
-     * <b>A rookie's cost is a fact about the pick, not about him.</b> Bylaw 8.3 decays the baseline by every
-     * selection already made, so taking the same player at 1.02 and at 2.02 are different transactions, and
-     * a team weighing whether to reach has to see both. The board reports him at his expected pick because
-     * that is the neutral reading; an outlook for one team reports him at that team's own picks.
-     *
-     * The contract length is recomputed too, since a year worth committing to at a dollar may not be at
-     * twelve.
-     */
-    static RookieValue at(RookieValue rookie, int overallPick, Map<String, Integer> baselines) {
-        int salary = RookieSalary.salary(baselines[rookie.position] ?: RookieSalary.MINIMUM_SALARY,
-                overallPick - 1)
-        int length = contractLength(rookie.valueByYear, salary)
-        rookie.copyWith(
-                expectedPick: overallPick,
-                salary: salary,
-                contractLength: length,
-                surplus: (0..<length).sum { int year -> rookie.valueByYear[year] - salary } as int)
-    }
-
-    /**
      * How many years are worth signing: the length that leaves the most value over its cost.
      *
      * <b>Taken as the best total rather than as a run that stops at the first bad year.</b> That was the

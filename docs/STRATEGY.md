@@ -134,11 +134,10 @@ for something, that something is now a column:
 | a position I cannot field at all | `NEEDS` on `teams` | remembering to buy a kicker |
 | how long to sign someone for | `DYNRANK` beside `RANK` | the dynasty ranking, read separately |
 | which price gaps are real | `TIER` | reading a $2 gap as a ranking |
-| what a rookie is worth beyond this season | `Y1`-`Y5` / `DEFER` on `rookies` | a first year value that misses most of it |
+| what a rookie is worth beyond this season | `Y1`-`Y5` on `rookies` | a first year value that misses most of it |
 | whether a rookie will still be there | `PICK` on `rookies`, `BEST<POS>` on `rookie_picks` | a guess at what the room does |
 | what a pick costs | `$<POS>` on `rookie_picks` | the bylaw 8.3 formula, worked by hand |
-| who will fall to **my** pick | `rookie_outlook_<id>` | reading the whole board at every pick |
-| what a rookie is worth, apart from what he costs | `VALUE` beside `SURPLUS` on `rookies` | a surplus that moves with the pick |
+| what a rookie is worth, apart from what he costs | `VALUE` on `rookies`, price on `rookie_picks` | one number mixing the two |
 | which rookie gaps are real, at one position | `TIER` on `rookies` | reading a $10 gap as a ranking |
 | which rookie gaps are real, across positions | `VALLOW`-`VALHIGH` on `rookies` | comparing a back to a tight end on midpoints |
 

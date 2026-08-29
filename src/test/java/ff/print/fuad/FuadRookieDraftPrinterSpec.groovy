@@ -86,20 +86,22 @@ class FuadRookieDraftPrinterSpec extends Specification {
     }
 
     /**
-     * The column the whole sheet exists for, and the one nobody can check by eye.
+     * Column order is a decision, not a layout.
      *
-     * A rookie worth $20 in his first year against a $4 salary has $16 of surplus this season and $59 after
-     * it. Reading only the first would price him as an auction player, which is exactly the mistake the
-     * board is here to stop.
+     * A sheet read under time pressure is read left to right, so what a reader chooses on goes first and
+     * what merely qualifies it follows. Salary went off the player sheet entirely: it is a fact about a
+     * pick, it lives on the pick sheet beside the pick, and carrying it here at the pick a rookie is
+     * *expected* to go at made every column downstream of it an assumption.
      */
-    def "separates the surplus that falls after this season from the whole of it"() {
+    def "puts what a reader chooses on to the left of what he does not"() {
         given:
         List<String> header = board([rookie()]).first()
-        List<String> row = board([rookie()])[1]
 
-        expect:
-        row[header.indexOf('SURPLUS')] == '75'
-        row[header.indexOf('DEFER')] == '59'
+        expect: 'the value and its bounds before the year by year shape'
+        header.indexOf('VALUE') < header.indexOf('Y1')
+        header.indexOf('VALLOW') < header.indexOf('VALUE')
+        header.indexOf('VALUE') < header.indexOf('VALHIGH')
+        header.last() == 'Y5'
     }
 
     @Unroll
@@ -181,119 +183,4 @@ class FuadRookieDraftPrinterSpec extends Specification {
         rows[2][header.indexOf('BESTWR')] == ''
     }
 
-    private static List<List<String>> outlook(List<RookieValue> values, List<MflDraftPick> drafted,
-                                              Map<String, Map<Integer, Integer>> best = [:],
-                                              String franchiseId = '0001') {
-        StringWriter out = new StringWriter()
-        printer(values, drafted, [QB: 20, RB: 7, WR: 1, TE: 1, PK: 1], best)
-                .printOutlook(new PrintWriter(out), franchiseId)
-        out.toString().readLines().collect { it.split('\t', -1) as List<String> }
-    }
-
-    def "an outlook covers only the team's own picks"() {
-        given:
-        List<List<String>> rows = outlook([rookie()],
-                [pick(1, 1, 'Brett'), pick(1, 2, 'Jeff', 'Some Team', '0002'), pick(1, 3, 'Brett')])
-
-        expect: 'the first and third picks, and not the one belonging to somebody else'
-        rows.tail()*.getAt(0) == ['1', '3']
-    }
-
-    /**
-     * A rookie costs what the pick costs, so the same player is a different transaction at 1.02 and 2.02.
-     *
-     * This is the reason an outlook exists beside the board at all: the board reports him at the pick he is
-     * expected to go at, which is the neutral reading and is not the pick being made.
-     */
-    def "prices a rookie at the pick being made rather than the one he is expected to go at"() {
-        given: 'a quarterback, whose baseline of 20 has not yet decayed at the first pick'
-        RookieValue quarterback = rookie(position: 'QB', valueByYear: [20, 30, 30, 10, 5], expectedPick: 30)
-        List<List<String>> first = outlook([quarterback], [pick(1, 1, 'Brett')])
-        List<List<String>> sixth = outlook([quarterback],
-                (1..6).collect { pick(1, it, 'Brett') }).findAll { it.first() == '6' }
-        List<String> header = first.first()
-
-        expect: 'twenty dollars at the first pick, and a fifth off for each one made before the sixth'
-        first[1][header.indexOf('SALARY')] == '20'
-        sixth.first()[header.indexOf('SALARY')] == '7'
-
-        and: 'so the surplus is smaller where the salary is larger'
-        (first[1][header.indexOf('SURPLUS')] as int) < (sixth.first()[header.indexOf('SURPLUS')] as int)
-    }
-
-    /**
-     * Ordered by what each is worth <b>here</b>, which is not the order the board is in.
-     *
-     * A quarterback taken before his baseline has decayed costs real money, and one taken twenty picks later
-     * costs a dollar. Sorting on the board's surplus would rank these by a price nobody is paying.
-     */
-    def "orders candidates by their surplus at this pick"() {
-        given: 'a quarterback worth more, and a receiver whose salary is already at the minimum'
-        RookieValue quarterback = rookie(playerName: 'QB One', position: 'QB',
-                valueByYear: [20, 20, 20, 20, 20])
-        RookieValue receiver = rookie(playerName: 'WR One', position: 'WR',
-                valueByYear: [18, 18, 18, 18, 18])
-        List<List<String>> rows = outlook([quarterback, receiver], [pick(1, 1, 'Brett')])
-        int name = rows.first().indexOf('PLAYER')
-
-        expect: 'the receiver first, the quarterback costing 20 of his 20 a year at the opening pick'
-        rows.tail()*.getAt(name) == ['WR One', 'QB One']
-    }
-
-    /**
-     * Every rookie is priced at every pick, and availability is a flag rather than a filter.
-     *
-     * <b>The one thing a shortlist cannot survive is somebody falling.</b> A rookie the room was expected to
-     * take at pick three is exactly who a reader most needs priced when he is still there at nine, and the
-     * outlook used to leave him off. Before a draft the flag is what a plan reads; during one it is worth
-     * nothing, the board being in view.
-     */
-    def "prices every rookie at the pick and marks who is expected to be there"() {
-        given:
-        RookieValue best = rookie(playerName: 'Gone', positionRank: 1)
-        RookieValue later = rookie(playerName: 'There', positionRank: 4)
-        List<List<String>> rows = outlook([best, later], [pick(1, 1, 'Brett')], [WR: [1: 3]])
-        int name = rows.first().indexOf('PLAYER')
-        int expected = rows.first().indexOf('EXP')
-
-        expect: 'both are priced, with the third receiver typically the best still on the board'
-        rows.tail()*.getAt(name).toSet() == ['Gone', 'There'].toSet()
-
-        and: 'and the one the drafts do not expect to reach this pick is marked, not dropped'
-        rows.tail().find { it[name] == 'There' }[expected] == 'Y'
-        rows.tail().find { it[name] == 'Gone' }[expected] == ''
-
-        and: 'with nothing measured for that pick, everybody is expected'
-        outlook([best, later], [pick(1, 1, 'Brett')], [:]).tail().every { it[expected] == 'Y' }
-    }
-
-    def "carries what he is worth beside what the contract is worth"() {
-        given:
-        List<String> header = board([rookie()]).first()
-        List<String> row = board([rookie()])[1]
-
-        expect: 'ninety-five of value against a twenty dollar contract leaves seventy-five'
-        row[header.indexOf('VALUE')] == '95'
-        row[header.indexOf('SURPLUS')] == '75'
-    }
-
-    def "carries the bounds either side of the value, which are not symmetric"() {
-        given:
-        List<String> header = board([rookie()]).first()
-        List<String> row = board([rookie()])[1]
-
-        expect: 'twenty-five below and thirty above a value of ninety-five'
-        row[header.indexOf('VALLOW')] == '70'
-        row[header.indexOf('VALUE')] == '95'
-        row[header.indexOf('VALHIGH')] == '125'
-    }
-
-    def "carries the tier, so a gap inside the evidence reads as one"() {
-        given:
-        List<String> header = board([rookie()]).first()
-        List<String> row = board([rookie()])[1]
-
-        expect:
-        row[header.indexOf('TIER')] == '2'
-    }
 }

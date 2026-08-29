@@ -216,30 +216,19 @@ class RookieValuationSpec extends Specification {
     }
 
     /**
-     * Value and surplus are different questions, and the board carries both because they move apart.
+     * Value is a claim about a player and carries no price at all.
      *
-     * A rookie's worth is a fact about him; his salary is a fact about the pick he goes at. At quarterback
-     * this year that price runs from $20 at the first pick to $1 by the fifteenth, so a quarterback's
-     * surplus is mostly an assumption about where he lands — Fernando Mendoza is the same $95 asset reading
-     * $30 at pick three and $80 at pick nine.
+     * It is the five years he is worth, not the years the model would sign him for, and it does not move
+     * with the pick. What he costs is a fact about where he goes rather than about him, and it lives on the
+     * pick sheet beside the pick — which is what let the player sheet drop salary, surplus and the deferred
+     * share and keep one column a reader sorts on.
      */
-    def "value is what his seasons are worth, and does not move when the pick does"() {
-        given: 'the quarterback whose salary is large enough to shorten his own contract'
-        RookieValue quarterback = values.find { it.position == 'QB' && it.positionRank == 1 }
-        Map<String, Integer> baselines = [QB: 20, RB: 7, WR: 1, TE: 1, PK: 1]
+    def "value is what his seasons are worth, and nothing about what he costs"() {
+        expect: 'five years of it, whatever contract the model would sign'
+        values.every { RookieValue rookie -> rookie.contractValue == rookie.valueByYear.sum() }
 
-        expect: 'taken first he is signed for fewer years and is worth less, and is the same asset'
-        RookieValuation.at(quarterback, 1, baselines).contractLength <
-                RookieValuation.at(quarterback, 20, baselines).contractLength
-        RookieValuation.at(quarterback, 1, baselines).surplus <
-                RookieValuation.at(quarterback, 20, baselines).surplus
-        RookieValuation.at(quarterback, 1, baselines).contractValue ==
-                RookieValuation.at(quarterback, 20, baselines).contractValue
-
-        and: 'and where the contract runs its full length the two reconcile'
-        values.findAll { it.contractLength == 5 }.every { RookieValue rookie ->
-            rookie.contractValue - 5 * rookie.salary == rookie.surplus
-        }
+        and: 'inside its own bounds, everywhere'
+        values.every { it.valueLow <= it.contractValue && it.contractValue <= it.valueHigh }
     }
 
     /**
