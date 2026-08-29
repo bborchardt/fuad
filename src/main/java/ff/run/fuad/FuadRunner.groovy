@@ -28,11 +28,12 @@ class FuadRunner {
     private static final String TYPE_TEAMS = 'teams'
     private static final String TYPE_SCHEDULE = 'schedule'
     private static final String TYPE_ROSTER = 'roster'
+    private static final String TYPE_ROOKIE_OUTLOOK = 'rookie_outlook'
     private static final String TYPE_ALL = 'all'
     private static final List<String> TYPES = [TYPE_FRANCHISES, TYPE_FRANCHISE_PROJECTIONS, TYPE_RANKINGS, TYPE_ROOKIES, TYPE_SALARIES, TYPE_TEAMS, TYPE_SCHEDULE]
 
     /** Asks what a player adds to one named team, so it has no answer without being told which. */
-    private static final List<String> TYPES_NEEDING_FRANCHISE = [TYPE_ROSTER]
+    private static final List<String> TYPES_NEEDING_FRANCHISE = [TYPE_ROSTER, TYPE_ROOKIE_OUTLOOK]
 
     private static final String DEFAULT_OUTPUT_DIR = 'reports/fuad'
 
@@ -42,7 +43,7 @@ class FuadRunner {
                     header: "Executed with args: $args")
             cli.y(longOpt: 'year', args: 1, argName: 'year', required: false, 'The year, defaults to most recent.')
             cli.t(longOpt: 'type', args: 1, argName: 'type', required: true,
-                    "The type of sheet to generate: ${TYPES + TYPE_ROSTER + TYPE_ALL}")
+                    "The type of sheet to generate: ${TYPES + TYPES_NEEDING_FRANCHISE + TYPE_ALL}")
             cli.f(longOpt: 'franchise', args: 1, argName: 'id', required: false,
                     "The franchise to report for, required by: $TYPES_NEEDING_FRANCHISE")
             cli.o(longOpt: 'out', args: 1, argName: 'dir', required: false,
@@ -54,7 +55,7 @@ class FuadRunner {
                     throw new IllegalArgumentException("Invalid year: $year")
                 }
                 String type = options.type
-                if (!TYPES.contains(type) && TYPE_ROSTER != type && TYPE_ALL != type) {
+                if (!TYPES.contains(type) && !TYPES_NEEDING_FRANCHISE.contains(type) && TYPE_ALL != type) {
                     throw new IllegalArgumentException("Invalid type: $type")
                 }
                 String franchiseId = options.franchise ?: null
@@ -160,6 +161,15 @@ class FuadRunner {
             return [(type): { PrintWriter out ->
                 new FuadTeamContextPrinter(fuadData, valuationLoader.valuations(year, fuadData),
                         salaryCap(year), valuationLoader.requirements(year)).print(out)
+            }]
+        }
+        if (TYPE_ROOKIE_OUTLOOK == type) {
+            def printer = new FuadRookieDraftPrinter(fuadData,
+                    valuationLoader.rookieValues(year, fuadData),
+                    valuationLoader.rookieBaselines(year),
+                    valuationLoader.rookieDemand().bestAvailableByPick())
+            return [("${type}_${franchiseId}" as String): { PrintWriter out ->
+                printer.printOutlook(out, franchiseId)
             }]
         }
         if (TYPE_ROSTER == type) {

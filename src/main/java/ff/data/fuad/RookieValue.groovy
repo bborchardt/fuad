@@ -13,7 +13,7 @@ import groovy.transform.Immutable
  * a rule.
  */
 @CompileStatic
-@Immutable
+@Immutable(copyWith = true)
 class RookieValue {
 
     String playerId

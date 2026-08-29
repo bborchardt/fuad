@@ -137,6 +137,7 @@ for something, that something is now a column:
 | what a rookie is worth beyond this season | `Y1`-`Y5` / `DEFER` on `rookies` | a first year value that misses most of it |
 | whether a rookie will still be there | `PICK` on `rookies`, `BEST<POS>` on `rookie_picks` | a guess at what the room does |
 | what a pick costs | `$<POS>` on `rookie_picks` | the bylaw 8.3 formula, worked by hand |
+| who will fall to **my** pick | `rookie_outlook_<id>` | reading the whole board at every pick |
 
 `PTSLOW` and `PTSHIGH` carry a caveat worth restating, because the whole point of the boundary is not to
 assume things the model does not know: **the range is the position's, scaled to the player.** Two players

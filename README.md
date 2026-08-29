@@ -28,8 +28,8 @@ each has its own report script, its own figures directory and its own documentat
 `fuad` report types: `franchises`, `franchise_projections`, `rankings`, `rookies`, `salaries`, `teams`, `schedule`, or `all`.
 `rookies` writes two: the rookie board, priced over the contract a pick comes with rather than over its first
 season, and `rookie_picks`, what each pick costs at each position and who is usually still there.
-`roster` is separate: it answers for one named team rather than for the league, so it takes `-f` and is not
-part of `all`. `greenfield` report types are `board`, `keepers`, `picks`, `demand`, `adp` or `all`, with
+`roster` and `rookie_outlook` are separate: they answer for one named team rather than for the league, so
+they take `-f` and are not part of `all`. `greenfield` report types are `board`, `keepers`, `picks`, `demand`, `adp` or `all`, with
 `outlook` separate for the same reason — it answers for one draft slot, so it takes `-s`.
 
 See [docs/DATA.md](docs/DATA.md) for the statistics and rankings both leagues are built from, and the two

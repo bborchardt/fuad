@@ -1118,6 +1118,18 @@ over their contracts — of which **$1,108, or 89%, arrives after the season the
 That figure is the whole case for the rookie board. It is the part of a pick that no auction dollar can buy
 at any price, and pricing a rookie on his first season would report a tenth of it.
 
+### One team's picks
+
+`-t rookie_outlook -f <id>` reports, at each of a team's own picks, the rookies the room has typically left
+on the board and what each is worth taken *there* — the salary being the pick's rather than the one he is
+expected to go at, so a reach shows its cost.
+
+**It is a report and not a solved plan, which is a departure from the keeper league.** That one solves its
+draft: every ordering of positions across a slot's picks, scored on what it starts. It works there because a
+snake draft fills a starting lineup from nothing. A rookie draft adds five players to a roster of thirty,
+mostly as depth, so "the most starting value across five picks" is a question about a lineup these picks
+will not decide. Solving it would put a confident-looking answer on top of an objective nobody can defend.
+
 ### Known limits of the rookie board
 
 - **It does not feed back into the auction.** The pot still has a flat 3.3% taken off the top for rookies
