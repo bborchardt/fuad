@@ -1295,7 +1295,7 @@ order of value, keep a rookie in the current tier while his own upper bound reac
 open a new tier when it does not. Tiered on value rather than surplus, since two rookies the model cannot
 separate as players should read as ties whatever they cost.
 
-**`VALLOW` and `VALHIGH` do the same job across positions**, which is the choice a rookie draft actually
+**`VAL_LOW` and `VAL_HIGH` do the same job across positions**, which is the choice a rookie draft actually
 poses — a back against a tight end against a receiver. A tier only compares inside a position; two
 overlapping ranges are a tie whoever they belong to.
 

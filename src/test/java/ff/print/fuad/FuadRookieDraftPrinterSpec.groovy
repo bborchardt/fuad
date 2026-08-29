@@ -25,6 +25,7 @@ class FuadRookieDraftPrinterSpec extends Specification {
                 position             : 'WR',
                 overallRank          : 1,
                 positionRank         : 1,
+                dynastyRank          : 23,
                 nflTeam              : 'CIN',
                 bye                  : 10,
                 valueByYear          : [20, 30, 30, 10, 5],
@@ -72,7 +73,34 @@ class FuadRookieDraftPrinterSpec extends Specification {
 
         expect:
         rows*.size().unique().size() == 1
-        rows.first().first() == 'OVR'
+        rows.first().first() == 'PLAYER'
+    }
+
+    def "sorts by value, best first, so the sheet needs no sorting to read"() {
+        given:
+        List<List<String>> rows = board([
+                rookie(playerName: 'Middling', valueByYear: [10, 10, 10, 10, 10]),
+                rookie(playerName: 'Best', valueByYear: [40, 40, 40, 40, 40]),
+                rookie(playerName: 'Worst', valueByYear: [1, 1, 1, 1, 1])])
+        int name = rows.first().indexOf('PLAYER')
+
+        expect:
+        rows.tail()*.getAt(name) == ['Best', 'Middling', 'Worst']
+    }
+
+    /**
+     * The dynasty rank is carried as position and rank together, and blank where the ranking has no view.
+     *
+     * A blank is not missing data. Not being ranked among a few hundred dynasty assets is a fact about a
+     * deep rookie, and it is also why he carries no adjustment to his level.
+     */
+    def "carries the dynasty rank as a position and a rank, or nothing at all"() {
+        given:
+        List<String> header = board([rookie()]).first()
+
+        expect:
+        board([rookie()])[1][header.indexOf('FP_DYNASTY')] == 'WR23'
+        board([rookie(dynastyRank: null)])[1][header.indexOf('FP_DYNASTY')] == ''
     }
 
     def "a year of the contract is a column, so the shape of a career is visible rather than summed away"() {
@@ -99,8 +127,8 @@ class FuadRookieDraftPrinterSpec extends Specification {
 
         expect: 'the value and its bounds before the year by year shape'
         header.indexOf('VALUE') < header.indexOf('Y1')
-        header.indexOf('VALLOW') < header.indexOf('VALUE')
-        header.indexOf('VALUE') < header.indexOf('VALHIGH')
+        header.indexOf('VAL_LOW') < header.indexOf('VALUE')
+        header.indexOf('VALUE') < header.indexOf('VAL_HIGH')
         header.last() == 'Y5'
     }
 
@@ -116,7 +144,7 @@ class FuadRookieDraftPrinterSpec extends Specification {
         where:
         field          | column
         'bye'          | 'BYE'
-        'expectedPick' | 'PICK'
+        'expectedPick' | 'DEMAND'
     }
 
     /**

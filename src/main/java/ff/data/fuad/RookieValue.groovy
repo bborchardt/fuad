@@ -20,10 +20,19 @@ class RookieValue {
     String playerId
     String playerName
     String position
-    /** Where the rookie consensus puts him in the class, which is the order this report is read in. */
+    /** Where the rookie consensus puts him in the class, which is what demand is keyed on. */
     int overallRank
-    /** Where it puts him at his position, which is what the curve levels him at. */
+    /** Where it puts him at his position, which is what the curve, the spread and the taper all key on. */
     int positionRank
+    /**
+     * Where the dynasty ranking puts him at his position, or null where it does not carry him.
+     *
+     * Reported as context for the adjustment it drives. Read it against the rank rookies of his standing
+     * usually hold — a class's third receiver typically sits around dynasty WR31, so one at WR23 is being
+     * told something. A blank is not missing data: not being ranked among a few hundred dynasty assets is a
+     * fact about a deep rookie, and it is also why he carries no adjustment.
+     */
+    Integer dynastyRank
     String nflTeam
     /**
      * Where the NFL took him, or null for an undrafted rookie.

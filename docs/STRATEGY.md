@@ -135,11 +135,12 @@ for something, that something is now a column:
 | how long to sign someone for | `DYNRANK` beside `RANK` | the dynasty ranking, read separately |
 | which price gaps are real | `TIER` | reading a $2 gap as a ranking |
 | what a rookie is worth beyond this season | `Y1`-`Y5` on `rookies` | a first year value that misses most of it |
-| whether a rookie will still be there | `PICK` on `rookies`, `BEST<POS>` on `rookie_picks` | a guess at what the room does |
+| what the two consensus sources each say | `FP_ROOKIE` and `FP_DYNASTY` on `rookies` | one ranking standing in for both |
+| whether a rookie will still be there | `DEMAND` on `rookies`, `BEST<POS>` on `rookie_picks` | a guess at what the room does |
 | what a pick costs | `$<POS>` on `rookie_picks` | the bylaw 8.3 formula, worked by hand |
 | what a rookie is worth, apart from what he costs | `VALUE` on `rookies`, price on `rookie_picks` | one number mixing the two |
 | which rookie gaps are real, at one position | `TIER` on `rookies` | reading a $10 gap as a ranking |
-| which rookie gaps are real, across positions | `VALLOW`-`VALHIGH` on `rookies` | comparing a back to a tight end on midpoints |
+| which rookie gaps are real, across positions | `VAL_LOW`-`VAL_HIGH` on `rookies` | comparing a back to a tight end on midpoints |
 
 `PTSLOW` and `PTSHIGH` carry a caveat worth restating, because the whole point of the boundary is not to
 assume things the model does not know: **the range is the position's, scaled to the player.** Two players

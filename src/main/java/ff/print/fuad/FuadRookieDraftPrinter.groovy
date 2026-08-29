@@ -27,10 +27,14 @@ import ff.projection.fuad.RookieSalary
  * down what a rank is worth, not how widely one career might run. They are asymmetric because value over
  * replacement is convex, which is why they are two columns and not a single band.
  *
- * The board is in consensus order because that is the order a draft is read in. It is deliberately not
- * sorted by surplus: the pick in front of you is a choice among whoever is left, and sorting by value hides
- * which of them that is. {@code PICK} is where the league's own drafts say a rookie of that rank goes, so
- * the distance between it and your pick is the reach or the wait.
+ * <b>Sorted by value, best first.</b> It was in consensus order, on the reasoning that a draft is read that
+ * way and that sorting by worth hides who is actually left — but a reader with the board in front of him can
+ * see who is left, and what he cannot see is which of them is worth most. Consensus order is still on the
+ * sheet as {@code FP_ROOKIE} for anyone who wants to read down it.
+ *
+ * {@code DEMAND} is where the league's own drafts say a rookie of that <b>consensus rank</b> goes, so the
+ * distance between it and your pick is the reach or the wait. It is keyed on the rank rather than on the
+ * player: it says what has happened to rookies ranked here, not what this room will do with this man.
  *
  * See docs/fuad/PROJECTION.md.
  */
@@ -52,22 +56,24 @@ class FuadRookieDraftPrinter {
     /** One ranked rookie a row, in consensus order. */
     void print(PrintWriter out) {
         List<String> years = (1..RookieSeasons.CONTRACT_YEARS).collect { "Y$it" as String }
-        out.println((['OVR', 'POS', 'TIER', 'RANK', 'PLAYER', 'TEAM', 'NFL', 'BYE', 'PICK',
-                      'VALLOW', 'VALUE', 'VALHIGH'] + years).join('\t'))
-        values.each { RookieValue value ->
+        out.println((['PLAYER', 'POS', 'TEAM', 'BYE', 'VAL_LOW', 'VALUE', 'VAL_HIGH', 'TIER',
+                      'FP_ROOKIE', 'FP_DYNASTY', 'NFL', 'DEMAND'] + years).join('\t'))
+        values.sort { RookieValue a, RookieValue b ->
+            (b.contractValue <=> a.contractValue) ?: (a.overallRank <=> b.overallRank)
+        }.each { RookieValue value ->
             out.println(([
-                    value.overallRank,
-                    value.position,
-                    value.tier,
-                    value.positionRank,
                     value.playerName,
+                    value.position,
                     value.nflTeam ?: '',
-                    nflDraftOf(value),
                     value.bye ?: '',
-                    value.expectedPick ?: '',
                     value.valueLow,
                     value.contractValue,
                     value.valueHigh,
+                    value.tier,
+                    value.overallRank,
+                    value.dynastyRank ? "$value.position$value.dynastyRank" : '',
+                    nflDraftOf(value),
+                    value.expectedPick ?: '',
             ] + value.valueByYear).join('\t'))
         }
     }

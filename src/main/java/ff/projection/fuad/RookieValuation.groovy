@@ -151,6 +151,7 @@ class RookieValuation {
                             position: position,
                             overallRank: rookie.rookieRank.overallRank,
                             positionRank: rank,
+                            dynastyRank: rookie.dynastyRank?.positionRank,
                             nflTeam: rookie.player.team,
                             nflDraft: rookie.draft,
                             bye: byeOf(rookie, byeByTeam),
