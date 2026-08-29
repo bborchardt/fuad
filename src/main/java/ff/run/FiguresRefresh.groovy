@@ -8,6 +8,7 @@ import ff.league.League
 import ff.load.greenfield.GreenfieldBoard
 import ff.print.figures.greenfield.GreenfieldFiguresPrinter
 import ff.print.figures.fuad.ModelFiguresPrinter
+import ff.print.figures.fuad.RookieFiguresPrinter
 import ff.print.greenfield.GreenfieldAdpPrinter
 import ff.print.greenfield.GreenfieldDemandPrinter
 import ff.print.greenfield.GreenfieldPickPrinter
@@ -83,9 +84,20 @@ class FiguresRefresh {
         ModelFiguresPrinter printer = new ModelFiguresPrinter(loader.curve(), loader.requirements(year),
                 loader.byes(year), loader.valuations(year, fuadData), loader.freeCap(year))
 
+        // The rookie board is figures about the same model and is built from its own five curves, which
+        // are five times the cost of the board's one. It is kept in its own printer for that reason and
+        // written into the same directory, being the same league.
+        RookieFiguresPrinter rookies = new RookieFiguresPrinter(loader.rookieSeasons(), loader.rookieDemand(),
+                loader.rookieValues(year, fuadData))
         write(figuresDir, 'fuad', year, TABLES.collectEntries { String name, String method ->
             [(name): { PrintWriter out -> printer."$method"(out) } as Closure<Void>]
-        })
+        } + [
+                rookiecurve : { PrintWriter out -> rookies.printCurve(out) } as Closure<Void>,
+                rookiesalary: { PrintWriter out -> rookies.printSalary(out) } as Closure<Void>,
+                rookiedemand: { PrintWriter out -> rookies.printDemand(out) } as Closure<Void>,
+                rookieadp   : { PrintWriter out -> rookies.printAdp(out) } as Closure<Void>,
+                rookieboard : { PrintWriter out -> rookies.printBoard(out) } as Closure<Void>,
+        ])
         write(figuresDir, 'greenfield', year, greenfield(year))
     }
 
