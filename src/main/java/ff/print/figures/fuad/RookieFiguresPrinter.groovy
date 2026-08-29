@@ -106,41 +106,64 @@ class RookieFiguresPrinter {
     }
 
     /**
-     * Where each class's best rookies sat in that year's dynasty ranking, which is class quality.
+     * Where each class's best rookies sat among their position's dynasty assets, which is class quality.
      *
      * The rookie ranking cannot say this: it orders a class from one and starts again the next year, so its
      * first pick is its first pick in a generational year and a bare one alike. The dynasty ranking places
-     * the same players against the whole league, and the difference between a top five sitting at 7 and one
-     * sitting at 51 is the difference between the two classes.
+     * the same players against the whole league, and the difference between a class whose best five average
+     * the twelfth at their positions and one averaging the twenty-fourth is the difference between the two
+     * classes.
+     *
+     * <b>Positional and not overall, because the dynasty export changed format.</b> Every season from 2017
+     * to 2025 ranks its first quarterback between 21st and 43rd overall, and 2026 ranks him first: the
+     * source went superflex. Read on overall ranks that break inflates every quarterback and pushes every
+     * other position down, and 2026 reads as the weakest class since 2019 when measured on positional ranks
+     * it is an ordinary below-average one. {@code FIRSTQB} is on the table so the break stays visible rather
+     * than being something a reader has to know.
+     *
+     * The valuation itself is unaffected: {@link ff.projection.fuad.RookieValuation} blends on positional
+     * rank, which is the same set of players in the same order whichever format the ranking is in.
      */
     void printClass(PrintWriter out) {
-        out.println((['SEASON'] + (1..CLASS_TOP).collect { "TOP$it" as String } + ['MEAN']).join('\t'))
+        out.println((['SEASON'] + (1..CLASS_TOP).collect { "TOP$it" as String } +
+                ['MEAN', 'FIRSTQB']).join('\t'))
         LoadUtils.YEARS.each { String season ->
-            List<Integer> ranks = topRookieDynastyRanks(season)
-            if (ranks.size() < CLASS_TOP) {
+            List<FpRankedPlayer> dynasty = topRookieDynastyRanks(season)
+            if (dynasty.size() < CLASS_TOP) {
                 return
             }
-            out.println(([season] + ranks + [
-                    (ranks.sum() / ranks.size()).setScale(0, RoundingMode.HALF_UP),
+            out.println(([season] + dynasty.collect { "$it.player.position$it.rank.positionRank" } + [
+                    (dynasty.sum { it.rank.positionRank } / dynasty.size()).setScale(1, RoundingMode.HALF_UP),
+                    firstQuarterback(season) ?: '',
             ]).join('\t'))
         }
     }
 
     /**
-     * The dynasty rank of each of a class's top five rookies, in rookie order.
+     * Where the dynasty ranking puts the best quarterback in football, which says what format it is in.
+     *
+     * A single number that separates a 1QB ranking from a superflex one, and the only thing on this table
+     * that is about the source rather than about a class.
+     */
+    private static Integer firstQuarterback(String season) {
+        new FantasyProsLoader().loadRankedPlayers(LoadUtils.fpDynastyRankingsPprResourcePath(season))
+                .values().findAll { it.player.position == 'QB' }*.rank*.overallRank.min()
+    }
+
+    /**
+     * Each of a class's top five rookies as the dynasty ranking has him, in rookie order.
      *
      * Joined by name through the same prefix matching everything else here uses, since the two exports are
      * different files with the same people in them. A rookie the dynasty ranking does not carry is skipped
      * rather than defaulted: that happens to deep rookies and not to the top five of a class.
      */
-    private static List<Integer> topRookieDynastyRanks(String season) {
+    private static List<FpRankedPlayer> topRookieDynastyRanks(String season) {
         Map<String, FpRankedPlayer> dynasty =
                 new FantasyProsLoader().loadRankedPlayers(LoadUtils.fpDynastyRankingsPprResourcePath(season))
         new FantasyProsLoader().loadRankedPlayers(LoadUtils.fpRookieRankingsPprResourcePath(season))
                 .values().sort { it.rank.overallRank }.take(CLASS_TOP).collect { FpRankedPlayer rookie ->
-            FpRankedPlayer matched = dynasty[rookie.player.name] ?:
+            dynasty[rookie.player.name] ?:
                     dynasty.values().find { LoadUtils.isNameMatch(it.player.name, rookie.player.name, 5) }
-            matched?.rank?.overallRank
         }.findAll()
     }
 

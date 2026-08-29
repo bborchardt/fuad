@@ -1032,19 +1032,30 @@ and visible before the draft:
 
 <!-- figures: fuad/rookieclass key=SEASON -->
 
-| SEASON | TOP1 | TOP2 | TOP3 | TOP4 | TOP5 | MEAN |
-| --- | --- | --- | --- | --- | --- | --- |
-| 2019 | 36 | 47 | 50 | 58 | 83 | 55 |
-| 2021 | 15 | 31 | 33 | 51 | 41 | 34 |
-| 2023 | 2 | 33 | 11 | 41 | 58 | 29 |
-| 2024 | 7 | 14 | 28 | 46 | 62 | 31 |
-| 2025 | 7 | 117 | 20 | 25 | 29 | 40 |
-| 2026 | 21 | 51 | 42 | 86 | 58 | 52 |
+| SEASON | TOP1 | TOP2 | TOP3 | TOP4 | TOP5 | MEAN | FIRSTQB |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 2018 | RB4 | RB19 | RB16 | RB20 | RB22 | 16.2 | 43 |
+| 2019 | RB16 | RB19 | RB20 | WR27 | WR37 | 23.8 | 29 |
+| 2022 | RB6 | WR20 | RB17 | WR28 | WR31 | 20.4 | 31 |
+| 2024 | WR5 | WR9 | WR17 | TE3 | WR30 | 12.8 | 21 |
+| 2025 | RB3 | QB20 | RB6 | WR15 | WR16 | 12.0 | 22 |
+| 2026 | RB4 | QB17 | WR15 | RB21 | WR25 | 16.4 | 1 |
 
-Those are where each class's five best rookies sat in that year's **dynasty** ranking — the same consensus,
-making the cross-class comparison the rookie ranking refuses to make. 2023 put two rookies inside the top
-eleven dynasty assets in football. **2026 is the weakest class since 2019**, and nothing in a within-class
-rank could tell you that.
+Those are where each class's five best rookies sat among their **position's** dynasty assets — the same
+consensus, making the cross-class comparison the rookie ranking refuses to make. 2019's best five were the
+sixteenth to thirty-seventh at their positions; 2024's were the fifth, ninth and seventeenth receivers and
+the third tight end. **2026 is a below-average class**, close to 2018 and well clear of 2019 and 2022, and
+nothing in a within-class rank could tell you any of that.
+
+**Positional rank and not overall, because the source changed format.** `FIRSTQB` is where the dynasty
+ranking puts the best quarterback in football, and it sits between 21st and 43rd in every season from 2017
+to 2025 and **first** in 2026: the export went superflex. Measured on overall ranks that break inflates every
+quarterback and pushes every other position down, which made 2026 read as the weakest class since 2019 when
+it is nothing of the kind. The column is on the table so that the break stays visible instead of being
+something a reader has to already know.
+
+The valuation is unaffected, because it blends on positional rank — the same players in the same order
+whichever format the ranking is in. This figure was not, and said so for one commit.
 
 So a rookie's level is blended across both indices, half and half. Neither is better: over 462 rookies
 carrying both, they order the first season at Spearman 0.631 and 0.626, and the best of the first three at
@@ -1235,8 +1246,8 @@ That figure is the whole case for the rookie board. It is the part of a pick tha
 at any price, and pricing a rookie on his first season would report a tenth of it.
 
 Read it against [the class it comes from](#two-indices-because-one-of-them-cannot-see-the-class): 2026 is a
-weak year, so these are smaller numbers than a strong class would produce, and the board says so rather than
-levelling every class alike.
+below-average year, so these are smaller numbers than a strong class would produce, and the board says so
+rather than levelling every class alike.
 
 ### One team's picks
 

@@ -157,8 +157,11 @@ class RookieValuationSpec extends Specification {
      *
      * The rookie ranking orders a class and says nothing about how good it is, so "rookie RB1" is levelled
      * identically in a generational year and a bare one. The dynasty ranking makes exactly that comparison:
-     * 2024's top five rookies sat at dynasty ranks 7, 14, 28, 46 and 62, and 2026's sit at 21, 51, 42, 86
-     * and 58 — the weakest top five since 2019.
+     * 2024's best five were the fifth, ninth and seventeenth receivers and the third tight end of all
+     * dynasty assets, averaging 12.8 at their positions, against 2026's 16.4.
+     *
+     * Positional ranks, because the dynasty export went superflex in 2026 and its overall ranks are not
+     * comparable across that break. See {@code rookieclass.tsv}.
      *
      * Asserted across seasons because a single season's numbers say nothing on their own: what has to hold
      * is that the ordering of classes by what the board thinks they are worth follows the ordering by what
@@ -173,7 +176,7 @@ class RookieValuationSpec extends Specification {
             top.sum { it.surplus } / top.size()
         }
 
-        expect: '2024, whose top five sat inside dynasty 62, against 2026, whose fifth sits at 58 and whose second sits at 51'
+        expect: '2024, averaging 12.8 at their positions, against 2026 averaging 16.4'
         topFive('2024') > topFive('2026')
     }
 
