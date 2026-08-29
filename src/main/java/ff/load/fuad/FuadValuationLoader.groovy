@@ -101,6 +101,7 @@ class FuadValuationLoader {
     private RookieSeasons rookieSeasons
 
     private RookieOutcomes rookieOutcomes
+    private RookieDynastyIndex rookieDynastyIndex
 
     /** When each rookie rank comes off the board, measured over the league's own superflex drafts. */
     private RookieDemand rookieDemand
@@ -114,6 +115,11 @@ class FuadValuationLoader {
     /** How widely a rookie rank's seasons run, measured on rookies rather than borrowed from the veterans. */
     RookieOutcomes rookieOutcomes() {
         rookieOutcomes ?: (rookieOutcomes = new RookieOutcomes(rookieSeasons()))
+    }
+
+    /** What the dynasty ranking adds to a rookie's level, which is where class quality enters the board. */
+    RookieDynastyIndex rookieDynastyIndex() {
+        rookieDynastyIndex ?: (rookieDynastyIndex = new RookieDynastyIndex())
     }
 
     RookieDemand rookieDemand() {
@@ -140,7 +146,7 @@ class FuadValuationLoader {
         rookieValuesByYear[year] = RookieValuation.value(
                 rookieSeasons(),
                 rookieOutcomes(),
-                curve(),
+                rookieDynastyIndex(),
                 ExpectedValue.replacementLevels(curve(), requirements(year), byes),
                 valuations(year, fuadData),
                 rookieBaselines(year),

@@ -76,7 +76,7 @@ class RookieOutcomes {
      */
     List<PointsCurve.Outcome> of(String position, int rank, int contractYear) {
         byRank.computeIfAbsent([position, rank, contractYear]) { List key ->
-            outcomesOf(windowAround(position, rank, contractYear))
+            windowAround(position, rank, contractYear)
         }
     }
 
@@ -89,7 +89,7 @@ class RookieOutcomes {
      * speaking for a wider stretch of the board than the other.
      */
     boolean isWidened(String position, int rank, int contractYear) {
-        seasonsWithin(position, rank, SMOOTHING_RADIUS, contractYear).size() < MINIMUM_OBSERVATIONS
+        outcomesWithin(position, rank, SMOOTHING_RADIUS, contractYear).size() < MINIMUM_OBSERVATIONS
     }
 
     /**
@@ -98,42 +98,48 @@ class RookieOutcomes {
      * Widening rather than falling back in one step, so a rank that is nearly well enough observed keeps
      * most of its locality instead of being handed the whole position.
      */
-    private List<RealisedSeason> windowAround(String position, int rank, int contractYear) {
+    private List<PointsCurve.Outcome> windowAround(String position, int rank, int contractYear) {
         for (int radius = SMOOTHING_RADIUS; ; radius += WIDENING_STEP) {
-            List<RealisedSeason> within = seasonsWithin(position, rank, radius, contractYear)
+            List<PointsCurve.Outcome> within = outcomesWithin(position, rank, radius, contractYear)
             if (within.size() >= MINIMUM_OBSERVATIONS || radius > MAX_RADIUS) {
                 return within
             }
         }
     }
 
-    /** Every realised season at a position within a given distance of a rank, in one contract year. */
-    private List<RealisedSeason> seasonsWithin(String position, int rank, int radius, int contractYear) {
-        Map<Integer, List<RealisedSeason>> byRank = seasons.realised(contractYear)[position] ?: [:]
-        byRank.findAll { int at, List<RealisedSeason> ignored -> Math.abs(at - rank) <= radius }
-                .values().flatten() as List<RealisedSeason>
+    /**
+     * Every season within a distance of a rank, each expressed against the level of <b>its own</b> rank.
+     *
+     * <b>This is the normalisation that has to be right, and was not.</b> A multiplier is applied to the
+     * level of the rank being valued, so it has to be a ratio against the level of the rank it came from.
+     * Dividing instead by the mean of the whole window overstates every rank whose level sits above its
+     * neighbours' and understates every rank below: at rookie QB1 the rank's rate is 25.6 against a window
+     * mean of 15.3, so each realised season arrived 68% too large, and at QB8 it arrived 21% too small.
+     *
+     * Normalised this way, {@code level(rank) x multiplier} is a season from somewhere in the window scaled
+     * from its own rank onto this one, which is exactly what pooling neighbours is for. It is what
+     * {@link PointsCurve#outcomeMultipliers} does for veterans, and for the same reason.
+     */
+    private List<PointsCurve.Outcome> outcomesWithin(String position, int rank, int radius, int contractYear) {
+        Map<Integer, List<RealisedSeason>> realised = seasons.realised(contractYear)[position] ?: [:]
+        PointsCurve curve = seasons.curve(contractYear)
+        realised.findAll { int at, List<RealisedSeason> ignored -> Math.abs(at - rank) <= radius }
+                .collectMany { int at, List<RealisedSeason> seasonsAt ->
+                    BigDecimal level = curve.levelledRate(position, at)
+                    level > 0 ? outcomesOf(seasonsAt, level) : []
+                } as List<PointsCurve.Outcome>
     }
 
     /**
-     * Rate multipliers scaled so that the window's own mean rate is one.
-     *
-     * The mean is taken as total points over total games rather than as an average of per-season rates,
-     * which is the same construction the curve levels a rank with — {@code seasonPoints / expectedGames} is
-     * a ratio of means. Building the two differently would leave the multiplier centred somewhere other
-     * than the level it multiplies.
+     * One rank's seasons, as rate multipliers against that rank's own level, paired with their games.
      *
      * A season nobody played carries no rate and is kept at zero games, where it contributes nothing to the
-     * value and everything to the average. Dropping those is what would make a bust free.
+     * value and everything to the average. Dropping those is what would make a bust free, and a bust being
+     * free is the whole thing a late pick is weighed against.
      */
-    private static List<PointsCurve.Outcome> outcomesOf(List<RealisedSeason> pooled) {
-        BigDecimal points = pooled.sum { it.points } as BigDecimal ?: 0.0g
-        int games = pooled.sum { it.games } as int ?: 0
-        if (!games || points <= 0) {
-            return []
-        }
-        BigDecimal mean = points / games
-        pooled.collect { RealisedSeason season ->
-            double multiplier = season.games > 0 ? ((season.points / season.games) / mean).toDouble() : 0.0d
+    private static List<PointsCurve.Outcome> outcomesOf(List<RealisedSeason> atRank, BigDecimal level) {
+        atRank.collect { RealisedSeason season ->
+            double multiplier = season.games > 0 ? ((season.points / season.games) / level).toDouble() : 0.0d
             new PointsCurve.Outcome(multiplier, season.games)
         }
     }

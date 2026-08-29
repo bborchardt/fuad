@@ -3,6 +3,7 @@ package ff.projection.fuad
 import ff.data.PlayerValuation
 import ff.data.fuad.FuadPlayer
 import ff.data.fuad.RookieValue
+import ff.load.fuad.RookieDynastyIndex
 import ff.load.fuad.RookieSeasons
 import ff.projection.ByeWeeks
 import ff.load.util.NflTeams
@@ -65,26 +66,11 @@ class RookieValuation {
             [0.79g, 0.95g, 0.97g, 0.94g, 0.93g].asImmutable() as List<BigDecimal>
 
     /**
-     * How far the dynasty index counts against the rookie index in a rookie's level.
-     *
-     * Half, because neither is better. Over 462 rookies carrying both, they order the first season at
-     * Spearman 0.631 and 0.626 and the best of the first three at 0.623 and 0.629 — a tie either way round.
-     * Two estimators that are equally good and imperfectly correlated average to something better than
-     * either, which is the second reason for a blend and the answer to a rookie rank varying more from year
-     * to year than a veteran rank does.
-     *
-     * A rookie the dynasty ranking does not carry is levelled on the rookie index alone rather than being
-     * dropped or given a default: not being ranked among the top few hundred dynasty assets is a fact about
-     * a deep rookie, not a missing measurement, and the rookie index still has him.
-     */
-    static final BigDecimal DYNASTY_WEIGHT = 0.5g
-
-    /**
      * Every ranked rookie, valued over the contract the league would give him.
      *
      * @param seasons      the rookie curves, one per contract year
      * @param outcomes     how widely a rookie rank's seasons run, measured on rookies
-     * @param veteran      the board's own curve, which levels a rookie's dynasty rank against the league
+     * @param dynasty      what the dynasty ranking adds to a rookie's level, where it adds anything
      * @param replacement  weekly replacement level per position, from the veteran board's own curve
      * @param board        this season's priced board, which turns value over replacement into dollars
      * @param baselines    the position baselines bylaw 8.3 decays from, for the season being drafted
@@ -94,7 +80,7 @@ class RookieValuation {
      */
     static List<RookieValue> value(RookieSeasons seasons,
                                    RookieOutcomes outcomes,
-                                   PointsCurve veteran,
+                                   RookieDynastyIndex dynasty,
                                    Map<String, Map<Integer, BigDecimal>> replacement,
                                    List<PlayerValuation> board,
                                    Map<String, Integer> baselines,
@@ -113,7 +99,7 @@ class RookieValuation {
 
                     List<BigDecimal> vor = (1..RookieSeasons.CONTRACT_YEARS).collect { int contractYear ->
                         ExpectedValue.expectedValueOverReplacement(
-                                rateOf(rookie, seasons, veteran, contractYear),
+                                rateOf(rookie, seasons, dynasty, contractYear),
                                 outcomes.of(position, rank, contractYear),
                                 replacement[position] ?: [:],
                                 byes.of(position, rank), byes.lastWeek)
@@ -146,26 +132,26 @@ class RookieValuation {
     }
 
     /**
-     * What a rookie scores in a game he plays, blended across the two indices that order him.
+     * What a rookie scores in a game he plays: his rookie rank's level, moved by what the dynasty index adds.
      *
-     * The rookie index says what rookies at his rank in his class have scored; the dynasty index says what
-     * the consensus thinks he is worth against the whole league, calibrated by
-     * {@link #RATE_CALIBRATION} for the fact that it is pricing a career and this is one year of it. Class
-     * quality enters here and nowhere else: a weak class's best back carries a poor dynasty rank and is
-     * levelled down without anybody grading the class.
+     * <b>The rookie index sets the level and the dynasty index only moves it.</b> That division is what the
+     * record supports. Holding rookie rank fixed, the dynasty ranking still predicts which rookies do better
+     * — at the top of a class, strongly — but it cannot supply a level of its own, because nine classes
+     * spread across forty dynasty ranks do not fill one. So it adjusts, in proportion to how far above or
+     * below its usual place it has put him, and it is trusted less at every rank down the board.
+     *
+     * Class quality enters here and nowhere else: a weak class's best back carries a poor dynasty rank
+     * against the rookies who have held that rank before him, and is levelled down without anybody grading
+     * the class. See {@link RookieDynastyIndex}.
      *
      * Rate rather than season points, so that availability is left entirely to the outcomes.
      */
-    private static BigDecimal rateOf(FuadPlayer rookie, RookieSeasons seasons, PointsCurve veteran,
+    private static BigDecimal rateOf(FuadPlayer rookie, RookieSeasons seasons, RookieDynastyIndex dynasty,
                                      int contractYear) {
         String position = rookie.player.position
-        BigDecimal rookieRate = seasons.curve(contractYear).levelledRate(position, rookie.rookieRank.positionRank)
-        if (!rookie.dynastyRank) {
-            return rookieRate
-        }
-        BigDecimal dynastyRate = veteran.levelledRate(position, rookie.dynastyRank.positionRank) *
-                RATE_CALIBRATION[contractYear - 1]
-        rookieRate * (1.0g - DYNASTY_WEIGHT) + dynastyRate * DYNASTY_WEIGHT
+        BigDecimal rate = seasons.curve(contractYear).levelledRate(position, rookie.rookieRank.positionRank)
+        rate * dynasty.adjustment(position, rookie.rookieRank.positionRank,
+                rookie.dynastyRank?.positionRank)
     }
 
     /**
