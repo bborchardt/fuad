@@ -1086,18 +1086,18 @@ the top of a class and badly wrong at the bottom:
 
 | POS | RANK | SEASONS | MISSING | P50 | P90 | MAX |
 | --- | --- | --- | --- | --- | --- | --- |
-| RB | 3 | 40 | 10 | 0.99 | 1.37 | 1.80 |
-| RB | 8 | 40 | 8 | 0.78 | 1.65 | 2.64 |
-| RB | 15 | 81 | 38 | 0.52 | 2.20 | 3.30 |
-| RB | 25 | 51 | 69 | 0.65 | 1.82 | 1.99 |
-| WR | 3 | 40 | 0 | 1.00 | 1.55 | 1.67 |
-| WR | 8 | 40 | 3 | 0.92 | 1.72 | 1.90 |
-| WR | 15 | 79 | 24 | 0.88 | 1.70 | 2.76 |
-| WR | 25 | 119 | 53 | 0.58 | 2.01 | 2.89 |
+| RB | 3 | 64 | 8 | 0.94 | 1.56 | 2.06 |
+| RB | 8 | 88 | 17 | 0.76 | 1.69 | 2.41 |
+| RB | 15 | 89 | 36 | 0.48 | 2.13 | 3.27 |
+| RB | 25 | 57 | 65 | 0.66 | 1.85 | 2.02 |
+| WR | 3 | 64 | 0 | 1.00 | 1.44 | 1.80 |
+| WR | 8 | 88 | 7 | 0.91 | 1.57 | 2.11 |
+| WR | 15 | 87 | 22 | 0.86 | 1.69 | 2.64 |
+| WR | 25 | 88 | 44 | 0.54 | 1.89 | 2.68 |
 
 A rookie in his position's top five is a **narrower** proposition than an established player at the same
-position — 1.37 and 1.55 at the ninetieth percentile against veteran spreads of 1.71 and 1.66 — and almost
-all of his seasons happen. By rank 25 more than half never happen at all.
+position — 1.56 and 1.44 at the ninetieth percentile against veteran spreads of 1.71 and 1.66 — and almost
+all of his seasons happen. By rank 25 the spread is wider and half the seasons never happen at all.
 
 `MISSING` is the column that matters, and it is not the spread: it is the share of seasons with no games in
 them. **That is where a deep rookie's value lives**, because value over replacement is convex. Five seasons
@@ -1106,29 +1106,24 @@ whose outcomes are bimodal is worth real money at a mean that looks worthless, a
 reach two hundred cannot see it — which is why every fourth round pick used to price at zero, and the sheet
 gave a reader no ordering at all where he most needed one.
 
-So the spread is measured on rookies, banded by rank, **at every rank rather than only the deep ones**.
-Applied early it barely moves anything, which is the point: the transition from "changes nothing" to "changes
-everything" comes from the data rather than from a boundary somebody chose, and two estimators meeting at a
-chosen rank would put a cliff in the board that is pure artefact.
+So the spread is measured on rookies, **at every rank rather than only the deep ones**. Applied early it
+barely moves anything, which is the point: the transition from "changes nothing" to "changes everything"
+comes from the data rather than from a boundary somebody chose.
 
-`POOLED` on that table marks a band too thin to measure alone, which falls back to the whole position.
-Quarterback and tight end past rank ten are both, since nine classes do not rank enough of them, and the two
-bands there report identical figures for that reason rather than by accident.
+**A sliding window of neighbouring ranks, and never fixed bands.** That distinction is not fastidiousness,
+it cost real dollars. The first version banded ranks 1-5, 6-10, 11-20 and 21 up, and the edge between the
+first two bands showed up on the board immediately: Omar Cooper at WR5 and Denzel Boston at WR6 have blended
+rates within one per cent of each other and were priced $52 and $85, entirely because one fell in the top
+band and the other did not.
 
-### How long to sign him for
+Near replacement that is not a rounding difference. A receiver levelled at 9.2 points a game against a
+replacement of 9.8 is worth nothing at his mean, so **all** of his value comes from the right tail, and a
+tenth more tail is most of a doubling. The whole argument for measuring the spread at every rank was to keep
+cliffs like that off the board, and banding put one at every edge. Cooper and Boston now price at $66 and
+$71, which is the difference between their dynasty ranks and nothing else.
 
-The length that leaves the most value over its cost, taken across the whole contract rather than as a run
-that stops at the first year which does not pay.
-
-**The stopping rule was here first and it is backwards for a rookie.** A rookie quarterback is worth about
-what he costs in the season he is drafted and three or four times that in the two after it, so stopping at a
-break-even first year signed Fernando Mendoza for one season and reported his contract as worth nothing —
-against $120 of surplus in the years it refused to look at. A stopping rule suits an asset that declines, and
-this is an asset that grows.
-
-The choice is still made once and blind, because bylaw 12.4 wants the length by the cut down date of the year
-he is drafted. At a dollar it almost always says five, and cutting later costs a dollar a year remaining by
-bylaw 9.1, so the downside of being wrong is five dollars.
+`WIDE` marks a rank whose own neighbours were too few and whose window had to be widened — quarterback and
+tight end mostly, nine classes not ranking enough of them.
 
 ### From points to dollars
 

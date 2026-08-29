@@ -25,29 +25,43 @@ import ff.projection.PointsCurve
  * out at $89. Here the numerator and the denominator are both rates and availability travels separately, in
  * the {@code games} of the same realised season.
  *
- * <b>Banded by rank, because a distribution needs more seasons than a mean does.</b> A single rookie rank
- * has nine observations at best. The bands are the coarsest split that keeps the shape the measurement
- * found, and they are a stated pooling unit: a deep rookie is given the spread of deep rookies at his
- * position, which is a claim about that group and not about him.
+ * <b>Pooled across neighbouring ranks, because a distribution needs more seasons than a mean does.</b> A
+ * single rookie rank has nine observations at best, so each one is given the seasons of the ranks around it
+ * — a sliding window and never fixed bands, which have edges, and an edge near replacement is a cliff worth
+ * tens of dollars. It is a stated pooling unit either way: a deep rookie is given the spread of the deep
+ * rookies around him, which is a claim about that stretch of the board and not about him.
  *
  * See docs/fuad/PROJECTION.md.
  */
 class RookieOutcomes {
 
     /**
-     * Rank bands, as the last rank in each.
+     * Ranks either side of one that are pooled in to give it a distribution.
      *
-     * Chosen where the measurement changes rather than for roundness: the top five of a position are
-     * established prospects who play, six to ten already carry a tenth who never appear, and past twenty the
-     * majority of seasons never happen. See docs/fuad/PROJECTION.md.
+     * <b>A sliding window rather than fixed bands, because a band has edges and edges are cliffs.</b> The
+     * first version of this banded ranks 1-5, 6-10, 11-20 and 21 up, and the boundary showed up on the board
+     * immediately: Omar Cooper at WR5 and Denzel Boston at WR6 have blended rates within one per cent of each
+     * other and were priced $52 and $85, entirely because one fell in the top band and the other did not.
+     *
+     * Near replacement that difference is not small. A rookie levelled at 9.2 points a game against a
+     * receiver replacement of 9.8 is worth nothing at his mean, so <b>all</b> of his value comes from the
+     * right tail — and a tenth more tail is most of a doubling. Banding was a reasonable way to get a sample
+     * and a poor way to get a smooth answer, and the whole argument for measuring the spread at every rank
+     * was to keep the board free of exactly this.
+     *
+     * Five either side, which is what {@link ff.projection.PointsCurve} does to levels for the same reason
+     * and to the same end.
      */
-    private static final List<Integer> BANDS = [5, 10, 20, Integer.MAX_VALUE].asImmutable()
+    private static final int SMOOTHING_RADIUS = 5
 
-    /** Below this many seasons a band is pooled into the whole position rather than measured alone. */
+    /** How much wider the window goes, a step at a time, when a rank is too thinly observed to speak. */
+    private static final int WIDENING_STEP = 5
+
+    /** Below this many seasons a window is widened, and past the position's depth it becomes the position. */
     private static final int MINIMUM_OBSERVATIONS = 20
 
     private final RookieSeasons seasons
-    private final Map<List, List<PointsCurve.Outcome>> byBand = [:]
+    private final Map<List, List<PointsCurve.Outcome>> byRank = [:]
 
     RookieOutcomes(RookieSeasons seasons) {
         this.seasons = seasons
@@ -61,27 +75,47 @@ class RookieOutcomes {
      * exactly the correlation that makes a pick worth taking.
      */
     List<PointsCurve.Outcome> of(String position, int rank, int contractYear) {
-        byBand.computeIfAbsent([position, bandOf(rank), contractYear]) { List key ->
-            List<RealisedSeason> banded = seasonsIn(position, bandOf(rank), contractYear)
-            banded.size() >= MINIMUM_OBSERVATIONS ?
-                    outcomesOf(banded) : outcomesOf(seasonsIn(position, null, contractYear))
+        byRank.computeIfAbsent([position, rank, contractYear]) { List key ->
+            outcomesOf(windowAround(position, rank, contractYear))
         }
     }
 
     /**
-     * Whether a band was too thin to measure and fell back to the whole position.
+     * Whether a rank was too thinly observed at the standard window and had to be widened.
      *
-     * True at quarterback and tight end past rank ten, where nine classes do not rank enough of them to make
-     * a distribution. The fallback is the right answer — a spread over the whole position beats a spread
-     * over eleven seasons — but it means two bands report identical figures, and a reader seeing that
-     * without being told would reasonably suspect a bug.
+     * True at quarterback and tight end down most of the board, where nine classes do not rank enough of
+     * them for eleven ranks to make a distribution. Widening is the right answer — a spread over more ranks
+     * beats a spread over eleven seasons — but a reader comparing two ranks should know when one of them is
+     * speaking for a wider stretch of the board than the other.
      */
-    boolean isPooled(String position, int rank, int contractYear) {
-        seasonsIn(position, bandOf(rank), contractYear).size() < MINIMUM_OBSERVATIONS
+    boolean isWidened(String position, int rank, int contractYear) {
+        seasonsWithin(position, rank, SMOOTHING_RADIUS, contractYear).size() < MINIMUM_OBSERVATIONS
     }
 
     /**
-     * Rate multipliers scaled so that the band's own mean rate is one.
+     * The seasons pooled for one rank: its neighbours, widened until there are enough of them.
+     *
+     * Widening rather than falling back in one step, so a rank that is nearly well enough observed keeps
+     * most of its locality instead of being handed the whole position.
+     */
+    private List<RealisedSeason> windowAround(String position, int rank, int contractYear) {
+        for (int radius = SMOOTHING_RADIUS; ; radius += WIDENING_STEP) {
+            List<RealisedSeason> within = seasonsWithin(position, rank, radius, contractYear)
+            if (within.size() >= MINIMUM_OBSERVATIONS || radius > MAX_RADIUS) {
+                return within
+            }
+        }
+    }
+
+    /** Every realised season at a position within a given distance of a rank, in one contract year. */
+    private List<RealisedSeason> seasonsWithin(String position, int rank, int radius, int contractYear) {
+        Map<Integer, List<RealisedSeason>> byRank = seasons.realised(contractYear)[position] ?: [:]
+        byRank.findAll { int at, List<RealisedSeason> ignored -> Math.abs(at - rank) <= radius }
+                .values().flatten() as List<RealisedSeason>
+    }
+
+    /**
+     * Rate multipliers scaled so that the window's own mean rate is one.
      *
      * The mean is taken as total points over total games rather than as an average of per-season rates,
      * which is the same construction the curve levels a rank with — {@code seasonPoints / expectedGames} is
@@ -91,27 +125,19 @@ class RookieOutcomes {
      * A season nobody played carries no rate and is kept at zero games, where it contributes nothing to the
      * value and everything to the average. Dropping those is what would make a bust free.
      */
-    private static List<PointsCurve.Outcome> outcomesOf(List<RealisedSeason> banded) {
-        BigDecimal points = banded.sum { it.points } as BigDecimal ?: 0.0g
-        int games = banded.sum { it.games } as int ?: 0
+    private static List<PointsCurve.Outcome> outcomesOf(List<RealisedSeason> pooled) {
+        BigDecimal points = pooled.sum { it.points } as BigDecimal ?: 0.0g
+        int games = pooled.sum { it.games } as int ?: 0
         if (!games || points <= 0) {
             return []
         }
         BigDecimal mean = points / games
-        banded.collect { RealisedSeason season ->
+        pooled.collect { RealisedSeason season ->
             double multiplier = season.games > 0 ? ((season.points / season.games) / mean).toDouble() : 0.0d
             new PointsCurve.Outcome(multiplier, season.games)
         }
     }
 
-    /** Every realised season at a position in a contract year, in a band or across all of them. */
-    private List<RealisedSeason> seasonsIn(String position, Integer band, int contractYear) {
-        Map<Integer, List<RealisedSeason>> byRank = seasons.realised(contractYear)[position] ?: [:]
-        byRank.findAll { int rank, List<RealisedSeason> ignored -> band == null || bandOf(rank) == band }
-                .values().flatten() as List<RealisedSeason>
-    }
-
-    private static int bandOf(int rank) {
-        BANDS.find { rank <= it }
-    }
+    /** Past this the window is the whole position, every rank the consensus carries. */
+    private static final int MAX_RADIUS = 200
 }

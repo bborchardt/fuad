@@ -50,7 +50,7 @@ class RookieFiguresPrinter {
     /** Picks the demand table runs to: the deepest a five round draft of ten teams reaches. */
     private static final int PICKS = 50
 
-    /** Ranks reported for the spread, one inside each band {@link RookieOutcomes} measures. */
+    /** Ranks the spread is reported at, spaced down the board rather than at any boundary. */
     private static final List<Integer> BAND_RANKS = [3, 8, 15, 25].asImmutable()
 
     /** How many of a class's best rookies the class quality figure reports. */
@@ -77,12 +77,11 @@ class RookieFiguresPrinter {
      * share of seasons with no games at all, which is where a deep rookie's bimodality lives — the spread
      * of the seasons that <i>did</i> happen is only half the story.
      *
-     * {@code POOLED} marks a band too thin to measure on its own, which fell back to the whole position.
-     * Quarterback and tight end past rank ten are both of those, and the two bands there report the same
-     * figures for that reason rather than by accident.
+     * {@code WIDE} marks a rank whose own neighbours were too few to speak, so the window around it was
+     * widened. Quarterback and tight end are mostly that, nine classes not ranking enough of them.
      */
     void printSpread(PrintWriter out) {
-        out.println(['POS', 'RANK', 'SEASONS', 'MISSING', 'P50', 'P90', 'MAX', 'POOLED'].join('\t'))
+        out.println(['POS', 'RANK', 'SEASONS', 'MISSING', 'P50', 'P90', 'MAX', 'WIDE'].join('\t'))
         POSITIONS.each { String position ->
             BAND_RANKS.each { int rank ->
                 List<PointsCurve.Outcome> band = outcomes.of(position, rank, 2)
@@ -99,7 +98,7 @@ class RookieFiguresPrinter {
                         round(at(0.5)),
                         round(at(0.9)),
                         round(played.last()),
-                        outcomes.isPooled(position, rank, 2) ? 'POS' : '',
+                        outcomes.isWidened(position, rank, 2) ? 'WIDE' : '',
                 ].join('\t'))
             }
         }
