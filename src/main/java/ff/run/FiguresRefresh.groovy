@@ -98,6 +98,7 @@ class FiguresRefresh {
                 rookieadp   : { PrintWriter out -> rookies.printAdp(out) } as Closure<Void>,
                 rookiespread: { PrintWriter out -> rookies.printSpread(out) } as Closure<Void>,
                 rookieclass : { PrintWriter out -> rookies.printClass(out) } as Closure<Void>,
+                rookiepace  : { PrintWriter out -> rookies.printPace(out) } as Closure<Void>,
                 rookieboard : { PrintWriter out -> rookies.printBoard(out) } as Closure<Void>,
         ])
         write(figuresDir, 'greenfield', year, greenfield(year))

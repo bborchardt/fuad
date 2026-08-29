@@ -252,6 +252,31 @@ class RookieFiguresPrinter {
     }
 
     /**
+     * How fast the room drafts each band of the ranking, season by season.
+     *
+     * <b>The check that the demand ladder is not an artefact of how long a ranking happened to be.</b> The
+     * pooled ladder is worth reading only if the seasons behind it agree, and the obvious way that could
+     * fail is the source: a year that ranks 138 rookies where another ranked 80 might be putting a worse
+     * player at rank thirty, in which case the room would take him later and the pooled figure would be an
+     * average of two different things.
+     *
+     * It does not happen. Rankings extend at the tail rather than in the middle — the extra names are
+     * overwhelmingly players the NFL never drafted — so the mapping holds across a fifth of variation in
+     * {@code RANKED}, which is what this table is here to show.
+     */
+    void printPace(PrintWriter out) {
+        out.println(['SEASON', 'RANKED', 'PICK1_10', 'PICK11_20', 'PICK21_30'].join('\t'))
+        demand.rankedPicksBySeason().each { String season, List<List<Integer>> joined ->
+            int ranked = new FantasyProsLoader()
+                    .loadRankedPlayers(LoadUtils.fpRookieRankingsPprResourcePath(season)).size()
+            out.println(([season, ranked] + [[1, 10], [11, 20], [21, 30]].collect { List band ->
+                List<Integer> picks = joined.findAll { it[1] >= band[0] && it[1] <= band[1] }*.getAt(0).sort()
+                picks ? picks[(picks.size() / 2) as int] : ''
+            }).join('\t'))
+        }
+    }
+
+    /**
      * The class being drafted, as one row: what it holds and how much of it falls after this season.
      *
      * {@code DEFERSHARE} is the figure the board exists to make: the share of the top ten rookies' surplus

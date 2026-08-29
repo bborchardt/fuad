@@ -1242,6 +1242,30 @@ sightings then bites hard at the deep picks, which report nothing rather than an
 years happened to run long. The auction board makes the same trade for the same reason; see
 `AuctionSpend.SUPERFLEX_SEASONS`.
 
+**And the seasons behind it agree, which is worth checking rather than assuming.** A pooled ladder is only
+worth reading if the drafts it pools drafted alike, and the obvious way that could fail is the source: a year
+ranking 138 rookies where another ranked 80 might be putting a worse player at rank thirty, in which case the
+room would take him later and the pooled figure would average two different things.
+
+<!-- figures: fuad/rookiepace key=SEASON -->
+
+| SEASON | RANKED | PICK1_10 | PICK11_20 | PICK21_30 |
+| --- | --- | --- | --- | --- |
+| 2022 | 84 | 6 | 16 | 28 |
+| 2023 | 95 | 6 | 19 | 23 |
+| 2024 | 80 | 6 | 18 | 27 |
+| 2025 | 93 | 7 | 16 | 31 |
+
+**It holds.** Ranking length varies by a fifth across those four years and the mapping does not move with it —
+2024 is the shortest list and 2023 the longest, and they place a rookie at nearly the same pick.
+
+The reason is that **rankings extend at the tail rather than in the middle**. 2026 ranks 138 rookies against
+2024's 80, and the extra names are almost all at the bottom: the share the NFL never drafted runs 3% over
+ranks 1-30, 23% over 31-60, 63% over 61-90 and 79% past 91, against 2024's 0%, 10% and 45%. The top of the
+list is the same kind of player it has always been, so the ranks a team is actually choosing among are
+calibrated on like with like. Only the deep end is stretched, and there the ladder is blank or the draft has
+already ended.
+
 The ladder is held to only ever emptying. A median over unequal drafts does not do that on its own: a pick
 past 40 exists in three of the four drafts and one past 50 in one of them, so a long year that happened to
 leave a good receiver on the board can put pick 41 ahead of pick 40. That is an artefact of which drafts

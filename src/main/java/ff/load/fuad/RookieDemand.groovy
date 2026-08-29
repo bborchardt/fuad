@@ -84,6 +84,25 @@ class RookieDemand {
         bestAvailable ?: (bestAvailable = medianBestAvailable())
     }
 
+    /**
+     * The same join kept season by season, for asking whether the room drafts the same way each year.
+     *
+     * The pooled ladder is only worth reading if the seasons behind it agree, and the one thing that could
+     * plausibly break that is the ranking itself: a longer list would push a given rank deeper into the pool
+     * and a rookie ranked thirtieth would be a worse player than in a year that ranked eighty. Whether that
+     * happens is a question about the source rather than about the room, and it is answered in
+     * docs/figures/fuad/&lt;year&gt;/rookiepace.tsv rather than assumed either way.
+     */
+    Map<String, List<List<Integer>>> rankedPicksBySeason() {
+        SEASONS.collectEntries { String season ->
+            Map<String, FpRankedPlayer> rookies = rookieRanking(season)
+            [(season): RookieDraftHistory.picks(season).collect { RookiePick pick ->
+                FpRankedPlayer matched = match(rookies, pick.playerName)
+                matched ? [pick.overall, matched.rank.overallRank] : null
+            }.findAll()]
+        } as Map<String, List<List<Integer>>>
+    }
+
     /** Every drafted pick that could be joined to a rookie rank, as [overall pick, overall rookie rank]. */
     private List<List<Integer>> rankedPicks() {
         ranked ?: (ranked = SEASONS.collectMany { String season ->
