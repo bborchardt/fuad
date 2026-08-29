@@ -1216,6 +1216,28 @@ past 40 exists in three of the four drafts and one past 50 in one of them, so a 
 leave a good receiver on the board can put pick 41 ahead of pick 40. That is an artefact of which drafts
 reached which pick, not a claim that waiting improves the board.
 
+### What it produces for 2026
+
+<!-- figures: fuad/rookieboard -->
+
+| FIGURE | VALUE |
+| --- | --- |
+| RANKED | 117 |
+| TOPTEN | 9 |
+| SURPLUS | 1210 |
+| DEFERRED | 1096 |
+| SALARY | 30 |
+
+Nine rookies expected to go inside the first ten picks, costing $30 between them, holding $1,210 of surplus
+over their contracts — of which **$1,096, or 91%, arrives after the season the pick is spent in**.
+
+That figure is the whole case for the rookie board. It is the part of a pick that no auction dollar can buy
+at any price, and pricing a rookie on his first season would report a tenth of it.
+
+Read it against [the class it comes from](#two-indices-because-one-of-them-cannot-see-the-class): 2026 is a
+weak year, so these are smaller numbers than a strong class would produce, and the board says so rather than
+levelling every class alike.
+
 ### One team's picks
 
 `-t rookie_outlook -f <id>` reports, at each of a team's own picks, the rookies the room has typically left
@@ -1239,13 +1261,24 @@ will not decide. Solving it would put a confident-looking answer on top of an ob
   division the auction board makes, and the same reason: a clearing rate that answered per roster would stop
   being one.
 - **Contract length is chosen at the expectation and nothing cleverer.** Bylaw 12.4 wants the length before
-  the first season is played, so the rule is "every year he is expected to be worth more than his salary,
-  taken in order". At a dollar that almost always says five, and the downside it ignores is five dollars.
+  the first season is played, so the rule is the length that leaves the most value over its cost, and
+  nothing about what might be learned in year one. At a dollar it almost always says five, and the downside
+  it ignores is five dollars.
 - **The fifth year is levelled off five classes**, three of them from before the league went superflex. It
   is reported with `CLASSES` beside it for that reason, and it should be read as the weakest column on the
   board rather than as an equal one.
 - **A rookie's bye is his team's.** No ranking carries a bye for a rookie — the dynasty export writes 0 —
   and the same week is used in every contract year, there being no schedule for a season four years out.
+- **The spread is a rank band's and never a player's.** A rookie deep in a class is given the distribution
+  of deep rookies at his position, which says how that group has turned out and nothing about whether he in
+  particular is the one who pops. Same doctrine the auction board applies to `PTSLOW` and `PTSHIGH`, and the
+  same warning: it must not be read as identifying the risky pick.
+- **Class quality is one number per player, and a class is not uniform.** The dynasty blend corrects a weak
+  class per position, since it runs off each rookie's own dynasty rank — but a class can be weak at the top
+  and deep in the middle, and nothing here reports that shape. `rookieclass` shows only the best five.
+- **The blend is half and half because neither index was better**, not because a half is optimal. The two
+  order rookie outcomes within a hundredth of each other, so nothing in the record argues for a particular
+  weight, and a fitted one would be fitting noise.
 - **Availability is four drafts and the curve is nine seasons**, so the two halves of the board rest on very
   different amounts of evidence. That is deliberate — see above — but it means the value column is a much
   firmer claim than the pick column beside it.
