@@ -33,6 +33,8 @@ class FuadRookieDraftPrinterSpec extends Specification {
                 salary               : 4,
                 contractLength       : 5,
                 surplus              : 75,
+                valueError           : 30,
+                tier                 : 2,
         ] + overrides)
     }
 
@@ -255,5 +257,24 @@ class FuadRookieDraftPrinterSpec extends Specification {
 
         and: 'and with nothing measured for that pick, neither is filtered out'
         outlook([best, later], [pick(1, 1, 'Brett')], [:]).tail()*.getAt(name).size() == 2
+    }
+
+    def "carries what he is worth beside what the contract is worth"() {
+        given:
+        List<String> header = board([rookie()]).first()
+        List<String> row = board([rookie()])[1]
+
+        expect: 'ninety-five of value against a twenty dollar contract leaves seventy-five'
+        row[header.indexOf('VALUE')] == '95'
+        row[header.indexOf('SURPLUS')] == '75'
+    }
+
+    def "carries the tier, so a gap inside the evidence reads as one"() {
+        given:
+        List<String> header = board([rookie()]).first()
+        List<String> row = board([rookie()])[1]
+
+        expect:
+        row[header.indexOf('TIER')] == '2'
     }
 }

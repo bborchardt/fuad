@@ -91,7 +91,8 @@ class RookieValuation {
         Map<String, List<List<BigDecimal>>> priceCurve = pricesByPosition(board)
         ByeWeeks byes = rookieByes(rookies, byeByTeam, lastWeek)
 
-        rookies.findAll { FuadPlayer rookie -> rookie.rookieRank && replacement.containsKey(rookie.player.position) }
+        List<RookieValue> valued = rookies
+                .findAll { FuadPlayer rookie -> rookie.rookieRank && replacement.containsKey(rookie.player.position) }
                 .sort { FuadPlayer rookie -> rookie.rookieRank.overallRank }
                 .collect { FuadPlayer rookie ->
                     String position = rookie.player.position
@@ -106,6 +107,15 @@ class RookieValuation {
                     }
                     List<Integer> value = vor.collect { BigDecimal points ->
                         priceOf(points, priceCurve[position])
+                    }
+                    // The same contract revalued a standard error higher, which is the band it carries.
+                    List<Integer> high = (1..RookieSeasons.CONTRACT_YEARS).collect { int contractYear ->
+                        priceOf(ExpectedValue.expectedValueOverReplacement(
+                                rateOf(rookie, seasons, dynasty, contractYear) *
+                                        errorFactor(seasons, position, rank, contractYear),
+                                outcomes.of(position, rank, contractYear),
+                                replacement[position] ?: [:],
+                                byes.of(position, rank), byes.lastWeek), priceCurve[position])
                     }
 
                     Integer pick = expectedPick[rookie.rookieRank.overallRank]
@@ -127,8 +137,40 @@ class RookieValuation {
                             expectedPick: pick,
                             salary: salary,
                             contractLength: length,
-                            surplus: (0..<length).sum { int year -> value[year] - salary } as int)
+                            surplus: (0..<length).sum { int year -> value[year] - salary } as int,
+                            valueError: (0..<length).sum { int year -> high[year] - value[year] } as int)
                 }
+        tiered(valued)
+    }
+
+    /**
+     * Group each position's rookies into bands the evidence cannot tell apart.
+     *
+     * The same rule the auction board tiers ranks by: walk in order of what they are worth, keep a rookie in
+     * the current tier while he sits within one standard error of the <b>best</b> in it, and open a new tier
+     * when he falls further. Measured against the tier's best rather than its previous member, so a chain of
+     * individually small steps cannot drift a tier arbitrarily wide.
+     *
+     * Tiered on {@link RookieValue#getContractValue} rather than on surplus, because surplus carries the
+     * salary and the salary is a fact about a pick. Two rookies the model cannot separate as players should
+     * read as ties whatever they will cost.
+     */
+    private static List<RookieValue> tiered(List<RookieValue> valued) {
+        Map<String, Integer> tiers = [:]
+        valued.groupBy { it.position }.each { String position, List<RookieValue> atPosition ->
+            int tier = 0
+            Integer best = null
+            atPosition.sort { RookieValue a, RookieValue b ->
+                (b.contractValue <=> a.contractValue) ?: (a.overallRank <=> b.overallRank)
+            }.each { RookieValue rookie ->
+                if (best == null || best - rookie.contractValue > rookie.valueError) {
+                    tier++
+                    best = rookie.contractValue
+                }
+                tiers[rookie.playerId] = tier
+            }
+        }
+        valued.collect { RookieValue rookie -> rookie.copyWith(tier: tiers[rookie.playerId]) }
     }
 
     /**
@@ -152,6 +194,18 @@ class RookieValuation {
         BigDecimal rate = seasons.curve(contractYear).levelledRate(position, rookie.rookieRank.positionRank)
         rate * dynasty.adjustment(position, rookie.rookieRank.positionRank,
                 rookie.dynastyRank?.positionRank)
+    }
+
+    /**
+     * How much a rank's level could be out by, as a factor on its rate.
+     *
+     * The curve's standard error is on season points and the rate is those points over expected games, so a
+     * one error rise in the level is the same proportional rise in the rate. Where a rank carries no level
+     * at all the factor is one, there being nothing to be uncertain about.
+     */
+    private static BigDecimal errorFactor(RookieSeasons seasons, String position, int rank, int contractYear) {
+        BigDecimal points = seasons.curve(contractYear).seasonPoints(position, rank)
+        points > 0 ? 1.0g + seasons.curve(contractYear).standardError(position, rank) / points : 1.0g
     }
 
     /**

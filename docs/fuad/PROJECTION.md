@@ -1269,6 +1269,41 @@ Read it against [the class it comes from](#two-indices-because-one-of-them-canno
 below-average year, so these are smaller numbers than a strong class would produce, and the board says so
 rather than levelling every class alike.
 
+### What is worth reading, and what is not
+
+Two columns exist to stop the rest being over-read.
+
+**`VALUE` is what he is worth; `SURPLUS` is what the contract is worth.** They move for different reasons. A
+rookie's worth is a fact about him, and his salary is a fact about the pick he goes at — which at
+quarterback this year runs from $20 at the first pick to $1 by the fifteenth. So a quarterback's surplus is
+dominated by an assumption about where he lands: Fernando Mendoza is the same $95 asset reading $30 at pick
+three and $80 at pick nine, while Omar Cooper is worth $69 at every pick in the draft. Only `VALUE` stays
+still, and it is the column to compare players on.
+
+**`TIER` is what the evidence can actually separate.** Same rule the auction board tiers ranks by: walk in
+order of value, keep a rookie in the current tier while he sits within one standard error of the best in it,
+open a new tier when he falls further. Tiered on value rather than surplus, since two rookies the model
+cannot separate as players should read as ties whatever they cost.
+
+The bands are wide, and at two positions they are wider than the numbers they qualify:
+
+| | value | error band | band as a share |
+| --- | --- | --- | --- |
+| RB1 | 296 | 79 | 26% |
+| WR1 | 221 | 81 | 36% |
+| TE1 | 49 | 47 | 95% |
+| QB1 | 95 | 97 | **102%** |
+| QB2 | 53 | 62 | **116%** |
+
+**A rookie quarterback's contract value cannot be told from zero**, and that is the honest state of the
+position rather than a defect to be tuned away. Superflex starts up to twenty quarterbacks, so replacement
+is 209 points a season; only about half the rookie quarterback seasons that happened have ever cleared it,
+and a third of them never happened. Value over replacement is convex, so a standard error on a level sitting
+near replacement is worth as much as the whole value.
+
+That is worth carrying to the draft as it stands: the board's quarterback numbers are a statement about how
+little nine classes can say, not a recommendation to avoid the position.
+
 ### One team's picks
 
 `-t rookie_outlook -f <id>` reports, at each of a team's own picks, the rookies the room has typically left

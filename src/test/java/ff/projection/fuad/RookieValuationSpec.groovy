@@ -214,4 +214,64 @@ class RookieValuationSpec extends Specification {
         deep.count { it.surplus > 0 } >= deep.size() / 2
         deep*.surplus.unique().size() >= 8
     }
+
+    /**
+     * Value and surplus are different questions, and the board carries both because they move apart.
+     *
+     * A rookie's worth is a fact about him; his salary is a fact about the pick he goes at. At quarterback
+     * this year that price runs from $20 at the first pick to $1 by the fifteenth, so a quarterback's
+     * surplus is mostly an assumption about where he lands — Fernando Mendoza is the same $95 asset reading
+     * $30 at pick three and $80 at pick nine.
+     */
+    def "value is the contract before its cost, and surplus is what is left after it"() {
+        expect:
+        values.every { RookieValue rookie ->
+            rookie.contractValue - rookie.contractLength * rookie.salary == rookie.surplus
+        }
+
+        and: 'and value does not move when the pick does, where surplus does'
+        RookieValuation.at(values.first(), 1, [QB: 20, RB: 7, WR: 1, TE: 1, PK: 1]).contractValue ==
+                RookieValuation.at(values.first(), 20, [QB: 20, RB: 7, WR: 1, TE: 1, PK: 1]).contractValue
+    }
+
+    /**
+     * The column that stops the rest being over-read.
+     *
+     * The levels behind these dollars are means of a few dozen seasons, and any ordering inside their error
+     * is noise the price column dresses up. Two questions that came up reading this board were both answered
+     * by it: Makai Lemon above Jordyn Tyson is one tier, so a tie, and so is the gap between the two best
+     * rookie quarterbacks.
+     */
+    def "rookies the evidence cannot separate share a tier"() {
+        given:
+        def tierOf = { String name -> values.find { it.playerName == name }?.tier }
+
+        expect: 'a tier is assigned to everyone, from one up, within a position'
+        values.every { it.tier >= 1 }
+        values.groupBy { it.position }.every { String position, List<RookieValue> atPosition ->
+            atPosition*.tier.min() == 1
+        }
+
+        and: 'and it separates the board without pretending to separate what it cannot'
+        values.findAll { it.position == 'WR' }*.tier.unique().size() > 3
+    }
+
+    /**
+     * A rookie quarterback's value cannot be told from zero, and the band says so.
+     *
+     * This is the honest state of the position rather than a defect to be tuned away. Superflex starts up to
+     * twenty quarterbacks, so replacement is 209 points a season and only about half of the rookie
+     * quarterback seasons that happened have ever cleared it — and a third of them never happened. Value
+     * over replacement is convex, so a standard error on a level that sits near replacement is worth as much
+     * as the value itself.
+     */
+    def "the error band on a rookie quarterback is as large as his value"() {
+        given:
+        List<RookieValue> quarterbacks = values.findAll { it.position == 'QB' && it.positionRank <= 2 }
+        List<RookieValue> backs = values.findAll { it.position == 'RB' && it.positionRank <= 2 }
+
+        expect: 'the band swallows the quarterback and not the back'
+        quarterbacks.every { it.valueError >= it.contractValue }
+        backs.every { it.valueError < it.contractValue }
+    }
 }

@@ -12,11 +12,17 @@ import java.math.RoundingMode
 /**
  * The rookie draft: what each rookie is worth over the contract he comes with, and what he will cost.
  *
- * <b>Read the last two columns and nothing else, if only two are read.</b> {@code SURPLUS} is what the
- * contract is worth over what it costs, and {@code DEFER} is how much of that falls after the coming
- * season — the part no auction dollar can buy at any price, because the auction sells one year at a time.
- * A rookie whose surplus is mostly deferred is a different asset from one whose surplus is all in year one,
- * and the two are not interchangeable for a team that has to win now.
+ * <b>{@code VALUE} is what he is worth and {@code SURPLUS} is what the contract is worth, and they move for
+ * different reasons.</b> His worth is a fact about him; his salary is a fact about the pick he goes at, and
+ * at quarterback this year that price runs from $20 at the first pick to $1 by the fifteenth. So a
+ * quarterback's surplus is dominated by an assumption about where he lands, and only {@code VALUE} stays
+ * still. {@code DEFER} is how much of the surplus falls after the coming season — the part no auction dollar
+ * can buy at any price, because the auction sells one year at a time.
+ *
+ * <b>{@code TIER} exists to stop the rest being over-read.</b> Rookies sharing one are ties: the levels
+ * behind these dollars are means of a few dozen seasons, and any ordering inside their error is noise the
+ * price column dresses up. Compare only within a position, and choose between a tier's members on what they
+ * will cost you, on their bye, or on what the roster is short of.
  *
  * The board is in consensus order because that is the order a draft is read in. It is deliberately not
  * sorted by surplus: the pick in front of you is a choice among whoever is left, and sorting by value hides
@@ -46,12 +52,13 @@ class FuadRookieDraftPrinter {
     /** One ranked rookie a row, in consensus order. */
     void print(PrintWriter out) {
         List<String> years = (1..RookieSeasons.CONTRACT_YEARS).collect { "Y$it" as String }
-        out.println((['OVR', 'POS', 'RANK', 'PLAYER', 'TEAM', 'NFL', 'BYE', 'PICK', 'SALARY'] + years +
-                ['VOR1', 'LEN', 'SURPLUS', 'DEFER']).join('\t'))
+        out.println((['OVR', 'POS', 'TIER', 'RANK', 'PLAYER', 'TEAM', 'NFL', 'BYE', 'PICK', 'SALARY'] +
+                years + ['VOR1', 'LEN', 'VALUE', 'SURPLUS', 'DEFER']).join('\t'))
         values.each { RookieValue value ->
             out.println(([
                     value.overallRank,
                     value.position,
+                    value.tier,
                     value.positionRank,
                     value.playerName,
                     value.nflTeam ?: '',
@@ -62,6 +69,7 @@ class FuadRookieDraftPrinter {
             ] + value.valueByYear + [
                     value.pointsOverReplacement.first().setScale(0, RoundingMode.HALF_UP),
                     value.contractLength,
+                    value.contractValue,
                     value.surplus,
                     value.deferredSurplus,
             ]).join('\t'))
@@ -118,8 +126,8 @@ class FuadRookieDraftPrinter {
      * The rows are what will fall to you. The decision stays yours.
      */
     void printOutlook(PrintWriter out, String franchiseId) {
-        out.println(['PICK', 'ROUND', 'SLOT', 'POS', 'RANK', 'OVR', 'PLAYER', 'TEAM', 'NFL', 'BYE',
-                     'SALARY', 'Y1', 'LEN', 'SURPLUS', 'DEFER'].join('\t'))
+        out.println(['PICK', 'ROUND', 'SLOT', 'POS', 'TIER', 'RANK', 'OVR', 'PLAYER', 'TEAM', 'NFL', 'BYE',
+                     'SALARY', 'Y1', 'LEN', 'VALUE', 'SURPLUS', 'DEFER'].join('\t'))
         fuadData.mflData.draftPicks.eachWithIndex { MflDraftPick pick, int index ->
             if (pick.franchise?.id != franchiseId) {
                 return
@@ -131,6 +139,7 @@ class FuadRookieDraftPrinter {
                         pick.round,
                         pick.pick,
                         here.position,
+                        here.tier,
                         here.positionRank,
                         here.overallRank,
                         here.playerName,
@@ -140,6 +149,7 @@ class FuadRookieDraftPrinter {
                         here.salary,
                         here.valueByYear.first(),
                         here.contractLength,
+                        here.contractValue,
                         here.surplus,
                         here.deferredSurplus,
                 ].join('\t'))
