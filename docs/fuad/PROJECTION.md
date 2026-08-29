@@ -1057,24 +1057,46 @@ something a reader has to already know.
 The valuation is unaffected, because it blends on positional rank — the same players in the same order
 whichever format the ranking is in. This figure was not, and said so for one commit.
 
-So a rookie's level is blended across both indices, half and half. Neither is better: over 462 rookies
-carrying both, they order the first season at Spearman 0.631 and 0.626, and the best of the first three at
-0.623 and 0.629 — a tie either way round. Two estimators that are equally good and imperfectly correlated
-average to something better than either, which is also the answer to a rookie rank varying more from year to
-year than a veteran rank does.
+So the dynasty index is used to **adjust** a rookie's level rather than to supply one. Two more obvious
+things were tried first and both failed, for reasons worth keeping.
 
-**A dynasty rank prices a career, so it is calibrated to one season of it.** Measured over 424 rookie
-seasons, a rookie scores per game at 0.79 of what the veteran curve gives his dynasty rank in the year he is
-drafted, and 0.95, 0.97, 0.94 and 0.93 in the years after — the ranking being early rather than wrong.
+Reading a rookie's dynasty rank off the **veteran** curve mixes populations: a veteran ranked 28th at
+quarterback who plays is a backup in relief at 13 points a game, and a rookie ranked 28th who plays has won a
+job. Averaging a job-winner's rate with a backup's is not an estimate of anything, and it needed a fitted
+calibration to stand up at all. Building a rookie curve **indexed** by dynasty rank ran out of data instead:
+nine classes spread over forty dynasty ranks left 27 of 117 rookies with any level, and every rookie worth
+drafting fell through.
 
-That calibration is measured on **rate** and never on season totals. The same figures over totals run 0.74,
-0.91, 0.89, 0.80 and 0.70, and the fall away at the end is rookies leaving the league — availability, which
-belongs to the rookie curve. Calibrating a rate with a number that already contains availability, and then
-applying availability again, is a double count this model has made once already.
+**What the record supports is an ordering claim, so it is used as one.** Holding rookie rank fixed, the
+rookies the dynasty ranking rates above their peers go on to score more — and that needs no per-rank sample,
+because every rookie contributes to one pooled relationship. A rookie is compared against the dynasty rank
+that rookies at his rank usually hold, and his level moves with the gap.
 
-Class quality then enters at exactly one place and **per position**, which is what a year thin at back and
-deep at receiver requires: a weak class's best back carries a poor dynasty rank and is levelled down, with
-nobody grading the class by hand.
+**Tapered, because the claim is only true at the top of a class.** Measured in a sliding window down the
+rookie ranks, the signal runs:
+
+| rookie rank | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| signal | 0.42 | 0.42 | 0.43 | 0.33 | 0.23 | 0.16 | 0.09 | 0.05 | −0.01 |
+
+A plateau over the top four and an exponential decay of three ranks fits that closely, and it is continuous
+everywhere — there is no rank at which a rookie's treatment jumps. A cutoff would put a cliff on the board,
+which this project has already paid for once.
+
+**One sided, because only one side of it is there.** Binned by residual, the rookies the dynasty ranking
+rates *below* their peers score what the ones it agrees about score — mean rates of 8.73 and 8.70 — while
+the ones it rates well above score 11.62. No penalty is applied, because none is in the record. What is
+left is a narrow claim and the one the evidence makes: **the dynasty ranking picks out the exceptional
+prospects and says nothing useful about the rest.**
+
+**And capped at the ninetieth percentile of its own fitting sample.** The slope is 0.258 with a correlation
+of 0.242 over 57 seasons — a rookie placed twice as high as his rookie rank implies scores about 20% more per
+game. Uncapped, this year's best back sits past the 95th percentile of everything that slope was fitted on,
+and reading a weak fit off the end of its own data lifted his rate two fifths and his contract from $233 to
+$491. Value over replacement is convex, so a rate moved by two fifths moves a price by rather more.
+
+Class quality enters here and nowhere else, and per position, which is what a year thin at back and deep at
+receiver requires.
 
 ### How widely a rookie's seasons actually run
 
@@ -1086,18 +1108,18 @@ the top of a class and badly wrong at the bottom:
 
 | POS | RANK | SEASONS | MISSING | P50 | P90 | MAX |
 | --- | --- | --- | --- | --- | --- | --- |
-| RB | 3 | 64 | 8 | 0.94 | 1.56 | 2.06 |
-| RB | 8 | 88 | 17 | 0.76 | 1.69 | 2.41 |
-| RB | 15 | 89 | 36 | 0.48 | 2.13 | 3.27 |
-| RB | 25 | 57 | 65 | 0.66 | 1.85 | 2.02 |
-| WR | 3 | 64 | 0 | 1.00 | 1.44 | 1.80 |
-| WR | 8 | 88 | 7 | 0.91 | 1.57 | 2.11 |
-| WR | 15 | 87 | 22 | 0.86 | 1.69 | 2.64 |
-| WR | 25 | 88 | 44 | 0.54 | 1.89 | 2.68 |
+| RB | 3 | 64 | 8 | 0.76 | 1.26 | 2.03 |
+| RB | 8 | 88 | 17 | 0.72 | 1.63 | 3.18 |
+| RB | 15 | 89 | 36 | 0.51 | 1.91 | 3.18 |
+| RB | 25 | 53 | 64 | 0.55 | 2.48 | 2.53 |
+| WR | 3 | 64 | 0 | 0.91 | 1.36 | 1.74 |
+| WR | 8 | 88 | 7 | 0.84 | 1.45 | 1.91 |
+| WR | 15 | 87 | 22 | 0.79 | 1.71 | 2.49 |
+| WR | 25 | 88 | 44 | 0.61 | 2.19 | 2.65 |
 
-A rookie in his position's top five is a **narrower** proposition than an established player at the same
-position — 1.56 and 1.44 at the ninetieth percentile against veteran spreads of 1.71 and 1.66 — and almost
-all of his seasons happen. By rank 25 the spread is wider and half the seasons never happen at all.
+A rookie in his position's top few is a **narrower** proposition than a deep one — 1.26 and 1.36 at the
+ninetieth percentile against 2.48 and 2.19 by rank 25 — and almost all of his seasons happen. By rank 25
+more than half never happen at all.
 
 `MISSING` is the column that matters, and it is not the spread: it is the share of seasons with no games in
 them. **That is where a deep rookie's value lives**, because value over replacement is convex. Five seasons
@@ -1106,24 +1128,27 @@ whose outcomes are bimodal is worth real money at a mean that looks worthless, a
 reach two hundred cannot see it — which is why every fourth round pick used to price at zero, and the sheet
 gave a reader no ordering at all where he most needed one.
 
-So the spread is measured on rookies, **at every rank rather than only the deep ones**. Applied early it
-barely moves anything, which is the point: the transition from "changes nothing" to "changes everything"
-comes from the data rather than from a boundary somebody chose.
+So the spread is measured on rookies, **at every rank rather than only the deep ones**. Applied at the top
+of a class it barely moves anything, which is the point: the transition comes from the data rather than from
+a boundary somebody chose.
 
-**A sliding window of neighbouring ranks, and never fixed bands.** That distinction is not fastidiousness,
-it cost real dollars. The first version banded ranks 1-5, 6-10, 11-20 and 21 up, and the edge between the
-first two bands showed up on the board immediately: Omar Cooper at WR5 and Denzel Boston at WR6 have blended
-rates within one per cent of each other and were priced $52 and $85, entirely because one fell in the top
-band and the other did not.
+**A sliding window of neighbouring ranks, and never fixed bands.** That distinction cost real dollars before
+it was made. Banding ranks 1-5, 6-10, 11-20 and 21 up put an edge between the first two bands, and Omar
+Cooper at WR5 and Denzel Boston at WR6 — whose levels are within one per cent of each other — were priced
+$52 and $85 because of which side of it they fell. Near replacement that is not a rounding difference: a
+receiver worth nothing at his mean draws all his value from the right tail, and a tenth more tail is most of
+a doubling.
 
-Near replacement that is not a rounding difference. A receiver levelled at 9.2 points a game against a
-replacement of 9.8 is worth nothing at his mean, so **all** of his value comes from the right tail, and a
-tenth more tail is most of a doubling. The whole argument for measuring the spread at every rank was to keep
-cliffs like that off the board, and banding put one at every edge. Cooper and Boston now price at $66 and
-$71, which is the difference between their dynasty ranks and nothing else.
+**And each season is a ratio against the level of the rank it came from, not against the window's mean.**
+That is the second thing this had wrong, and it was the more expensive of the two. A multiplier is applied
+to the level of the rank being valued, so it has to be normalised against the level of the rank it came out
+of — otherwise the arithmetic does not reproduce the season it was built from. Normalised on the window
+instead, every rank sitting above its neighbours was overstated and every rank below understated: rookie
+QB1's rate is 25.6 against a window mean of 15.3, so each of his realised seasons arrived **68% too large**,
+and his second year priced at 96 points over replacement where it belongs at 41.
 
-`WIDE` marks a rank whose own neighbours were too few and whose window had to be widened — quarterback and
-tight end mostly, nine classes not ranking enough of them.
+`WIDE` on that table marks a rank whose own neighbours were too few and whose window had to be widened —
+quarterback and tight end mostly, nine classes not ranking enough of them.
 
 ### From points to dollars
 
@@ -1230,12 +1255,12 @@ reached which pick, not a claim that waiting improves the board.
 | --- | --- |
 | RANKED | 117 |
 | TOPTEN | 9 |
-| SURPLUS | 1176 |
-| DEFERRED | 1048 |
+| SURPLUS | 1200 |
+| DEFERRED | 1052 |
 | SALARY | 30 |
 
-Nine rookies expected to go inside the first ten picks, costing $30 between them, holding $1,176 of surplus
-over their contracts — of which **$1,048, or 89%, arrives after the season the pick is spent in**.
+Nine rookies expected to go inside the first ten picks, costing $30 between them, holding $1,200 of surplus
+over their contracts — of which **$1,052, or 88%, arrives after the season the pick is spent in**.
 
 That figure is the whole case for the rookie board. It is the part of a pick that no auction dollar can buy
 at any price, and pricing a rookie on his first season would report a tenth of it.
