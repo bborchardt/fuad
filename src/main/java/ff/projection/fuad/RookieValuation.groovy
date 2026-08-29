@@ -138,7 +138,8 @@ class RookieValuation {
                             salary: salary,
                             contractLength: length,
                             surplus: (0..<length).sum { int year -> value[year] - salary } as int,
-                            valueError: (0..<length).sum { int year -> high[year] - value[year] } as int)
+                            valueError: (0..<RookieSeasons.CONTRACT_YEARS)
+                                    .sum { int year -> high[year] - value[year] } as int)
                 }
         tiered(valued)
     }

@@ -223,15 +223,23 @@ class RookieValuationSpec extends Specification {
      * surplus is mostly an assumption about where he lands — Fernando Mendoza is the same $95 asset reading
      * $30 at pick three and $80 at pick nine.
      */
-    def "value is the contract before its cost, and surplus is what is left after it"() {
-        expect:
-        values.every { RookieValue rookie ->
-            rookie.contractValue - rookie.contractLength * rookie.salary == rookie.surplus
-        }
+    def "value is what his seasons are worth, and does not move when the pick does"() {
+        given: 'the quarterback whose salary is large enough to shorten his own contract'
+        RookieValue quarterback = values.find { it.position == 'QB' && it.positionRank == 1 }
+        Map<String, Integer> baselines = [QB: 20, RB: 7, WR: 1, TE: 1, PK: 1]
 
-        and: 'and value does not move when the pick does, where surplus does'
-        RookieValuation.at(values.first(), 1, [QB: 20, RB: 7, WR: 1, TE: 1, PK: 1]).contractValue ==
-                RookieValuation.at(values.first(), 20, [QB: 20, RB: 7, WR: 1, TE: 1, PK: 1]).contractValue
+        expect: 'taken first he is signed for fewer years and is worth less, and is the same asset'
+        RookieValuation.at(quarterback, 1, baselines).contractLength <
+                RookieValuation.at(quarterback, 20, baselines).contractLength
+        RookieValuation.at(quarterback, 1, baselines).surplus <
+                RookieValuation.at(quarterback, 20, baselines).surplus
+        RookieValuation.at(quarterback, 1, baselines).contractValue ==
+                RookieValuation.at(quarterback, 20, baselines).contractValue
+
+        and: 'and where the contract runs its full length the two reconcile'
+        values.findAll { it.contractLength == 5 }.every { RookieValue rookie ->
+            rookie.contractValue - 5 * rookie.salary == rookie.surplus
+        }
     }
 
     /**

@@ -70,17 +70,27 @@ class RookieValue {
     int getFirstYearValue() { valueByYear ? valueByYear.first() : 0 }
 
     /**
-     * What the contract is worth before what it costs, over the years worth committing to.
+     * What his five seasons are worth, before what any of them cost.
      *
      * <b>Separated from the surplus because the two move for different reasons.</b> A rookie's worth is a
      * fact about him; his salary is a fact about the pick he goes at, and at quarterback this year that
      * price runs from $20 at the first pick to $1 by the fifteenth. The board reports him at the pick the
-     * league's drafts say he goes at, so a quarterback's surplus is dominated by an assumption about where
-     * he lands — Fernando Mendoza is a $95 asset reading $30 at pick three and $80 at pick nine. Only this
-     * column stays still.
+     * league's drafts say he goes at, so a quarterback's surplus is mostly an assumption about where he
+     * lands — Fernando Mendoza reads $30 at pick three and $80 at pick nine — and this column does not move
+     * at all.
+     *
+     * <b>All five years, and not the years worth signing.</b> Summing over {@link #contractLength} was the
+     * first version and it defeated the purpose: length is chosen against the salary, so an expensive pick
+     * shortens the contract and the gross value moves with the pick after all. Mendoza came out at $43 taken
+     * first and $95 taken ninth, which is the same defect this column was added to remove. What it now says
+     * is what his five seasons are worth to whoever holds them; how many of them are worth paying for is
+     * {@code LEN}'s question and the salary's.
+     *
+     * It follows that {@code VALUE} less {@code LEN x SALARY} is the surplus only where the contract runs
+     * the full five years, which is nearly always and not always.
      */
     int getContractValue() {
-        valueByYear ? (0..<contractLength).sum { int year -> valueByYear[year] } as int : 0
+        valueByYear ? valueByYear.sum() as int : 0
     }
 
     /** How much of the surplus falls after the first season: the part an auction cannot buy at all. */

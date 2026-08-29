@@ -1277,8 +1277,15 @@ Two columns exist to stop the rest being over-read.
 rookie's worth is a fact about him, and his salary is a fact about the pick he goes at — which at
 quarterback this year runs from $20 at the first pick to $1 by the fifteenth. So a quarterback's surplus is
 dominated by an assumption about where he lands: Fernando Mendoza is the same $95 asset reading $30 at pick
-three and $80 at pick nine, while Omar Cooper is worth $69 at every pick in the draft. Only `VALUE` stays
-still, and it is the column to compare players on.
+three and $80 at pick nine, while Omar Cooper is worth $69 at every pick in the draft. `VALUE` is the column
+to compare players on, and it is the only one that holds still.
+
+It is taken over the five years a contract can run rather than over the years the model recommends signing,
+and that distinction cost a correction. Summed over the recommended length it moved with the pick too, and
+by more than the surplus did — a salary large enough to shorten a contract shortens what is being summed, so
+Mendoza read $95 at pick nine and $43 at pick one. A column whose whole purpose is comparing players had a
+price assumption inside it. The cost of the fix is that `VALUE` less `LEN` times salary is the surplus only
+where the contract runs its full five years, which is nearly always.
 
 **`TIER` is what the evidence can actually separate.** Same rule the auction board tiers ranks by: walk in
 order of value, keep a rookie in the current tier while he sits within one standard error of the best in it,
