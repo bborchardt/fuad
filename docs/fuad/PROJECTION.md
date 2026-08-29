@@ -1290,6 +1290,13 @@ too, and by more than the surplus did, because a salary large enough to shorten 
 being summed. Mendoza read $95 at pick nine and $43 at pick one. A column whose whole purpose is comparing
 players had a price assumption inside it.
 
+**The three consensus columns are the working, and they are read together.** `FP_ROOKIE` is where the rookie
+ranking puts a player at his position and `FP_DYNASTY` where the dynasty ranking does, both as a position and
+a rank. The second is what moves his level, and it means nothing without the first beside it: a class's third
+receiver usually sits around dynasty WR31, so `WR3` at `WR23` is being told something that `WR2` at `WR25` is
+not. That is the whole of why Makai Lemon prices above Jordyn Tyson while the rookie ranking prefers Tyson.
+`FP_OVERALL` is the same rookie ranking read across positions, and is what `DEMAND` is keyed on.
+
 **`TIER` is what the evidence can actually separate.** Same rule the auction board tiers ranks by: walk in
 order of value, keep a rookie in the current tier while his own upper bound reaches the best value in it,
 open a new tier when it does not. Tiered on value rather than surplus, since two rookies the model cannot

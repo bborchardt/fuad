@@ -135,7 +135,7 @@ for something, that something is now a column:
 | how long to sign someone for | `DYNRANK` beside `RANK` | the dynasty ranking, read separately |
 | which price gaps are real | `TIER` | reading a $2 gap as a ranking |
 | what a rookie is worth beyond this season | `Y1`-`Y5` on `rookies` | a first year value that misses most of it |
-| what the two consensus sources each say | `FP_ROOKIE` and `FP_DYNASTY` on `rookies` | one ranking standing in for both |
+| why a rookie prices above his consensus rank | `FP_ROOKIE` against `FP_DYNASTY` on `rookies` | taking the value column on trust |
 | whether a rookie will still be there | `DEMAND` on `rookies`, `BEST<POS>` on `rookie_picks` | a guess at what the room does |
 | what a pick costs | `$<POS>` on `rookie_picks` | the bylaw 8.3 formula, worked by hand |
 | what a rookie is worth, apart from what he costs | `VALUE` on `rookies`, price on `rookie_picks` | one number mixing the two |

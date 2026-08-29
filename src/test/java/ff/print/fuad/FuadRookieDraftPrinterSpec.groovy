@@ -94,12 +94,29 @@ class FuadRookieDraftPrinterSpec extends Specification {
      * A blank is not missing data. Not being ranked among a few hundred dynasty assets is a fact about a
      * deep rookie, and it is also why he carries no adjustment to his level.
      */
-    def "carries the dynasty rank as a position and a rank, or nothing at all"() {
+    /**
+     * The two rankings side by side, both as a position and a rank, and the dynasty one blank where absent.
+     *
+     * They are read together or not at all. What moves a rookie's level is where the dynasty ranking puts
+     * him <b>against where rookies of his standing usually sit</b>, so the dynasty column means nothing
+     * without the rookie one beside it: WR3 at WR23 is a claim, WR2 at WR25 is not, and that is the whole of
+     * why Lemon prices above Tyson when the rookie ranking prefers Tyson.
+     *
+     * A blank dynasty rank is not missing data. Not being ranked among a few hundred dynasty assets is a
+     * fact about a deep rookie, and it is also why he carries no adjustment at all.
+     */
+    def "carries both rankings as a position and a rank, the dynasty one blank where absent"() {
         given:
         List<String> header = board([rookie()]).first()
 
-        expect:
+        expect: 'positional, so neither needs the POS column to be read'
+        board([rookie()])[1][header.indexOf('FP_ROOKIE')] == 'WR1'
         board([rookie()])[1][header.indexOf('FP_DYNASTY')] == 'WR23'
+
+        and: 'the overall rank kept apart, being what DEMAND is keyed on'
+        board([rookie()])[1][header.indexOf('FP_OVERALL')] == '1'
+
+        and: 'and nothing where the dynasty ranking does not carry him'
         board([rookie(dynastyRank: null)])[1][header.indexOf('FP_DYNASTY')] == ''
     }
 

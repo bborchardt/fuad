@@ -32,9 +32,18 @@ import ff.projection.fuad.RookieSalary
  * see who is left, and what he cannot see is which of them is worth most. Consensus order is still on the
  * sheet as {@code FP_ROOKIE} for anyone who wants to read down it.
  *
- * {@code DEMAND} is where the league's own drafts say a rookie of that <b>consensus rank</b> goes, so the
- * distance between it and your pick is the reach or the wait. It is keyed on the rank rather than on the
- * player: it says what has happened to rookies ranked here, not what this room will do with this man.
+ * <b>The three consensus columns are the working behind the value, and they are read together.</b>
+ * {@code FP_ROOKIE} is where the rookie ranking puts him at his position and {@code FP_DYNASTY} where the
+ * dynasty ranking does, both as a position and a rank so neither needs the {@code POS} column to be
+ * understood. The second is what moves his level, and it only means anything against the first: a class's
+ * third receiver usually sits around dynasty WR31, so {@code WR3} at {@code WR23} is being told something
+ * that {@code WR2} at {@code WR25} is not — which is the whole of why Makai Lemon prices above Jordyn Tyson
+ * despite the rookie ranking preferring Tyson. {@code FP_OVERALL} is the same rookie ranking read across
+ * positions, and is what {@code DEMAND} is keyed on.
+ *
+ * {@code DEMAND} is where the league's own drafts say a rookie of that <b>overall consensus rank</b> goes,
+ * so the distance between it and your pick is the reach or the wait. It is keyed on the rank rather than on
+ * the player: it says what has happened to rookies ranked here, not what this room will do with this man.
  *
  * See docs/fuad/PROJECTION.md.
  */
@@ -57,7 +66,7 @@ class FuadRookieDraftPrinter {
     void print(PrintWriter out) {
         List<String> years = (1..RookieSeasons.CONTRACT_YEARS).collect { "Y$it" as String }
         out.println((['PLAYER', 'POS', 'TEAM', 'BYE', 'VAL_LOW', 'VALUE', 'VAL_HIGH', 'TIER',
-                      'FP_ROOKIE', 'FP_DYNASTY', 'NFL', 'DEMAND'] + years).join('\t'))
+                      'FP_ROOKIE', 'FP_OVERALL', 'FP_DYNASTY', 'NFL', 'DEMAND'] + years).join('\t'))
         values.sort { RookieValue a, RookieValue b ->
             (b.contractValue <=> a.contractValue) ?: (a.overallRank <=> b.overallRank)
         }.each { RookieValue value ->
@@ -70,6 +79,7 @@ class FuadRookieDraftPrinter {
                     value.contractValue,
                     value.valueHigh,
                     value.tier,
+                    "$value.position$value.positionRank",
                     value.overallRank,
                     value.dynastyRank ? "$value.position$value.dynastyRank" : '',
                     nflDraftOf(value),
