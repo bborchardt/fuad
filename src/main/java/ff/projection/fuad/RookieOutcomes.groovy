@@ -69,6 +69,18 @@ class RookieOutcomes {
     }
 
     /**
+     * Whether a band was too thin to measure and fell back to the whole position.
+     *
+     * True at quarterback and tight end past rank ten, where nine classes do not rank enough of them to make
+     * a distribution. The fallback is the right answer — a spread over the whole position beats a spread
+     * over eleven seasons — but it means two bands report identical figures, and a reader seeing that
+     * without being told would reasonably suspect a bug.
+     */
+    boolean isPooled(String position, int rank, int contractYear) {
+        seasonsIn(position, bandOf(rank), contractYear).size() < MINIMUM_OBSERVATIONS
+    }
+
+    /**
      * Rate multipliers scaled so that the band's own mean rate is one.
      *
      * The mean is taken as total points over total games rather than as an average of per-season rates,

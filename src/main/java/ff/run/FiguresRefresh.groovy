@@ -87,8 +87,8 @@ class FiguresRefresh {
         // The rookie board is figures about the same model and is built from its own five curves, which
         // are five times the cost of the board's one. It is kept in its own printer for that reason and
         // written into the same directory, being the same league.
-        RookieFiguresPrinter rookies = new RookieFiguresPrinter(loader.rookieSeasons(), loader.rookieDemand(),
-                loader.rookieValues(year, fuadData))
+        RookieFiguresPrinter rookies = new RookieFiguresPrinter(loader.rookieSeasons(),
+                loader.rookieOutcomes(), loader.rookieDemand(), loader.rookieValues(year, fuadData))
         write(figuresDir, 'fuad', year, TABLES.collectEntries { String name, String method ->
             [(name): { PrintWriter out -> printer."$method"(out) } as Closure<Void>]
         } + [
@@ -96,6 +96,8 @@ class FiguresRefresh {
                 rookiesalary: { PrintWriter out -> rookies.printSalary(out) } as Closure<Void>,
                 rookiedemand: { PrintWriter out -> rookies.printDemand(out) } as Closure<Void>,
                 rookieadp   : { PrintWriter out -> rookies.printAdp(out) } as Closure<Void>,
+                rookiespread: { PrintWriter out -> rookies.printSpread(out) } as Closure<Void>,
+                rookieclass : { PrintWriter out -> rookies.printClass(out) } as Closure<Void>,
                 rookieboard : { PrintWriter out -> rookies.printBoard(out) } as Closure<Void>,
         ])
         write(figuresDir, 'greenfield', year, greenfield(year))

@@ -5,6 +5,10 @@ import ff.data.fuad.RookieValue
 import ff.load.fuad.RookieDemand
 import ff.load.fuad.RookieDraftHistory
 import ff.load.fuad.RookieSeasons
+import ff.data.fantasypros.FpRankedPlayer
+import ff.load.fantasypros.FantasyProsLoader
+import ff.load.util.LoadUtils
+import ff.projection.fuad.RookieOutcomes
 import ff.projection.fuad.RookieSalary
 import ff.projection.PointsCurve
 
@@ -28,6 +32,15 @@ import java.math.RoundingMode
  * <b>rookiedemand.tsv</b> is per pick: the best rookie at each position the league's own drafts have left
  * there. It is what separates who is worth taking from who will still be available, which is the whole of
  * planning a draft.
+ *
+ * <b>rookiespread.tsv</b> is per position and rank band: how widely a rookie's seasons actually run, and how
+ * many of them never happen. It is the evidence for measuring the spread on rookies rather than borrowing
+ * the veterans', and it carries the number that makes the case — the spread is narrower than a veteran's at
+ * the top of a class and half again as wide at the bottom.
+ *
+ * <b>rookieclass.tsv</b> is per season: where each class's best rookies sat in that year's dynasty ranking.
+ * It is the only figure here about a <i>class</i> rather than a rank, and it is what lets a reader see that
+ * the board in front of them is a weak year rather than a bad model.
  */
 class RookieFiguresPrinter {
 
@@ -37,14 +50,106 @@ class RookieFiguresPrinter {
     /** Picks the demand table runs to: the deepest a five round draft of ten teams reaches. */
     private static final int PICKS = 50
 
+    /** Ranks reported for the spread, one inside each band {@link RookieOutcomes} measures. */
+    private static final List<Integer> BAND_RANKS = [3, 8, 15, 25].asImmutable()
+
+    /** How many of a class's best rookies the class quality figure reports. */
+    private static final int CLASS_TOP = 5
+
     private final RookieSeasons seasons
+    private final RookieOutcomes outcomes
     private final RookieDemand demand
     private final List<RookieValue> values
 
-    RookieFiguresPrinter(RookieSeasons seasons, RookieDemand demand, List<RookieValue> values) {
+    RookieFiguresPrinter(RookieSeasons seasons, RookieOutcomes outcomes, RookieDemand demand,
+                         List<RookieValue> values) {
         this.seasons = seasons
+        this.outcomes = outcomes
         this.demand = demand
         this.values = values
+    }
+
+    /**
+     * How widely a rookie rank's seasons run, and how many of them never happen.
+     *
+     * Reported in the second contract year, which is the one a rookie board turns on: the first is the
+     * season he is learning the league and the later ones rest on fewer classes. {@code MISSING} is the
+     * share of seasons with no games at all, which is where a deep rookie's bimodality lives — the spread
+     * of the seasons that <i>did</i> happen is only half the story.
+     *
+     * {@code POOLED} marks a band too thin to measure on its own, which fell back to the whole position.
+     * Quarterback and tight end past rank ten are both of those, and the two bands there report the same
+     * figures for that reason rather than by accident.
+     */
+    void printSpread(PrintWriter out) {
+        out.println(['POS', 'RANK', 'SEASONS', 'MISSING', 'P50', 'P90', 'MAX', 'POOLED'].join('\t'))
+        POSITIONS.each { String position ->
+            BAND_RANKS.each { int rank ->
+                List<PointsCurve.Outcome> band = outcomes.of(position, rank, 2)
+                List<Double> played = band.findAll { it.games > 0 }*.rateMultiplier.sort()
+                if (!played) {
+                    return
+                }
+                def at = { double f -> played[Math.min(played.size() - 1, (played.size() * f) as int)] }
+                out.println([
+                        position,
+                        rank,
+                        band.size(),
+                        percent(band.count { it.games == 0 } / (band.size() as BigDecimal)),
+                        round(at(0.5)),
+                        round(at(0.9)),
+                        round(played.last()),
+                        outcomes.isPooled(position, rank, 2) ? 'POS' : '',
+                ].join('\t'))
+            }
+        }
+    }
+
+    /**
+     * Where each class's best rookies sat in that year's dynasty ranking, which is class quality.
+     *
+     * The rookie ranking cannot say this: it orders a class from one and starts again the next year, so its
+     * first pick is its first pick in a generational year and a bare one alike. The dynasty ranking places
+     * the same players against the whole league, and the difference between a top five sitting at 7 and one
+     * sitting at 51 is the difference between the two classes.
+     */
+    void printClass(PrintWriter out) {
+        out.println((['SEASON'] + (1..CLASS_TOP).collect { "TOP$it" as String } + ['MEAN']).join('\t'))
+        LoadUtils.YEARS.each { String season ->
+            List<Integer> ranks = topRookieDynastyRanks(season)
+            if (ranks.size() < CLASS_TOP) {
+                return
+            }
+            out.println(([season] + ranks + [
+                    (ranks.sum() / ranks.size()).setScale(0, RoundingMode.HALF_UP),
+            ]).join('\t'))
+        }
+    }
+
+    /**
+     * The dynasty rank of each of a class's top five rookies, in rookie order.
+     *
+     * Joined by name through the same prefix matching everything else here uses, since the two exports are
+     * different files with the same people in them. A rookie the dynasty ranking does not carry is skipped
+     * rather than defaulted: that happens to deep rookies and not to the top five of a class.
+     */
+    private static List<Integer> topRookieDynastyRanks(String season) {
+        Map<String, FpRankedPlayer> dynasty =
+                new FantasyProsLoader().loadRankedPlayers(LoadUtils.fpDynastyRankingsPprResourcePath(season))
+        new FantasyProsLoader().loadRankedPlayers(LoadUtils.fpRookieRankingsPprResourcePath(season))
+                .values().sort { it.rank.overallRank }.take(CLASS_TOP).collect { FpRankedPlayer rookie ->
+            FpRankedPlayer matched = dynasty[rookie.player.name] ?:
+                    dynasty.values().find { LoadUtils.isNameMatch(it.player.name, rookie.player.name, 5) }
+            matched?.rank?.overallRank
+        }.findAll()
+    }
+
+    private static String percent(BigDecimal share) {
+        (share * 100).setScale(0, RoundingMode.HALF_UP).toString()
+    }
+
+    private static String round(double value) {
+        String.format('%.2f', value)
     }
 
     /**
