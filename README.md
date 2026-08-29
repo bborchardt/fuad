@@ -41,7 +41,7 @@ See [docs/fuad/PROJECTION.md](docs/fuad/PROJECTION.md) for how the `salaries` re
 ranks for order, league-scored projections for the curve, corrected for what a rank really delivers, priced
 against the cap the league has left, and settled against the franchise tags it expects to be used. The same
 document covers [the rookie draft](docs/fuad/PROJECTION.md#rookies), which is priced differently because it is
-bought differently: a pick buys up to five seasons at a salary the league sets by rule, and 91% of what this
+bought differently: a pick buys up to five seasons at a salary the league sets by rule, and 89% of what this
 year's early picks are worth falls after the season they are spent in.
 
 See [docs/fuad/LEAGUE_RULES.md](docs/fuad/LEAGUE_RULES.md) for what the rules were in each season — starting

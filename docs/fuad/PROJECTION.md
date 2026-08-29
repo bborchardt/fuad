@@ -1230,12 +1230,12 @@ reached which pick, not a claim that waiting improves the board.
 | --- | --- |
 | RANKED | 117 |
 | TOPTEN | 9 |
-| SURPLUS | 1210 |
-| DEFERRED | 1096 |
+| SURPLUS | 1176 |
+| DEFERRED | 1048 |
 | SALARY | 30 |
 
-Nine rookies expected to go inside the first ten picks, costing $30 between them, holding $1,210 of surplus
-over their contracts — of which **$1,096, or 91%, arrives after the season the pick is spent in**.
+Nine rookies expected to go inside the first ten picks, costing $30 between them, holding $1,176 of surplus
+over their contracts — of which **$1,048, or 89%, arrives after the season the pick is spent in**.
 
 That figure is the whole case for the rookie board. It is the part of a pick that no auction dollar can buy
 at any price, and pricing a rookie on his first season would report a tenth of it.
