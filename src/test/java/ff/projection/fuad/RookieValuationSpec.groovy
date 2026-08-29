@@ -273,13 +273,31 @@ class RookieValuationSpec extends Specification {
      * over replacement is convex, so a standard error on a level that sits near replacement is worth as much
      * as the value itself.
      */
-    def "the error band on a rookie quarterback is as large as his value"() {
+    def "the band on a rookie quarterback is as large as his value"() {
         given:
         List<RookieValue> quarterbacks = values.findAll { it.position == 'QB' && it.positionRank <= 2 }
         List<RookieValue> backs = values.findAll { it.position == 'RB' && it.positionRank <= 2 }
 
-        expect: 'the band swallows the quarterback and not the back'
-        quarterbacks.every { it.valueError >= it.contractValue }
-        backs.every { it.valueError < it.contractValue }
+        expect: 'the upside band swallows the quarterback and not the back'
+        quarterbacks.every { it.valueHigh - it.contractValue >= it.contractValue }
+        backs.every { it.valueHigh - it.contractValue < it.contractValue }
+    }
+
+    /**
+     * The bounds are not symmetric, and the asymmetry is the convexity showing.
+     *
+     * Value over replacement is {@code max(0, points - replacement)} summed weekly, so a level a standard
+     * error low loses less than the same error high gains — and the gap widens the nearer a rank sits to
+     * replacement. Reporting a single plus-or-minus would round that away exactly where it is largest: the
+     * best rookie quarterback's upside band is more than half again his downside.
+     */
+    def "the bounds are wider above than below, most of all near replacement"() {
+        given:
+        RookieValue quarterback = values.find { it.position == 'QB' && it.positionRank == 1 }
+
+        expect: 'bounds either side of the value, the upper one further away'
+        values.every { it.valueLow <= it.contractValue && it.contractValue <= it.valueHigh }
+        quarterback.valueHigh - quarterback.contractValue >
+                (quarterback.contractValue - quarterback.valueLow) * 1.3
     }
 }

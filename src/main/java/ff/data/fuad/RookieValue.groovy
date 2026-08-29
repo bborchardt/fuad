@@ -48,12 +48,23 @@ class RookieValue {
     /** Years worth committing to: the length that maximises what the contract is worth over its cost. */
     int contractLength
     /**
-     * The band the value carries, being what one standard error on the levels behind it is worth.
+     * What the contract is worth if the levels behind it are a standard error low, and a standard error high.
      *
-     * Propagated by revaluing him a standard error higher rather than by scaling the answer, since value
-     * over replacement is convex and a fractional error on a level is a larger fractional error on a price.
+     * <b>Bounds on the estimate, not on the outcome.</b> They say how well nine rookie classes pin down what
+     * a rank is worth — not how widely one rookie's career might run, which is a different and also large
+     * quantity. The auction board's PTSLOW and PTSHIGH are that other thing, the tenth and ninetieth
+     * percentile of realised seasons, which is why these are named differently.
+     *
+     * <b>Carried as two numbers rather than one band because they are not symmetric.</b> Value over
+     * replacement is convex, so a level a standard error low loses less than a level a standard error high
+     * gains, and the gap widens the closer a rank sits to replacement. A single plus-or-minus would round
+     * that away exactly where it is largest.
+     *
+     * Propagated by revaluing him at the moved level rather than by scaling the answer, since a fractional
+     * error on a level is a larger fractional error on a price.
      */
-    int valueError
+    int valueLow
+    int valueHigh
     /**
      * Rookies at his position this cannot tell apart, 1 being the best.
      *

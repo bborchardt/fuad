@@ -108,14 +108,16 @@ class RookieValuation {
                     List<Integer> value = vor.collect { BigDecimal points ->
                         priceOf(points, priceCurve[position])
                     }
-                    // The same contract revalued a standard error higher, which is the band it carries.
-                    List<Integer> high = (1..RookieSeasons.CONTRACT_YEARS).collect { int contractYear ->
-                        priceOf(ExpectedValue.expectedValueOverReplacement(
-                                rateOf(rookie, seasons, dynasty, contractYear) *
-                                        errorFactor(seasons, position, rank, contractYear),
-                                outcomes.of(position, rank, contractYear),
-                                replacement[position] ?: [:],
-                                byes.of(position, rank), byes.lastWeek), priceCurve[position])
+                    // The same contract revalued a standard error either side, which is the band it carries.
+                    def bounded = { BigDecimal direction ->
+                        (1..RookieSeasons.CONTRACT_YEARS).collect { int contractYear ->
+                            priceOf(ExpectedValue.expectedValueOverReplacement(
+                                    rateOf(rookie, seasons, dynasty, contractYear) *
+                                            errorFactor(seasons, position, rank, contractYear, direction),
+                                    outcomes.of(position, rank, contractYear),
+                                    replacement[position] ?: [:],
+                                    byes.of(position, rank), byes.lastWeek), priceCurve[position])
+                        }.sum() as int
                     }
 
                     Integer pick = expectedPick[rookie.rookieRank.overallRank]
@@ -138,8 +140,8 @@ class RookieValuation {
                             salary: salary,
                             contractLength: length,
                             surplus: (0..<length).sum { int year -> value[year] - salary } as int,
-                            valueError: (0..<RookieSeasons.CONTRACT_YEARS)
-                                    .sum { int year -> high[year] - value[year] } as int)
+                            valueLow: bounded(-1.0g),
+                            valueHigh: bounded(1.0g))
                 }
         tiered(valued)
     }
@@ -155,6 +157,9 @@ class RookieValuation {
      * Tiered on {@link RookieValue#getContractValue} rather than on surplus, because surplus carries the
      * salary and the salary is a fact about a pick. Two rookies the model cannot separate as players should
      * read as ties whatever they will cost.
+     *
+     * The error compared against is the <b>upside</b> one: a rookie stays in the tier while his own high
+     * bound reaches the best value in it, which is the reading that asks whether he could be as good.
      */
     private static List<RookieValue> tiered(List<RookieValue> valued) {
         Map<String, Integer> tiers = [:]
@@ -164,7 +169,7 @@ class RookieValuation {
             atPosition.sort { RookieValue a, RookieValue b ->
                 (b.contractValue <=> a.contractValue) ?: (a.overallRank <=> b.overallRank)
             }.each { RookieValue rookie ->
-                if (best == null || best - rookie.contractValue > rookie.valueError) {
+                if (best == null || best - rookie.contractValue > rookie.valueHigh - rookie.contractValue) {
                     tier++
                     best = rookie.contractValue
                 }
@@ -204,9 +209,14 @@ class RookieValuation {
      * one error rise in the level is the same proportional rise in the rate. Where a rank carries no level
      * at all the factor is one, there being nothing to be uncertain about.
      */
-    private static BigDecimal errorFactor(RookieSeasons seasons, String position, int rank, int contractYear) {
+    private static BigDecimal errorFactor(RookieSeasons seasons, String position, int rank, int contractYear,
+                                          BigDecimal direction) {
         BigDecimal points = seasons.curve(contractYear).seasonPoints(position, rank)
-        points > 0 ? 1.0g + seasons.curve(contractYear).standardError(position, rank) / points : 1.0g
+        if (points <= 0) {
+            return 1.0g
+        }
+        BigDecimal moved = 1.0g + direction * seasons.curve(contractYear).standardError(position, rank) / points
+        moved > 0 ? moved : 0.0g
     }
 
     /**

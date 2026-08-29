@@ -1288,21 +1288,32 @@ price assumption inside it. The cost of the fix is that `VALUE` less `LEN` times
 where the contract runs its full five years, which is nearly always.
 
 **`TIER` is what the evidence can actually separate.** Same rule the auction board tiers ranks by: walk in
-order of value, keep a rookie in the current tier while he sits within one standard error of the best in it,
-open a new tier when he falls further. Tiered on value rather than surplus, since two rookies the model
-cannot separate as players should read as ties whatever they cost.
+order of value, keep a rookie in the current tier while his own upper bound reaches the best value in it,
+open a new tier when it does not. Tiered on value rather than surplus, since two rookies the model cannot
+separate as players should read as ties whatever they cost.
 
-The bands are wide, and at two positions they are wider than the numbers they qualify:
+**`VALLOW` and `VALHIGH` do the same job across positions**, which is the choice a rookie draft actually
+poses — a back against a tight end against a receiver. A tier only compares inside a position; two
+overlapping ranges are a tie whoever they belong to.
 
-| | value | error band | band as a share |
+They are bounds on the **estimate** and not on the outcome: how well nine rookie classes pin down what a
+rank is worth, not how widely one career might run. The auction board's `PTSLOW` and `PTSHIGH` are that
+other thing, which is why these are named differently.
+
+**And they are asymmetric**, because value over replacement is convex: a level a standard error low loses
+less than the same error high gains, and the gap widens the nearer a rank sits to replacement. A single
+plus-or-minus would round that away exactly where it is largest.
+
+| | low | value | high |
 | --- | --- | --- | --- |
-| RB1 | 296 | 79 | 26% |
-| WR1 | 221 | 81 | 36% |
-| TE1 | 49 | 47 | 95% |
-| QB1 | 95 | 97 | **102%** |
-| QB2 | 53 | 62 | **116%** |
+| RB1 | 217 | 296 | 375 |
+| WR1 | 145 | 221 | 302 |
+| TE1 | 18 | 49 | 96 |
+| QB1 | **35** | 95 | **192** |
+| QB2 | **18** | 53 | **115** |
 
-**A rookie quarterback's contract value cannot be told from zero**, and that is the honest state of the
+**A rookie quarterback's contract value runs from a third of the reported figure to double it**, and that is
+the honest state of the
 position rather than a defect to be tuned away. Superflex starts up to twenty quarterbacks, so replacement
 is 209 points a season; only about half the rookie quarterback seasons that happened have ever cleared it,
 and a third of them never happened. Value over replacement is convex, so a standard error on a level sitting

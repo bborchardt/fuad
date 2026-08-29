@@ -33,7 +33,8 @@ class FuadRookieDraftPrinterSpec extends Specification {
                 salary               : 4,
                 contractLength       : 5,
                 surplus              : 75,
-                valueError           : 30,
+                valueLow             : 70,
+                valueHigh            : 125,
                 tier                 : 2,
         ] + overrides)
     }
@@ -267,6 +268,17 @@ class FuadRookieDraftPrinterSpec extends Specification {
         expect: 'ninety-five of value against a twenty dollar contract leaves seventy-five'
         row[header.indexOf('VALUE')] == '95'
         row[header.indexOf('SURPLUS')] == '75'
+    }
+
+    def "carries the bounds either side of the value, which are not symmetric"() {
+        given:
+        List<String> header = board([rookie()]).first()
+        List<String> row = board([rookie()])[1]
+
+        expect: 'twenty-five below and thirty above a value of ninety-five'
+        row[header.indexOf('VALLOW')] == '70'
+        row[header.indexOf('VALUE')] == '95'
+        row[header.indexOf('VALHIGH')] == '125'
     }
 
     def "carries the tier, so a gap inside the evidence reads as one"() {

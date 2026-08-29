@@ -19,10 +19,16 @@ import java.math.RoundingMode
  * still. {@code DEFER} is how much of the surplus falls after the coming season — the part no auction dollar
  * can buy at any price, because the auction sells one year at a time.
  *
- * <b>{@code TIER} exists to stop the rest being over-read.</b> Rookies sharing one are ties: the levels
- * behind these dollars are means of a few dozen seasons, and any ordering inside their error is noise the
- * price column dresses up. Compare only within a position, and choose between a tier's members on what they
- * will cost you, on their bye, or on what the roster is short of.
+ * <b>{@code TIER} exists to stop the rest being over-read, and {@code VALLOW} to {@code VALHIGH} does the
+ * same job across positions.</b> Rookies sharing a tier are ties: the levels behind these dollars are means
+ * of a few dozen seasons, and any ordering inside their error is noise the price column dresses up. A tier
+ * is only comparable within a position, so the bounds are there for the choice a rookie draft actually
+ * poses — a back against a tight end against a receiver — where two overlapping ranges are a tie whatever
+ * their midpoints say.
+ *
+ * The bounds are on the <b>estimate</b> and not on the outcome: they say how well nine rookie classes pin
+ * down what a rank is worth, not how widely one career might run. They are asymmetric because value over
+ * replacement is convex, which is why they are two columns and not a single band.
  *
  * The board is in consensus order because that is the order a draft is read in. It is deliberately not
  * sorted by surplus: the pick in front of you is a choice among whoever is left, and sorting by value hides
@@ -53,7 +59,7 @@ class FuadRookieDraftPrinter {
     void print(PrintWriter out) {
         List<String> years = (1..RookieSeasons.CONTRACT_YEARS).collect { "Y$it" as String }
         out.println((['OVR', 'POS', 'TIER', 'RANK', 'PLAYER', 'TEAM', 'NFL', 'BYE', 'PICK', 'SALARY'] +
-                years + ['VOR1', 'LEN', 'VALUE', 'SURPLUS', 'DEFER']).join('\t'))
+                years + ['VOR1', 'LEN', 'VALLOW', 'VALUE', 'VALHIGH', 'SURPLUS', 'DEFER']).join('\t'))
         values.each { RookieValue value ->
             out.println(([
                     value.overallRank,
@@ -69,7 +75,9 @@ class FuadRookieDraftPrinter {
             ] + value.valueByYear + [
                     value.pointsOverReplacement.first().setScale(0, RoundingMode.HALF_UP),
                     value.contractLength,
+                    value.valueLow,
                     value.contractValue,
+                    value.valueHigh,
                     value.surplus,
                     value.deferredSurplus,
             ]).join('\t'))
@@ -127,7 +135,7 @@ class FuadRookieDraftPrinter {
      */
     void printOutlook(PrintWriter out, String franchiseId) {
         out.println(['PICK', 'ROUND', 'SLOT', 'POS', 'TIER', 'RANK', 'OVR', 'PLAYER', 'TEAM', 'NFL', 'BYE',
-                     'SALARY', 'Y1', 'LEN', 'VALUE', 'SURPLUS', 'DEFER'].join('\t'))
+                     'SALARY', 'Y1', 'LEN', 'VALLOW', 'VALUE', 'VALHIGH', 'SURPLUS', 'DEFER'].join('\t'))
         fuadData.mflData.draftPicks.eachWithIndex { MflDraftPick pick, int index ->
             if (pick.franchise?.id != franchiseId) {
                 return
@@ -149,7 +157,9 @@ class FuadRookieDraftPrinter {
                         here.salary,
                         here.valueByYear.first(),
                         here.contractLength,
+                        here.valueLow,
                         here.contractValue,
+                        here.valueHigh,
                         here.surplus,
                         here.deferredSurplus,
                 ].join('\t'))
