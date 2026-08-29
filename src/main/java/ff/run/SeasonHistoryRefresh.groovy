@@ -1,5 +1,6 @@
 package ff.run
 
+import ff.fetch.mfl.MflDraftResultsRefresh
 import ff.fetch.mfl.MflRosterSnapshotRefresh
 import ff.fetch.mfl.MflRulesRefresh
 import ff.fetch.mfl.MflSalaryAdjustmentsRefresh
@@ -9,8 +10,8 @@ import ff.fetch.nflverse.NflverseStatsRefresh
 import ff.fetch.nflverse.NflverseTeamStatsRefresh
 
 /**
- * Collect the record of a completed season: both roster snapshots, the transaction log, the scoring rules,
- * the salary adjustments, and the raw statistics every expected point is built from. Unlike
+ * Collect the record of a completed season: every roster snapshot, the transaction log, the rookie draft,
+ * the scoring rules, the salary adjustments, and the raw statistics every expected point is built from. Unlike
  * {@link DataRefresh} this writes nothing that cannot be refetched, so it cannot overwrite the pre draft
  * rosters in rosters.json with today's state.
  *
@@ -32,6 +33,8 @@ class SeasonHistoryRefresh {
             List<Runnable> refreshes = RosterSnapshot.values().collect { RosterSnapshot snapshot ->
                 new MflRosterSnapshotRefresh(Integer.parseInt(year), LEAGUE_ID, HOST, snapshot) as Runnable
             } + [new MflTransactionsRefresh(Integer.parseInt(year), LEAGUE_ID, HOST) as Runnable,
+                 // The draft this season actually held, which the file pulled before it holds none of.
+                 new MflDraftResultsRefresh(Integer.parseInt(year), LEAGUE_ID, HOST) as Runnable,
                  new MflRulesRefresh(Integer.parseInt(year), LEAGUE_ID, HOST) as Runnable,
                  new MflSalaryAdjustmentsRefresh(Integer.parseInt(year), LEAGUE_ID, HOST) as Runnable,
                  // Not the league site at all, and the one thing here every expected point is built from.

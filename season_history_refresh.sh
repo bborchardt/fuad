@@ -3,8 +3,10 @@
 # Fetches, for each given completed season, the record of that season into
 # src/main/resources/ff/mfl/data/<year>:
 #   rosters_post_draft.json   week 1, holding what players were signed for in that year's auction
+#   rosters_deadline.json     week 12, the basis the franchise tag and rookie salary rules are both set off
 #   rosters_end_of_year.json  the season's final rosters, which the next year's pre draft rosters come from
 #   transactions.json         every move made that season, including the commissioner's expansion drafts
+#   draft.json                that year's rookie draft, which the copy pulled before it was held carries none of
 # and into src/main/resources/ff/nflverse/data/<year>:
 #   player_stats.tsv          the raw weekly statistics every expected point is built from
 #

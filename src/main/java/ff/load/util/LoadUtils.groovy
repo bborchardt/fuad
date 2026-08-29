@@ -12,6 +12,8 @@ class LoadUtils {
     static String mflRostersResourcePath(String year) { "/ff/mfl/data/$year/rosters.json" }
     /** Rosters as of week 1, holding the contracts signed in that year's auction rather than wiped ones. */
     static String mflPostDraftRostersResourcePath(String year) { "/ff/mfl/data/$year/rosters_post_draft.json" }
+    /** Rosters at the week 12 trading deadline, which the tag and rookie salary rules are both set off. */
+    static String mflDeadlineRostersResourcePath(String year) { "/ff/mfl/data/$year/rosters_deadline.json" }
     /** Rosters at the close of the season, which the next year's pre draft rosters are rolled over from. */
     static String mflEndOfYearRostersResourcePath(String year) { "/ff/mfl/data/$year/rosters_end_of_year.json" }
     static String mflDraftResourcePath(String year) { "/ff/mfl/data/$year/draft.json" }
