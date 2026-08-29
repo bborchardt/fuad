@@ -126,9 +126,6 @@ class RookieValuation {
                                 replacement[position] ?: [:],
                                 byes.of(position, rank), byes.lastWeek)
                     }
-                    List<BigDecimal> vor = (1..RookieSeasons.CONTRACT_YEARS).collect { int contractYear ->
-                        priced(contractYear, 0.0g)
-                    }
                     // Integrated over the level's own error rather than taken at its midpoint. See
                     // LEVEL_ERRORS: the two are not the same number where the function is convex.
                     List<Integer> value = (1..RookieSeasons.CONTRACT_YEARS).collect { int contractYear ->
@@ -157,7 +154,6 @@ class RookieValuation {
                             nflTeam: rookie.player.team,
                             nflDraft: rookie.draft,
                             bye: byeOf(rookie, byeByTeam),
-                            pointsOverReplacement: vor,
                             valueByYear: value,
                             expectedPick: pick,
                             salary: salary,

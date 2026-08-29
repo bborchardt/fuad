@@ -37,9 +37,12 @@ class RookieValue {
     Draft nflDraft
     Integer bye
 
-    /** Points over replacement in each year of the contract, first year first. */
-    List<BigDecimal> pointsOverReplacement
-    /** What each of those years would cost to buy at auction instead, in cap dollars. */
+    /**
+     * What he is worth in each year of the contract, first year first, in cap dollars.
+     *
+     * The expectation over the error on the levels behind it rather than their point estimate, since value
+     * over replacement is convex and the two are not the same number. See {@code RookieValuation}.
+     */
     List<Integer> valueByYear
     /** The overall pick the league's own drafts say he goes at, or null where too few have gone there. */
     Integer expectedPick

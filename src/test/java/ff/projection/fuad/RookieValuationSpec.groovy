@@ -87,7 +87,7 @@ class RookieValuationSpec extends Specification {
     def "values every rookie the consensus ranks and the league scores"() {
         expect:
         values.size() > 80
-        values.every { it.valueByYear.size() == 5 && it.pointsOverReplacement.size() == 5 }
+        values.every { it.valueByYear.size() == 5 }
         values*.overallRank == values*.overallRank.sort()
     }
 

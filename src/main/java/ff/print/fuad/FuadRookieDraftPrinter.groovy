@@ -7,8 +7,6 @@ import ff.load.fuad.RookieSeasons
 import ff.projection.fuad.RookieSalary
 import ff.projection.fuad.RookieValuation
 
-import java.math.RoundingMode
-
 /**
  * The rookie draft: what each rookie is worth over the contract he comes with, and what he will cost.
  *
@@ -67,7 +65,7 @@ class FuadRookieDraftPrinter {
     void print(PrintWriter out) {
         List<String> years = (1..RookieSeasons.CONTRACT_YEARS).collect { "Y$it" as String }
         out.println((['OVR', 'POS', 'TIER', 'RANK', 'PLAYER', 'TEAM', 'NFL', 'BYE', 'PICK', 'SALARY'] +
-                years + ['VOR1', 'LEN', 'VALLOW', 'VALUE', 'VALHIGH', 'SURPLUS', 'DEFER']).join('\t'))
+                years + ['LEN', 'VALLOW', 'VALUE', 'VALHIGH', 'SURPLUS', 'DEFER']).join('\t'))
         values.each { RookieValue value ->
             out.println(([
                     value.overallRank,
@@ -81,7 +79,6 @@ class FuadRookieDraftPrinter {
                     value.expectedPick ?: '',
                     value.salary,
             ] + value.valueByYear + [
-                    value.pointsOverReplacement.first().setScale(0, RoundingMode.HALF_UP),
                     value.contractLength,
                     value.valueLow,
                     value.contractValue,

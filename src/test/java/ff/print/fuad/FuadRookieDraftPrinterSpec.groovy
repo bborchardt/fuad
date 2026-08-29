@@ -27,7 +27,6 @@ class FuadRookieDraftPrinterSpec extends Specification {
                 positionRank         : 1,
                 nflTeam              : 'CIN',
                 bye                  : 10,
-                pointsOverReplacement: [20.4g, 30.0g, 30.0g, 10.0g, 5.0g],
                 valueByYear          : [20, 30, 30, 10, 5],
                 expectedPick         : 2,
                 salary               : 4,
