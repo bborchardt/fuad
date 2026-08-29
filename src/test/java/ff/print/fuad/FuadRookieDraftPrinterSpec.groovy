@@ -242,22 +242,30 @@ class FuadRookieDraftPrinterSpec extends Specification {
     }
 
     /**
-     * Only the rookies the room has typically left there.
+     * Every rookie is priced at every pick, and availability is a flag rather than a filter.
      *
-     * Availability is measured rather than assumed, and where the drafts are too few to say, nothing is
-     * filtered: declining to answer is not the same as saying nobody is left.
+     * <b>The one thing a shortlist cannot survive is somebody falling.</b> A rookie the room was expected to
+     * take at pick three is exactly who a reader most needs priced when he is still there at nine, and the
+     * outlook used to leave him off. Before a draft the flag is what a plan reads; during one it is worth
+     * nothing, the board being in view.
      */
-    def "shows a rookie at a pick only where the drafts have left his rank on the board"() {
+    def "prices every rookie at the pick and marks who is expected to be there"() {
         given:
         RookieValue best = rookie(playerName: 'Gone', positionRank: 1)
         RookieValue later = rookie(playerName: 'There', positionRank: 4)
-        int name = outlook([best, later], [pick(1, 1, 'Brett')]).first().indexOf('PLAYER')
+        List<List<String>> rows = outlook([best, later], [pick(1, 1, 'Brett')], [WR: [1: 3]])
+        int name = rows.first().indexOf('PLAYER')
+        int expected = rows.first().indexOf('EXP')
 
-        expect: 'with the third receiver typically the best left, the first is gone and the fourth is not'
-        outlook([best, later], [pick(1, 1, 'Brett')], [WR: [1: 3]]).tail()*.getAt(name) == ['There']
+        expect: 'both are priced, with the third receiver typically the best still on the board'
+        rows.tail()*.getAt(name).toSet() == ['Gone', 'There'].toSet()
 
-        and: 'and with nothing measured for that pick, neither is filtered out'
-        outlook([best, later], [pick(1, 1, 'Brett')], [:]).tail()*.getAt(name).size() == 2
+        and: 'and the one the drafts do not expect to reach this pick is marked, not dropped'
+        rows.tail().find { it[name] == 'There' }[expected] == 'Y'
+        rows.tail().find { it[name] == 'Gone' }[expected] == ''
+
+        and: 'with nothing measured for that pick, everybody is expected'
+        outlook([best, later], [pick(1, 1, 'Brett')], [:]).tail().every { it[expected] == 'Y' }
     }
 
     def "carries what he is worth beside what the contract is worth"() {

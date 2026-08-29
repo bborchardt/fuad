@@ -49,6 +49,25 @@ class RookieValuation {
     private static final int WORTH_A_YEAR = 0
 
     /**
+     * Standard errors either side of a level, and how much of a normal sits at each, for integrating over it.
+     *
+     * <b>What a rookie is worth is not what his level's midpoint is worth.</b> Value over replacement is
+     * convex — it is {@code max(0, points - replacement)} summed weekly, so the upside of a level being
+     * higher than estimated outruns the downside of it being lower. Pricing at the point estimate therefore
+     * understates the expectation, and understates it in proportion to how badly the level is pinned down.
+     *
+     * That bias is not spread evenly. It is worth a per cent or two at running back and receiver, where nine
+     * classes level a rank tightly, and 17% to 25% at quarterback and tight end, where they do not — which
+     * is to say it was quietly marking down exactly the positions the board is least sure about, and a
+     * reader sorting on the number would have dropped them.
+     *
+     * Five points weighted by the normal density at each, which is enough for a smooth convex function and
+     * cheap enough to run five times a contract year.
+     */
+    private static final List<List<BigDecimal>> LEVEL_ERRORS =
+            [[-2.0g, 0.055g], [-1.0g, 0.244g], [0.0g, 0.402g], [1.0g, 0.244g], [2.0g, 0.055g]].asImmutable()
+
+    /**
      * What a rookie scores per game against what the veteran curve gives his dynasty rank, by contract year.
      *
      * <b>A dynasty rank is a claim about a career and this board buys seasons</b>, so the two need joining
@@ -98,26 +117,30 @@ class RookieValuation {
                     String position = rookie.player.position
                     int rank = rookie.rookieRank.positionRank
 
-                    List<BigDecimal> vor = (1..RookieSeasons.CONTRACT_YEARS).collect { int contractYear ->
+                    // One year's worth at a given number of standard errors on the level.
+                    def priced = { int contractYear, BigDecimal errors ->
                         ExpectedValue.expectedValueOverReplacement(
-                                rateOf(rookie, seasons, dynasty, contractYear),
+                                rateOf(rookie, seasons, dynasty, contractYear) *
+                                        errorFactor(seasons, position, rank, contractYear, errors),
                                 outcomes.of(position, rank, contractYear),
                                 replacement[position] ?: [:],
                                 byes.of(position, rank), byes.lastWeek)
                     }
-                    List<Integer> value = vor.collect { BigDecimal points ->
-                        priceOf(points, priceCurve[position])
+                    List<BigDecimal> vor = (1..RookieSeasons.CONTRACT_YEARS).collect { int contractYear ->
+                        priced(contractYear, 0.0g)
                     }
-                    // The same contract revalued a standard error either side, which is the band it carries.
+                    // Integrated over the level's own error rather than taken at its midpoint. See
+                    // LEVEL_ERRORS: the two are not the same number where the function is convex.
+                    List<Integer> value = (1..RookieSeasons.CONTRACT_YEARS).collect { int contractYear ->
+                        LEVEL_ERRORS.sum { List<BigDecimal> point ->
+                            point[1] * priceOf(priced(contractYear, point[0]), priceCurve[position])
+                        } as int
+                    }
+                    // The same contract at a standard error either side, which is the band it carries.
                     def bounded = { BigDecimal direction ->
-                        (1..RookieSeasons.CONTRACT_YEARS).collect { int contractYear ->
-                            priceOf(ExpectedValue.expectedValueOverReplacement(
-                                    rateOf(rookie, seasons, dynasty, contractYear) *
-                                            errorFactor(seasons, position, rank, contractYear, direction),
-                                    outcomes.of(position, rank, contractYear),
-                                    replacement[position] ?: [:],
-                                    byes.of(position, rank), byes.lastWeek), priceCurve[position])
-                        }.sum() as int
+                        (1..RookieSeasons.CONTRACT_YEARS)
+                                .collect { int contractYear -> priceOf(priced(contractYear, direction), priceCurve[position]) }
+                                .sum() as int
                     }
 
                     Integer pick = expectedPick[rookie.rookieRank.overallRank]

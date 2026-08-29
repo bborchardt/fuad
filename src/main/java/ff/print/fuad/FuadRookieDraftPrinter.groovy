@@ -44,8 +44,16 @@ class FuadRookieDraftPrinter {
     private final Map<String, Integer> baselines
     private final Map<String, Map<Integer, Integer>> bestAvailable
 
-    /** How many candidates an outlook shows at each pick. Enough to choose between, few enough to read. */
-    private static final int CANDIDATES = 6
+    /**
+     * How many rookies an outlook lists at each pick.
+     *
+     * <b>Deep enough to be the sheet you read at the table, not a shortlist.</b> It was six, being what the
+     * drafts expect to still be there — which is the right answer to "what should I plan for" and the wrong
+     * one to "who do I take now". On the day availability is observed rather than predicted, and the one
+     * thing a shortlist cannot survive is somebody falling: a rookie the room was expected to take at pick
+     * three is exactly who a reader most needs priced when he is still there at nine.
+     */
+    private static final int CANDIDATES = 40
 
     FuadRookieDraftPrinter(FuadData fuadData, List<RookieValue> values, Map<String, Integer> baselines,
                            Map<String, Map<Integer, Integer>> bestAvailable) {
@@ -126,16 +134,17 @@ class FuadRookieDraftPrinter {
      * question about a lineup these picks will not decide. Solving it would put a confident-looking answer
      * on top of an objective nobody can defend.
      *
-     * What a reader needs instead is the choice each pick actually offers, which is measured rather than
-     * assumed: a rookie is shown at a pick when the league's own drafts have typically left his positional
-     * rank on the board that long. Salary is this pick's, not his expected pick's, so a reach shows its
-     * cost.
+     * What a reader needs instead is every rookie priced at the pick in front of him, best first. Salary is
+     * this pick's rather than his expected pick's, so a reach shows its cost and a quarterback who falls
+     * stops looking expensive. {@code EXP} marks the ones the league's own drafts expect to still be there,
+     * which is what a plan reads beforehand and what a live draft ignores, having the board in view.
      *
-     * The rows are what will fall to you. The decision stays yours.
+     * <b>So the sheet is one column deep at the table:</b> go to your pick, take the best {@code SURPLUS}
+     * still on the board. Everything else on the row is there to say how close the call was.
      */
     void printOutlook(PrintWriter out, String franchiseId) {
-        out.println(['PICK', 'ROUND', 'SLOT', 'POS', 'TIER', 'RANK', 'OVR', 'PLAYER', 'TEAM', 'NFL', 'BYE',
-                     'SALARY', 'Y1', 'LEN', 'VALLOW', 'VALUE', 'VALHIGH', 'SURPLUS', 'DEFER'].join('\t'))
+        out.println(['PICK', 'ROUND', 'SLOT', 'EXP', 'POS', 'TIER', 'RANK', 'OVR', 'PLAYER', 'TEAM', 'NFL',
+                     'BYE', 'SALARY', 'Y1', 'LEN', 'VALLOW', 'VALUE', 'VALHIGH', 'SURPLUS', 'DEFER'].join('\t'))
         fuadData.mflData.draftPicks.eachWithIndex { MflDraftPick pick, int index ->
             if (pick.franchise?.id != franchiseId) {
                 return
@@ -146,6 +155,7 @@ class FuadRookieDraftPrinter {
                         overall,
                         pick.round,
                         pick.pick,
+                        expected(here, overall) ? 'Y' : '',
                         here.position,
                         here.tier,
                         here.positionRank,
@@ -190,12 +200,21 @@ class FuadRookieDraftPrinter {
      * whose baseline has not decayed yet costs real money at pick nine and a dollar at pick nineteen.
      */
     private List<RookieValue> candidatesAt(int overall) {
-        values.findAll { RookieValue rookie ->
-            Integer best = bestAvailable[rookie.position]?.get(overall)
-            best == null || rookie.positionRank >= best
-        }.collect { RookieValue rookie ->
+        values.collect { RookieValue rookie ->
             RookieValuation.at(rookie, overall, baselines)
         }.sort { RookieValue rookie -> -rookie.surplus }.take(CANDIDATES)
+    }
+
+    /**
+     * Whether the league's own drafts expect this rookie to still be on the board at this pick.
+     *
+     * A flag rather than a filter. Before the draft it is what a plan reads: {@code Y} is who will
+     * realistically be there. During one it is worth nothing, because you can see the board — and filtering
+     * on it would have hidden the rookie who fell, who is the one a reader most needs priced.
+     */
+    private boolean expected(RookieValue rookie, int overall) {
+        Integer best = bestAvailable[rookie.position]?.get(overall)
+        best == null || rookie.positionRank >= best
     }
 }
 

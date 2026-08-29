@@ -273,31 +273,31 @@ class RookieValuationSpec extends Specification {
      * over replacement is convex, so a standard error on a level that sits near replacement is worth as much
      * as the value itself.
      */
-    def "the band on a rookie quarterback is as large as his value"() {
+    def "the band on a rookie quarterback is wider than his value, and on a back it is not"() {
         given:
         List<RookieValue> quarterbacks = values.findAll { it.position == 'QB' && it.positionRank <= 2 }
         List<RookieValue> backs = values.findAll { it.position == 'RB' && it.positionRank <= 2 }
 
-        expect: 'the upside band swallows the quarterback and not the back'
-        quarterbacks.every { it.valueHigh - it.contractValue >= it.contractValue }
-        backs.every { it.valueHigh - it.contractValue < it.contractValue }
+        expect: 'the whole range is worth more than the estimate it qualifies, at quarterback'
+        quarterbacks.every { it.valueHigh - it.valueLow > it.contractValue }
+
+        and: 'and comfortably less than it at the top of the running backs'
+        backs.every { it.valueHigh - it.valueLow < it.contractValue }
     }
 
     /**
      * The bounds are not symmetric, and the asymmetry is the convexity showing.
      *
      * Value over replacement is {@code max(0, points - replacement)} summed weekly, so a level a standard
-     * error low loses less than the same error high gains — and the gap widens the nearer a rank sits to
-     * replacement. Reporting a single plus-or-minus would round that away exactly where it is largest: the
-     * best rookie quarterback's upside band is more than half again his downside.
+     * error low loses less than the same error high gains. It holds for all 117 rookies on the board without
+     * exception, which is what makes it a property rather than an observation, and it is why the bounds are
+     * two columns rather than one plus-or-minus.
      */
-    def "the bounds are wider above than below, most of all near replacement"() {
-        given:
-        RookieValue quarterback = values.find { it.position == 'QB' && it.positionRank == 1 }
-
-        expect: 'bounds either side of the value, the upper one further away'
+    def "the bounds are wider above than below, at every rookie on the board"() {
+        expect: 'the value sits inside its own bounds'
         values.every { it.valueLow <= it.contractValue && it.contractValue <= it.valueHigh }
-        quarterback.valueHigh - quarterback.contractValue >
-                (quarterback.contractValue - quarterback.valueLow) * 1.3
+
+        and: 'and always nearer the low one, which is convexity and holds without exception'
+        values.every { it.valueHigh - it.contractValue >= it.contractValue - it.valueLow }
     }
 }

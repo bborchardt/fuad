@@ -1301,19 +1301,26 @@ rank is worth, not how widely one career might run. The auction board's `PTSLOW`
 other thing, which is why these are named differently.
 
 **And they are asymmetric**, because value over replacement is convex: a level a standard error low loses
-less than the same error high gains, and the gap widens the nearer a rank sits to replacement. A single
-plus-or-minus would round that away exactly where it is largest.
+less than the same error high gains. That holds for every rookie on the board without exception, which is
+why the bounds are two columns rather than one plus-or-minus.
 
-| | low | value | high |
-| --- | --- | --- | --- |
-| RB1 | 217 | 296 | 375 |
-| WR1 | 145 | 221 | 302 |
-| TE1 | 18 | 49 | 96 |
-| QB1 | **35** | 95 | **192** |
-| QB2 | **18** | 53 | **115** |
+| | low | value | high | range over value |
+| --- | --- | --- | --- | --- |
+| RB1 | 217 | 294 | 375 | 0.54 |
+| WR1 | 145 | 221 | 302 | 0.71 |
+| TE1 | 18 | 54 | 96 | **1.44** |
+| QB1 | 35 | 109 | 192 | **1.44** |
+| QB2 | 18 | 63 | 115 | **1.54** |
 
-**A rookie quarterback's contract value runs from a third of the reported figure to double it**, and that is
-the honest state of the
+**`VALUE` is the expectation over that band, not the value at its midpoint.** Convexity again: pricing at the
+level's point estimate understates what a rookie is worth, and understates it in proportion to how badly the
+level is pinned down. It is worth a per cent or two at running back and receiver and 17% to 25% at
+quarterback and tight end — so the point estimate was quietly marking down the positions the board is least
+sure about, and a reader sorting on it would have dropped them for the wrong reason. Integrated over five
+points of a normal on the level, the best rookie quarterback goes from $95 to $109.
+
+**A rookie quarterback's contract value runs from a third of the reported figure to nearly double it**, and
+that is the honest state of the
 position rather than a defect to be tuned away. Superflex starts up to twenty quarterbacks, so replacement
 is 209 points a season; only about half the rookie quarterback seasons that happened have ever cleared it,
 and a third of them never happened. Value over replacement is convex, so a standard error on a level sitting
