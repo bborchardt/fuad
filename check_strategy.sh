@@ -11,8 +11,7 @@
 # reports/greenfield holds 2026 for 2026-greenfield-plan.md. There is no default, both leagues being equal.
 #
 # Examples:
-#   ./check_strategy.sh strategy/2026-draft-plan.md
-#   ./check_strategy.sh strategy/2026-draft-plan.md reports/fuad
+#   ./check_strategy.sh strategy/2026-fuad-plan.md reports/fuad
 #   ./check_strategy.sh strategy/2026-greenfield-plan.md reports/greenfield
 set -euo pipefail
 

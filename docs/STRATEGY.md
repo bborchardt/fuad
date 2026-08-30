@@ -306,7 +306,7 @@ stand empty anyway, but the two counts differ and should be seen to.
 ## Running the check
 
 ```
-./check_strategy.sh strategy/2026-draft-plan.md
+./check_strategy.sh strategy/2026-fuad-plan.md reports/fuad
 ```
 
 It reports every disagreement at once, with line numbers, and exits non-zero on any. Three kinds:

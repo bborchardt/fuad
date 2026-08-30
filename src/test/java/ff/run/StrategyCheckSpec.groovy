@@ -43,7 +43,7 @@ class StrategyCheckSpec extends Specification {
     }
 
     private File document(String body) {
-        File file = new File(temp, '2026-draft-plan.md')
+        File file = new File(temp, '2026-fuad-plan.md')
         file.text = body
         file
     }
