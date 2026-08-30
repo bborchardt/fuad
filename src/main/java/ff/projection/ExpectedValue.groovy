@@ -153,7 +153,26 @@ class ExpectedValue {
         replacementByPosition(curve, startersOf(curve, requirements), byes)
     }
 
-    /** How many at each position the league starts, which is what replacement is taken one past. */
+    /**
+     * How many at each position the league starts, which is what replacement is taken one past.
+     *
+     * <b>Allocated on season totals, though replacement is then taken at a weekly rate.</b> The two bases
+     * disagree in principle: a lineup is filled every week, and a player missing four games does not cost
+     * his position four slots spread thinly over the year, he vacates one entirely in four weeks and holds
+     * it in the other ten. Deciding the count on totals discounts a position's claim on the flex by its
+     * injury rate, which is a season-long smear over a decision taken fourteen times.
+     *
+     * <b>It binds nothing, which is why it stands.</b> Allocating on {@link PointsCurve#levelledRate}
+     * instead returns the same count at every position and leaves every value over replacement on the board
+     * unchanged. Two things keep it inert. Most of the allocation is not contested — quarterback fills to
+     * its cap of two a team and kicker's minimum is its maximum, so only running back, receiver and tight
+     * end compete, for thirty slots. And expected games are nearly flat across exactly the ranks that do
+     * compete, a five per cent spread over RB 24-29, WR 29-34 and TE 11-16, so multiplying by them preserves
+     * the ordering. Availability diverges sharply only at the back of quarterback, which the cap has already
+     * settled.
+     *
+     * Recorded rather than repaired so the check is not redone. See docs/TODO.md.
+     */
     static Map<String, Integer> startersOf(PointsCurve curve, StarterRequirements requirements) {
         requirements.startersByPosition(curve.positions().collectEntries { String position ->
             [(position): (1..curve.depth(position)).collect { curve.seasonPoints(position, it) }]
