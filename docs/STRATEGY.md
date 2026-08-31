@@ -180,12 +180,20 @@ rather than for want of data. It is also the number the whole tag decision turns
 on a tagged player's `PRICE` is leaning on the one figure the model cannot be held to.
 
 **`TAG` says what a tag saves, never whether you want the player.** Tag surplus is `PRICE` less the tag
-price, so the tag a team is told to use is the one it saves most on — even where that player's own `EDGE`
-says he is priced above what he is worth. Value enters only to break a tie between two surpluses the model
-cannot separate, and never overrides a larger saving. A team whose best saving is on a contract it should
-not want is still told to tag it, and the board will not say so. Read `EDGE` on the player being tagged
-before treating the recommendation as advice. See
-[PROJECTION.md](fuad/PROJECTION.md#6-franchise-tags-iterated-to-a-fixed-point).
+price, so the tag a team is told to use is the one it saves most on, even where the tag costs more than the
+player is worth. Value enters only to break a tie between two surpluses the model cannot separate, and never
+overrides a larger saving. A team whose best saving is on a contract it should not want is still told to tag
+it, and the board will not say so.
+
+**What answers it is `VALUE` against `TAG`, and not `EDGE`.** `EDGE` is `VALUE` less `PRICE`, and `PRICE` is
+the money a tagged player will never cost: it is the reading for a player you are choosing whether to
+re-sign at market, which is the choice a tag exists to avoid. The tag question is whether the tag price
+buys more than it costs, so the comparison is against `TAG`, and the two orderings genuinely disagree — a
+player can carry the board's worst `EDGE` and still be a tag worth using, because what makes his `EDGE` bad
+is a market price he is being taken out of. Both columns are on `salaries`, and the difference is a plan's
+own arithmetic in a note column. Where the plan is about one team, `ADDEXP` on that team's roster report is
+the better numerator still, being what the player adds to *this* lineup rather than to a league-wide one.
+See [PROJECTION.md](fuad/PROJECTION.md#6-franchise-tags-iterated-to-a-fixed-point).
 
 **Read `TIER` before reading `PRICE`.** The board quotes dollars off levels that are good to seven points
 or so, so within a tier the ordering is noise and a plan that ranks players by price inside one has
