@@ -147,6 +147,16 @@ assume things the model does not know: **the range is the position's, scaled to 
 at one position have the same proportional spread. It says nothing about which of them is the safer pick,
 and a plan that treats it as though it does has smuggled in a belief the model does not hold.
 
+**`AVAIL` is the same shape of caveat, and it needs `EXP/CAP` read beside it.** It is a rank band's
+retention rate — how often a top-12 expiring contract has changed hands, across every team and every cap
+situation — and it knows nothing at all about the team holding this player. Two receivers at one rank carry
+the same figure whether their holder can comfortably match or cannot afford to keep anyone. What the board
+knows about that sits on `teams` as `EXPOSURE` against `FREECAP`, and the two point opposite ways for a team
+at either end of it: a holder whose expiring contracts cost more than his cap can cover will lose somebody
+whatever the band says, and one with room to spare will keep whoever he wants to. A plan reading `AVAIL`
+about a particular player, rather than about a rank, has to read `EXP/CAP` for that player's holder in the
+same breath.
+
 If a plan needs something not in this table, that is a column the board is missing. Add it to the model,
 where it can be tested, rather than working it out in the plan, where it cannot.
 
@@ -180,7 +190,8 @@ invented a distinction. QB10, QB11 and QB14 are all tier 5 in 2026:
 
 Seven points of spread on estimates carrying seven to nine. They reach the board a few dollars apart all
 the same, and nothing in the model says any of them is better than another. That is where the price column
-is at its most misleading, and the bye and `AVAIL` are what is left to choose on.
+is at its most misleading, and the bye and `AVAIL` are what is left to choose on — `AVAIL` with the caveat
+above, since a band's retention rate is not a claim about the team holding this particular player.
 
 **Named by rank, not by player, and that is the point.** Three quarterbacks hold those ranks this season and
 different ones will hold them next, while the claim being made is about the curve rather than about any of
