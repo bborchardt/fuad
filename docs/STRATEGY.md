@@ -157,8 +157,35 @@ whatever the band says, and one with room to spare will keep whoever he wants to
 about a particular player, rather than about a rank, has to read `EXP/CAP` for that player's holder in the
 same breath.
 
+**`DYNRANK` is carried, not priced.** It sits beside `RANK` so a plan can choose a contract length, and the
+table above names it for that. Nothing behind it has an opinion: a salary buys one season, and the board
+prices that season and stops. The dynasty rank says who the consensus expects to still be good, which is an
+input to a decision the model does not make. See
+[LEAGUE_RULES.md](fuad/LEAGUE_RULES.md#contract-length).
+
 If a plan needs something not in this table, that is a column the board is missing. Add it to the model,
 where it can be tested, rather than working it out in the plan, where it cannot.
+
+**`PRICE` is a ceiling, not a clearing price.** It is what a rational league would go to, and an auction
+clears at what the *second* bidder will pay. The gap is widest at the very top, where the board's most
+expensive players are also the ones fewest teams can afford to chase, and nothing here identifies a
+desperate buyer with cap to spend — he is averaged into a league-wide rate. So the top of the board is a
+walk-away number rather than a budget: a plan that sets aside a player's `PRICE` intending to pay it has
+read a ceiling as an estimate. `EXPOSURE` and `FREECAP` on `teams` are what says who can actually bid.
+
+**A tagged player's `PRICE` is a counterfactual, and nothing can test it.** It is what he would have gone
+for had his own team not tagged him, with every other tag still standing — a price for an auction he will
+not reach. Every other figure on the board can be checked against something; this one cannot, in principle
+rather than for want of data. It is also the number the whole tag decision turns on, so a plan leaning hard
+on a tagged player's `PRICE` is leaning on the one figure the model cannot be held to.
+
+**`TAG` says what a tag saves, never whether you want the player.** Tag surplus is `PRICE` less the tag
+price, so the tag a team is told to use is the one it saves most on — even where that player's own `EDGE`
+says he is priced above what he is worth. Value enters only to break a tie between two surpluses the model
+cannot separate, and never overrides a larger saving. A team whose best saving is on a contract it should
+not want is still told to tag it, and the board will not say so. Read `EDGE` on the player being tagged
+before treating the recommendation as advice. See
+[PROJECTION.md](fuad/PROJECTION.md#6-franchise-tags-iterated-to-a-fixed-point).
 
 **Read `TIER` before reading `PRICE`.** The board quotes dollars off levels that are good to seven points
 or so, so within a tier the ordering is noise and a plan that ranks players by price inside one has
