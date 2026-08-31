@@ -91,3 +91,51 @@ This is a documentation gap rather than a modelling error, and it is now recorde
 is here so that the two bases are known to disagree, and so the check is not redone from scratch the next
 time somebody notices. What would change the answer is a curve whose expected games differ materially across
 the contested ranks — worth re-running then, and not before.
+
+## The restricted free agent premium has no behavioural ceiling
+
+`AuctionValuation.price` sets a held player's acquisition price at `max(market, value + 1)`: an outside
+bidder has to clear what the player is worth to the team holding him, because that team may match. The rule
+is right in principle — right of first refusal is what makes positive edge on somebody else's restricted
+free agent [arithmetically unavailable](fuad/PROJECTION.md#restricted-free-agency-and-why-bargains-are-unavailable) rather than merely rare — but it
+assumes an incumbent who matches all the way up to the model's own valuation, and nothing bounds that by
+what the league has ever actually paid.
+
+It breaks wherever `value` sits far above the market price, which is to say at kicker. The highest kicker
+salary in nine seasons of this league:
+
+| 2017 | 2018 | 2019 | 2020 | 2021 | 2022 | 2023 | 2024 | 2025 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | 2 | 3 | 4 | 2 | 5 | 5 | 5 | 5 |
+
+Nobody has ever paid more than five. The 2026 board asks 16 for Cameron Dicker, whose market price is 3 and
+whose value is 15, and 14 for Ka'imi Fairbairn against a market price of 3. Both are more than three times
+the league record, and the number is not a prediction of anything a team here would do.
+
+**It is the ratio and not the premium that is wrong.** Mean restriction premium runs +3.0 at running back
+and +1.9 at quarterback, on market prices of fifteen to thirty, which is a sensible few per cent. At kicker
+the mean is +2.8 on market prices of one to three — the same dollars against a fifth of the base, so the
+price multiplies rather than nudges. Receiver and tight end are +0.1 and +0.5 and are not affected at all.
+
+**What it costs is a real buy.** Kicker was the largest single hole on franchise 0001's 2026 roster, with no
+kicker under contract at all: a kicker bought for a plausible 6 adds 105 points to that lineup, which is what
+Amon-Ra St. Brown adds for 84. Pricing the two best kickers at 14 and 16 routes a plan away from the cheapest
+points on its board.
+
+**The blast radius is small, which is why this is a note and not a defect.** `acquisitionSalary` is reported
+and never priced — `FuadSalaryProjectionPrinter` and `FuadRosterFitPrinter` read it, and nothing feeds it
+back into the board — so no other figure is wrong because of it.
+
+### What a fix would have to answer
+
+- **Where the ceiling comes from.** The obvious source is what the league has paid at that position, but the
+  historical maximum is one observation and a ceiling set from it would be as arbitrary as no ceiling. The
+  top few salaries at a position are already computed for the franchise tag and are the natural candidate.
+- **Whether it is a position's problem or a ratio's.** A rule keyed on position singles kicker out by name.
+  A rule keyed on how far `value` sits above `market` would catch the next position where the curve and the
+  market disagree that hard, and would leave running back and quarterback alone on their own numbers.
+- **Whether the model should instead be doubting its kicker valuations.** The premium is only absurd because
+  `value` says a kicker is worth 15. Rank does predict kicker scoring — the correlation is -0.33 against
+  -0.57 to -0.61 at the other positions, and the top five ranks have realised 25 points a season more than
+  ranks 9 to 13, which is a wider gap than running back's — so the valuation is not obviously wrong. But it
+  is the assumption this whole item rests on and it should be stated rather than assumed.
