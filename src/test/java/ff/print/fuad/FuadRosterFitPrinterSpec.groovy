@@ -53,11 +53,12 @@ class FuadRosterFitPrinterSpec extends Specification {
         new LineupValue(curve, new ByeWeeks([:], LAST_WEEK), lineup())
     }
 
-    private static PlayerValuation available(String position, int rank) {
+    private static PlayerValuation available(String position, int rank, int price = 1, String holder = null) {
         new PlayerValuation(playerId: "$position$rank", playerName: "$position $rank", position: position,
                 positionRank: rank, points: (200 - rank * 6) as BigDecimal, pointsPerGame: 0.0,
                 expectedGames: 0.0, pointsLow: 0.0, pointsHigh: 0.0, valueOverReplacement: 0.0,
-                value: 1, marketSalary: 1, acquisitionSalary: 1, availability: 1.0, tier: 1)
+                value: 1, marketSalary: price, acquisitionSalary: price + 10, availability: 1.0, tier: 1,
+                franchiseId: holder)
     }
 
     /**
@@ -122,5 +123,81 @@ class FuadRosterFitPrinterSpec extends Specification {
 
         and: 'where the second kicker only ever covers, which is the distinction the report is drawing'
         (depth.PK[1] / depth.PK[0]) < (depth.QB[1] / depth.QB[0])
+    }
+
+    /** The ladder, parsed as rows of cost against points added, by position. */
+    private static Map<String, List<List<BigDecimal>>> ladder(List<PlayerValuation> valuations) {
+        StringWriter out = new StringWriter()
+        new FuadRosterFitPrinter(dataFor(), valuations, lineups(), '0001').printLadder(new PrintWriter(out))
+        Map<String, List<List<BigDecimal>>> rows = [:].withDefault { [] }
+        out.toString().readLines().drop(2).each { String line ->
+            List<String> cells = line.split('\t') as List
+            rows[cells[0]] << [new BigDecimal(cells[1]), new BigDecimal(cells[2])]
+        }
+        rows
+    }
+
+    /**
+     * The frontier is the point of the report: more money has to buy more points, or the row is noise.
+     *
+     * Dominated bundles used to reach it — a combination costing more than another and adding no more is
+     * not a choice a reader has to weigh, and printing one asks them to do the filtering the report exists
+     * to do.
+     */
+    def "a position's rows cost more and add more as they go down"() {
+        given:
+        List<List<BigDecimal>> rows = ladder((1..4).collectMany {
+            [available('QB', it, it * 10), available('PK', it, it * 10)]
+        }).QB
+
+        expect: 'something to say at all'
+        rows.size() > 1
+
+        and: 'and every row strictly dearer and strictly better than the one above it'
+        (1..<rows.size()).every { rows[it][0] > rows[it - 1][0] && rows[it][1] > rows[it - 1][1] }
+    }
+
+    /**
+     * A position is never offered a bundle deeper than its lineup can field.
+     *
+     * Three kickers were a frontier point before the bound existed: cheapest way to a number, and a choice
+     * nobody is weighing. One kicker starts, so two is the most that can be worth anything and the second is
+     * cover.
+     */
+    def "bundles are bounded by what the lineup can start"() {
+        given:
+        StringWriter out = new StringWriter()
+        List<PlayerValuation> valuations = (1..4).collectMany {
+            [available('QB', it, it * 10), available('PK', it, it * 10)]
+        }
+        new FuadRosterFitPrinter(dataFor(), valuations, lineups(), '0001').printLadder(new PrintWriter(out))
+
+        when: 'the kicker rows, which start one and so may hold at most two'
+        List<Integer> kickers = out.toString().readLines().drop(2)
+                .findAll { it.startsWith('PK\t') }
+                .collect { (it.split('\t')[4] as String).split(', ').size() }
+
+        then:
+        kickers.every { it <= 2 }
+    }
+
+    /**
+     * A team pays the market price for its own expiring player, never the outside bidder's.
+     *
+     * `ACQUIRE` exists because the team holding a player may match, which is what makes him dear to
+     * everybody else. Charging a team that premium for keeping its own player prices it out of its own
+     * roster, and the ladder is the one report where the distinction reaches a number.
+     */
+    def "a team's own player costs it the market price rather than the acquisition price"() {
+        given: 'the same player, held by this team and by another'
+        List<List<BigDecimal>> mine = ladder([available('PK', 1, 20, '0001')]).PK
+        List<List<BigDecimal>> theirs = ladder([available('PK', 1, 20, '0002')]).PK
+
+        expect: 'ours costs the market price and theirs the acquisition price, which is ten dearer'
+        mine[0][0] == 20.0
+        theirs[0][0] == 30.0
+
+        and: 'for the identical player, so only the price differs'
+        mine[0][1] == theirs[0][1]
     }
 }

@@ -33,6 +33,22 @@ class FuadRosterFitPrinter {
     /** How deep the diminishing returns are worth showing: past a fourth at a position, nothing is. */
     private static final int DEPTH_SHOWN = 4
 
+    /** How many candidates a position's frontier may draw from. See {@link #shortlists}. */
+    private static final int SHORTLIST = 8
+
+    /** The most players one frontier point may hold. See {@link #printLadder}. */
+    private static final int BUNDLE = 3
+
+    /**
+     * Points a row must beat the last one by to be worth a line, and the cost step it must clear.
+     *
+     * Both are about what four hundred replayed seasons can resolve and what a reader can use. See
+     * {@link #frontier}.
+     */
+    private static final BigDecimal MATERIAL = 5.0
+
+    private static final BigDecimal STEP = 1.3
+
     private final FuadData fuadData
     private final List<PlayerValuation> valuations
     private final LineupValue lineups
@@ -204,6 +220,168 @@ class FuadRosterFitPrinter {
             }
             out.println(([position] + added + [signedAt(position)]).join('\t'))
         }
+    }
+
+    /**
+     * What a budget buys at each position: the frontier of cost against points added.
+     *
+     * {@link #printDepth} answers whether a second at a position is worth having and cannot answer what to
+     * spend on it. It walks the best available by points, which is the top of the board — the part of it a
+     * team with a hole and a budget is least likely to buy. A plan allocating cap is asking the other
+     * question: if thirty dollars go to receiver rather than to running back, what does each return?
+     *
+     * So every combination of up to {@link #BUNDLE} players from a position's shortlist is evaluated, and
+     * the ones no cheaper combination beats are printed. A position's rows are a frontier: read down to the
+     * budget being considered and across positions at the same spend. {@code PER$} is the whole bundle's
+     * average and not the last step's, since the question is what an allocation returns rather than what one
+     * more player does.
+     *
+     * <b>Why not simply walk the best ratio.</b> That was the first shape and it is worse than it sounds:
+     * points per dollar is maximised by minimum bids almost everywhere, so the walk fills with a dollar
+     * player at every position and reaches the middle of the board at no point at all. It is right at kicker,
+     * where a dollar genuinely is the answer, and it buries exactly the question this report exists for
+     * everywhere else. The frontier keeps the cheap end without letting it crowd the rest out.
+     *
+     * <b>Bundles are capped at {@link #BUNDLE} and the shortlist at {@link #SHORTLIST}</b>, which bounds
+     * this at a few hundred replayed seasons rather than a few thousand. A fourth player at one position is
+     * worth close to nothing on every ladder generated so far, and the combinations grow faster than the
+     * information does.
+     *
+     * <b>Cost is what this team would pay, which is not one column of the board.</b> A player another team
+     * holds costs {@code ACQUIRE}, since that team may match; a player nobody holds costs {@code PRICE};
+     * and this team's own expiring player costs {@code PRICE} too, because the right of first refusal that
+     * makes him dear to everybody else is this team's to exercise. Charging a team the outside bidder's
+     * price for its own player would price it out of its own roster.
+     */
+    void printLadder(PrintWriter out) {
+        List<LineupValue.Rostered> roster = roster()
+        out.println(header())
+        out.println(['POS', 'COST', 'ADD', 'PER$', 'PLAYERS'].join('\t'))
+        Map<String, List<PlayerValuation>> shortlists = shortlists(roster)
+
+        lineups.positions().each { String position ->
+            List<PlayerValuation> candidates = shortlists[position] ?: []
+            if (!candidates) {
+                return
+            }
+            int most = Math.min(BUNDLE, lineups.maximumStarted(position) + 1)
+            List<List> points = bundles(candidates, most).collect { List<PlayerValuation> bundle ->
+                BigDecimal added = lineups.evaluate(roster + bundle.collect {
+                    lineups.rostered(it.position, it.positionRank)
+                }).onExpectation - base().onExpectation
+                [(bundle.sum { cost(it) }) as int, added, bundle]
+            }
+            frontier(points).each { List row ->
+                int spent = row[0] as int
+                BigDecimal added = row[1] as BigDecimal
+                List<PlayerValuation> bundle = row[2] as List<PlayerValuation>
+                out.println([
+                        position,
+                        spent,
+                        round(added),
+                        (added / Math.max(1, spent)).setScale(2, RoundingMode.HALF_UP),
+                        bundle.sort { -it.points }.collect { surname(it.playerName) }.join(', '),
+                ].join('\t'))
+            }
+        }
+    }
+
+    /**
+     * Every combination of up to {@code most} of them, which is what a budget is actually choosing between.
+     *
+     * {@code most} is held to what the lineup can start plus one, so a position is never offered a bundle
+     * deeper than it can field. Kicker is why: one starts, and three of them was a frontier point before
+     * this bound existed.
+     */
+    private static List<List<PlayerValuation>> bundles(List<PlayerValuation> candidates, int most) {
+        List<List<PlayerValuation>> all = candidates.collect { [it] }
+        for (int i = 0; most >= 2 && i < candidates.size(); i++) {
+            for (int j = i + 1; j < candidates.size(); j++) {
+                all << [candidates[i], candidates[j]]
+                for (int k = j + 1; most >= 3 && k < candidates.size(); k++) {
+                    all << [candidates[i], candidates[j], candidates[k]]
+                }
+            }
+        }
+        all
+    }
+
+    /**
+     * The combinations worth printing: those no cheaper one matches, thinned to the ones that differ.
+     *
+     * Without the first filter a position prints every subset it was handed, most of them dominated, and the
+     * reader does the work the report exists to do. A bundle that costs more than another and adds no more
+     * is not a choice anybody has to weigh.
+     *
+     * <b>The thinning is the more important half.</b> An unthinned frontier is a row per dollar — near two
+     * hundred of them for one team — differing by a point or two, which is inside what four hundred replayed
+     * seasons can resolve and reads as precision the report does not have. So a row has to beat the last one
+     * kept by {@link #MATERIAL} points <i>and</i> cost meaningfully more, which leaves a ladder a reader can
+     * hold in their head and spans the same range. This is the same argument as {@code TIER} on the auction
+     * board: where the model cannot separate two options, it should not print them as a choice.
+     */
+    private static List<List> frontier(List<List> points) {
+        BigDecimal keptAdd = null
+        int keptCost = 0
+        points.sort { a, b -> (a[0] as int) <=> (b[0] as int) ?: (b[1] as BigDecimal) <=> (a[1] as BigDecimal) }
+                .findAll { List row ->
+                    int spent = row[0] as int
+                    BigDecimal added = row[1] as BigDecimal
+                    if (added <= 0) {
+                        return false
+                    }
+                    if (keptAdd != null &&
+                            (added < keptAdd + MATERIAL || spent < Math.max(keptCost + 2, keptCost * STEP))) {
+                        return false
+                    }
+                    keptAdd = added
+                    keptCost = spent
+                    true
+                }
+    }
+
+    /**
+     * The candidates a position's frontier is drawn from, taken from both ends of the board.
+     *
+     * Ranking the shortlist by points keeps the players a budget cannot reach; ranking it by points per
+     * dollar keeps only minimum bids. Both halves are needed, so both are taken and the union is cut to
+     * {@link #SHORTLIST}: the frontier has to have something to say at thirty dollars and at three.
+     *
+     * The marginals here are the ones the main report already prints, so the pass costs nothing that was not
+     * already being spent.
+     */
+    private Map<String, List<PlayerValuation>> shortlists(List<LineupValue.Rostered> roster) {
+        List<List> scored = valuations.collect { PlayerValuation v ->
+            LineupValue.Rostered player = lineups.rostered(v.position, v.positionRank)
+            BigDecimal added = player == null ? 0.0 : lineups.marginal(roster, player).onExpectation
+            [v, added, added / Math.max(1, cost(v))]
+        }.findAll { (it[1] as BigDecimal) > 0 }
+
+        scored.groupBy { (it[0] as PlayerValuation).position }.collectEntries { String position, List<List> rows ->
+            List<PlayerValuation> byPoints = rows.sort(false) { a, b -> (b[1] as BigDecimal) <=> (a[1] as BigDecimal) }
+                    .take(SHORTLIST).collect { it[0] as PlayerValuation }
+            List<PlayerValuation> byRatio = rows.sort(false) { a, b -> (b[2] as BigDecimal) <=> (a[2] as BigDecimal) }
+                    .take(SHORTLIST).collect { it[0] as PlayerValuation }
+            List<PlayerValuation> union = []
+            (0..<SHORTLIST).each { int i ->
+                [byPoints, byRatio].each { List<PlayerValuation> from ->
+                    if (i < from.size() && !union.contains(from[i]) && union.size() < SHORTLIST) {
+                        union << from[i]
+                    }
+                }
+            }
+            [(position): union]
+        }
+    }
+
+    /**
+     * What this team pays to add him, which depends on whether it is already his.
+     *
+     * See {@link #printLadder}: {@code ACQUIRE} is the outside bidder's price and is the wrong number to
+     * charge a team for keeping its own player.
+     */
+    private int cost(PlayerValuation v) {
+        v.franchiseId == franchiseId ? v.marketSalary : v.acquisitionSalary
     }
 
     /**

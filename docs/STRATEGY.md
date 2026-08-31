@@ -131,6 +131,7 @@ for something, that something is now a column:
 | what a team can spend | `FREECAP`, `EXPOSURE`, `EXP/CAP` on `teams` | the cap and the spend rate |
 | what a player adds to **my** lineup | `ADDEXP` / `ADDHIND` on `roster_<id>` | a lineup worked out by hand |
 | whether a third at a position is worth it | `ADD1`-`ADD4` on `roster_depth_<id>` | the same, but harder |
+| what a budget buys at a position | `COST` / `ADD` on `roster_ladder_<id>` | a points ladder with no prices on it |
 | a position I cannot field at all | `NEEDS` on `teams` | remembering to buy a kicker |
 | how long to sign someone for | `DYNRANK` beside `RANK` | the dynasty ranking, read separately |
 | which price gaps are real | `TIER` | reading a $2 gap as a ranking |
@@ -253,7 +254,7 @@ mistake as ordering it by price.
 
 ## The roster reports
 
-`./fuad_report.sh -t roster -f 0001` writes two files. They answer the question the auction board
+`./fuad_report.sh -t roster -f 0001` writes three files. They answer the question the auction board
 cannot: the board prices a player against a league-wide replacement, which is nobody's actual alternative,
 and a team holding one quarterback is not choosing between the same things as a team holding four.
 
@@ -262,6 +263,20 @@ and a team holding one quarterback is not choosing between the same things as a 
 **`roster_depth_<id>.tsv`** — what the 1st, 2nd, 3rd and 4th best available at each position would add,
 taken in turn. Every position the lineup fields, kicker included; it used to be a list of four written into
 the printer, which quietly stopped being every position when kickers were levelled.
+
+**`roster_ladder_<id>.tsv`** — what a budget buys at each position: `COST` against `ADD`, with the players
+that reach it. The depth curve walks the best available, which is the top of the board and the part of it a
+team with a hole and a budget is least likely to buy; the ladder walks money instead, so a plan can ask what
+thirty dollars returns at receiver against what it returns at running back. Read down to the budget being
+considered and across positions at the same spend — that comparison is the allocation.
+
+Three things about it. **Bundles are capped at what the lineup can start plus one**, so a position is never
+offered more of itself than it could field. **Rows are thinned**: an unthinned frontier is a row per dollar,
+differing by a point or two, which is inside what the replay can resolve — the same argument `TIER` makes on
+the auction board, that options the model cannot separate should not be printed as a choice. And **cost is
+what *this* team would pay**, which is not one column of the board: another team's player costs `ACQUIRE`
+because that team may match, while this team's own expiring player costs `PRICE`, the right of first refusal
+being this team's to exercise.
 
 Two columns, because the lineup can be set two ways and neither is true:
 

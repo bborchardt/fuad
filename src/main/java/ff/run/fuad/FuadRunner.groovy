@@ -76,8 +76,9 @@ class FuadRunner {
                 List<String> written = []
                 try {
                     types.each { String t ->
-                        // A type may write more than one report: the roster fit and its depth curve come
-                        // from one evaluation and would otherwise cost the same expensive run twice.
+                        // A type may write more than one report: the roster fit, its depth curve and its
+                        // cost ladder come from one evaluation and would otherwise cost the same expensive
+                        // run three times over.
                         reportsFor(t, year, fuadData, mflData, valuationLoader, franchiseId)
                                 .each { String name, Closure<Void> printer ->
                             File file = new File(outputDir, fileName(t, name))
@@ -167,8 +168,10 @@ class FuadRunner {
                     valuationLoader.lineups(year), franchiseId)
             String fit = "${type}_${franchiseId}"
             String depth = "${type}_depth_${franchiseId}"
+            String ladder = "${type}_ladder_${franchiseId}"
             return [(fit): { PrintWriter out -> printer.print(out) },
-                    (depth): { PrintWriter out -> printer.printDepth(out) }]
+                    (depth): { PrintWriter out -> printer.printDepth(out) },
+                    (ladder): { PrintWriter out -> printer.printLadder(out) }]
         }
         [:]
     }
