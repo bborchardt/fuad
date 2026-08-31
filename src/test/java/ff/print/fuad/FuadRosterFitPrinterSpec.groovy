@@ -53,6 +53,14 @@ class FuadRosterFitPrinterSpec extends Specification {
         new LineupValue(curve, new ByeWeeks([:], LAST_WEEK), lineup())
     }
 
+    /**
+     * A player at a rank, at a price, held by somebody or by nobody.
+     *
+     * <b>Callers price the better ranks higher</b>, which is not decoration. The ladder's shortlist keeps a
+     * player only where nothing cheaper adds more, so a fixture whose cheapest player is also its best
+     * leaves one candidate standing and a frontier of one row — a true answer to a board no auction has
+     * ever produced.
+     */
     private static PlayerValuation available(String position, int rank, int price = 1, String holder = null) {
         new PlayerValuation(playerId: "$position$rank", playerName: "$position $rank", position: position,
                 positionRank: rank, points: (200 - rank * 6) as BigDecimal, pointsPerGame: 0.0,
@@ -147,7 +155,7 @@ class FuadRosterFitPrinterSpec extends Specification {
     def "a position's rows cost more and add more as they go down"() {
         given:
         List<List<BigDecimal>> rows = ladder((1..4).collectMany {
-            [available('QB', it, it * 10), available('PK', it, it * 10)]
+            [available('QB', it, (5 - it) * 10), available('PK', it, (5 - it) * 10)]
         }).QB
 
         expect: 'something to say at all'
@@ -168,7 +176,7 @@ class FuadRosterFitPrinterSpec extends Specification {
         given:
         StringWriter out = new StringWriter()
         List<PlayerValuation> valuations = (1..4).collectMany {
-            [available('QB', it, it * 10), available('PK', it, it * 10)]
+            [available('QB', it, (5 - it) * 10), available('PK', it, (5 - it) * 10)]
         }
         new FuadRosterFitPrinter(dataFor(), valuations, lineups(), '0001').printLadder(new PrintWriter(out))
 

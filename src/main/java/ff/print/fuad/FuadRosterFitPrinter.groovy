@@ -341,37 +341,63 @@ class FuadRosterFitPrinter {
     }
 
     /**
-     * The candidates a position's frontier is drawn from, taken from both ends of the board.
+     * The candidates a position's frontier is drawn from: the players no cheaper player beats.
      *
-     * Ranking the shortlist by points keeps the players a budget cannot reach; ranking it by points per
-     * dollar keeps only minimum bids. Both halves are needed, so both are taken and the union is cut to
-     * {@link #SHORTLIST}: the frontier has to have something to say at thirty dollars and at three.
+     * <b>Taken as a frontier rather than as a ranking, because every ranking cuts the middle out.</b>
+     * Ranking by points keeps the top of the board, which a budget cannot reach; ranking by points per
+     * dollar keeps minimum bids, which a budget does not need help finding. Taking some of each — the shape
+     * this had first — keeps both ends and drops everything between them, and at receiver everything between
+     * them was the answer: the mid-priced receivers carried the best points per dollar at the position and
+     * not one of them survived the cut, leaving a frontier with nothing to say between eight dollars and
+     * seventy-one.
      *
-     * The marginals here are the ones the main report already prints, so the pass costs nothing that was not
+     * A player belongs on the shortlist when no cheaper player adds more. That spans the cost range by
+     * construction, keeps the cheap and the dear where each is genuinely the best of its price, and drops
+     * only players something cheaper already beats. Where the frontier is longer than {@link #SHORTLIST} it
+     * is sampled evenly rather than truncated, since truncating it would restore the very bias this is here
+     * to remove.
+     *
+     * The marginals are the ones the main report already prints, so the pass costs nothing that was not
      * already being spent.
      */
     private Map<String, List<PlayerValuation>> shortlists(List<LineupValue.Rostered> roster) {
-        List<List> scored = valuations.collect { PlayerValuation v ->
+        valuations.collect { PlayerValuation v ->
             LineupValue.Rostered player = lineups.rostered(v.position, v.positionRank)
-            BigDecimal added = player == null ? 0.0 : lineups.marginal(roster, player).onExpectation
-            [v, added, added / Math.max(1, cost(v))]
+            [v, player == null ? 0.0 : lineups.marginal(roster, player).onExpectation]
         }.findAll { (it[1] as BigDecimal) > 0 }
-
-        scored.groupBy { (it[0] as PlayerValuation).position }.collectEntries { String position, List<List> rows ->
-            List<PlayerValuation> byPoints = rows.sort(false) { a, b -> (b[1] as BigDecimal) <=> (a[1] as BigDecimal) }
-                    .take(SHORTLIST).collect { it[0] as PlayerValuation }
-            List<PlayerValuation> byRatio = rows.sort(false) { a, b -> (b[2] as BigDecimal) <=> (a[2] as BigDecimal) }
-                    .take(SHORTLIST).collect { it[0] as PlayerValuation }
-            List<PlayerValuation> union = []
-            (0..<SHORTLIST).each { int i ->
-                [byPoints, byRatio].each { List<PlayerValuation> from ->
-                    if (i < from.size() && !union.contains(from[i]) && union.size() < SHORTLIST) {
-                        union << from[i]
-                    }
+                .groupBy { (it[0] as PlayerValuation).position }
+                .collectEntries { String position, List<List> rows ->
+                    [(position): sampled(bestOfEachPrice(rows))]
                 }
+    }
+
+    /** Cheapest first, keeping a player only where nothing cheaper already adds as much. */
+    private List<PlayerValuation> bestOfEachPrice(List<List> rows) {
+        BigDecimal best = null
+        rows.sort { a, b ->
+            cost(a[0] as PlayerValuation) <=> cost(b[0] as PlayerValuation) ?:
+                    (b[1] as BigDecimal) <=> (a[1] as BigDecimal)
+        }.findAll { List row ->
+            BigDecimal added = row[1] as BigDecimal
+            if (best != null && added <= best) {
+                return false
             }
-            [(position): union]
+            best = added
+            true
+        }.collect { it[0] as PlayerValuation }
+    }
+
+    /** At most {@link #SHORTLIST} of them, spread across the frontier rather than taken off one end. */
+    private static List<PlayerValuation> sampled(List<PlayerValuation> frontier) {
+        if (frontier.size() <= SHORTLIST) {
+            return frontier
         }
+        // The dearest is always kept: it is the only row that can say what the top of the position costs,
+        // and even spacing alone drops it whenever the frontier does not divide evenly.
+        List<PlayerValuation> kept = (0..<(SHORTLIST - 1))
+                .collect { frontier[(int) (it * (frontier.size() - 1) / (SHORTLIST - 1))] }
+        kept << frontier.last()
+        kept.unique()
     }
 
     /**
