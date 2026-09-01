@@ -26,6 +26,9 @@ each has its own report script, its own figures directory and its own documentat
 ```
 
 `fuad` report types: `franchises`, `franchise_projections`, `rankings`, `rookies`, `salaries`, `teams`, `schedule`, or `all`.
+`rookies` writes two: the rookie board, which values a player over the five years a contract can run and
+carries no price at all, and `rookie_picks`, what each pick costs at each position and who is usually still
+there. The two are joined by the reader at the pick he is making.
 `roster` is separate: it answers for one named team rather than for the league, so it takes `-f` and is not
 part of `all`. `greenfield` report types are `board`, `keepers`, `picks`, `demand`, `adp` or `all`, with
 `outlook` separate for the same reason — it answers for one draft slot, so it takes `-s`.
@@ -37,7 +40,10 @@ and repairs are, and [docs/greenfield/DATA.md](docs/greenfield/DATA.md) for the 
 
 See [docs/fuad/PROJECTION.md](docs/fuad/PROJECTION.md) for how the `salaries` report prices an auction: consensus
 ranks for order, league-scored projections for the curve, corrected for what a rank really delivers, priced
-against the cap the league has left, and settled against the franchise tags it expects to be used.
+against the cap the league has left, and settled against the franchise tags it expects to be used. The same
+document covers [the rookie draft](docs/fuad/PROJECTION.md#rookies), which is priced differently because it is
+bought differently: a pick buys up to five seasons at a salary the league sets by rule, and 88% of what this
+year's early picks are worth falls after the season they are spent in.
 
 See [docs/fuad/LEAGUE_RULES.md](docs/fuad/LEAGUE_RULES.md) for what the rules were in each season — starting
 requirements, salary cap, roster limits, franchise tag prices and scoring — all of which have changed, and

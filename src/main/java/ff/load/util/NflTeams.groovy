@@ -37,11 +37,17 @@ class NflTeams {
      *
      * The 2018-2020 exports carry the abbreviation in parentheses and nothing else usable, so this is the
      * only way into those three seasons.
+     *
+     * The league site has a dialect of its own, writing three letters where the rankings write two: GBP,
+     * KCC, NEP, NOS, TBB. It matters wherever a player is joined across the two by his team rather than by
+     * his name, which is how a rookie gets a bye week — nothing ranks a rookie's bye, so it comes from his
+     * team, and an unmapped abbreviation silently leaves him playing a week nobody plays.
      */
     private static final Map<String, String> BY_ABBREVIATION = [
             'JAX': 'JAC', 'LA': 'LAR', 'OAK': 'LV', 'LVR': 'LV', 'SD': 'LAC', 'SDG': 'LAC',
             'WSH': 'WAS', 'NOR': 'NO', 'TAM': 'TB', 'SFO': 'SF', 'KAN': 'KC', 'NWE': 'NE',
             'GNB': 'GB', 'ARZ': 'ARI', 'BLT': 'BAL', 'CLV': 'CLE', 'HST': 'HOU',
+            'GBP': 'GB', 'KCC': 'KC', 'NEP': 'NE', 'NOS': 'NO', 'TBB': 'TB',
     ].asImmutable() as Map<String, String>
 
     private static final String ABBREVIATED = /^(.*?)\s*\(([A-Za-z]{2,3})\)$/

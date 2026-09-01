@@ -7,8 +7,8 @@
 #   ./fuad_report.sh -t <franchises|franchise_projections|rankings|rookies|salaries|teams|schedule|all> [-y <year>] [-o <dir>]
 #   ./fuad_report.sh -t roster -f <franchise-id> [-y <year>] [-o <dir>]
 #
-# `roster` reports for one team and is not part of `all`. It writes two files, the per-player fit and the
-# depth curve, and takes about half a minute: it replays the season several hundred times.
+# `roster` reports for one team and is not part of `all`. It writes three files, the per-player fit, the
+# depth curve and the cost ladder, and takes about a minute: it replays the season several hundred times.
 #
 # Examples:
 #   ./fuad_report.sh -t rankings

@@ -20,30 +20,17 @@ class FranchiseSalaryCalculator {
     /** How many of the previous season's salaries at a position the tag averages. */
     private static final int TOP_SALARIES = 5
 
-    static final List<String> POSITIONS = ['QB', 'RB', 'WR', 'TE', 'PK'].asImmutable()
+    static final List<String> POSITIONS = RosterSalaries.POSITIONS
 
     /**
      * The franchise salary at each position for the season following the one these rosters are from.
      *
-     * Rosters are the previous season's, and players that season's player list, since a player's position
-     * has to be read from the year the salary was paid in: reading it from a later year silently drops
-     * everyone who has since retired, and the top five is exactly where the long contracts of retiring
-     * players sit.
+     * Rosters are the previous season's, and players that season's player list. See {@link RosterSalaries},
+     * which the rookie salary rule reads the same snapshot through at a different depth.
      */
     static Map<String, Integer> franchiseSalaries(Map priorSeasonRosters, Map priorSeasonPlayers) {
-        Map<String, String> positionById = (priorSeasonPlayers.players.player as List<Map>)
-                .collectEntries { [(it.id as String): it.position as String] }
-
-        Map<String, List<BigDecimal>> salariesByPosition = (priorSeasonRosters.rosters.franchise as List<Map>)
-                .collectMany { Map franchise ->
-                    def rostered = franchise.player ?: []
-                    (rostered instanceof List ? rostered : [rostered]) as List<Map>
-                }
-                .findAll { POSITIONS.contains(positionById[it.id as String]) }
-                .groupBy { positionById[it.id as String] }
-                .collectEntries { position, players ->
-                    [(position): players.collect { new BigDecimal(it.salary as String) }]
-                }
+        Map<String, List<BigDecimal>> salariesByPosition =
+                RosterSalaries.byPosition(priorSeasonRosters, priorSeasonPlayers)
 
         POSITIONS.collectEntries { position ->
             List<BigDecimal> salaries = salariesByPosition[position]

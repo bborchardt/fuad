@@ -1,10 +1,7 @@
 package ff.print.fuad
 
-import ff.data.Draft
-import ff.data.Player
-import ff.data.Rank
 import ff.data.fuad.FuadData
-import ff.data.fuad.FuadPlayer
+import ff.data.fuad.RookieValue
 import ff.data.mfl.MflData
 import ff.data.mfl.MflDraftPick
 import ff.data.mfl.MflFranchise
@@ -12,106 +9,223 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 /**
- * The rookie sheet, which is two lists side by side: the consensus rookie ranking, and whose pick is next.
+ * The rookie sheet: what a pick is worth over the contract it comes with, and what the pick itself costs.
  *
- * It prices nothing — rookies are drafted rather than bid on, and the auction board excludes them entirely.
- * What it has to get right is the notation, since the whole sheet is read as "who is available at 2.4".
+ * Two tables, because they answer different questions. The first is about players and is read in consensus
+ * order; the second is about picks and is read in draft order, and a pick has a price whoever is taken with
+ * it. What both have to get right is the arithmetic a reader will not redo: that surplus is value less
+ * salary over the years committed, and that the salary on a pick is the one bylaw 8.3 charges there.
  */
 class FuadRookieDraftPrinterSpec extends Specification {
 
-    private static FuadPlayer rookie(int overall, int positionRank = 1, Draft draft = new Draft(round: 1, pick: 5)) {
-        new FuadPlayer(player: new Player(name: "Rookie $overall", position: 'WR', team: 'CIN'),
-                rookieRank: new Rank(overallRank: overall, positionRank: positionRank),
-                draft: draft, mflId: "p$overall")
+    private static RookieValue rookie(Map overrides = [:]) {
+        new RookieValue([
+                playerId             : 'p1',
+                playerName           : 'Rookie One',
+                position             : 'WR',
+                overallRank          : 1,
+                positionRank         : 1,
+                dynastyRank          : 23,
+                nflTeam              : 'CIN',
+                bye                  : 10,
+                valueByYear          : [20, 30, 30, 10, 5],
+                expectedPick         : 2,
+                salary               : 4,
+                contractLength       : 5,
+                surplus              : 75,
+                valueLow             : 70,
+                valueHigh            : 125,
+                tier                 : 2,
+        ] + overrides)
     }
 
-    private static MflDraftPick pick(int round, int pick, String owner, String name = 'Some Team') {
-        new MflDraftPick(round: round, pick: pick,
-                franchise: new MflFranchise(id: '0001', name: name, ownerName: owner, players: []))
+    private static MflDraftPick pick(int round, int slot, String owner, String name = 'Some Team',
+                                     String id = '0001') {
+        new MflDraftPick(round: round, pick: slot,
+                franchise: new MflFranchise(id: id, name: name, ownerName: owner, players: []))
     }
 
-    private static List<String> rowsOf(List<FuadPlayer> rookies, List<MflDraftPick> picks) {
+    private static FuadRookieDraftPrinter printer(List<RookieValue> values, List<MflDraftPick> picks,
+                                                  Map<String, Integer> baselines = [QB: 20, RB: 7, WR: 1, TE: 1, PK: 1],
+                                                  Map<String, Map<Integer, Integer>> best = [:]) {
+        new FuadRookieDraftPrinter(new FuadData(rookieRanks: [],
+                mflData: new MflData(draftPicks: picks, franchiseByIdMap: [:], playerByNameMap: [:])),
+                values, baselines, best)
+    }
+
+    private static List<List<String>> board(List<RookieValue> values) {
         StringWriter out = new StringWriter()
-        new FuadRookieDraftPrinter(new FuadData(rookieRanks: rookies,
-                mflData: new MflData(draftPicks: picks, franchiseByIdMap: [:], playerByNameMap: [:])))
-                .print(new PrintWriter(out))
-        out.toString().readLines()
+        printer(values, []).print(new PrintWriter(out))
+        out.toString().readLines().collect { it.split('\t', -1) as List<String> }
     }
 
-    private static List<String> cellsOf(List<FuadPlayer> rookies, List<MflDraftPick> picks, int row = 0) {
-        rowsOf(rookies, picks)[row].split('\t', -1) as List
+    private static List<List<String>> picks(List<MflDraftPick> drafted, Map<String, Integer> baselines = null,
+                                            Map<String, Map<Integer, Integer>> best = [:]) {
+        StringWriter out = new StringWriter()
+        printer([], drafted, baselines ?: [QB: 20, RB: 7, WR: 1, TE: 1, PK: 1], best)
+                .printPicks(new PrintWriter(out))
+        out.toString().readLines().collect { it.split('\t', -1) as List<String> }
+    }
+
+    def "every row carries the same columns as the header"() {
+        given:
+        List<List<String>> rows = board([rookie(), rookie(bye: null, expectedPick: null)])
+
+        expect:
+        rows*.size().unique().size() == 1
+        rows.first().first() == 'PLAYER'
+    }
+
+    def "sorts by value, best first, so the sheet needs no sorting to read"() {
+        given:
+        List<List<String>> rows = board([
+                rookie(playerName: 'Middling', valueByYear: [10, 10, 10, 10, 10]),
+                rookie(playerName: 'Best', valueByYear: [40, 40, 40, 40, 40]),
+                rookie(playerName: 'Worst', valueByYear: [1, 1, 1, 1, 1])])
+        int name = rows.first().indexOf('PLAYER')
+
+        expect:
+        rows.tail()*.getAt(name) == ['Best', 'Middling', 'Worst']
     }
 
     /**
-     * Overall rank read as a draft slot, ten picks to the round.
+     * The dynasty rank is carried as position and rank together, and blank where the ranking has no view.
      *
-     * <b>The round boundary is the whole of the arithmetic.</b> Pick ten of a round is {@code overall % 10
-     * == 0}, which has to read as the tenth pick of that round rather than the zeroth of the next, and the
-     * round number has to not have advanced yet. Every other rank is unremarkable, so these are the ones
-     * asserted.
+     * A blank is not missing data. Not being ranked among a few hundred dynasty assets is a fact about a
+     * deep rookie, and it is also why he carries no adjustment to his level.
      */
+    /**
+     * The two rankings side by side, both as a position and a rank, and the dynasty one blank where absent.
+     *
+     * They are read together or not at all. What moves a rookie's level is where the dynasty ranking puts
+     * him <b>against where rookies of his standing usually sit</b>, so the dynasty column means nothing
+     * without the rookie one beside it: WR3 at WR23 is a claim, WR2 at WR25 is not, and that is the whole of
+     * why Lemon prices above Tyson when the rookie ranking prefers Tyson.
+     *
+     * A blank dynasty rank is not missing data. Not being ranked among a few hundred dynasty assets is a
+     * fact about a deep rookie, and it is also why he carries no adjustment at all.
+     */
+    def "carries both rankings as a position and a rank, the dynasty one blank where absent"() {
+        given:
+        List<String> header = board([rookie()]).first()
+
+        expect: 'positional, so neither needs the POS column to be read'
+        board([rookie()])[1][header.indexOf('FP_ROOKIE')] == 'WR1'
+        board([rookie()])[1][header.indexOf('FP_DYNASTY')] == 'WR23'
+
+        and: 'the overall rank kept apart, being what DEMAND is keyed on'
+        board([rookie()])[1][header.indexOf('FP_OVERALL')] == '1'
+
+        and: 'and nothing where the dynasty ranking does not carry him'
+        board([rookie(dynastyRank: null)])[1][header.indexOf('FP_DYNASTY')] == ''
+    }
+
+    def "a year of the contract is a column, so the shape of a career is visible rather than summed away"() {
+        given:
+        List<String> header = board([rookie()]).first()
+        List<String> row = board([rookie()])[1]
+
+        expect: 'five years, first year first'
+        header[(header.indexOf('Y1'))..(header.indexOf('Y5'))] == ['Y1', 'Y2', 'Y3', 'Y4', 'Y5']
+        row[(header.indexOf('Y1'))..(header.indexOf('Y5'))] == ['20', '30', '30', '10', '5']
+    }
+
+    /**
+     * Column order is a decision, not a layout.
+     *
+     * A sheet read under time pressure is read left to right, so what a reader chooses on goes first and
+     * what merely qualifies it follows. Salary went off the player sheet entirely: it is a fact about a
+     * pick, it lives on the pick sheet beside the pick, and carrying it here at the pick a rookie is
+     * *expected* to go at made every column downstream of it an assumption.
+     */
+    def "puts what a reader chooses on to the left of what he does not"() {
+        given:
+        List<String> header = board([rookie()]).first()
+
+        expect: 'the value and its bounds before the year by year shape'
+        header.indexOf('VALUE') < header.indexOf('Y1')
+        header.indexOf('VAL_LOW') < header.indexOf('VALUE')
+        header.indexOf('VALUE') < header.indexOf('VAL_HIGH')
+        header.last() == 'Y5'
+    }
+
     @Unroll
-    def "reads overall rank #overall as slot #slot"() {
+    def "a missing #field prints empty rather than a zero that reads as a measurement"() {
+        given:
+        List<String> header = board([rookie((field): null)]).first()
+        List<String> row = board([rookie((field): null)])[1]
+
         expect:
-        cellsOf([rookie(overall)], [pick(1, 1, 'Brett')])[0] == slot
+        row[header.indexOf(column)] == ''
 
         where:
-        overall || slot
-        1       || '1.1'
-        9       || '1.9'
-        10      || '1.10'   // the last pick of round one, not the zeroth of round two
-        11      || '2.1'
-        20      || '2.10'
-        21      || '3.1'
+        field          | column
+        'bye'          | 'BYE'
+        'expectedPick' | 'DEMAND'
     }
 
-    def "carries the position and rank together, which is how the position is read"() {
+    /**
+     * The price ladder, which is the half of the sheet a trade is read off.
+     *
+     * Bylaw 8.3 decays the baseline by a fifth for every pick already made, so the same position costs less
+     * at every subsequent pick regardless of who is taken. A quarterback baseline of 20 is 20 at the first
+     * pick and 16 at the second.
+     */
+    def "prices every pick from its own position in the draft"() {
+        given:
+        List<List<String>> rows = picks([pick(1, 1, 'Brett'), pick(1, 2, 'Jeff')])
+        List<String> header = rows.first()
+
         expect:
-        cellsOf([rookie(4, 2)], [pick(1, 1, 'Brett')])[2] == 'WR2'
+        rows[1][header.indexOf('$QB')] == '20'
+        rows[2][header.indexOf('$QB')] == '16'
+
+        and: 'a baseline already at the minimum cannot decay below it'
+        rows[1][header.indexOf('$WR')] == '1'
+        rows[2][header.indexOf('$WR')] == '1'
     }
 
-    def "names where the NFL took him, and says so plainly when it did not"() {
-        expect: 'a rookie with a draft slot carries it'
-        cellsOf([rookie(1, 1, new Draft(round: 2, pick: 14))], [pick(1, 1, 'Brett')])[3] == '2.14'
+    def "numbers picks across the whole draft, which is what the salary decays by"() {
+        given:
+        List<List<String>> rows = picks([pick(1, 9, 'Brett'), pick(1, 10, 'Jeff'), pick(2, 1, 'Chris')])
+        List<String> header = rows.first()
 
-        and: 'an undrafted rookie is a question mark rather than a blank that reads as missing data'
-        cellsOf([rookie(1, 1, null)], [pick(1, 1, 'Brett')])[3] == '?'
+        expect: 'the third row is the third pick, though it is the first of round two'
+        rows[3][header.indexOf('PICK')] == '3'
+        rows[3][header.indexOf('ROUND')] == '2'
+        rows[3][header.indexOf('SLOT')] == '1'
     }
 
     def "shortens an owner to the name anybody uses at the draft"() {
+        given:
+        List<List<String>> rows = picks([pick(2, 4, 'Brett Borchardt')])
+
         expect:
-        cellsOf([rookie(1)], [pick(2, 4, 'Brett Borchardt')]).last() == 'Brett'
+        rows[1][rows.first().indexOf('TEAM')] == 'Brett'
     }
 
     def "falls back to the franchise name where no owner is recorded"() {
-        expect:
-        cellsOf([rookie(1)], [pick(2, 4, null, 'Wolfpack Reloaded')]).last() == 'Wolfpack'
-    }
+        given:
+        List<List<String>> rows = picks([pick(2, 4, null, 'Wolfpack Reloaded')])
 
-    def "prints a row for every pick, the two lists being different lengths"() {
-        expect: 'three picks against one ranked rookie still gives three rows'
-        rowsOf([rookie(1)], [pick(1, 1, 'Brett'), pick(1, 2, 'Jeff'), pick(1, 3, 'Chris')]).size() == 3
+        expect:
+        rows[1][rows.first().indexOf('TEAM')] == 'Wolfpack'
     }
 
     /**
-     * Every row has to have the same columns, or the sheet stops being a table.
+     * A pick too deep for the drafts to speak about is left blank.
      *
-     * The two lists are rarely the same length — the consensus ranks far more rookies than the league holds
-     * picks, and a team that traded away picks holds fewer — so the shorter one is padded. A padding row
-     * that emits a different number of cells shifts every column to its right, which is silent in a TSV and
-     * looks like a data error in whatever reads it.
+     * Only five of the nine drafts reach a fiftieth pick, so an average taken there would be an average over
+     * whichever years happened to run long. Blank says that; a number would not.
      */
-    def "pads a missing entry to the width it would have taken"() {
-        given: 'more ranked rookies than picks, and then more picks than ranked rookies'
-        List<String> rowsWithSpareRookies =
-                rowsOf([rookie(1), rookie(2)], [pick(1, 1, 'Brett')])
-        List<String> rowsWithSparePicks =
-                rowsOf([rookie(1)], [pick(1, 1, 'Brett'), pick(1, 2, 'Jeff')])
+    def "leaves the best available blank where the drafts have not been there often enough"() {
+        given:
+        List<List<String>> rows = picks([pick(1, 1, 'Brett'), pick(1, 2, 'Jeff')], null, [WR: [1: 3]])
+        List<String> header = rows.first()
 
-        expect: 'a spare rookie leaves the pick columns empty and the row the same width'
-        rowsWithSpareRookies*.split('\t', -1)*.size().unique().size() == 1
-
-        and: 'and a spare pick leaves the rookie columns empty, likewise'
-        rowsWithSparePicks*.split('\t', -1)*.size().unique().size() == 1
+        expect:
+        rows[1][header.indexOf('BESTWR')] == '3'
+        rows[2][header.indexOf('BESTWR')] == ''
     }
+
 }

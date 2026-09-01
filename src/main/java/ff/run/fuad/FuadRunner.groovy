@@ -42,7 +42,7 @@ class FuadRunner {
                     header: "Executed with args: $args")
             cli.y(longOpt: 'year', args: 1, argName: 'year', required: false, 'The year, defaults to most recent.')
             cli.t(longOpt: 'type', args: 1, argName: 'type', required: true,
-                    "The type of sheet to generate: ${TYPES + TYPE_ROSTER + TYPE_ALL}")
+                    "The type of sheet to generate: ${TYPES + TYPES_NEEDING_FRANCHISE + TYPE_ALL}")
             cli.f(longOpt: 'franchise', args: 1, argName: 'id', required: false,
                     "The franchise to report for, required by: $TYPES_NEEDING_FRANCHISE")
             cli.o(longOpt: 'out', args: 1, argName: 'dir', required: false,
@@ -54,7 +54,7 @@ class FuadRunner {
                     throw new IllegalArgumentException("Invalid year: $year")
                 }
                 String type = options.type
-                if (!TYPES.contains(type) && TYPE_ROSTER != type && TYPE_ALL != type) {
+                if (!TYPES.contains(type) && !TYPES_NEEDING_FRANCHISE.contains(type) && TYPE_ALL != type) {
                     throw new IllegalArgumentException("Invalid type: $type")
                 }
                 String franchiseId = options.franchise ?: null
@@ -76,8 +76,9 @@ class FuadRunner {
                 List<String> written = []
                 try {
                     types.each { String t ->
-                        // A type may write more than one report: the roster fit and its depth curve come
-                        // from one evaluation and would otherwise cost the same expensive run twice.
+                        // A type may write more than one report: the roster fit, its depth curve and its
+                        // cost ladder come from one evaluation and would otherwise cost the same expensive
+                        // run three times over.
                         reportsFor(t, year, fuadData, mflData, valuationLoader, franchiseId)
                                 .each { String name, Closure<Void> printer ->
                             File file = new File(outputDir, fileName(t, name))
@@ -141,7 +142,15 @@ class FuadRunner {
             }]
         }
         if (TYPE_ROOKIES == type) {
-            return [(type): { PrintWriter out -> new FuadRookieDraftPrinter(fuadData).print(out) }]
+            // Two tables from one evaluation: the players, and the picks they will be taken with. The
+            // second is not a view of the first — a pick has a price whoever is taken with it, and a team
+            // weighing a trade needs that ladder without a player attached to it.
+            def printer = new FuadRookieDraftPrinter(fuadData,
+                    valuationLoader.rookieValues(year, fuadData),
+                    valuationLoader.rookieBaselines(year),
+                    valuationLoader.rookieDemand().bestAvailableByPick())
+            return [(type)         : { PrintWriter out -> printer.print(out) },
+                    ('rookie_picks'): { PrintWriter out -> printer.printPicks(out) }]
         }
         if (TYPE_SALARIES == type) {
             return [(type): { PrintWriter out ->
@@ -159,8 +168,10 @@ class FuadRunner {
                     valuationLoader.lineups(year), franchiseId)
             String fit = "${type}_${franchiseId}"
             String depth = "${type}_depth_${franchiseId}"
+            String ladder = "${type}_ladder_${franchiseId}"
             return [(fit): { PrintWriter out -> printer.print(out) },
-                    (depth): { PrintWriter out -> printer.printDepth(out) }]
+                    (depth): { PrintWriter out -> printer.printDepth(out) },
+                    (ladder): { PrintWriter out -> printer.printLadder(out) }]
         }
         [:]
     }

@@ -15,11 +15,13 @@ Under `src/main/resources/ff/mfl/data/<year>`:
 | --- | --- | --- |
 | `rosters.json` | Before that season's auction | **No** |
 | `rosters_post_draft.json` | Week 1, after the auction, before in season pickups | Yes |
+| `rosters_deadline.json` | Week 12, the trading deadline | Yes |
 | `rosters_end_of_year.json` | The close of the season | Yes |
 | `transactions.json` | Every move made that season | Yes |
 | `rules.json` | That season's scoring rules | Yes |
 | `salary_adjustments.json` | Every cut penalty charged that season | Yes |
-| `players.json`, `owners.json`, `draft.json` | When last refreshed | Yes |
+| `draft.json` | That season's rookie draft | Yes (see below) |
+| `players.json`, `owners.json` | When last refreshed | Yes |
 | `league.json` | When last refreshed | **No** (see below) |
 
 MFL keeps one live copy of each season and moves it forward in place, so `rosters.json` is irrecoverable:
@@ -33,6 +35,21 @@ contemporaneous file records. The committed file is the record. See
 
 The site's projections are not collected at all, because it rewrites them as the season goes and nothing is
 priced off them. See [PROJECTION.md](PROJECTION.md#provenance).
+
+`draft.json` is refetchable and was wrong here for years all the same, which is the third failure mode and
+the quietest. `data_refresh.sh` pulls it for the season being played — before that season's draft has been
+held — so what it writes is every slot with its round, its owner and an **empty player**. That parses
+perfectly and reads as a draft. Seven of the nine finished drafts sat in this repository in that state until
+`season_history_refresh.sh` was taught to refetch them, which recovered 348 picks with the player taken at
+each. Nothing else records them: a draft selection is not a transaction, and the transaction log has no
+entry for one.
+
+`rosters_deadline.json` is collected for a rule rather than for a state. Both the franchise tag and every
+rookie salary are set off "salaries at the prior year trading deadline", which is week 12 by bylaw 10.1, and
+a salary is not fixed for a season — a player signed in week 14 has one at the end of the year and none at
+the deadline. It makes no difference to the tag, which reads the top five, and it moves rookie baselines,
+which are read 15 to 35 salaries deep. See
+[LEAGUE_RULES.md](LEAGUE_RULES.md#which-snapshot-the-baseline-is-read-from).
 
 Everything else is a genuine record of a finished season and can be refetched at any time. `rules.json` in
 particular is period correct.
@@ -180,7 +197,8 @@ that trade is still missing from 2023's pre draft rosters.
 `season_history_refresh.sh` never touches `rosters.json` or `league.json`, so it cannot overwrite an
 irrecoverable pre draft snapshot or a season's starting requirements with today's state, and it is safe to
 rerun on old years. It refuses to write rosters for a season whose contracts are still wiped, since that
-means the auction has not been entered yet.
+means the auction has not been entered yet, and it refuses to write a draft in which no pick names a player
+for the same reason — writing the empty one over a real one is how the drafts were lost in the first place.
 
 **2026 is at that point now**: its auction has not been run, so it has no snapshots. Collect them with
 `./season_history_refresh.sh 2026` once the season's contracts are in, which will also let 2026 signings

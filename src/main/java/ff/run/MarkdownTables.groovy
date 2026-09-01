@@ -33,13 +33,23 @@ class MarkdownTables {
         cell?.replaceAll(/[*`]/, '')?.replaceAll(/[$,±%]/, '')?.trim()
     }
 
-    /** Numbers compare as numbers so 0.26 and .26 agree; everything else compares as text. */
+    /**
+     * Numbers compare as numbers so 0.26 and .26 agree; everything else compares as text.
+     *
+     * <b>Both sides are cleaned, which they were not.</b> Only the citation was, so a report cell carrying
+     * any of the punctuation {@link #clean} strips could never be cited at all: the comma is in that set for
+     * the sake of 1,234, and it made a comma-separated list of names unmatchable — the cited "Sanders,
+     * Richardson" arrived as "Sanders Richardson" and was compared against a value nothing had touched.
+     * Cleaning one side of a comparison is the sort of asymmetry that reads as a stale figure, which is
+     * exactly what this check exists to tell apart from a real one.
+     */
     static boolean matches(String cited, String actual) {
-        if (cited.equalsIgnoreCase(actual)) {
+        String tidied = clean(actual)
+        if (cited.equalsIgnoreCase(tidied)) {
             return true
         }
         try {
-            return new BigDecimal(cited).compareTo(new BigDecimal(actual)) == 0
+            return new BigDecimal(cited).compareTo(new BigDecimal(tidied)) == 0
         } catch (NumberFormatException ignored) {
             return false
         }

@@ -74,6 +74,49 @@ class ExpectedValue {
     }
 
     /**
+     * The same for a rank whose rate and outcome spread are supplied rather than read from one curve.
+     *
+     * <b>Why a rookie cannot simply be handed a curve.</b> His rate comes from two places — what rookies at
+     * his rank have scored, and what the consensus says his dynasty rank is worth — and his spread comes
+     * from the rookie population rather than from the veterans his price is quoted against. Neither is a
+     * curve lookup, so the primitive takes the numbers instead of the object holding them.
+     *
+     * <b>Availability lives in the outcomes and nowhere else.</b> Each outcome is one realised season: how
+     * the player scored when he played, and how many games he played. Multiplying a rate by a multiplier and
+     * <b>then</b> scaling by a separate expectation of games is how availability gets counted twice, which
+     * is mild at a veteran rank and severe at a rookie one — it is what once priced rookie quarterbacks at
+     * $151 against a board whose most expensive player was $89. Here the games come from the same season the
+     * multiplier does, and a season nobody played contributes nothing rather than a discounted something.
+     *
+     * That makes this correct only for multipliers normalised on <b>rate</b>. See
+     * {@link ff.projection.fuad.RookieOutcomes}, which is the only thing that builds them that way; the
+     * curve's own {@link PointsCurve#outcomeMultipliers} are ratios of season totals and belong to the form
+     * above.
+     */
+    static BigDecimal expectedValueOverReplacement(BigDecimal rate, List<PointsCurve.Outcome> outcomes,
+                                                   Map<Integer, BigDecimal> against,
+                                                   Integer byeWeek, int lastWeek) {
+        if (!rate || rate <= 0) {
+            return 0.0
+        }
+        List<Integer> playableWeeks = PointsCurve.playableWeeks(byeWeek, lastWeek)
+        int playable = playableWeeks.size()
+        if (!playable) {
+            return 0.0
+        }
+        Map<Integer, BigDecimal> weekly = (1..lastWeek)
+                .collectEntries { [(it): it == byeWeek ? 0.0 as BigDecimal : rate] }
+        if (!outcomes) {
+            return valueOverReplacement(weekly, against, 1.0d)
+        }
+        BigDecimal total = outcomes.collect { PointsCurve.Outcome outcome ->
+            BigDecimal full = valueOverReplacement(weekly, against, outcome.rateMultiplier)
+            full * Math.min(outcome.games, playable) / playable
+        }.sum() as BigDecimal
+        total / outcomes.size()
+    }
+
+    /**
      * The same thing without the outcome spread: what the rank is worth if it simply has its average year.
      *
      * This is {@code max(0, E[X] - r)} against {@link #expectedValueOverReplacement}'s
@@ -110,7 +153,26 @@ class ExpectedValue {
         replacementByPosition(curve, startersOf(curve, requirements), byes)
     }
 
-    /** How many at each position the league starts, which is what replacement is taken one past. */
+    /**
+     * How many at each position the league starts, which is what replacement is taken one past.
+     *
+     * <b>Allocated on season totals, though replacement is then taken at a weekly rate.</b> The two bases
+     * disagree in principle: a lineup is filled every week, and a player missing four games does not cost
+     * his position four slots spread thinly over the year, he vacates one entirely in four weeks and holds
+     * it in the other ten. Deciding the count on totals discounts a position's claim on the flex by its
+     * injury rate, which is a season-long smear over a decision taken fourteen times.
+     *
+     * <b>It binds nothing, which is why it stands.</b> Allocating on {@link PointsCurve#levelledRate}
+     * instead returns the same count at every position and leaves every value over replacement on the board
+     * unchanged. Two things keep it inert. Most of the allocation is not contested — quarterback fills to
+     * its cap of two a team and kicker's minimum is its maximum, so only running back, receiver and tight
+     * end compete, for thirty slots. And expected games are nearly flat across exactly the ranks that do
+     * compete, a five per cent spread over RB 24-29, WR 29-34 and TE 11-16, so multiplying by them preserves
+     * the ordering. Availability diverges sharply only at the back of quarterback, which the cap has already
+     * settled.
+     *
+     * Recorded rather than repaired so the check is not redone. See docs/TODO.md.
+     */
     static Map<String, Integer> startersOf(PointsCurve curve, StarterRequirements requirements) {
         requirements.startersByPosition(curve.positions().collectEntries { String position ->
             [(position): (1..curve.depth(position)).collect { curve.seasonPoints(position, it) }]

@@ -1,414 +1,414 @@
 {
+    "encoding": "utf-8",
+    "version": "1.0",
     "draftResults": {
         "draftUnit": {
-            "draftType": "SAME",
-            "unit": "LEAGUE",
             "static_url": "https://www44.myfantasyleague.com/fflnetdynamic2025/48571_LEAGUE_draft_results.xml",
+            "unit": "LEAGUE",
             "draftPick": [
                 {
-                    "round": "01",
-                    "player": "",
+                    "timestamp": "1755699240",
+                    "player": "17071",
                     "pick": "01",
-                    "comments": "",
                     "franchise": "0003",
-                    "timestamp": ""
-                },
-                {
-                    "player": "",
-                    "round": "01",
-                    "pick": "02",
-                    "comments": "",
-                    "timestamp": "",
-                    "franchise": "0004"
-                },
-                {
-                    "player": "",
-                    "round": "01",
-                    "pick": "03",
-                    "comments": "",
-                    "timestamp": "",
-                    "franchise": "0006"
-                },
-                {
-                    "pick": "04",
-                    "round": "01",
-                    "player": "",
-                    "franchise": "0008",
-                    "timestamp": "",
-                    "comments": ""
-                },
-                {
-                    "pick": "05",
-                    "round": "01",
-                    "player": "",
-                    "franchise": "0009",
-                    "timestamp": "",
-                    "comments": ""
-                },
-                {
-                    "comments": "",
-                    "franchise": "0007",
-                    "timestamp": "",
-                    "round": "01",
-                    "player": "",
-                    "pick": "06"
-                },
-                {
-                    "pick": "07",
-                    "player": "",
-                    "round": "01",
-                    "timestamp": "",
-                    "franchise": "0001",
-                    "comments": ""
-                },
-                {
-                    "pick": "08",
-                    "round": "01",
-                    "player": "",
-                    "franchise": "0005",
-                    "timestamp": "",
-                    "comments": ""
-                },
-                {
-                    "comments": "",
-                    "timestamp": "",
-                    "franchise": "0010",
-                    "player": "",
-                    "round": "01",
-                    "pick": "09"
-                },
-                {
-                    "player": "",
-                    "round": "01",
-                    "pick": "10",
-                    "comments": "",
-                    "timestamp": "",
-                    "franchise": "0002"
-                },
-                {
-                    "round": "02",
-                    "player": "",
-                    "pick": "01",
-                    "comments": "[Pick traded from Fitz & the Tantrums.] ",
-                    "franchise": "0008",
-                    "timestamp": ""
-                },
-                {
-                    "comments": "",
-                    "franchise": "0004",
-                    "timestamp": "",
-                    "round": "02",
-                    "player": "",
-                    "pick": "02"
-                },
-                {
-                    "pick": "03",
-                    "player": "",
-                    "round": "02",
-                    "timestamp": "",
-                    "franchise": "0006",
-                    "comments": ""
-                },
-                {
-                    "round": "02",
-                    "player": "",
-                    "pick": "04",
-                    "comments": "",
-                    "franchise": "0008",
-                    "timestamp": ""
-                },
-                {
-                    "comments": "",
-                    "franchise": "0009",
-                    "timestamp": "",
-                    "round": "02",
-                    "player": "",
-                    "pick": "05"
-                },
-                {
-                    "franchise": "0007",
-                    "timestamp": "",
-                    "comments": "",
-                    "pick": "06",
-                    "round": "02",
-                    "player": ""
-                },
-                {
-                    "pick": "07",
-                    "player": "",
-                    "round": "02",
-                    "timestamp": "",
-                    "franchise": "0001",
-                    "comments": ""
-                },
-                {
-                    "comments": "",
-                    "franchise": "0005",
-                    "timestamp": "",
-                    "round": "02",
-                    "player": "",
-                    "pick": "08"
-                },
-                {
-                    "player": "",
-                    "round": "02",
-                    "pick": "09",
-                    "comments": "",
-                    "timestamp": "",
-                    "franchise": "0010"
-                },
-                {
-                    "pick": "10",
-                    "round": "02",
-                    "player": "",
-                    "franchise": "0008",
-                    "timestamp": "",
-                    "comments": "[Pick traded from So your saying there\u2019s a chance?.] "
-                },
-                {
-                    "pick": "01",
-                    "round": "03",
-                    "player": "",
-                    "franchise": "0003",
-                    "timestamp": "",
-                    "comments": ""
-                },
-                {
-                    "comments": "",
-                    "timestamp": "",
-                    "franchise": "0004",
-                    "player": "",
-                    "round": "03",
-                    "pick": "02"
-                },
-                {
-                    "player": "",
-                    "round": "03",
-                    "pick": "03",
-                    "comments": "",
-                    "timestamp": "",
-                    "franchise": "0006"
-                },
-                {
-                    "timestamp": "",
-                    "franchise": "0002",
-                    "comments": "[Pick traded from Not 100% A Dick.] ",
-                    "pick": "04",
-                    "player": "",
-                    "round": "03"
-                },
-                {
-                    "player": "",
-                    "round": "03",
-                    "pick": "05",
-                    "comments": "",
-                    "timestamp": "",
-                    "franchise": "0009"
-                },
-                {
-                    "player": "",
-                    "round": "03",
-                    "pick": "06",
-                    "comments": "",
-                    "timestamp": "",
-                    "franchise": "0007"
-                },
-                {
-                    "round": "03",
-                    "player": "",
-                    "pick": "07",
-                    "comments": "",
-                    "franchise": "0001",
-                    "timestamp": ""
-                },
-                {
-                    "timestamp": "",
-                    "franchise": "0005",
-                    "comments": "",
-                    "pick": "08",
-                    "player": "",
-                    "round": "03"
-                },
-                {
-                    "timestamp": "",
-                    "franchise": "0010",
-                    "comments": "",
-                    "pick": "09",
-                    "player": "",
-                    "round": "03"
-                },
-                {
-                    "comments": "",
-                    "franchise": "0002",
-                    "timestamp": "",
-                    "round": "03",
-                    "player": "",
-                    "pick": "10"
-                },
-                {
-                    "comments": "",
-                    "timestamp": "",
-                    "franchise": "0003",
-                    "player": "",
-                    "round": "04",
-                    "pick": "01"
-                },
-                {
-                    "comments": "",
-                    "timestamp": "",
-                    "franchise": "0004",
-                    "player": "",
-                    "round": "04",
-                    "pick": "02"
-                },
-                {
-                    "comments": "",
-                    "timestamp": "",
-                    "franchise": "0006",
-                    "player": "",
-                    "round": "04",
-                    "pick": "03"
-                },
-                {
-                    "franchise": "0008",
-                    "timestamp": "",
-                    "comments": "",
-                    "pick": "04",
-                    "round": "04",
-                    "player": ""
-                },
-                {
-                    "comments": "",
-                    "franchise": "0009",
-                    "timestamp": "",
-                    "round": "04",
-                    "player": "",
-                    "pick": "05"
-                },
-                {
-                    "comments": "",
-                    "timestamp": "",
-                    "franchise": "0007",
-                    "player": "",
-                    "round": "04",
-                    "pick": "06"
-                },
-                {
-                    "franchise": "0001",
-                    "timestamp": "",
-                    "comments": "",
-                    "pick": "07",
-                    "round": "04",
-                    "player": ""
-                },
-                {
-                    "player": "",
-                    "round": "04",
-                    "pick": "08",
-                    "comments": "",
-                    "timestamp": "",
-                    "franchise": "0005"
-                },
-                {
-                    "pick": "09",
-                    "round": "04",
-                    "player": "",
-                    "franchise": "0010",
-                    "timestamp": "",
-                    "comments": ""
-                },
-                {
-                    "franchise": "0002",
-                    "timestamp": "",
-                    "comments": "",
-                    "pick": "10",
-                    "round": "04",
-                    "player": ""
-                },
-                {
-                    "comments": "",
-                    "franchise": "0003",
-                    "timestamp": "",
-                    "round": "05",
-                    "player": "",
-                    "pick": "01"
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "round": "01"
                 },
                 {
                     "pick": "02",
-                    "round": "05",
-                    "player": "",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
                     "franchise": "0004",
-                    "timestamp": "",
-                    "comments": ""
+                    "round": "01",
+                    "timestamp": "1755699347",
+                    "player": "17042"
                 },
                 {
-                    "pick": "03",
-                    "player": "",
-                    "round": "05",
-                    "timestamp": "",
+                    "timestamp": "1755699358",
+                    "player": "17044",
                     "franchise": "0006",
-                    "comments": ""
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "pick": "03",
+                    "round": "01"
                 },
                 {
-                    "comments": "",
-                    "timestamp": "",
+                    "timestamp": "1755699518",
+                    "player": "17074",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
                     "franchise": "0008",
-                    "player": "",
-                    "round": "05",
+                    "pick": "04",
+                    "round": "01"
+                },
+                {
+                    "player": "17081",
+                    "timestamp": "1755699532",
+                    "round": "01",
+                    "franchise": "0009",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "pick": "05"
+                },
+                {
+                    "pick": "06",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "franchise": "0007",
+                    "round": "01",
+                    "timestamp": "1755699542",
+                    "player": "17075"
+                },
+                {
+                    "round": "01",
+                    "comments": "[Pick traded from Zeke Squad.\nPick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "franchise": "0006",
+                    "pick": "07",
+                    "player": "17030",
+                    "timestamp": "1755699549"
+                },
+                {
+                    "round": "01",
+                    "pick": "08",
+                    "franchise": "0005",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "player": "17043",
+                    "timestamp": "1755699629"
+                },
+                {
+                    "timestamp": "1755699708",
+                    "player": "17104",
+                    "pick": "09",
+                    "franchise": "0010",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "round": "01"
+                },
+                {
+                    "pick": "10",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "franchise": "0002",
+                    "round": "01",
+                    "timestamp": "1755699748",
+                    "player": "17102"
+                },
+                {
+                    "round": "02",
+                    "pick": "01",
+                    "comments": "[Pick traded from Fitz & the Tantrums.\nPick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "franchise": "0008",
+                    "player": "17068",
+                    "timestamp": "1755699766"
+                },
+                {
+                    "timestamp": "1755699775",
+                    "player": "17032",
+                    "pick": "02",
+                    "franchise": "0004",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "round": "02"
+                },
+                {
+                    "timestamp": "1755699791",
+                    "player": "17070",
+                    "pick": "03",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "franchise": "0006",
+                    "round": "02"
+                },
+                {
+                    "pick": "04",
+                    "franchise": "0008",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "round": "02",
+                    "timestamp": "1755699865",
+                    "player": "17048"
+                },
+                {
+                    "timestamp": "1755699878",
+                    "player": "17083",
+                    "pick": "05",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "franchise": "0009",
+                    "round": "02"
+                },
+                {
+                    "timestamp": "1755699891",
+                    "player": "17045",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "franchise": "0007",
+                    "pick": "06",
+                    "round": "02"
+                },
+                {
+                    "player": "17072",
+                    "timestamp": "1755699904",
+                    "round": "02",
+                    "pick": "07",
+                    "franchise": "0001",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] "
+                },
+                {
+                    "player": "17051",
+                    "timestamp": "1755699919",
+                    "round": "02",
+                    "pick": "08",
+                    "franchise": "0005",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] "
+                },
+                {
+                    "franchise": "0010",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "pick": "09",
+                    "round": "02",
+                    "timestamp": "1755699930",
+                    "player": "17082"
+                },
+                {
+                    "timestamp": "1755699943",
+                    "player": "17078",
+                    "pick": "10",
+                    "comments": "[Pick traded from So your saying there\u2019s a chance?.\nPick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "franchise": "0008",
+                    "round": "02"
+                },
+                {
+                    "timestamp": "1755699978",
+                    "player": "17108",
+                    "pick": "01",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "franchise": "0003",
+                    "round": "03"
+                },
+                {
+                    "round": "03",
+                    "pick": "02",
+                    "franchise": "0004",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "player": "17134",
+                    "timestamp": "1755699994"
+                },
+                {
+                    "timestamp": "1755700009",
+                    "player": "17052",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "franchise": "0006",
+                    "pick": "03",
+                    "round": "03"
+                },
+                {
+                    "player": "17080",
+                    "timestamp": "1755700018",
+                    "round": "03",
+                    "comments": "[Pick traded from Not 100% A Dick.\nPick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "franchise": "0002",
                     "pick": "04"
                 },
                 {
-                    "comments": "",
+                    "round": "03",
                     "franchise": "0009",
-                    "timestamp": "",
-                    "round": "05",
-                    "player": "",
-                    "pick": "05"
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "pick": "05",
+                    "player": "17106",
+                    "timestamp": "1755700029"
                 },
                 {
-                    "comments": "",
-                    "timestamp": "",
+                    "round": "03",
+                    "pick": "06",
                     "franchise": "0007",
-                    "player": "",
-                    "round": "05",
-                    "pick": "06"
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "player": "17097",
+                    "timestamp": "1755700045"
                 },
                 {
-                    "pick": "07",
-                    "player": "",
-                    "round": "05",
-                    "timestamp": "",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
                     "franchise": "0001",
-                    "comments": ""
+                    "pick": "07",
+                    "round": "03",
+                    "timestamp": "1755700059",
+                    "player": "17031"
                 },
                 {
                     "franchise": "0005",
-                    "timestamp": "",
-                    "comments": "",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "pick": "08",
+                    "round": "03",
+                    "timestamp": "1755700076",
+                    "player": "17103"
+                },
+                {
+                    "round": "03",
+                    "franchise": "0010",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "pick": "09",
+                    "player": "17056",
+                    "timestamp": "1755700087"
+                },
+                {
+                    "round": "03",
+                    "franchise": "0002",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "pick": "10",
+                    "player": "17256",
+                    "timestamp": "1755700098"
+                },
+                {
+                    "player": "17033",
+                    "timestamp": "1755700142",
+                    "round": "04",
+                    "pick": "01",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "franchise": "0003"
+                },
+                {
+                    "player": "17039",
+                    "timestamp": "1755700152",
+                    "round": "04",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "franchise": "0004",
+                    "pick": "02"
+                },
+                {
+                    "franchise": "0006",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "pick": "03",
+                    "round": "04",
+                    "timestamp": "1755700163",
+                    "player": "17157"
+                },
+                {
+                    "timestamp": "1755700181",
+                    "player": "17058",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "franchise": "0008",
+                    "pick": "04",
+                    "round": "04"
+                },
+                {
+                    "pick": "05",
+                    "franchise": "0009",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "round": "04",
+                    "timestamp": "1755700189",
+                    "player": "17069"
+                },
+                {
+                    "player": "17086",
+                    "timestamp": "1755700202",
+                    "round": "04",
+                    "franchise": "0007",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "pick": "06"
+                },
+                {
+                    "player": "17073",
+                    "timestamp": "1755700213",
+                    "round": "04",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "franchise": "0001",
+                    "pick": "07"
+                },
+                {
+                    "player": "17049",
+                    "timestamp": "1755700225",
+                    "round": "04",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "franchise": "0005",
+                    "pick": "08"
+                },
+                {
+                    "player": "17171",
+                    "timestamp": "1755700237",
+                    "round": "04",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "franchise": "0010",
+                    "pick": "09"
+                },
+                {
+                    "round": "04",
+                    "pick": "10",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "franchise": "0002",
+                    "player": "17087",
+                    "timestamp": "1755700251"
+                },
+                {
+                    "player": "17047",
+                    "timestamp": "1755700334",
+                    "round": "05",
+                    "pick": "01",
+                    "franchise": "0003",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] "
+                },
+                {
+                    "timestamp": "1755700349",
+                    "player": "17107",
+                    "franchise": "0004",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "pick": "02",
+                    "round": "05"
+                },
+                {
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "franchise": "0006",
+                    "pick": "03",
+                    "round": "05",
+                    "timestamp": "1755700360",
+                    "player": "17098"
+                },
+                {
+                    "timestamp": "1755700371",
+                    "player": "17055",
+                    "pick": "04",
+                    "franchise": "0008",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "round": "05"
+                },
+                {
+                    "timestamp": "1755700409",
+                    "player": "17066",
+                    "franchise": "0009",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "pick": "05",
+                    "round": "05"
+                },
+                {
+                    "round": "05",
+                    "franchise": "0007",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "pick": "06",
+                    "player": "17273",
+                    "timestamp": "1755700558"
+                },
+                {
+                    "pick": "07",
+                    "franchise": "0001",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "round": "05",
+                    "timestamp": "1755700850",
+                    "player": "17064"
+                },
+                {
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
+                    "franchise": "0005",
                     "pick": "08",
                     "round": "05",
-                    "player": ""
+                    "timestamp": "1755700920",
+                    "player": "17222"
                 },
                 {
-                    "pick": "09",
-                    "round": "05",
-                    "player": "",
+                    "timestamp": "1755700930",
+                    "player": "17184",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
                     "franchise": "0010",
-                    "timestamp": "",
-                    "comments": ""
+                    "pick": "09",
+                    "round": "05"
                 },
                 {
-                    "player": "",
-                    "round": "05",
+                    "timestamp": "1755700971",
+                    "player": "17060",
+                    "franchise": "0002",
+                    "comments": "[Pick skipped by Commissioner\nReplacement pick made by Commissioner.] ",
                     "pick": "10",
-                    "comments": "",
-                    "timestamp": "",
-                    "franchise": "0002"
+                    "round": "05"
                 }
             ],
-            "round1DraftOrder": "0003,0004,0006,0008,0009,0007,0001,0005,0010,0002,"
+            "draftType": "SAME",
+            "round1DraftOrder": "0003,0004,0006,0008,0009,0007,0006,0005,0010,0002,"
         }
-    },
-    "encoding": "utf-8",
-    "version": "1.0"
+    }
 }

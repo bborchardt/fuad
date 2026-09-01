@@ -151,6 +151,15 @@ class LineupValue {
      */
     Set<String> positions() { new LinkedHashSet<>(maximums.keySet()) }
 
+    /**
+     * The most of one position a team may start in a week, which bounds how many of them are worth owning.
+     *
+     * A report asking what to buy at a position needs it: past this many plus one for cover, another is
+     * bench that never starts, and a kicker is the case — one starts, so a third is worth nothing and
+     * offering it as a choice wastes the reader's attention.
+     */
+    int maximumStarted(String position) { maximums[position] ?: 0 }
+
     /** A player as a lineup sees him, or null where no rank means no points to bring. */
     Rostered rostered(String position, Integer rank) {
         if (rank == null) {

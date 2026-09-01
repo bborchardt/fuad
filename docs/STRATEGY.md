@@ -131,17 +131,70 @@ for something, that something is now a column:
 | what a team can spend | `FREECAP`, `EXPOSURE`, `EXP/CAP` on `teams` | the cap and the spend rate |
 | what a player adds to **my** lineup | `ADDEXP` / `ADDHIND` on `roster_<id>` | a lineup worked out by hand |
 | whether a third at a position is worth it | `ADD1`-`ADD4` on `roster_depth_<id>` | the same, but harder |
+| what a budget buys at a position | `COST` / `ADD` on `roster_ladder_<id>` | a points ladder with no prices on it |
 | a position I cannot field at all | `NEEDS` on `teams` | remembering to buy a kicker |
 | how long to sign someone for | `DYNRANK` beside `RANK` | the dynasty ranking, read separately |
 | which price gaps are real | `TIER` | reading a $2 gap as a ranking |
+| what a rookie is worth beyond this season | `Y1`-`Y5` on `rookies` | a first year value that misses most of it |
+| why a rookie prices above his consensus rank | `FP_ROOKIE` against `FP_DYNASTY` on `rookies` | taking the value column on trust |
+| whether a rookie will still be there | `DEMAND` on `rookies`, `BEST<POS>` on `rookie_picks` | a guess at what the room does |
+| what a pick costs | `$<POS>` on `rookie_picks` | the bylaw 8.3 formula, worked by hand |
+| what a rookie is worth, apart from what he costs | `VALUE` on `rookies`, price on `rookie_picks` | one number mixing the two |
+| which rookie gaps are real, at one position | `TIER` on `rookies` | reading a $10 gap as a ranking |
+| which rookie gaps are real, across positions | `VAL_LOW`-`VAL_HIGH` on `rookies` | comparing a back to a tight end on midpoints |
 
 `PTSLOW` and `PTSHIGH` carry a caveat worth restating, because the whole point of the boundary is not to
 assume things the model does not know: **the range is the position's, scaled to the player.** Two players
 at one position have the same proportional spread. It says nothing about which of them is the safer pick,
 and a plan that treats it as though it does has smuggled in a belief the model does not hold.
 
+**`AVAIL` is the same shape of caveat, and it needs `EXP/CAP` read beside it.** It is a rank band's
+retention rate — how often a top-12 expiring contract has changed hands, across every team and every cap
+situation — and it knows nothing at all about the team holding this player. Two receivers at one rank carry
+the same figure whether their holder can comfortably match or cannot afford to keep anyone. What the board
+knows about that sits on `teams` as `EXPOSURE` against `FREECAP`, and the two point opposite ways for a team
+at either end of it: a holder whose expiring contracts cost more than his cap can cover will lose somebody
+whatever the band says, and one with room to spare will keep whoever he wants to. A plan reading `AVAIL`
+about a particular player, rather than about a rank, has to read `EXP/CAP` for that player's holder in the
+same breath.
+
+**`DYNRANK` is carried, not priced.** It sits beside `RANK` so a plan can choose a contract length, and the
+table above names it for that. Nothing behind it has an opinion: a salary buys one season, and the board
+prices that season and stops. The dynasty rank says who the consensus expects to still be good, which is an
+input to a decision the model does not make. See
+[LEAGUE_RULES.md](fuad/LEAGUE_RULES.md#contract-length).
+
 If a plan needs something not in this table, that is a column the board is missing. Add it to the model,
 where it can be tested, rather than working it out in the plan, where it cannot.
+
+**`PRICE` is a ceiling, not a clearing price.** It is what a rational league would go to, and an auction
+clears at what the *second* bidder will pay. The gap is widest at the very top, where the board's most
+expensive players are also the ones fewest teams can afford to chase, and nothing here identifies a
+desperate buyer with cap to spend — he is averaged into a league-wide rate. So the top of the board is a
+walk-away number rather than a budget: a plan that sets aside a player's `PRICE` intending to pay it has
+read a ceiling as an estimate. `EXPOSURE` and `FREECAP` on `teams` are what says who can actually bid.
+
+**A tagged player's `PRICE` is a counterfactual, and nothing can test it.** It is what he would have gone
+for had his own team not tagged him, with every other tag still standing — a price for an auction he will
+not reach. Every other figure on the board can be checked against something; this one cannot, in principle
+rather than for want of data. It is also the number the whole tag decision turns on, so a plan leaning hard
+on a tagged player's `PRICE` is leaning on the one figure the model cannot be held to.
+
+**`TAG` says what a tag saves, never whether you want the player.** Tag surplus is `PRICE` less the tag
+price, so the tag a team is told to use is the one it saves most on, even where the tag costs more than the
+player is worth. Value enters only to break a tie between two surpluses the model cannot separate, and never
+overrides a larger saving. A team whose best saving is on a contract it should not want is still told to tag
+it, and the board will not say so.
+
+**What answers it is `VALUE` against `TAG`, and not `EDGE`.** `EDGE` is `VALUE` less `PRICE`, and `PRICE` is
+the money a tagged player will never cost: it is the reading for a player you are choosing whether to
+re-sign at market, which is the choice a tag exists to avoid. The tag question is whether the tag price
+buys more than it costs, so the comparison is against `TAG`, and the two orderings genuinely disagree — a
+player can carry the board's worst `EDGE` and still be a tag worth using, because what makes his `EDGE` bad
+is a market price he is being taken out of. Both columns are on `salaries`, and the difference is a plan's
+own arithmetic in a note column. Where the plan is about one team, `ADDEXP` on that team's roster report is
+the better numerator still, being what the player adds to *this* lineup rather than to a league-wide one.
+See [PROJECTION.md](fuad/PROJECTION.md#6-franchise-tags-iterated-to-a-fixed-point).
 
 **Read `TIER` before reading `PRICE`.** The board quotes dollars off levels that are good to seven points
 or so, so within a tier the ordering is noise and a plan that ranks players by price inside one has
@@ -173,7 +226,8 @@ invented a distinction. QB10, QB11 and QB14 are all tier 5 in 2026:
 
 Seven points of spread on estimates carrying seven to nine. They reach the board a few dollars apart all
 the same, and nothing in the model says any of them is better than another. That is where the price column
-is at its most misleading, and the bye and `AVAIL` are what is left to choose on.
+is at its most misleading, and the bye and `AVAIL` are what is left to choose on — `AVAIL` with the caveat
+above, since a band's retention rate is not a claim about the team holding this particular player.
 
 **Named by rank, not by player, and that is the point.** Three quarterbacks hold those ranks this season and
 different ones will hold them next, while the claim being made is about the curve rather than about any of
@@ -200,7 +254,7 @@ mistake as ordering it by price.
 
 ## The roster reports
 
-`./fuad_report.sh -t roster -f 0001` writes two files. They answer the question the auction board
+`./fuad_report.sh -t roster -f 0001` writes three files. They answer the question the auction board
 cannot: the board prices a player against a league-wide replacement, which is nobody's actual alternative,
 and a team holding one quarterback is not choosing between the same things as a team holding four.
 
@@ -209,6 +263,20 @@ and a team holding one quarterback is not choosing between the same things as a 
 **`roster_depth_<id>.tsv`** — what the 1st, 2nd, 3rd and 4th best available at each position would add,
 taken in turn. Every position the lineup fields, kicker included; it used to be a list of four written into
 the printer, which quietly stopped being every position when kickers were levelled.
+
+**`roster_ladder_<id>.tsv`** — what a budget buys at each position: `COST` against `ADD`, with the players
+that reach it. The depth curve walks the best available, which is the top of the board and the part of it a
+team with a hole and a budget is least likely to buy; the ladder walks money instead, so a plan can ask what
+thirty dollars returns at receiver against what it returns at running back. Read down to the budget being
+considered and across positions at the same spend — that comparison is the allocation.
+
+Three things about it. **Bundles are capped at what the lineup can start plus one**, so a position is never
+offered more of itself than it could field. **Rows are thinned**: an unthinned frontier is a row per dollar,
+differing by a point or two, which is inside what the replay can resolve — the same argument `TIER` makes on
+the auction board, that options the model cannot separate should not be printed as a choice. And **cost is
+what *this* team would pay**, which is not one column of the board: another team's player costs `ACQUIRE`
+because that team may match, while this team's own expiring player costs `PRICE`, the right of first refusal
+being this team's to exercise.
 
 Two columns, because the lineup can be set two ways and neither is true:
 
@@ -299,7 +367,7 @@ stand empty anyway, but the two counts differ and should be seen to.
 ## Running the check
 
 ```
-./check_strategy.sh strategy/2026-draft-plan.md
+./check_strategy.sh strategy/2026-fuad-plan.md reports/fuad
 ```
 
 It reports every disagreement at once, with line numbers, and exits non-zero on any. Three kinds:

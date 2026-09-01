@@ -1,6 +1,7 @@
 package ff.load.fuad
 
 import ff.data.PlayerValuation
+import ff.data.fuad.RookieValue
 import ff.data.RealisedSeason
 import ff.data.fantasypros.FpRankedPlayer
 import ff.data.fuad.FuadData
@@ -9,9 +10,14 @@ import ff.league.League
 import ff.load.fantasypros.FantasyProsLoader
 import ff.load.RealisedSeasons
 import ff.load.util.LoadUtils
+import ff.load.util.NflTeams
 import ff.projection.fuad.AuctionValuation
+import ff.projection.fuad.RookieOutcomes
+import ff.projection.fuad.RookieSalary
+import ff.projection.fuad.RookieValuation
 import ff.projection.ByeWeeks
 import ff.projection.fuad.FranchiseSalaryCalculator
+import ff.projection.ExpectedValue
 import ff.projection.LineupValue
 import ff.projection.PointsCurve
 import ff.projection.StarterRequirements
@@ -84,6 +90,70 @@ class FuadValuationLoader {
     StarterRequirements requirements(String year) {
         Map league = LoadUtils.loadJsonResource(LoadUtils.mflLeagueResourcePath(year)) as Map
         StarterRequirements.fromLeague(league, (league.league.franchises.franchise as List).size())
+    }
+
+    /**
+     * The rookie curves, built once per loader.
+     *
+     * Five of them, each restating nine seasons of statistics, so this is five times the most expensive
+     * thing the auction board does and is held for exactly that reason.
+     */
+    private RookieSeasons rookieSeasons
+
+    private RookieOutcomes rookieOutcomes
+    private RookieDynastyIndex rookieDynastyIndex
+
+    /** When each rookie rank comes off the board, measured over the league's own superflex drafts. */
+    private RookieDemand rookieDemand
+
+    private final Map<String, List<RookieValue>> rookieValuesByYear = [:]
+
+    RookieSeasons rookieSeasons() {
+        rookieSeasons ?: (rookieSeasons = new RookieSeasons(LEAGUE))
+    }
+
+    /** How widely a rookie rank's seasons run, measured on rookies rather than borrowed from the veterans. */
+    RookieOutcomes rookieOutcomes() {
+        rookieOutcomes ?: (rookieOutcomes = new RookieOutcomes(rookieSeasons()))
+    }
+
+    /** What the dynasty ranking adds to a rookie's level, which is where class quality enters the board. */
+    RookieDynastyIndex rookieDynastyIndex() {
+        rookieDynastyIndex ?: (rookieDynastyIndex = new RookieDynastyIndex())
+    }
+
+    RookieDemand rookieDemand() {
+        rookieDemand ?: (rookieDemand = new RookieDemand())
+    }
+
+    /** What bylaw 8.3 decays each position's rookie salary from, coming into this season's draft. */
+    Map<String, Integer> rookieBaselines(String year) {
+        RookieSalary.baselinesFor(year)
+    }
+
+    /**
+     * Every ranked rookie, valued over the contract the draft would sign him to.
+     *
+     * Shares the veteran board, since a rookie's worth is expressed in what the same production would cost
+     * at auction, and shares its replacement level and its byes for the same reason: the two boards have to
+     * be answers about one season or the comparison between them means nothing.
+     */
+    List<RookieValue> rookieValues(String year, FuadData fuadData) {
+        if (rookieValuesByYear.containsKey(year)) {
+            return rookieValuesByYear[year]
+        }
+        ByeWeeks byes = byes(year)
+        rookieValuesByYear[year] = RookieValuation.value(
+                rookieSeasons(),
+                rookieOutcomes(),
+                rookieDynastyIndex(),
+                ExpectedValue.replacementLevels(curve(), requirements(year), byes),
+                valuations(year, fuadData),
+                rookieBaselines(year),
+                rookieDemand().expectedPickByRank(),
+                fuadData.rookieRanks,
+                byeByTeam(year),
+                byes.lastWeek)
     }
 
     List<PlayerValuation> valuations(String year, FuadData fuadData) {
@@ -208,6 +278,18 @@ class FuadValuationLoader {
             }
         }
         new ByeWeeks(byes, lastWeek)
+    }
+
+    /**
+     * Which week each NFL team is off, read from the consensus ranking that carries every one of them.
+     *
+     * The rookie board needs it because no ranking gives a rookie a bye: the dynasty export writes 0, and a
+     * player with no bye is priced over a week nobody plays. See {@link RookieValuation}.
+     */
+    Map<String, Integer> byeByTeam(String year) {
+        // Canonical abbreviations on both sides: the league site writes KCC where the ranking writes KC.
+        ranked(year).findAll { it.bye?.isInteger() && (it.bye as int) > 0 }
+                .collectEntries { [(NflTeams.abbreviationOf(it.player.team) ?: it.player.team): it.bye as int] }
     }
 
     private static Collection<FpRankedPlayer> ranked(String year) {

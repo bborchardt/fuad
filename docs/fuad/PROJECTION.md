@@ -661,8 +661,10 @@ league is not.
 
 ## Known limits
 
-- **Rookie pricing is a flat allowance, not a model.** Early first round picks do go above the minimum, and
-  none of that shape is captured — only the league-wide total and the roster spots.
+- **The rookie allowance inside the auction is still flat.** Rookies themselves are now priced over their
+  contracts in [Rookies](#rookies), but that board does not feed back into this one: the pot still loses a
+  fixed 3.3% and a fixed five spots a team. Both could be computed per season from the rule and the picks
+  actually held, and both are left as they are because moving them moves every price here.
 - **Nothing prices team need or budget, so top-end prices are ceilings rather than clearing prices.** Value
   over replacement is the most a rational team would pay, but an auction clears at what the *second* bidder
   will go to, and that gap is widest at the very top. A desperate buyer with cap to spend is averaged into
@@ -939,8 +941,10 @@ positions, which is the whole argument for reading a depth off the curve instead
 position; `P90RANK` is the rank nine signings in ten come at or above, and the curve's own cutoff lands
 above that everywhere.
 
-**Rookies are excluded entirely.** They are drafted separately after the auction and cannot be bid on. Two
-simple allowances stand in for them, both checked against the record by `AuctionValuationSpec`:
+**Rookies are excluded entirely from the auction pool.** They are drafted separately afterwards and cannot
+be bid on. Two simple allowances stand in for them here, both checked against the record by
+`AuctionValuationSpec` — and they remain allowances even now that rookies are priced properly in
+[Rookies](#rookies), because changing them would move every price on this board:
 
 - **Roster spots**: five rounds times teams. Nearly every pick is kept — 38, 46, 52 and 49 rookies rostered
   at week 1 across 2022-2025, against 40, 45, 50 and 50 picks.
@@ -952,6 +956,451 @@ That leaves the spots the auction has to fill, as `teams x 30 - under contract -
 what the league actually signs closely: 65 against 71 in 2022, 90 against 93 in 2023, 103 against 96 in
 2024, and 92 against 92 in 2025. A dollar is reserved per **spot**, not per player on the board, since the
 pool holds everyone who could be bid on and only the spots get filled.
+
+## Rookies
+
+A rookie is the one player in this league nobody can bid on. The auction runs first and rookies are held out
+of it (bylaw 5.1), then they are drafted, and what they cost is set by formula rather than by anybody's
+willingness to pay. So none of the board above applies to them: there is no market to clear, no restricted
+free agent to prise loose, and no price to be a bargain against.
+
+**What replaces it is a contract rather than a price.** A pick buys one to five seasons at a salary fixed
+the moment he is taken, and for all but the first few picks of a strong class that salary is a dollar. A
+rookie class has never cost as much as 3% of the cap. See
+[LEAGUE_RULES.md](LEAGUE_RULES.md#rookie-salaries) for the rule and for the check that it reproduces every
+salary the league has charged.
+
+That makes the question a different one. Not *what is he worth this year against what he will cost*, which
+is what a salary buys and what the board answers, but *what is he worth across five years against a dollar*.
+
+### Five curves, from one levelling
+
+The method is the same one everything else here rests on, run five times against a shifted ranking.
+[RealisedSeasons](#the-chain) scores whichever ranking it is handed against a season's statistics, so asking
+what a rookie is worth in his third year is asking it to score the class of three years ago against this
+season. Nothing about the curve, the rate and availability split, the smoothing or the tiering needs to know
+that the rank being levelled is a rookie's.
+
+Rookies are levelled at their **positional** rookie rank. Rookie RB1 is a thing that happens once a year and
+can be pooled across classes; "the fourth rookie taken" is a different animal in a strong class and a weak
+one.
+
+**The later years rest on fewer classes, and the figure says so.** Nine classes have a first season in the
+collected record and five have a fifth:
+
+<!-- figures: fuad/rookiecurve key=POS+YEAR -->
+
+| POS | YEAR | CLASSES | PTS1 |
+| --- | --- | --- | --- |
+| QB | 1 | 9 | 90 |
+| QB | 2 | 8 | 155 |
+| QB | 3 | 7 | 112 |
+| QB | 4 | 6 | 100 |
+| QB | 5 | 5 | 87 |
+| RB | 1 | 9 | 131 |
+| RB | 2 | 8 | 127 |
+| RB | 3 | 7 | 127 |
+| RB | 4 | 6 | 116 |
+| RB | 5 | 5 | 121 |
+| WR | 1 | 9 | 99 |
+| WR | 2 | 8 | 122 |
+| WR | 3 | 7 | 119 |
+| WR | 4 | 6 | 99 |
+| WR | 5 | 5 | 96 |
+| TE | 1 | 9 | 72 |
+| TE | 2 | 8 | 74 |
+| TE | 3 | 7 | 71 |
+| TE | 4 | 6 | 76 |
+| TE | 5 | 5 | 53 |
+
+**This table is the argument for the whole thing, and it is not the same argument at every position.** The
+best quarterback of a rookie class levels at 90 points in the year he is drafted and 155 in the year after;
+the best receiver at 99 and 122. The best running back levels at 131 and then 127 — he arrives finished.
+
+So a rookie running back is a win-now pick in a way a rookie quarterback is not, and a board that priced
+either of them on his first season would be wrong about both: it would overrate the back relative to the
+quarterback by roughly the whole of the difference. `RookieSeasonsSpec` asserts this shape rather than
+describing it, because if it ever stopped holding, a pick would be an auction lot with a fixed price and
+most of this could be deleted.
+
+### Two indices, because one of them cannot see the class
+
+**The rookie ranking orders a class and says nothing about how good the class is.** "Rookie RB1" is the best
+back of that year whether that is a generational prospect or a committee back in a bare one, and nine of them
+are levelled as a single object. That is an incomplete index by construction, and class quality is both large
+and visible before the draft:
+
+<!-- figures: fuad/rookieclass key=SEASON -->
+
+| SEASON | TOP1 | TOP2 | TOP3 | TOP4 | TOP5 | MEAN | FIRSTQB |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 2018 | RB4 | RB19 | RB16 | RB20 | RB22 | 16.2 | 43 |
+| 2019 | RB16 | RB19 | RB20 | WR27 | WR37 | 23.8 | 29 |
+| 2022 | RB6 | WR20 | RB17 | WR28 | WR31 | 20.4 | 31 |
+| 2024 | WR5 | WR9 | WR17 | TE3 | WR30 | 12.8 | 21 |
+| 2025 | RB3 | QB20 | RB6 | WR15 | WR16 | 12.0 | 22 |
+| 2026 | RB4 | QB17 | WR15 | RB21 | WR25 | 16.4 | 1 |
+
+Those are where each class's five best rookies sat among their **position's** dynasty assets — the same
+consensus, making the cross-class comparison the rookie ranking refuses to make. 2019's best five were the
+sixteenth to thirty-seventh at their positions; 2024's were the fifth, ninth and seventeenth receivers and
+the third tight end. **2026 is a below-average class**, close to 2018 and well clear of 2019 and 2022, and
+nothing in a within-class rank could tell you any of that.
+
+**Positional rank and not overall, because the source changed format.** `FIRSTQB` is where the dynasty
+ranking puts the best quarterback in football, and it sits between 21st and 43rd in every season from 2017
+to 2025 and **first** in 2026: the export went superflex. Measured on overall ranks that break inflates every
+quarterback and pushes every other position down, which made 2026 read as the weakest class since 2019 when
+it is nothing of the kind. The column is on the table so that the break stays visible instead of being
+something a reader has to already know.
+
+The valuation is unaffected, because it blends on positional rank — the same players in the same order
+whichever format the ranking is in. This figure was not, and said so for one commit.
+
+So the dynasty index is used to **adjust** a rookie's level rather than to supply one. Two more obvious
+things were tried first and both failed, for reasons worth keeping.
+
+Reading a rookie's dynasty rank off the **veteran** curve mixes populations: a veteran ranked 28th at
+quarterback who plays is a backup in relief at 13 points a game, and a rookie ranked 28th who plays has won a
+job. Averaging a job-winner's rate with a backup's is not an estimate of anything, and it needed a fitted
+calibration to stand up at all. Building a rookie curve **indexed** by dynasty rank ran out of data instead:
+nine classes spread over forty dynasty ranks left 27 of 117 rookies with any level, and every rookie worth
+drafting fell through.
+
+**What the record supports is an ordering claim, so it is used as one.** Holding rookie rank fixed, the
+rookies the dynasty ranking rates above their peers go on to score more — and that needs no per-rank sample,
+because every rookie contributes to one pooled relationship. A rookie is compared against the dynasty rank
+that rookies at his rank usually hold, and his level moves with the gap.
+
+**Tapered, because the claim is only true at the top of a class.** Measured in a sliding window down the
+rookie ranks, the signal runs:
+
+| rookie rank | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| signal | 0.42 | 0.42 | 0.43 | 0.33 | 0.23 | 0.16 | 0.09 | 0.05 | −0.01 |
+
+A plateau over the top four and an exponential decay of three ranks fits that closely, and it is continuous
+everywhere — there is no rank at which a rookie's treatment jumps. A cutoff would put a cliff on the board,
+which this project has already paid for once.
+
+**One sided, because only one side of it is there.** Binned by residual, the rookies the dynasty ranking
+rates *below* their peers score what the ones it agrees about score — mean rates of 8.73 and 8.70 — while
+the ones it rates well above score 11.62. No penalty is applied, because none is in the record. What is
+left is a narrow claim and the one the evidence makes: **the dynasty ranking picks out the exceptional
+prospects and says nothing useful about the rest.**
+
+**And capped at the ninetieth percentile of its own fitting sample.** The slope is 0.258 with a correlation
+of 0.242 over 57 seasons — a rookie placed twice as high as his rookie rank implies scores about 20% more per
+game. Uncapped, this year's best back sits past the 95th percentile of everything that slope was fitted on,
+and reading a weak fit off the end of its own data lifted his rate two fifths and his contract from $233 to
+$491. Value over replacement is convex, so a rate moved by two fifths moves a price by rather more.
+
+Class quality enters here and nowhere else, and per position, which is what a year thin at back and deep at
+receiver requires.
+
+### How widely a rookie's seasons actually run
+
+The board's rule is that a spread belongs to a position and never to a player. Rookies were given the
+**veteran** position's spread, which is a distribution of established players, and that is close to right at
+the top of a class and badly wrong at the bottom:
+
+<!-- figures: fuad/rookiespread key=POS+RANK -->
+
+| POS | RANK | SEASONS | MISSING | P50 | P90 | MAX |
+| --- | --- | --- | --- | --- | --- | --- |
+| RB | 3 | 64 | 8 | 0.76 | 1.26 | 2.03 |
+| RB | 8 | 88 | 17 | 0.72 | 1.63 | 3.18 |
+| RB | 15 | 89 | 36 | 0.51 | 1.91 | 3.18 |
+| RB | 25 | 53 | 64 | 0.55 | 2.48 | 2.53 |
+| WR | 3 | 64 | 0 | 0.91 | 1.36 | 1.74 |
+| WR | 8 | 88 | 7 | 0.84 | 1.45 | 1.91 |
+| WR | 15 | 87 | 22 | 0.79 | 1.71 | 2.49 |
+| WR | 25 | 88 | 44 | 0.61 | 2.19 | 2.65 |
+
+A rookie in his position's top few is a **narrower** proposition than a deep one — 1.26 and 1.36 at the
+ninetieth percentile against 2.48 and 2.19 by rank 25 — and almost all of his seasons happen. By rank 25
+more than half never happen at all.
+
+`MISSING` is the column that matters, and it is not the spread: it is the share of seasons with no games in
+them. **That is where a deep rookie's value lives**, because value over replacement is convex. Five seasons
+of fifty points are worth nothing five times over; one season of two hundred is worth seventy-eight. A rank
+whose outcomes are bimodal is worth real money at a mean that looks worthless, and a spread that cannot
+reach two hundred cannot see it — which is why every fourth round pick used to price at zero, and the sheet
+gave a reader no ordering at all where he most needed one.
+
+So the spread is measured on rookies, **at every rank rather than only the deep ones**. Applied at the top
+of a class it barely moves anything, which is the point: the transition comes from the data rather than from
+a boundary somebody chose.
+
+**A sliding window of neighbouring ranks, and never fixed bands.** That distinction cost real dollars before
+it was made. Banding ranks 1-5, 6-10, 11-20 and 21 up put an edge between the first two bands, and Omar
+Cooper at WR5 and Denzel Boston at WR6 — whose levels are within one per cent of each other — were priced
+$52 and $85 because of which side of it they fell. Near replacement that is not a rounding difference: a
+receiver worth nothing at his mean draws all his value from the right tail, and a tenth more tail is most of
+a doubling.
+
+**And each season is a ratio against the level of the rank it came from, not against the window's mean.**
+That is the second thing this had wrong, and it was the more expensive of the two. A multiplier is applied
+to the level of the rank being valued, so it has to be normalised against the level of the rank it came out
+of — otherwise the arithmetic does not reproduce the season it was built from. Normalised on the window
+instead, every rank sitting above its neighbours was overstated and every rank below understated: rookie
+QB1's rate is 25.6 against a window mean of 15.3, so each of his realised seasons arrived **68% too large**,
+and his second year priced at 96 points over replacement where it belongs at 41.
+
+`WIDE` on that table marks a rank whose own neighbours were too few and whose window had to be widened —
+quarterback and tight end mostly, nine classes not ranking enough of them.
+
+### From points to dollars
+
+A rookie's points over replacement are converted to dollars **by equivalence**: a rookie worth eleven points
+over replacement is worth what a veteran worth eleven points over replacement costs, interpolated along the
+board's own value-to-price pairs at his position. A single dollars-per-point rate would be the same claim
+with the board's shape discarded, and the shape is most of what separates the top of a position from its
+middle — the auction is deliberately steepened.
+
+Above the most valuable player on the board the price is extended at the rate of the top pair rather than
+held flat. A rookie can be worth more than anyone *available*, since the best players in the league are
+under contract or franchised and never reach the auction at all.
+
+Three assumptions, none of them small:
+
+- **A future season prices like this one.** Year four's points are converted through the board being priced
+  now, since nothing can know that year's cap, pool or ranking. What this assumes is that the price of a
+  given amount of value holds, not that any player or any rank does.
+- **Replacement is this season's**, for the same reason.
+- **No discount is applied to a later year.** A dollar of surplus in year four counts as a dollar, because
+  the league's currency does not carry interest: cap space cannot be saved between seasons, so a dollar next
+  year is not a dollar this year invested. What the horizon costs is that later years are levelled off fewer
+  classes, which `CLASSES` reports rather than discounts.
+
+### The spread that priced rookies above the league
+
+Worth recording, because for an afternoon it looked like a finding.
+
+Levelling a rookie rank off **its own** outcome spread priced rookie quarterbacks at $151 in their third
+year, against a board whose most expensive player is $89, off a level of 112 points against a veteran QB1's
+245. A rookie worth nearly twice the best quarterback in football, and it was arithmetic rather than
+insight.
+
+The cause is that an outcome multiplier is a ratio of **season totals** and it is applied to a **rate**. That
+is sound while a rank's expected games are close to the games behind the seasons the ratios came from, which
+is true of every veteran rank and false of a rookie one: a rookie quarterback rank pools a class that mostly
+never played with one that started, so its level carries five or six games where its best seasons carry
+thirteen. The ratio of the two arrives as a rate multiplier of three or four, which is then *also* scaled by
+the games that produced it. Availability is counted twice, in the direction that inflates.
+
+**The first fix was to hand rookies the veteran position's spread.** It removed the double count and threw
+the bimodality away with it, which is what left every fourth round pick priced at zero. What replaced it is
+above: multipliers are ratios of **rate**, so a rookie's own distribution can be used without the
+normalization that broke it, and availability travels in the games of the same realised season rather than as
+a separate expectation applied on top.
+
+`RookieValuationSpec` holds every rookie inside half again the most expensive player on the board at his
+position, which is the guard that would have caught the original.
+
+### When they actually go
+
+Value says who to take; the drafts say who will still be there. Each pick of each draft is joined to the
+rookie rank the player held that preseason, and the board walked down as they go:
+
+<!-- figures: fuad/rookiedemand key=PICK -->
+
+| PICK | BESTQB | BESTRB | BESTWR | BESTTE |
+| --- | --- | --- | --- | --- |
+| 1 | 1 | 1 | 1 | 1 |
+| 5 | 1 | 3 | 3 | 1 |
+| 10 | 2 | 3 | 5 | 2 |
+| 11 | 3 | 3 | 6 | 2 |
+| 15 | 4 | 5 | 8 | 3 |
+| 20 | 4 | 6 | 9 | 3 |
+| 25 | 4 | 7 | 12 | 3 |
+| 30 | 5 | 9 | 14 | 4 |
+| 40 | 6 | 10 | 15 | 6 |
+| 50 | 6 | 12 | 17 | 7 |
+
+**Measured over the four superflex drafts and no others, which is a correction rather than a preference.**
+A curve can pool nine seasons because a level is points and every season is restated under the rules being
+priced. Availability is *behaviour*, and behaviour has no restatement: what the room did in 2019 was done by
+teams starting one quarterback, and nothing converts that into what a team starting two would have done.
+
+The difference is the largest figure this measurement produces. Pooled across all nine drafts, the best
+rookie quarterback appears to last until pick 15 — which reads as a standing inefficiency in the room, and
+is not one. Split at 2022:
+
+| Best QB available at pick | 5 | 8 | 10 | 12 | 15 |
+| --- | --- | --- | --- | --- | --- |
+| 2017-2021, one quarterback started | 1 | 1 | 1 | 1 | 1 |
+| 2022-2025, superflex | 1 | 2 | 2 | 3 | 4 |
+
+**The room adjusted.** Before superflex the best rookie quarterback sat there past the end of round one;
+since superflex he is gone by pick 8. Receivers moved the same way and less sharply — the best available at
+pick 15 was the fifth and is now the eighth — and running backs did not move at all, which is what a real
+lineup effect should look like rather than noise.
+
+Four drafts is thin, and that is the price of measuring the era being drafted in. The floor of three
+sightings then bites hard at the deep picks, which report nothing rather than an average over whichever
+years happened to run long. The auction board makes the same trade for the same reason; see
+`AuctionSpend.SUPERFLEX_SEASONS`.
+
+**And the seasons behind it agree, which is worth checking rather than assuming.** A pooled ladder is only
+worth reading if the drafts it pools drafted alike, and the obvious way that could fail is the source: a year
+ranking 138 rookies where another ranked 80 might be putting a worse player at rank thirty, in which case the
+room would take him later and the pooled figure would average two different things.
+
+<!-- figures: fuad/rookiepace key=SEASON -->
+
+| SEASON | RANKED | PICK1_10 | PICK11_20 | PICK21_30 |
+| --- | --- | --- | --- | --- |
+| 2022 | 84 | 6 | 16 | 28 |
+| 2023 | 95 | 6 | 19 | 23 |
+| 2024 | 80 | 6 | 18 | 27 |
+| 2025 | 93 | 7 | 16 | 31 |
+
+**It holds.** Ranking length varies by a fifth across those four years and the mapping does not move with it —
+2024 is the shortest list and 2023 the longest, and they place a rookie at nearly the same pick.
+
+The reason is that **rankings extend at the tail rather than in the middle**. 2026 ranks 138 rookies against
+2024's 80, and the extra names are almost all at the bottom: the share the NFL never drafted runs 3% over
+ranks 1-30, 23% over 31-60, 63% over 61-90 and 79% past 91, against 2024's 0%, 10% and 45%. The top of the
+list is the same kind of player it has always been, so the ranks a team is actually choosing among are
+calibrated on like with like. Only the deep end is stretched, and there the ladder is blank or the draft has
+already ended.
+
+The ladder is held to only ever emptying. A median over unequal drafts does not do that on its own: a pick
+past 40 exists in three of the four drafts and one past 50 in one of them, so a long year that happened to
+leave a good receiver on the board can put pick 41 ahead of pick 40. That is an artefact of which drafts
+reached which pick, not a claim that waiting improves the board.
+
+### What it produces for 2026
+
+<!-- figures: fuad/rookieboard -->
+
+| FIGURE | VALUE |
+| --- | --- |
+| RANKED | 117 |
+| TOPTEN | 9 |
+| SURPLUS | 1221 |
+| DEFERRED | 1074 |
+| SALARY | 30 |
+
+Nine rookies expected to go inside the first ten picks, costing $30 between them, holding $1,221 of surplus
+over their contracts — of which **$1,074, or 88%, arrives after the season the pick is spent in**.
+
+That figure is the whole case for the rookie board. It is the part of a pick that no auction dollar can buy
+at any price, and pricing a rookie on his first season would report a tenth of it.
+
+Read it against [the class it comes from](#two-indices-because-one-of-them-cannot-see-the-class): 2026 is a
+below-average year, so these are smaller numbers than a strong class would produce, and the board says so
+rather than levelling every class alike.
+
+### What is worth reading, and what is not
+
+Two columns exist to stop the rest being over-read.
+
+**`VALUE` is the column the sheet sorts on, and it carries no price at all.** What a rookie is worth is a
+fact about him; what he costs is a fact about the pick he goes at, and the two do not belong in one number.
+At quarterback this year the price runs from $20 at the first pick to $1 by the fifteenth, so any column
+mixing them is mostly an assumption about where he lands — and the board reports a rookie at his *expected*
+pick, which is an assumption a reader cannot see.
+
+So the player sheet carries value and the pick sheet carries price, and they are joined by the reader at the
+pick he is actually making. That removed four columns — salary, the contract length, the surplus and the
+deferred share — of which three were the same statement about an assumed pick and the fourth was almost
+always five.
+
+`VALUE` is taken over the five years a contract can run rather than over the years the model would sign,
+which is a distinction that cost a correction: summed over the recommended length it moved with the pick
+too, and by more than the surplus did, because a salary large enough to shorten a contract shortens what is
+being summed. Mendoza read $95 at pick nine and $43 at pick one. A column whose whole purpose is comparing
+players had a price assumption inside it.
+
+**The three consensus columns are the working, and they are read together.** `FP_ROOKIE` is where the rookie
+ranking puts a player at his position and `FP_DYNASTY` where the dynasty ranking does, both as a position and
+a rank. The second is what moves his level, and it means nothing without the first beside it: a class's third
+receiver usually sits around dynasty WR31, so `WR3` at `WR23` is being told something that `WR2` at `WR25` is
+not. That is the whole of why Makai Lemon prices above Jordyn Tyson while the rookie ranking prefers Tyson.
+`FP_OVERALL` is the same rookie ranking read across positions, and is what `DEMAND` is keyed on.
+
+**`TIER` is what the evidence can actually separate.** Same rule the auction board tiers ranks by: walk in
+order of value, keep a rookie in the current tier while his own upper bound reaches the best value in it,
+open a new tier when it does not. Tiered on value rather than surplus, since two rookies the model cannot
+separate as players should read as ties whatever they cost.
+
+**`VAL_LOW` and `VAL_HIGH` do the same job across positions**, which is the choice a rookie draft actually
+poses — a back against a tight end against a receiver. A tier only compares inside a position; two
+overlapping ranges are a tie whoever they belong to.
+
+They are bounds on the **estimate** and not on the outcome: how well nine rookie classes pin down what a
+rank is worth, not how widely one career might run. The auction board's `PTSLOW` and `PTSHIGH` are that
+other thing, which is why these are named differently.
+
+**And they are asymmetric**, because value over replacement is convex: a level a standard error low loses
+less than the same error high gains. That holds for every rookie on the board without exception, which is
+why the bounds are two columns rather than one plus-or-minus.
+
+| | low | value | high | range over value |
+| --- | --- | --- | --- | --- |
+| RB1 | 217 | 294 | 375 | 0.54 |
+| WR1 | 145 | 221 | 302 | 0.71 |
+| TE1 | 18 | 54 | 96 | **1.44** |
+| QB1 | 35 | 109 | 192 | **1.44** |
+| QB2 | 18 | 63 | 115 | **1.54** |
+
+**`VALUE` is the expectation over that band, not the value at its midpoint.** Convexity again: pricing at the
+level's point estimate understates what a rookie is worth, and understates it in proportion to how badly the
+level is pinned down. It is worth a per cent or two at running back and receiver and 17% to 25% at
+quarterback and tight end — so the point estimate was quietly marking down the positions the board is least
+sure about, and a reader sorting on it would have dropped them for the wrong reason. Integrated over five
+points of a normal on the level, the best rookie quarterback goes from $95 to $109.
+
+**A rookie quarterback's contract value runs from a third of the reported figure to nearly double it**, and
+that is the honest state of the
+position rather than a defect to be tuned away. Superflex starts up to twenty quarterbacks, so replacement
+is 209 points a season; only about half the rookie quarterback seasons that happened have ever cleared it,
+and a third of them never happened. Value over replacement is convex, so a standard error on a level sitting
+near replacement is worth as much as the whole value.
+
+That is worth carrying to the draft as it stands: the board's quarterback numbers are a statement about how
+little nine classes can say, not a recommendation to avoid the position.
+
+### Known limits of the rookie board
+
+- **It does not feed back into the auction.** The pot still has a flat 3.3% taken off the top for rookies
+  and still assumes five roster spots a team, exactly as before. Those two constants could now be computed
+  per season rather than assumed, and are not: changing them moves every price on the auction board, which
+  is a separate change with its own evidence to present.
+- **Nothing here knows what a team already has.** A pick is priced against league-wide replacement, so a
+  rookie quarterback is worth the same to a team starting two of them and to a team holding four. The same
+  division the auction board makes, and the same reason: a clearing rate that answered per roster would stop
+  being one.
+- **Contract length is chosen at the expectation and nothing cleverer.** Bylaw 12.4 wants the length before
+  the first season is played, so the rule is the length that leaves the most value over its cost, and
+  nothing about what might be learned in year one. At a dollar it almost always says five, and the downside
+  it ignores is five dollars.
+- **The fifth year is levelled off five classes**, three of them from before the league went superflex. It
+  is reported with `CLASSES` beside it for that reason, and it should be read as the weakest column on the
+  board rather than as an equal one.
+- **A rookie's bye is his team's.** No ranking carries a bye for a rookie — the dynasty export writes 0 —
+  and the same week is used in every contract year, there being no schedule for a season four years out.
+- **The spread is a rank band's and never a player's.** A rookie deep in a class is given the distribution
+  of deep rookies at his position, which says how that group has turned out and nothing about whether he in
+  particular is the one who pops. Same doctrine the auction board applies to `PTSLOW` and `PTSHIGH`, and the
+  same warning: it must not be read as identifying the risky pick.
+- **Class quality is one number per player, and a class is not uniform.** The dynasty blend corrects a weak
+  class per position, since it runs off each rookie's own dynasty rank — but a class can be weak at the top
+  and deep in the middle, and nothing here reports that shape. `rookieclass` shows only the best five.
+- **The blend is half and half because neither index was better**, not because a half is optimal. The two
+  order rookie outcomes within a hundredth of each other, so nothing in the record argues for a particular
+  weight, and a fitted one would be fitting noise.
+- **Availability is four drafts and the curve is nine seasons**, so the two halves of the board rest on very
+  different amounts of evidence. That is deliberate — see above — but it means the value column is a much
+  firmer claim than the pick column beside it.
+- **A pick is priced as a selection and never as currency.** Bylaw 7.2 makes a first round pick the price of
+  prising away a franchised player, so a first has an exchange value as well as a use value, and bylaw 7.3
+  makes holding one a condition of bidding at all. Nothing here prices either. The board answers which
+  player to take with a pick, deliberately and not for want of finishing: what a pick fetches in a trade is a
+  different question with different evidence behind it, and the league's own trade history is where it would
+  come from.
 
 ## Kickers
 
