@@ -1508,32 +1508,36 @@ conditioning.
 restricted player loose: to win you must clear what he is worth to the incumbent, not merely what the market
 settles at. That is `value + 1`, or `price` where the market is already higher.
 
-**Bounded by what the position has ever cost.** On its own that rule assumes an incumbent who matches all
-the way up to the model's own valuation, and nothing in it knows what this league pays. Where `value` runs
-far above `price` the result is a number nobody would ever put up — the board once asked 16 for the best
-kicker on it against a nine-season league record of 5, and routed a plan away from the cheapest points
-available to it. The premium is the same few dollars at kicker as at running back; it simply lands on a
-market price of one to three rather than of fifteen to thirty, so it multiplies the price instead of nudging
-it.
+**The premium is bounded by what the position costs.** On its own that rule assumes an incumbent who
+matches all the way up to the model's own valuation, and nothing in it knows what this league pays. Where
+`value` runs far above `price` the result is a number nobody would ever put up — the board once asked 16 for
+the best kicker on it against a nine-season league record of 5, and routed a plan away from the cheapest
+points available to it. The premium is the same few dollars at kicker as at running back; it simply lands on
+a market price of one to three rather than of fifteen to thirty, so it multiplies the price instead of
+nudging it.
 
-`ACQUIRE` is therefore capped at the franchise salary — the average of the top five salaries at that
-position last season, which the tag already computes and is the closest thing in the data to a statement of
-what the top of a position costs here. The cap is keyed on the gap and not on the position: it binds only
-where the curve and the market disagree hard enough to price a player past what his position has ever
-fetched, which on the 2026 board is six kickers and nobody else of consequence.
+What is wrong there is the premium and not the price, so the premium is what is bounded. Right of first
+refusal may add up to the franchise salary — the average of the top five salaries at that position last
+season, which the tag already computes and is the closest thing in the data to a statement of what the top
+of a position costs here — and no more:
 
-**It bounds the premium and never the price.** `price` stays the floor, so the cap can only take back what
-the right of first refusal added. What that costs is the top of running back: the five backs priced above
-the position's top-five average of 60 lose their `RFRCOST` of 2, because above the top of a position there
-is no ceiling left to apply. Christian McCaffrey is priced at 74 and valued at 75, so prising him loose read
-76 and now reads 74. Every back from rank 11 down is untouched, his `value + 1` being inside the cap
-already.
+```
+ACQUIRE = PRICE + min(max(0, VALUE + 1 - PRICE), franchise salary)
+```
 
-That is a real loss and not a rounding one — those are exactly the players whose incumbent would certainly
-match — and it is the price of a rule that stays monotonic. A cap that engaged only below the ceiling would
-keep those two dollars and then charge $11 more to prise loose a back priced at 61 than one priced at 60,
-which is a worse answer than being two dollars light on five players. Against pricing two kickers at 16 and
-14, both are the cheaper error.
+The bound is keyed on the gap and not on the position, and outside kicker it binds on nothing: the allowance
+runs to tens of dollars at every other position against premiums of two to five, so every other `ACQUIRE` on
+the board is the number the unbounded rule gave. At kicker the two best now cost 6 rather than 16 and 14,
+against a record of 5.
+
+**Bounding the premium rather than capping the price is what keeps this monotonic**, and the difference is
+not cosmetic. A cap on the price is clipped by the `PRICE` floor exactly where the market has already
+cleared above the position's top, so it would delete the premium on the five best running backs — the
+players whose incumbent would most certainly match — taking Christian McCaffrey from 76 to 74. It is also
+discontinuous: capping at running back's franchise salary of 60 prices a back clearing at 60 with no premium
+at all and one clearing at 61 at his full `value + 1`, so a marginally better player would cost eleven
+dollars more to prise loose. The premium bound has neither problem. It never returns less than `PRICE`, it
+can only ever lower the unbounded answer, and it is non-decreasing in rank down the board.
 
 That has a consequence worth stating plainly. **Positive edge on another team's restricted free agent is
 arithmetically unavailable.** Worth more than he clears at, and his team matches, so he costs his full worth

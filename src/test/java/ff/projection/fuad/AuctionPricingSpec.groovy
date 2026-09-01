@@ -265,28 +265,56 @@ class AuctionPricingSpec extends Specification {
      * Worth can run far above the market price, and where it does the rule that an outside bid must clear
      * the incumbent's valuation produces a number nobody would ever pay. The franchise salary — the average
      * of the top five at that position last season — is what the board already knows about the top of a
-     * position, and it is what the premium is allowed to reach and no further.
+     * position, and it is what the right of first refusal is allowed to add and no more.
      *
      * The board is held by one team so that a franchise salary this cheap tags one player rather than the
      * whole pool. That team then holds two tag candidates, which is the case {@code warnUnsettled} exists
      * for, so the warning this prints on stderr is the expected one.
      */
-    def "the right to match cannot price a player above the top of his position"() {
+    def "the right to match can add no more than the top of a position"() {
         given: 'the whole board held by one team, which has one tag, so a cheap tag cannot empty the auction'
         List<PlayerValuation> held = AuctionValuation.value(curveFor(['QB']),
                 new StarterRequirements([QB: 2], [QB: 2], 2, 10),
                 poolOf(['QB'], 45) { int rank -> 'f1' },
                 [QB: TOP_OF_POSITION], 2438.0, 60, NO_BYES)
 
-        expect: 'nobody is asked for more than the position has fetched, unless the auction itself says so'
-        held.every { it.acquisitionSalary <= Math.max(it.marketSalary, TOP_OF_POSITION) }
+        expect: 'the right to match adds something, but never more than the position is worth at its top'
+        held.every { it.restrictionPremium >= 0 && it.restrictionPremium <= TOP_OF_POSITION }
 
-        and: 'the ceiling really bound somewhere, or the board was priced under it all along'
-        held.any { it.value + 1 > Math.max(it.marketSalary, TOP_OF_POSITION) }
+        and: 'the allowance really bound somewhere, or the board was priced under it all along'
+        held.any { it.value + 1 - it.marketSalary > TOP_OF_POSITION }
 
-        and: 'and it took back only what the right of first refusal added, never the market price'
+        and: 'it only ever takes back premium, never the market price, and never adds any'
         held.every { it.acquisitionSalary >= it.marketSalary }
-        held.every { it.restrictionPremium >= 0 }
+        held.every { it.acquisitionSalary <= Math.max(it.marketSalary, it.value + 1) }
+    }
+
+    /**
+     * The property the premium bound exists for, and the one a cap on the price cannot hold.
+     *
+     * Capping the price is clipped by the market floor wherever the market has already cleared above the
+     * position's top, which deletes the premium on the best players and leaves a step in the middle: a
+     * player clearing at the allowance would pay no premium while one clearing a dollar more would pay his
+     * full worth. Bounding the premium instead is monotonic in rank all the way down the board.
+     *
+     * Tagged players sit outside the ordering for a reason of their own: a tag is priced off a
+     * counterfactual pot, with that player back in the bidding and his tag money back in the pool, so his
+     * market price is not on the same scale as the rest of the board. That is {@code price}'s doing and
+     * predates any bound on the premium.
+     */
+    def "a better player never costs less to prise loose than a worse one"() {
+        given:
+        List<PlayerValuation> held = AuctionValuation.value(curveFor(['QB']),
+                new StarterRequirements([QB: 2], [QB: 2], 2, 10),
+                poolOf(['QB'], 45) { int rank -> 'f1' },
+                [QB: TOP_OF_POSITION], 2438.0, 60, NO_BYES)
+
+        when: 'read down the board in rank order, over the players actually being bid on'
+        List<Integer> byRank = held.findAll { !it.franchiseTagged }
+                .sort { it.positionRank }.collect { it.acquisitionSalary }
+
+        then: 'the acquisition price never rises as the players get worse'
+        byRank == byRank.sort(false).reverse()
     }
 
     /**

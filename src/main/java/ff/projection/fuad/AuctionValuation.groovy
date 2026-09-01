@@ -313,7 +313,8 @@ class AuctionValuation {
     }
 
     /**
-     * What it takes to prise a restricted free agent loose, bounded by what his position has ever cost.
+     * What it takes to prise a restricted free agent loose, with the premium bounded by what his position
+     * costs.
      *
      * The incumbent may match, so an outside bid has to clear what the player is worth to <b>them</b>: a
      * dollar over {@code worth}, or the market price where that is already higher. What that rule lacks on
@@ -326,24 +327,30 @@ class AuctionValuation {
      * of nudging it. Left unbounded the board asked sixteen for the best kicker on it, against a nine-season
      * league record of five, and routed a plan away from the cheapest points available to it.
      *
-     * The bound is the franchise salary: the average of the top five salaries at that position the previous
-     * season, which is already computed for the tag and is the closest thing in the data to a statement of
-     * what the top of a position costs here. It is keyed on the gap and not on the position — nothing
-     * mentions kicker by name — so it binds only where the curve and the market disagree hard enough to
-     * price a player past what his position has ever fetched, and leaves running back and quarterback on
-     * their own numbers.
+     * <b>What is wrong is the premium and not the price, so the premium is what gets bounded.</b> The
+     * allowance is the franchise salary: the average of the top five salaries at that position the previous
+     * season, which the tag already computes and is the closest thing in the data to a statement of what the
+     * top of a position costs here. Right of first refusal may add up to that much and no more. It is keyed
+     * on the gap and not on the position — nothing mentions kicker by name — and at every position but
+     * kicker the allowance is tens of dollars against premiums of two to five, so it binds on nothing and
+     * every other price is the one the unbounded rule gave.
      *
-     * It bounds the premium and never the price. A player the auction itself clears above the top of his
-     * position is still worth what the auction says: {@code market} is the floor, so the ceiling can only
-     * take back what the right of first refusal added.
+     * Bounding the premium rather than capping the price is what keeps this monotonic, and the difference is
+     * not cosmetic. A cap on the price is clipped by the {@code market} floor exactly where the market has
+     * already cleared above the position's top, so it deletes the premium on the five best running backs —
+     * the players whose incumbent would most certainly match. Worse, it is discontinuous: capping at the
+     * franchise salary of 60 prices a back who clears at 60 with no premium at all and one who clears at 61
+     * at his full {@code worth + 1}, so a marginally better player costs eleven dollars more to prise loose.
+     * Bounding the premium has neither problem. It is non-decreasing in both arguments, it can only ever
+     * lower the unbounded answer, and it never returns less than {@code market}.
      *
      * @param topOfPosition  the franchise salary at this position, or null where the previous season has no
      *                       salaries at it and there is accordingly nothing to bound with
      */
     private static int matchingPrice(int market, int worth, Integer topOfPosition) {
-        int matched = worth + 1
-        int ceiling = topOfPosition != null && topOfPosition > 0 ? topOfPosition : matched
-        Math.max(market, Math.min(matched, ceiling))
+        int premium = Math.max(0, worth + 1 - market)
+        int allowance = topOfPosition != null && topOfPosition > 0 ? topOfPosition : premium
+        market + Math.min(premium, allowance)
     }
 
     /** How often a player of this rank actually reaches another team. */
