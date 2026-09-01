@@ -1523,9 +1523,17 @@ where the curve and the market disagree hard enough to price a player past what 
 fetched, which on the 2026 board is six kickers and nobody else of consequence.
 
 **It bounds the premium and never the price.** `price` stays the floor, so the cap can only take back what
-the right of first refusal added. The cost of that is a dollar: five elite running backs whose market price
-already clears the top-five average lose their `RFRCOST` of 1, because above the top of a position there is
-no ceiling left to apply. Against pricing two kickers at 16 and 14, that is the cheaper error.
+the right of first refusal added. What that costs is the top of running back: the five backs priced above
+the position's top-five average of 60 lose their `RFRCOST` of 2, because above the top of a position there
+is no ceiling left to apply. Christian McCaffrey is priced at 74 and valued at 75, so prising him loose read
+76 and now reads 74. Every back from rank 11 down is untouched, his `value + 1` being inside the cap
+already.
+
+That is a real loss and not a rounding one — those are exactly the players whose incumbent would certainly
+match — and it is the price of a rule that stays monotonic. A cap that engaged only below the ceiling would
+keep those two dollars and then charge $11 more to prise loose a back priced at 61 than one priced at 60,
+which is a worse answer than being two dollars light on five players. Against pricing two kickers at 16 and
+14, both are the cheaper error.
 
 That has a consequence worth stating plainly. **Positive edge on another team's restricted free agent is
 arithmetically unavailable.** Worth more than he clears at, and his team matches, so he costs his full worth
