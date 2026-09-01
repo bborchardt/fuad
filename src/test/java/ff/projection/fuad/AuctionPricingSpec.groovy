@@ -240,7 +240,7 @@ class AuctionPricingSpec extends Specification {
      * players nobody holds would never exercise.
      */
     def "acquiring a held player costs the greater of his price and his worth"() {
-        given: 'every player held by somebody, so the right to match applies to all of them'
+        given: 'every player held, and a franchise salary above every price here, so nothing is bounded by it'
         List<PlayerValuation> held = AuctionValuation.value(curveFor(['QB']),
                 new StarterRequirements([QB: 2], [QB: 2], 2, 10),
                 poolOf(['QB'], 45) { int rank -> "f$rank".toString() },
@@ -254,6 +254,54 @@ class AuctionPricingSpec extends Specification {
 
         and: 'so what the right of first refusal costs an outside bidder is never negative'
         held.every { it.restrictionPremium >= 0 }
+    }
+
+    /** A franchise salary low enough to bind on the deep ranks, where worth runs above the market price. */
+    private static final int TOP_OF_POSITION = 6
+
+    /**
+     * The bound on the premium, which is what keeps a restricted price inside what the league pays.
+     *
+     * Worth can run far above the market price, and where it does the rule that an outside bid must clear
+     * the incumbent's valuation produces a number nobody would ever pay. The franchise salary — the average
+     * of the top five at that position last season — is what the board already knows about the top of a
+     * position, and it is what the premium is allowed to reach and no further.
+     *
+     * The board is held by one team so that a franchise salary this cheap tags one player rather than the
+     * whole pool. That team then holds two tag candidates, which is the case {@code warnUnsettled} exists
+     * for, so the warning this prints on stderr is the expected one.
+     */
+    def "the right to match cannot price a player above the top of his position"() {
+        given: 'the whole board held by one team, which has one tag, so a cheap tag cannot empty the auction'
+        List<PlayerValuation> held = AuctionValuation.value(curveFor(['QB']),
+                new StarterRequirements([QB: 2], [QB: 2], 2, 10),
+                poolOf(['QB'], 45) { int rank -> 'f1' },
+                [QB: TOP_OF_POSITION], 2438.0, 60, NO_BYES)
+
+        expect: 'nobody is asked for more than the position has fetched, unless the auction itself says so'
+        held.every { it.acquisitionSalary <= Math.max(it.marketSalary, TOP_OF_POSITION) }
+
+        and: 'the ceiling really bound somewhere, or the board was priced under it all along'
+        held.any { it.value + 1 > Math.max(it.marketSalary, TOP_OF_POSITION) }
+
+        and: 'and it took back only what the right of first refusal added, never the market price'
+        held.every { it.acquisitionSalary >= it.marketSalary }
+        held.every { it.restrictionPremium >= 0 }
+    }
+
+    /**
+     * A position the previous season priced nothing at has no top to bound against, and guessing one from
+     * an empty list would be worse than leaving the rule as it was.
+     */
+    def "a position with no franchise salary is left on the unbounded rule"() {
+        given: 'no franchise salary at all, as happens where the prior season rostered nobody there'
+        List<PlayerValuation> held = AuctionValuation.value(curveFor(['QB']),
+                new StarterRequirements([QB: 2], [QB: 2], 2, 10),
+                poolOf(['QB'], 45) { int rank -> "f$rank".toString() },
+                [:], 2438.0, 60, NO_BYES)
+
+        expect:
+        held.every { it.acquisitionSalary == Math.max(it.marketSalary, it.value + 1) }
     }
 
     def "a player nobody holds costs what the market settles at and nothing over"() {

@@ -285,7 +285,7 @@ class AuctionValuation {
             String holder = p[3] as String
             // Restricted: the team holding an expiring contract may match, so an outside bid has to clear
             // what the player is worth to them, not just what the market would otherwise settle at.
-            int acquire = holder ? Math.max(market, worth + 1) : market
+            int acquire = holder ? matchingPrice(market, worth, franchiseSalary[position]) : market
             new PlayerValuation(
                     playerId: id,
                     playerName: p[0] as String,
@@ -310,6 +310,40 @@ class AuctionValuation {
                     franchiseId: p[3] as String,
                     franchiseTagged: tagged.contains(id))
         }
+    }
+
+    /**
+     * What it takes to prise a restricted free agent loose, bounded by what his position has ever cost.
+     *
+     * The incumbent may match, so an outside bid has to clear what the player is worth to <b>them</b>: a
+     * dollar over {@code worth}, or the market price where that is already higher. What that rule lacks on
+     * its own is any sense of what a team would actually do. It assumes an incumbent who matches all the way
+     * up to the model's own valuation, and where {@code worth} runs far above {@code market} the result is a
+     * number nobody in this league has ever paid.
+     *
+     * Kicker is where that bites. The premium is the same few dollars there as at running back, but it lands
+     * on a market price of one to three rather than of fifteen to thirty, so it multiplies the price instead
+     * of nudging it. Left unbounded the board asked sixteen for the best kicker on it, against a nine-season
+     * league record of five, and routed a plan away from the cheapest points available to it.
+     *
+     * The bound is the franchise salary: the average of the top five salaries at that position the previous
+     * season, which is already computed for the tag and is the closest thing in the data to a statement of
+     * what the top of a position costs here. It is keyed on the gap and not on the position — nothing
+     * mentions kicker by name — so it binds only where the curve and the market disagree hard enough to
+     * price a player past what his position has ever fetched, and leaves running back and quarterback on
+     * their own numbers.
+     *
+     * It bounds the premium and never the price. A player the auction itself clears above the top of his
+     * position is still worth what the auction says: {@code market} is the floor, so the ceiling can only
+     * take back what the right of first refusal added.
+     *
+     * @param topOfPosition  the franchise salary at this position, or null where the previous season has no
+     *                       salaries at it and there is accordingly nothing to bound with
+     */
+    private static int matchingPrice(int market, int worth, Integer topOfPosition) {
+        int matched = worth + 1
+        int ceiling = topOfPosition != null && topOfPosition > 0 ? topOfPosition : matched
+        Math.max(market, Math.min(matched, ceiling))
     }
 
     /** How often a player of this rank actually reaches another team. */

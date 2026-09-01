@@ -1504,9 +1504,28 @@ expired, availability falls away steadily all the way down, and the fourth band 
 of the four. The two columns are answering different questions, and the reversal is entirely the
 conditioning.
 
-`AVAILABILITY` carries those retention rates onto the board, and `ACQUIRE` is `max(price, value + 1)` for a
-restricted player: to win you must clear what he is worth to the incumbent, not merely what the market
-settles at.
+`AVAILABILITY` carries those retention rates onto the board, and `ACQUIRE` is what it takes to prise a
+restricted player loose: to win you must clear what he is worth to the incumbent, not merely what the market
+settles at. That is `value + 1`, or `price` where the market is already higher.
+
+**Bounded by what the position has ever cost.** On its own that rule assumes an incumbent who matches all
+the way up to the model's own valuation, and nothing in it knows what this league pays. Where `value` runs
+far above `price` the result is a number nobody would ever put up — the board once asked 16 for the best
+kicker on it against a nine-season league record of 5, and routed a plan away from the cheapest points
+available to it. The premium is the same few dollars at kicker as at running back; it simply lands on a
+market price of one to three rather than of fifteen to thirty, so it multiplies the price instead of nudging
+it.
+
+`ACQUIRE` is therefore capped at the franchise salary — the average of the top five salaries at that
+position last season, which the tag already computes and is the closest thing in the data to a statement of
+what the top of a position costs here. The cap is keyed on the gap and not on the position: it binds only
+where the curve and the market disagree hard enough to price a player past what his position has ever
+fetched, which on the 2026 board is six kickers and nobody else of consequence.
+
+**It bounds the premium and never the price.** `price` stays the floor, so the cap can only take back what
+the right of first refusal added. The cost of that is a dollar: five elite running backs whose market price
+already clears the top-five average lose their `RFRCOST` of 1, because above the top of a position there is
+no ceiling left to apply. Against pricing two kickers at 16 and 14, that is the cheaper error.
 
 That has a consequence worth stating plainly. **Positive edge on another team's restricted free agent is
 arithmetically unavailable.** Worth more than he clears at, and his team matches, so he costs his full worth
