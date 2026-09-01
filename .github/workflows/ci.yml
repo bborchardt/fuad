@@ -1,0 +1,43 @@
+# Build, test, and hold the documentation to the figures it cites.
+#
+# The last step is the one particular to this repository. Every marked table in docs/ is checked cell by
+# cell against docs/figures, and a figure written by a superseded model fails the check rather than being
+# compared against — so a change that moves a level and leaves the prose behind fails here rather than
+# being noticed by a reader. See docs/STRATEGY.md.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history, not a shallow clone: the figures carry the sha of the model that wrote them, and
+          # check_docs.sh asks git whether src/main has moved since. A shallow clone cannot answer, and the
+          # check treats a git that cannot answer as drift.
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          # Matches .sdkmanrc, which is what a developer's shell picks up.
+          java-version: '25'
+          cache: maven
+
+      - name: Build and test
+        run: ./mvnw -B --no-transfer-progress verify
+
+      - name: Check the documentation against the figures
+        run: ./check_docs.sh
