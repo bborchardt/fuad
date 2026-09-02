@@ -1,6 +1,8 @@
 package ff.projection.fuad
 
 import ff.data.PlayerValuation
+import ff.load.fuad.FuadLoader
+import ff.load.fuad.FuadValuationLoader
 import spock.lang.Specification
 
 import java.math.RoundingMode
@@ -124,6 +126,33 @@ class AuctionValuationSpec extends Specification {
         AuctionSpend.POSITIONS.every {
             (paid[it] - AuctionValuation.MARKET_SHARE[it]).abs() < 0.005
         }
+    }
+
+    /**
+     * The steepness constants against the record they are supposed to describe.
+     *
+     * <b>This is the check that did not exist, and its absence is the whole of docs/TODO.md's second
+     * entry.</b> {@code PRICE_STEEPNESS} was fitted once, by hand, against a value column the model then
+     * changed twice; nothing recomputed it, so it drifted half a gamma from what the league was doing and
+     * every board since was priced off the drift. {@link AuctionSpend#shareByPosition} has been held to its
+     * constant this way for as long as it has existed, and this is the same discipline applied to the other
+     * half of the pricing chain.
+     *
+     * Loose enough to survive the sampling error of thirty to seventy signings a position, which is a few
+     * hundredths, and far tighter than the gap it exists to catch.
+     */
+    def "the steepness constants are what the calibrated seasons actually bid"() {
+        given:
+        FuadValuationLoader loader = new FuadValuationLoader()
+        Map<String, List<PlayerValuation>> boards = AuctionSpend.CALIBRATED_SEASONS
+                .collectEntries { [(it): loader.valuations(it, new FuadLoader().loadData(it))] }
+
+        when:
+        List<PriceSteepness.Fit> fits = PriceSteepness.of(PriceSteepness.observationsFrom(boards))
+
+        then: 'every position the record can speak to is fitted, and the constant is what came out'
+        fits.collect { it.position } as Set == AuctionSpend.POSITIONS as Set
+        fits.every { (it.gamma - AuctionValuation.PRICE_STEEPNESS[it.position]).abs() < 0.10 }
     }
 
     def "the shares are shares, so they sum to one"() {

@@ -1709,6 +1709,63 @@ answer is always no, and `RFRCOST` shows what the right to match costs an outsid
 The caveat: acquisition price assumes the incumbent values him the same as the league does, which is least
 true exactly when it matters — a team with no starting quarterback will overpay to keep one.
 
+### How steeply the league bids, which is fitted and not chosen
+
+`PRICE_STEEPNESS` bends each position's price curve to how steeply this league actually bids within it, and
+it is the one number in the chain that was fitted once and then left. It was fitted against a value column
+the model has since changed twice; nothing recomputed it, and by the time anything looked it was half a gamma
+from what the record said.
+
+**The estimator is the pricing arithmetic read backwards, not a preference.** [§5](#5-pulled-towards-how-this-league-actually-bids)
+sets a position's shares proportional to `value^gamma`, renormalises them to that position's own total, and
+prices each player at `1 + rate × share`. Taking logs of the part above the reserved minimum bid,
+`log(paid − 1) = a + gamma × log(value)`, and the slope of that line **is** gamma. Nothing is searched for,
+and nothing depends on the model's own pot — which matters, because that pot runs 6% to 11% under what the
+league spent, and an estimator built on dollar error would quietly bend gamma to absorb it. Level is not
+gamma's job.
+
+**A dollar signing is a censored observation, not a cheap one.** Half the kickers and a quarter of the tight
+ends go at the minimum bid, which says only that the market cleared them somewhere below it. Fitting over the
+rest alone is selection on the outcome and reads a steep market as a flat one — worth 0.2 to 0.3 of gamma at
+every position that carries money, which is larger than the corrections it would then be hiding. So they are
+kept, and enter the likelihood as the bound they are.
+
+<!-- figures: fuad/steepness -->
+
+| POS | SIGNINGS | CENSORED | GAMMA | SIGMA | INFORCE |
+| --- | --- | --- | --- | --- | --- |
+| QB | 45 | 3 | 1.03 | 0.89 | 1.03 |
+| RB | 62 | 6 | 1.22 | 0.84 | 1.22 |
+| WR | 76 | 12 | 1.12 | 1.16 | 1.12 |
+| TE | 33 | 8 | 0.89 | 1.27 | 0.89 |
+| PK | 30 | 15 | 0.61 | 0.66 | 0.61 |
+
+`GAMMA` is recomputed from the record whenever the figures are; `INFORCE` is what the model carries. **The
+point of the pair is that they can disagree**, and `AuctionValuationSpec` fails when they do, so a change to
+the value column cannot silently leave the steepness behind again.
+
+**Quarterback used to sit at 1.44 and tight end at 1.51**, and the documentation explained the first as this
+league paying a premium for an elite starter under superflex. The record does not support it: at 1.03,
+quarterback is bid almost exactly in line with value, and **running back is the steepest position this league
+bids**. Correcting the five constants improved the board against every season on record —
+
+| | MAE before | after |
+| --- | --- | --- |
+| 2022, held out of the fit | 9.15 | 8.77 |
+| 2023 | 7.65 | 7.40 |
+| 2024 | 7.77 | 7.61 |
+| 2025 | 7.85 | 7.60 |
+
+— and the season that gained most is the one the fit never saw, which is the only evidence here that is not
+in sample. What it does not fix is the level: `BIAS` is unchanged in sign and size, because gamma moves money
+inside a position and never into one.
+
+**What the fit cannot see is the tag.** The best players at a position are held below open bidding and never
+appear as a signing, so the steepest part of every curve is fitted where the market was allowed to operate
+and extrapolated over where it was not. That is the same censoring as the minimum bid at the other end of the
+board, and unlike the minimum bid it is not handled — there is no bound to give the likelihood, because a
+tagged player reveals nothing about what he would have fetched.
+
 ## How close the board comes to what was paid
 
 Everything above says what the model believes. This says whether the belief resembled an auction, which is a

@@ -3,6 +3,7 @@ package ff.print.figures.fuad
 import ff.data.FranchiseTag
 import ff.data.PlayerValuation
 import ff.projection.fuad.AuctionAccuracy
+import ff.projection.fuad.PriceSteepness
 import ff.projection.fuad.AuctionSpend
 import ff.projection.fuad.AuctionValuation
 import ff.projection.ByeWeeks
@@ -150,6 +151,33 @@ class ModelFiguresPrinter {
                     fit.meanAbsolute.setScale(2, RoundingMode.HALF_UP),
                     fit.bias.setScale(2, RoundingMode.HALF_UP),
                     fit.correlation == null ? '' : fit.correlation.setScale(3, RoundingMode.HALF_UP),
+            ].join('\t'))
+        }
+    }
+
+    /**
+     * How steeply the league bids within a position, fitted from what it paid, beside the constant in force.
+     *
+     * <b>The point of the pair of columns is that they can disagree.</b> {@code GAMMA} is recomputed from the
+     * record every time the figures are, and {@code INFORCE} is what {@link AuctionValuation#PRICE_STEEPNESS}
+     * carries; a change to the value column moves the first and not the second, which is exactly how the old
+     * constants came to be half a gamma away from what the league was doing. {@code AuctionValuationSpec}
+     * fails when they part, so the disagreement cannot last longer than a commit.
+     *
+     * {@code CENSORED} is what makes the fit worth having rather than a regression: those signings went at
+     * the minimum bid, which says only that the market cleared them below it, and dropping them reads a
+     * steep market as a flat one.
+     */
+    static void printSteepness(PrintWriter out, List<PriceSteepness.Fit> fits) {
+        out.println(['POS', 'SIGNINGS', 'CENSORED', 'GAMMA', 'SIGMA', 'INFORCE'].join('\t'))
+        fits.each { PriceSteepness.Fit fit ->
+            out.println([
+                    fit.position,
+                    fit.signings,
+                    fit.censored,
+                    fit.gamma.setScale(2, RoundingMode.HALF_UP),
+                    fit.sigma.setScale(2, RoundingMode.HALF_UP),
+                    AuctionValuation.PRICE_STEEPNESS[fit.position] ?: '',
             ].join('\t'))
         }
     }
