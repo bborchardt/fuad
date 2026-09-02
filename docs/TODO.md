@@ -4,6 +4,88 @@ Things measured and not yet decided. Each one says what was found, how much it m
 have to answer — so that picking it up later starts from evidence rather than from the memory of a
 conversation.
 
+## `PRICE_STEEPNESS` is fitted against a value column that has since changed shape
+
+`AuctionValuation.PRICE_STEEPNESS` bends each position's price curve as `price ~ value^gamma`, fitted across
+this league's signings by consensus rank. Giving each rank its own outcome spread changed the value it was
+fitted against — not the level, which `calibrate` pins to `MARKET_SHARE` whatever value does, but the
+distribution **inside** a position, which is the only thing gamma describes and the only channel by which
+value reaches `PRICE` at all.
+
+Top five's share of a position's value over replacement, over the players in the 2026 pool:
+
+| POS | gamma | before | after | change |
+| --- | --- | --- | --- | --- |
+| QB | 1.44 | 51.6% | 50.8% | -0.8pt |
+| RB | 1.13 | 51.1% | 52.3% | +1.2pt |
+| WR | 1.07 | 54.9% | 56.9% | +2.0pt |
+| TE | 1.51 | 66.3% | 60.0% | **-6.3pt** |
+| PK | 1.00 | 42.3% | 41.1% | -1.2pt |
+
+Tight end moved six points and carries the steepest gamma on the board.
+
+### How much it moves
+
+Prices are more sensitive to gamma than to anything the repricing did. Moving every gamma down by 0.10 and
+repricing the 2026 board:
+
+| POS | largest `PRICE` move | at |
+| --- | --- | --- |
+| QB | 94 to 86 | Lamar Jackson, QB2 |
+| RB | 75 to 70 | Jonathan Taylor, RB4 |
+| WR | 104 to 94 | Ja'Marr Chase, WR1 |
+| TE | 30 to 29 | Kyle Pitts, TE8 |
+| PK | 3 to 2 | Ka'imi Fairbairn, PK3 |
+
+Ten dollars at the top of receiver, against the four dollars that was the largest `VALUE` move anywhere on
+the board from the spread change that raised this question. A tenth of a gamma is not a small number, and
+nothing says how far a refit would move one.
+
+### Nothing would notice it going stale
+
+`MARKET_SHARE` is measured spend: `spend.tsv` regenerates it from the committed seasons and
+`AuctionValuationSpec` holds the constant to it, so it cannot drift away from the record without something
+failing. Gamma is fitted **against the model**, and the fit is not in the repository — grep finds it only as
+a hardcoded map. `figures_refresh.sh` and `check_docs.sh` have nothing to hold it to, so a change to value
+moves what it was fitted to and leaves no trace at all. That is the part worth fixing whatever the numbers
+turn out to be.
+
+**An attempt to reproduce it does not.** Regressing log price on log value over the 2023-25 signings joined
+to consensus rank — 245 of 257 signings and $5,503 of $5,711, so the join is not the problem — gives:
+
+| POS | committed | all signings | above the minimum bid |
+| --- | --- | --- | --- |
+| QB | 1.44 | 0.64 | 0.59 |
+| RB | 1.13 | 0.87 | 0.73 |
+| WR | 1.07 | 0.94 | 0.75 |
+| TE | 1.51 | 0.82 | 0.59 |
+| PK | 1.00 | 0.36 | 0.43 |
+
+Every one lands below one where four of the five committed figures are above it. **That is a difference of
+method and not evidence the constants are wrong.** The $1 minimum bid censors the bottom of every position
+and flattens a log-log slope, and nothing records whether the original fit dropped those signings, weighted
+by dollars, fitted mean price by rank rather than price by signing, or regressed on the dollar `VALUE`
+column rather than on value over replacement. The attempt above also pools three seasons of dollars without
+normalising each auction's pot, which shifts an intercept per season and can flatten a slope where the pot
+moved. Any one of those could account for the gap; the point is that none of them can be ruled out from what
+is written down.
+
+### What a fix would have to answer
+
+- **What the procedure was.** Nothing else can be settled until the fit can be reproduced, and the constants
+  are the only record of it. It is the same problem `check_docs.sh` was written for, one level further in: a
+  number generated once and then quoted.
+- **What to do about the minimum bid.** Half the kicker signings and a third of the tight ends are at $1,
+  which is a censored observation rather than a cheap one. Dropping them fits the shape of what the league
+  bids for and throws away most of what it bids on.
+- **Whether it is refitted or regenerated.** A constant refitted by hand goes stale the next time value
+  moves, and value has now moved twice. A fit that lives in the model and writes its figures like everything
+  else cannot.
+- **Whether gamma should be fitted against value at all.** It is fitted against a model quantity, so it
+  inherits every change to that quantity. Fitting price against the consensus **rank** instead would make it
+  a description of the league that a repricing cannot invalidate — at the cost of no longer composing with
+  the value curve the way `steepen` assumes.
+
 ## The flex allocation is decided on season totals, replacement is then taken at a weekly rate
 
 `ExpectedValue.startersOf` hands `PointsCurve.seasonPoints` to the allocator, so how many of each position

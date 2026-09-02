@@ -1711,15 +1711,26 @@ true exactly when it matters — a team with no starting quarterback will overpa
 
 ## Why the top of the board is not testable against what has been paid
 
-The largest auction price in the record is $100 and the model's top price is $90, which looks like
-agreement and is not evidence of any. **The observed prices are censored by the tag**: the best players are
-tagged at the positional average of last year's top five and never reach open bidding, so the auction has
-essentially never had to price a top-five player. The one time it nearly did, Lamar Jackson in 2025, the
-winning team paid $100 *and* gave up a first round pick, so even that understates what he cost.
+The largest auction price in the record is $100 and the model's top price is $104. Neither the agreement
+this looked like when the model's figure was $90 nor the disagreement it looks like now is evidence of
+anything. **The observed prices are censored by the tag**: the best players are tagged at the positional
+average of last year's top five and never reach open bidding, so the auction has essentially never had to
+price a top-five player. The one time it nearly did, Lamar Jackson in 2025, the winning team paid $100 *and*
+gave up a first round pick, so even that understates what he cost.
 
-What can be checked is concentration rather than level: the board puts 89% of the pot in its top 40 against
-87% in 2025. The top prices themselves remain willingness to pay rather than clearing prices — an auction
-settles at what the *second* bidder will go to — and the tag keeps that question unanswerable either way.
+<!-- figures: fuad/board -->
+
+| FIGURE | VALUE |
+| --- | --- |
+| TOPPRICE | 104 |
+| TOP40PRICE | 85.8 |
+
+What can be checked is concentration rather than level, and it is checked against 87% in 2025: `TOP40PRICE`
+is generated rather than quoted, so it moves in the commit that moves it. It has been on both sides of the
+record — a point above before ranks were given their own outcome spread, a point and a bit under since — and
+a point either way is small next to what the calibration it is testing cannot see. The top prices themselves
+remain willingness to pay rather than clearing prices — an auction settles at what the *second* bidder will
+go to — and the tag keeps that question unanswerable either way.
 
 ## Provenance
 
