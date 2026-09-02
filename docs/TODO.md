@@ -77,6 +77,10 @@ The board can be priced for a past season, so the question is answerable rather 
 counts, an expiring contract re-signed or a veteran on no pre-draft roster who was not a later waiver
 pickup — joins 245 of 257 signings over the calibrated seasons and 66 of 68 in 2022.
 
+That join is now the model's own, in `AuctionAccuracy` and reported as `accuracy.tsv`; the figures below came
+from the scratch version of it, which matched to the dollar except where joining on names rather than on
+identifiers cost it a player.
+
 `PTS` and `G` are identical between the two models for every joined player and only `VOR` differs, so this
 isolates the outcome spread and nothing else.
 
@@ -141,13 +145,12 @@ genuinely held-out season and it is one season the league had not adjusted to su
   inherits every change to that quantity. Fitting price against the consensus **rank** instead would make it
   a description of the league that a repricing cannot invalidate — at the cost of no longer composing with
   the value curve the way `steepen` assumes.
-- **Whether any of this belongs in the repository rather than in a scratch directory.** The measurement above
-  is a one-off: boards priced for four past seasons, joined to what was paid, swept across a grid by patching
-  a constant and rebuilding. Nothing of it survives, so the next person asking whether the board predicts the
-  auction starts from nothing, which is exactly the position this file exists to prevent. `check_docs.sh`
-  holds the prose to the figures and `check_strategy.sh` holds a plan to its board; nothing holds the board
-  to the record. That is the same gap one level out, and it is what let a fitted constant go unexamined long
-  enough to be worth more accuracy than anything else on this list.
+- **Whether the sweep belongs in the repository.** Half of this is now answered: the board is held to the
+  record by `AuctionAccuracy`, written to `docs/figures/fuad/<year>/accuracy.tsv` on every refresh and
+  described in [PROJECTION.md](fuad/PROJECTION.md#how-close-the-board-comes-to-what-was-paid), so the
+  question "is the board any good" no longer starts from nothing. The sweep that answers "what should gamma
+  be" is still a scratch script — a constant patched and the project rebuilt, seven times, twice over — and
+  it is the half that would have to run for a refit to be checkable rather than asserted.
 
 ## The flex allocation is decided on season totals, replacement is then taken at a weekly rate
 
