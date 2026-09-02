@@ -4,153 +4,51 @@ Things measured and not yet decided. Each one says what was found, how much it m
 have to answer — so that picking it up later starts from evidence rather than from the memory of a
 conversation.
 
-## `PRICE_STEEPNESS` is fitted against a value column that has since changed shape
+## The outcome spread costs accuracy that refitting the steepness does not fully return
 
-`AuctionValuation.PRICE_STEEPNESS` bends each position's price curve as `price ~ value^gamma`, fitted across
-this league's signings by consensus rank. Giving each rank its own outcome spread changed the value it was
-fitted against — not the level, which `calibrate` pins to `MARKET_SHARE` whatever value does, but the
-distribution **inside** a position, which is the only thing gamma describes and the only channel by which
-value reaches `PRICE` at all.
+Giving each rank its own outcome spread makes the board fit the record worse, and the fix that looked like
+it would absorb that only partly does. `PRICE_STEEPNESS` has since been refitted from the record — see
+[how steeply the league bids](fuad/PROJECTION.md#how-steeply-the-league-bids-which-is-fitted-and-not-chosen)
+— which was worth more accuracy than the spread change cost, so the two together leave the board better than
+it was. But they are separable, and separated they do not both point the same way.
 
-Top five's share of a position's value over replacement, over the players in the 2026 pool:
+Mean absolute error against what the league actually paid, over 2022-2025, each model given its own fitted
+steepness:
 
-| POS | gamma | before | after | change |
-| --- | --- | --- | --- | --- |
-| QB | 1.44 | 51.6% | 50.8% | -0.8pt |
-| RB | 1.13 | 51.1% | 52.3% | +1.2pt |
-| WR | 1.07 | 54.9% | 56.9% | +2.0pt |
-| TE | 1.51 | 66.3% | 60.0% | **-6.3pt** |
-| PK | 1.00 | 42.3% | 41.1% | -1.2pt |
-
-Tight end moved six points and carries the steepest gamma on the board.
-
-### How much it moves
-
-Prices are more sensitive to gamma than to anything the repricing did. Moving every gamma down by 0.10 and
-repricing the 2026 board:
-
-| POS | largest `PRICE` move | at |
+| | old spread | new spread |
 | --- | --- | --- |
-| QB | 94 to 86 | Lamar Jackson, QB2 |
-| RB | 75 to 70 | Jonathan Taylor, RB4 |
-| WR | 104 to 94 | Ja'Marr Chase, WR1 |
-| TE | 30 to 29 | Kyle Pitts, TE8 |
-| PK | 3 to 2 | Ka'imi Fairbairn, PK3 |
+| steepness as it was committed | 7.66 | 8.05 |
+| steepness refitted from the record | **7.50** | 7.80 |
 
-Ten dollars at the top of receiver, against the four dollars that was the largest `VALUE` move anywhere on
-the board from the spread change that raised this question. A tenth of a gamma is not a small number, and
-nothing says how far a refit would move one.
+Refitting helps both. **The spread change costs about 0.3 either way**, and the best board on this measure
+is the old spread with the new steepness, which is not what is committed.
 
-### Nothing would notice it going stale
+### Why it is not simply reverted
 
-`MARKET_SHARE` is measured spend: `spend.tsv` regenerates it from the committed seasons and
-`AuctionValuationSpec` holds the constant to it, so it cannot drift away from the record without something
-failing. Gamma is fitted **against the model**, and the fit is not in the repository — grep finds it only as
-a hardcoded map. `figures_refresh.sh` and `check_docs.sh` have nothing to hold it to, so a change to value
-moves what it was fitted to and leaves no trace at all. That is the part worth fixing whatever the numbers
-turn out to be.
+The spread change is a correctness fix to `VALUE`, measured directly from the outcome record: a rank's
+seasons genuinely scatter two to three times as widely at the back of a position as at the front, and
+pooling them was two errors that happened to cancel at the top of the board. That claim is not in doubt and
+does not rest on the auction agreeing with it. `VALUE` is also what `EDGE` and the roster reports consume,
+and both are better for it.
 
-**An attempt to reproduce it does not.** Regressing log price on log value over the 2023-25 signings joined
-to consensus rank — 245 of 257 signings and $5,503 of $5,711, so the join is not the problem — gives:
+What the measurement says is that the market does not price the way the corrected value column says it
+should — which is a finding about the market, or about which parts of value a bidder actually responds to,
+rather than a refutation of the spread. The board carries `VALUE` and `PRICE` as separate numbers precisely
+because they are allowed to disagree; this is the largest disagreement anything has yet measured between
+them.
 
-| POS | committed | all signings | above the minimum bid |
-| --- | --- | --- | --- |
-| QB | 1.44 | 0.64 | 0.59 |
-| RB | 1.13 | 0.87 | 0.73 |
-| WR | 1.07 | 0.94 | 0.75 |
-| TE | 1.51 | 0.82 | 0.59 |
-| PK | 1.00 | 0.36 | 0.43 |
+### What is not settled
 
-Every one lands below one where four of the five committed figures are above it. **That is a difference of
-method and not evidence the constants are wrong.** The $1 minimum bid censors the bottom of every position
-and flattens a log-log slope, and nothing records whether the original fit dropped those signings, weighted
-by dollars, fitted mean price by rank rather than price by signing, or regressed on the dollar `VALUE`
-column rather than on value over replacement. The attempt above also pools three seasons of dollars without
-normalising each auction's pot, which shifts an intercept per season and can flatten a slope where the pot
-moved. Any one of those could account for the gap; the point is that none of them can be ruled out from what
-is written down.
-
-### Measured against what the league actually paid
-
-The board can be priced for a past season, so the question is answerable rather than arguable. Pricing
-2022-2025 and joining each board to what every player was really paid — the same signings `AuctionSpend`
-counts, an expiring contract re-signed or a veteran on no pre-draft roster who was not a later waiver
-pickup — joins 245 of 257 signings over the calibrated seasons and 66 of 68 in 2022.
-
-That join is now the model's own, in `AuctionAccuracy` and reported as `accuracy.tsv`; the figures below came
-from the scratch version of it, which matched to the dollar except where joining on names rather than on
-identifiers cost it a player.
-
-`PTS` and `G` are identical between the two models for every joined player and only `VOR` differs, so this
-isolates the outcome spread and nothing else.
-
-| | n | old MAE | new MAE | difference | 95% CI |
-| --- | --- | --- | --- | --- | --- |
-| 2023-25, as committed | 245 | 7.33 | 7.77 | +0.44 | +0.16 to +0.73 |
-| 2023-25, each at its own best gamma | 245 | 6.87 | 7.14 | +0.27 | +0.00 to +0.53 |
-| 2022, held out of the calibration | 66 | 8.86 | 9.15 | +0.29 | -0.56 to +1.47 |
-
-**Giving each rank its own outcome spread makes the board fit the record worse, and refitting gamma does not
-rescue it.** It recovers about two fifths of the gap and leaves the rest, which is marginal at the pooled
-level and driven by running back (+0.58, CI +0.03 to +1.10) and receiver (+0.41, CI -0.12 to +0.92).
-Quarterback is flat, tight end is slightly better, kicker is identical to the dollar. The one held-out season
-cannot tell the two apart at all, and has the new board closer on more players than the old one while its
-mean error is higher.
-
-Scaling each board to the pot actually spent, and then to each position's own actual spend, moves the gap
-hardly at all — 7.28 against 7.75 on the last of those — so this is entirely the shape **inside** a position,
-which is what gamma and the outcome spread both act on and what makes the two confounded.
-
-### The committed gammas are worth more than any of this
-
-The same sweep, read down its own column, says the constants are a long way from what fits:
-
-| POS | committed | best on this measure | MAE at committed | at best |
-| --- | --- | --- | --- | --- |
-| QB | 1.44 | 1.0 | 10.24 | 8.72 |
-| RB | 1.13 | 0.8 | 8.54 | 7.55 |
-| WR | 1.07 | 1.0 | 7.86 | 7.86 |
-| TE | 1.51 | 1.0 | 7.14 | 6.10 |
-| PK | 1.00 | 1.2 | 0.82 | 0.79 |
-
-Refitting is worth about 0.6 of mean absolute error on the old model and 0.8 on the new one, against the 0.27
-to 0.44 the spread change costs. **So the two together leave the board better than it is today** — 7.33
-becomes 7.14 — while the spread change alone makes it worse. That is the whole of the merge argument, and it
-is why the two belong in one change rather than two.
-
-It also means the log-log regression above is not alone: two methods that share no arithmetic both say gamma
-should be lower than what is committed, and at quarterback and tight end much lower. A gamma near one is no
-steepening at all, which contradicts the reading these constants exist to express — that this league pays a
-premium for an elite starter. Something is wrong in one direction or the other and neither method can say
-which.
-
-**None of the above is out of sample.** The curve is built from 2017-2025 whichever season is priced, so the
-level leaks; `MARKET_SHARE` is fitted on the same three seasons the error is measured over; and the best-gamma
-rows fit five parameters on the same 245 observations they are scored on. Both models carry all three
-equally, so the comparison between them is fair while the absolute figures are flattered. 2022 is the only
-genuinely held-out season and it is one season the league had not adjusted to superflex in.
-
-### What a fix would have to answer
-
-- **What the procedure was.** Nothing else can be settled until the fit can be reproduced, and the constants
-  are the only record of it. It is the same problem `check_docs.sh` was written for, one level further in: a
-  number generated once and then quoted.
-- **What to do about the minimum bid.** Half the kicker signings and a third of the tight ends are at $1,
-  which is a censored observation rather than a cheap one. Dropping them fits the shape of what the league
-  bids for and throws away most of what it bids on.
-- **Whether it is refitted or regenerated.** A constant refitted by hand goes stale the next time value
-  moves, and value has now moved twice. A fit that lives in the model and writes its figures like everything
-  else cannot.
-- **Whether gamma should be fitted against value at all.** It is fitted against a model quantity, so it
-  inherits every change to that quantity. Fitting price against the consensus **rank** instead would make it
-  a description of the league that a repricing cannot invalidate — at the cost of no longer composing with
-  the value curve the way `steepen` assumes.
-- **Whether the sweep belongs in the repository.** Half of this is now answered: the board is held to the
-  record by `AuctionAccuracy`, written to `docs/figures/fuad/<year>/accuracy.tsv` on every refresh and
-  described in [PROJECTION.md](fuad/PROJECTION.md#how-close-the-board-comes-to-what-was-paid), so the
-  question "is the board any good" no longer starts from nothing. The sweep that answers "what should gamma
-  be" is still a scratch script — a constant patched and the project rebuilt, seven times, twice over — and
-  it is the half that would have to run for a refit to be checkable rather than asserted.
+- **Whether the fitted seasons are enough to tell.** Four seasons, 312 signings, and the one season held out
+  of the calibration is also the season the league had not adjusted to superflex in. On that season the two
+  models are within a tenth of each other and the ordering of the four boards above reverses.
+- **Whether the tag censors the fit as badly as the minimum bid does.** The steepness fit handles a dollar
+  signing as the bound it is, and has nothing to say about the eight players a year held out of the auction
+  entirely. Those are the top of every position — exactly where the spread change moved value most — so the
+  part of the board this disagreement is about is the part the record is quietest on.
+- **Whether value over replacement is what a bidder responds to at all.** Gamma exists because it is not,
+  quite. A spread change that makes value more correct and prices less accurate is evidence about the gap
+  between the two, and the model has no account of that gap beyond a single exponent per position.
 
 ## The flex allocation is decided on season totals, replacement is then taken at a weekly rate
 
