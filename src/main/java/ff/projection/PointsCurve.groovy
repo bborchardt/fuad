@@ -73,7 +73,7 @@ class PointsCurve {
      * handed the best quarterback on the board and the 34th the same distribution of rate multipliers and
      * the same distribution of games, and the record says they do not have one. Taken rank by rank the
      * coefficient of variation of the rate multiplier climbs from 0.17 at the top of quarterback to 0.47 at
-     * its priced floor, from 0.21 to 0.53 at receiver, and the same way at every other position; how much
+     * its priced floor, from 0.21 to 0.59 at receiver, and the same way at every other position; how much
      * football a rank plays falls with it. The figures are in docs/figures/fuad/&lt;year&gt;/curve.tsv as
      * SPREAD against G, rather than quoted here where nothing would notice them going stale.
      *

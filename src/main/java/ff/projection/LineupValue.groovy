@@ -56,8 +56,15 @@ class LineupValue {
     /** A rostered player, reduced to what a lineup needs. */
     static class Rostered {
         final String position
-        /** Which rank he is, which is what says how widely his seasons run. See {@link #seasonOf}. */
-        final int rank
+        /**
+         * The seasons his rank is replayed against, and the games they average.
+         *
+         * Held here rather than looked up per replay because both are fixed the moment a rank is known and
+         * {@link #seasonOf} wants them four hundred times a roster. They are his rank's own window, not the
+         * position's — see {@link PointsCurve#outcomeSeasons}.
+         */
+        final List<PointsCurve.Outcome> outcomes
+        final double meanGames
         /**
          * What he scores in a week he plays.
          *
@@ -71,9 +78,11 @@ class LineupValue {
         /** How many of those weeks this rank has historically played. */
         final double expectedGames
 
-        Rostered(String position, int rank, double rate, int[] playable, double expectedGames) {
+        Rostered(String position, List<PointsCurve.Outcome> outcomes, double rate, int[] playable,
+                 double expectedGames) {
             this.position = position
-            this.rank = rank
+            this.outcomes = outcomes
+            this.meanGames = outcomes ? outcomes.collect { it.games }.sum() / outcomes.size() : 0.0d
             this.rate = rate
             this.playable = playable
             this.expectedGames = expectedGames
@@ -105,7 +114,6 @@ class LineupValue {
     private final Map<String, Integer> maximums
     private final int slots
     private final int lastWeek
-    private final Map<List, Double> meanGames = [:]
 
     LineupValue(PointsCurve curve, ByeWeeks byes, StarterRequirements requirements) {
         this.curve = curve
@@ -174,7 +182,8 @@ class LineupValue {
         if (!rate || !games || !playable) {
             return null
         }
-        new Rostered(position, rank, rate.toDouble(), playable as int[], games.toDouble())
+        new Rostered(position, curve.outcomeSeasons(position, rank), rate.toDouble(), playable as int[],
+                games.toDouble())
     }
 
     /** What this roster scores, averaged over the seasons it is replayed against. */
@@ -239,7 +248,7 @@ class LineupValue {
     private void seasonOf(List<Rostered> roster, int sample, double[] multipliers, boolean[][] playing) {
         for (int index = 0; index < roster.size(); index++) {
             Rostered player = roster[index]
-            List<PointsCurve.Outcome> outcomes = curve.outcomeSeasons(player.position, player.rank)
+            List<PointsCurve.Outcome> outcomes = player.outcomes
             int weeks
             if (!outcomes) {
                 multipliers[index] = 1.0
@@ -248,25 +257,12 @@ class LineupValue {
                 PointsCurve.Outcome outcome = outcomes[Math.min(outcomes.size() - 1,
                         (draw(sample, index, FORM) * outcomes.size()) as int)]
                 multipliers[index] = outcome.rateMultiplier
-                double mean = meanGamesOf(player.position, player.rank, outcomes)
-                weeks = Math.round(mean > 0 ? player.expectedGames * outcome.games / mean
-                        : player.expectedGames) as int
+                weeks = Math.round(player.meanGames > 0
+                        ? player.expectedGames * outcome.games / player.meanGames : player.expectedGames) as int
             }
             play(player, playing[index], Math.max(0, Math.min(player.playable.length, weeks)),
                     draw(sample, index, TIMING))
         }
-    }
-
-    /** The games a rank's replayed seasons average, which is what a drawn one is a multiple of. */
-    private double meanGamesOf(String position, int rank, List<PointsCurve.Outcome> outcomes) {
-        List key = [position, rank]
-        Double known = meanGames[key]
-        if (known != null) {
-            return known
-        }
-        double mean = outcomes ? outcomes.collect { it.games }.sum() / outcomes.size() : 0.0d
-        meanGames[key] = mean
-        mean
     }
 
     /**
