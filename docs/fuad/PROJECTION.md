@@ -289,17 +289,17 @@ Value over replacement at a player's expected points is `max(0, E[X] - replaceme
 actually worth is `E[max(0, X - replacement)]`, because a player only has to be started in the weeks he is
 good. The second is never smaller, and the gap is widest at replacement level — exactly where a bench sits:
 
-`VOR` is the first, which is what the board prices with; `VOREXP` is the second, carried only so the two can
-be compared. Read down a position at a time:
+`VOREXP` is the first, carried only so the two can be compared; `VOR` is the second, which is what the board
+prices with. Read down a position at a time:
 
 <!-- figures: fuad/curve across=POS field=VOR -->
 
 | Rank | QB | WR | RB |
 | --- | --- | --- | --- |
-| 10 | 43.2 | | |
-| 30 | | 17.6 | 15.6 |
-| 38 | | 12.5 | |
-| 48 | | | 4.1 |
+| 10 | 42.6 | | |
+| 30 | | 14.4 | 16.3 |
+| 38 | | 9.7 | |
+| 48 | | | 7.6 |
 
 <!-- figures: fuad/curve across=POS field=VOREXP -->
 
@@ -311,7 +311,8 @@ be compared. Read down a position at a time:
 | 48 | | | 0.0 |
 
 Every one of those gaps is positive, and it is widest where a player sits near replacement rather than well
-clear of it — RB48 is worth nothing at all on the second reading and about five points on the first.
+clear of it — RB48 is worth nothing at all at his expectation and nearly eight points once the season is
+allowed to go several ways.
 
 The spread is real: realised points at a given preseason rank vary with a coefficient of variation of 0.5 to
 0.6 by position, and players nominally below replacement still clear it often.
@@ -435,9 +436,9 @@ As priced, which is generated:
 
 | FIGURE | VALUE | Actual 2025 |
 | --- | --- | --- |
-| Players above $1 | 76 | 70 |
-| Top cost | 84 | $100 |
-| Top 40 cost | 86.7 | 87% |
+| Players above $1 | 86 | 70 |
+| Top cost | 94 | $100 |
+| Top 40 cost | 84.6 | 87% |
 
 <!-- model: 59b4f91 -->
 
@@ -724,10 +725,10 @@ The highest `PRICE` is Ja'Marr Chase, which no one pays because he is tagged wel
 | FIGURE | VALUE | Actual 2025 |
 | --- | --- | --- |
 | Players | 105 | |
-| Total cost | 1934 | |
-| Top price | 96 | $100 |
-| Players above $1 | 76 | 70 |
-| Top 40 price | 87.6 | 87% |
+| Total cost | 1936 | |
+| Top price | 104 | $100 |
+| Players above $1 | 86 | 70 |
+| Top 40 price | 85.8 | 87% |
 | Teams tagging | 9 | 7 |
 
 Position shares are the ones the league actually spends, since `MARKET_WEIGHT` is 1.0. `SHARE` is what the
@@ -737,11 +738,11 @@ board came out at and `TARGETSHARE` what the calibration aimed for:
 
 | POS | PLAYERS | RESERVE | SHARE | TARGETSHARE |
 | --- | --- | --- | --- | --- |
-| QB | 19 | 0.9 | 23.8 | 23.7 |
-| RB | 22 | 1.1 | 32.0 | 32.3 |
-| WR | 24 | 1.2 | 33.2 | 33.5 |
-| TE | 22 | 1.1 | 9.9 | 9.4 |
-| PK | 18 | 0.9 | 1.2 | 1.0 |
+| QB | 19 | 0.9 | 23.7 | 23.7 |
+| RB | 22 | 1.0 | 32.1 | 32.3 |
+| WR | 24 | 1.1 | 33.1 | 33.5 |
+| TE | 22 | 1.0 | 9.8 | 9.4 |
+| PK | 18 | 0.9 | 1.3 | 1.0 |
 
 **Those two columns do not match, and the reason is not a failure of the calibration.** It hits the target
 exactly — the shares of value it hands on are `TARGETSHARE` to the decimal, and bending each position's
@@ -756,11 +757,15 @@ sixth of the board's players against a `SHARE` almost the whole of which is mini
 
 Nine tags are predicted, one per team.
 
-The concentration is the number to watch. Splitting rate from availability raised the top of the board — the
-best players lose less to the injury smear than the deep ones did — and the top forty now hold a little
-under 89% of what open bidding would pay, against the 87% the league actually spent in 2025. A point of
-drift toward a more top-heavy board than the record, small but in the direction the model is least able to
-check, since the tag keeps the very top from ever being priced in the open.
+The concentration is the number to watch, and it has now been pushed both ways. Splitting rate from
+availability raised the top of the board, the best players losing less to the injury smear than the deep
+ones did, and taking each rank's outcome spread from its own neighbourhood has since given some of that back
+at the other end: a deep rank's seasons run wider than the position's, and value over replacement is convex,
+so the bench is worth more than one pooled distribution said. The top forty now hold 85.8% of what open
+bidding would pay against the 87% the league actually spent in 2025, having been a little over it before.
+That is a point of drift toward a flatter board than the record rather than a steeper one, and it is small
+either way, but it is in the direction the model is least able to check: the tag keeps the very top from
+ever being priced in the open.
 
 ## Team context
 
@@ -953,10 +958,10 @@ calibration touches it.
 
 | POS | TARGETSHARE | VORSHARE |
 | --- | --- | --- |
-| WR | 33.5 | 23.8 |
-| RB | 32.3 | 37.0 |
+| WR | 33.5 | 22.9 |
+| RB | 32.3 | 36.9 |
 
-Receiver is bought a third above what it is worth and running back at about nine tenths of it. Named by
+Receiver is bought nearly half again above what it is worth and running back at about seven eighths of it. Named by
 position rather than by player for the reason [STRATEGY.md](../STRATEGY.md#what-the-board-carries) gives about
 ranks: a position is on a figure that is committed and checked, where the two players this paragraph used
 to name were on a board that is regenerated and never kept — and both of their numbers had gone stale.
@@ -1435,12 +1440,12 @@ reached which pick, not a claim that waiting improves the board.
 | --- | --- |
 | RANKED | 117 |
 | TOPTEN | 9 |
-| SURPLUS | 1221 |
-| DEFERRED | 1074 |
+| SURPLUS | 1311 |
+| DEFERRED | 1153 |
 | SALARY | 30 |
 
-Nine rookies expected to go inside the first ten picks, costing $30 between them, holding $1,221 of surplus
-over their contracts — of which **$1,074, or 88%, arrives after the season the pick is spent in**.
+Nine rookies expected to go inside the first ten picks, costing $30 between them, holding $1,311 of surplus
+over their contracts — of which **$1,153, or 88%, arrives after the season the pick is spent in**.
 
 That figure is the whole case for the rookie board. It is the part of a pick that no auction dollar can buy
 at any price, and pricing a rookie on his first season would report a tenth of it.
@@ -1575,7 +1580,7 @@ anything — a dead constant that looked live, and which cost an afternoon of mi
 
 | POS | SHARE | TARGETSHARE | PRICEDDEPTH | SEASONS | LOST | P10 | P90 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| PK | 1.2 | 1.0 | 25 | 225 | 11 | 0.36 | 1.41 |
+| PK | 1.3 | 1.0 | 25 | 225 | 11 | 0.36 | 1.41 |
 
 Rank predicts kicker scoring better than the position's reputation suggests. Over 2017-2025 the preseason
 PK1 finished inside the top ten kickers in **every one of the nine seasons**, and the curve separates the
@@ -1610,15 +1615,15 @@ any calibration touches it, which is what makes the pair worth reading:
 
 | POS | TARGETSHARE | VORSHARE |
 | --- | --- | --- |
-| QB | 23.7 | 24.8 |
-| RB | 32.3 | 37.0 |
-| WR | 33.5 | 23.8 |
-| TE | 9.4 | 8.3 |
-| PK | 1.0 | 6.2 |
+| QB | 23.7 | 25.6 |
+| RB | 32.3 | 36.9 |
+| WR | 33.5 | 22.9 |
+| TE | 9.4 | 8.1 |
+| PK | 1.0 | 6.6 |
 
-Kicker is out by a factor of nearly six and nothing else is out by a factor at all. Quarterback and running
-back are bought at about nine tenths of their worth; receiver is bought a third above it and **tight end
-two fifths above**, which is the same mispricing
+Kicker is out by a factor of nearly seven and nothing else is out by a factor at all. Quarterback is bought
+at about nine tenths of its worth and running back at seven eighths; receiver is bought nearly half again
+above it and **tight end a sixth above**, which is the same mispricing
 [§5](#5-pulled-towards-how-this-league-actually-bids) reports from the price side. This sentence had tight
 end the wrong way round for as long as it has existed, saying a third below where the two columns beside it
 have always said above — which is what a figure nothing recomputed buys you even when the figure itself is
