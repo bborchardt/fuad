@@ -1504,9 +1504,40 @@ expired, availability falls away steadily all the way down, and the fourth band 
 of the four. The two columns are answering different questions, and the reversal is entirely the
 conditioning.
 
-`AVAILABILITY` carries those retention rates onto the board, and `ACQUIRE` is `max(price, value + 1)` for a
-restricted player: to win you must clear what he is worth to the incumbent, not merely what the market
-settles at.
+`AVAILABILITY` carries those retention rates onto the board, and `ACQUIRE` is what it takes to prise a
+restricted player loose: to win you must clear what he is worth to the incumbent, not merely what the market
+settles at. That is `value + 1`, or `price` where the market is already higher.
+
+**The premium is bounded by what the position costs.** On its own that rule assumes an incumbent who
+matches all the way up to the model's own valuation, and nothing in it knows what this league pays. Where
+`value` runs far above `price` the result is a number nobody would ever put up — the board once asked 16 for
+the best kicker on it against a nine-season league record of 5, and routed a plan away from the cheapest
+points available to it. The premium is the same few dollars at kicker as at running back; it simply lands on
+a market price of one to three rather than of fifteen to thirty, so it multiplies the price instead of
+nudging it.
+
+What is wrong there is the premium and not the price, so the premium is what is bounded. Right of first
+refusal may add up to the franchise salary — the average of the top five salaries at that position last
+season, which the tag already computes and is the closest thing in the data to a statement of what the top
+of a position costs here — and no more:
+
+```
+ACQUIRE = PRICE + min(max(0, VALUE + 1 - PRICE), franchise salary)
+```
+
+The bound is keyed on the gap and not on the position, and outside kicker it binds on nothing: the allowance
+runs to tens of dollars at every other position against premiums of two to five, so every other `ACQUIRE` on
+the board is the number the unbounded rule gave. At kicker the two best now cost 6 rather than 16 and 14,
+against a record of 5.
+
+**Bounding the premium rather than capping the price is what keeps this monotonic**, and the difference is
+not cosmetic. A cap on the price is clipped by the `PRICE` floor exactly where the market has already
+cleared above the position's top, so it would delete the premium on the five best running backs — the
+players whose incumbent would most certainly match — taking Christian McCaffrey from 76 to 74. It is also
+discontinuous: capping at running back's franchise salary of 60 prices a back clearing at 60 with no premium
+at all and one clearing at 61 at his full `value + 1`, so a marginally better player would cost eleven
+dollars more to prise loose. The premium bound has neither problem. It never returns less than `PRICE`, it
+can only ever lower the unbounded answer, and it is non-decreasing in rank down the board.
 
 That has a consequence worth stating plainly. **Positive edge on another team's restricted free agent is
 arithmetically unavailable.** Worth more than he clears at, and his team matches, so he costs his full worth

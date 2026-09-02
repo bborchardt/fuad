@@ -92,50 +92,72 @@ is here so that the two bases are known to disagree, and so the check is not red
 time somebody notices. What would change the answer is a curve whose expected games differ materially across
 the contested ranks — worth re-running then, and not before.
 
-## The restricted free agent premium has no behavioural ceiling
+## A tagged player's price and everyone else's are computed in different worlds
 
-`AuctionValuation.price` sets a held player's acquisition price at `max(market, value + 1)`: an outside
-bidder has to clear what the player is worth to the team holding him, because that team may match. The rule
-is right in principle — right of first refusal is what makes positive edge on somebody else's restricted
-free agent [arithmetically unavailable](fuad/PROJECTION.md#restricted-free-agency-and-why-bargains-are-unavailable) rather than merely rare — but it
-assumes an incumbent who matches all the way up to the model's own valuation, and nothing bounds that by
-what the league has ever actually paid.
+`AuctionValuation.price` prices an untagged player at the board's clearing rate, `(pot − slots) /
+biddingShare`, where the tagged have already left the pool and their tag prices have already left the pot. A
+tagged player cannot be priced that way — [it would overstate him by a quarter](fuad/PROJECTION.md#6-franchise-tags-iterated-to-a-fixed-point)
+— so he gets a counterfactual instead: the clearing rate of the world in which his own team did not tag him,
+with him back in the pool, his tag price back in the pot, and one more slot to fill.
 
-It breaks wherever `value` sits far above the market price, which is to say at kicker. The highest kicker
-salary in nine seasons of this league:
+```
+tagged:    (pot + franchiseSalary − (slots + 1)) / (biddingShare + share)
+everyone:  (pot − slots) / biddingShare
+```
 
-| 2017 | 2018 | 2019 | 2020 | 2021 | 2022 | 2023 | 2024 | 2025 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | 2 | 3 | 4 | 2 | 5 | 5 | 5 | 5 |
+**Each rate is right for its own world, and the `PRICE` column reports both side by side.** That is the
+whole of the issue: the two are not on one scale, and nothing on the board says which basis a price is on.
 
-Nobody has ever paid more than five. The 2026 board asks 16 for Cameron Dicker, whose market price is 3 and
-whose value is 15, and 14 for Ka'imi Fairbairn against a market price of 3. Both are more than three times
-the league record, and the number is not a prediction of anything a team here would do.
+**The counterfactual is systematically the lower of the two, and always in the same direction.** It adds the
+player's own share to the denominator and only the tag price to the numerator, and a player worth tagging is
+by definition worth more than his tag costs. In the limit where the tag were free the depression is exactly
+`share / (biddingShare + share)`.
 
-**It is the ratio and not the premium that is wrong.** Mean restriction premium runs +3.0 at running back
-and +1.9 at quarterback, on market prices of fifteen to thirty, which is a sensible few per cent. At kicker
-the mean is +2.8 on market prices of one to three — the same dollars against a fifth of the base, so the
-price multiplies rather than nudges. Receiver and tight end are +0.1 and +0.5 and are not affected at all.
+### How much it moves
 
-**What it costs is a real buy.** Kicker was the largest single hole on franchise 0001's 2026 roster, with no
-kicker under contract at all: a kicker bought for a plausible 6 adds 105 points to that lineup, which is what
-Amon-Ra St. Brown adds for 84. Pricing the two best kickers at 14 and 16 routes a plan away from the cheapest
-points on its board.
+The 2026 board, at the round the tags settled on — nine tags, `pot` 1444, `slots` 69, `biddingShare` 1532:
 
-**The blast radius is small, which is why this is a note and not a defect.** `acquisitionSalary` is reported
-and never priced — `FuadSalaryProjectionPrinter` and `FuadRosterFitPrinter` read it, and nothing feeds it
-back into the board — so no other figure is wrong because of it.
+| Player | tag | counterfactual | at the board's own rate | gap | tag/price |
+| --- | --- | --- | --- | --- | --- |
+| Ja'Marr Chase, WR1 | 61 | 96 | 98 | -2 | 0.64 |
+| Lamar Jackson, QB2 | 66 | 89 | 90 | -1 | 0.74 |
+| Jahmyr Gibbs, RB1 | 60 | 74 | 75 | -1 | 0.81 |
+| CeeDee Lamb, WR5 | 61 | 79 | 80 | -1 | 0.77 |
+| Jonathan Taylor, RB4 | 60 | 72 | 72 | 0 | 0.83 |
+| Saquon Barkley, RB7 | 60 | 65 | 65 | 0 | 0.92 |
+| Dalton Kincaid, TE11 | 24 | 30 | 30 | 0 | 0.80 |
+
+**Nought to two dollars, and it is bounded well below what the mechanism allows.** Holding Chase's share and
+varying only the tag price he is put back with, the gap widens from -2 at his real tag of 61 to -6 at a tag
+of 1, and no further: one player's share against a `biddingShare` of 1532 is 7%, so 7% is the whole of the
+effect available on a board this size. The depression is a property of how concentrated the board is, not of
+the tag price.
+
+**Where it bites is a board whose adjacent prices are closer together than that.** `AuctionPricingSpec`
+prices 45 quarterbacks and nothing else, so one player's share is a much larger fraction of the total and
+consecutive ranks are 3% apart. There the top player is tagged and prices at 132 against the second's 139:
+the ordering inverts, and the test asserting that a better player never costs less to prise loose has to
+exclude tagged players to pass. That exclusion is honest — a tagged price is a different measurement — but
+it is the property being given up rather than checked.
+
+**The blast radius is not nothing, which is what separates this from the item above it.** `tagSurplus` is
+`marketSalary − franchiseSalary` and it is what `predictTags` iterates on, so a depressed market price
+understates what a tag saves and could in principle change which player a team tags. It does not in 2026:
+the smallest surplus among the tagged is Barkley's 5 and Kincaid's 6, against a depression of nought to two.
 
 ### What a fix would have to answer
 
-- **Where the ceiling comes from.** The obvious source is what the league has paid at that position, but the
-  historical maximum is one observation and a ceiling set from it would be as arbitrary as no ceiling. The
-  top few salaries at a position are already computed for the franchise tag and are the natural candidate.
-- **Whether it is a position's problem or a ratio's.** A rule keyed on position singles kicker out by name.
-  A rule keyed on how far `value` sits above `market` would catch the next position where the curve and the
-  market disagree that hard, and would leave running back and quarterback alone on their own numbers.
-- **Whether the model should instead be doubting its kicker valuations.** The premium is only absurd because
-  `value` says a kicker is worth 15. Rank does predict kicker scoring — the correlation is -0.33 against
-  -0.57 to -0.61 at the other positions, and the top five ranks have realised 25 points a season more than
-  ranks 9 to 13, which is a wider gap than running back's — so the valuation is not obviously wrong. But it
-  is the assumption this whole item rests on and it should be stated rather than assumed.
+- **Whether the two bases should be reconciled or merely labelled.** They answer different questions and
+  both answers are wanted — one says what a tag saves, the other what the auction pays. Reporting which
+  basis each price is on may be the whole of the fix, in which case this belongs in the printers and not in
+  the pricing.
+- **Whether the depression is an error at all.** In the counterfactual world the best player really is back
+  in the pool against barely more money, so prices really would be lower. Calling that wrong requires saying
+  what the right comparison is, and "what he would fetch in the world where nobody was tagged" is a third
+  world, not either of the two on the board.
+- **What it would take to make `tagSurplus` like-for-like.** This is the half with a decision hanging on it.
+  Both terms would have to come from one world, and the tag price is fixed by rule in all of them, so it is
+  the market half that would have to move.
+- **Whether a smaller board would expose it.** Everything above is measured on a 105-player board where one
+  share is 7% of the total. The pathology is real at 45 players and one position; whether any board the
+  model is actually asked to price gets near that is unknown, and is the cheapest of these to answer.
