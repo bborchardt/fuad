@@ -144,7 +144,7 @@ class AuctionValuationSpec extends Specification {
     def "the steepness constants are what the calibrated seasons actually bid"() {
         given:
         FuadValuationLoader loader = new FuadValuationLoader()
-        Map<String, List<PlayerValuation>> boards = AuctionSpend.CALIBRATED_SEASONS
+        Map<String, List<PlayerValuation>> boards = PriceSteepness.fittedSeasons()
                 .collectEntries { [(it): loader.valuations(it, new FuadLoader().loadData(it))] }
 
         when:

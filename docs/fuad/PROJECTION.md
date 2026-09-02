@@ -1034,9 +1034,11 @@ level carries a standard error of seven to nine points:
 QB10 and QB11 are half a point apart on estimates carrying seven. That is not a claim about which is
 better; it is the curve saying it cannot separate them.
 
-Two things then amplify a point of noise into dollars, and both are worst at quarterback. Superflex starts
-20 of them, so replacement sits at QB20 and value is a small difference against a large number. Then
-`PRICE_STEEPNESS` for QB, at 1.44, is the steepest of any position and stretches that again.
+What then amplifies a point of noise into dollars is worst at quarterback: superflex starts 20 of them, so
+replacement sits at QB20 and value is a small difference against a large number. `PRICE_STEEPNESS` used to
+be blamed for a second helping of it, quarterback being carried at 1.44 and read as the steepest position on
+the board. It is not — refitted from the record it comes out at 1.01, which stretches nothing — so the
+amplification here is replacement alone, and it is enough on its own.
 
 `TIER` says so directly. Lawrence, Prescott and Mahomes all come out tier 5, priced $34, $34 and $30, and
 the spread between them should be read as nothing at all.
@@ -1471,8 +1473,9 @@ reached which pick, not a claim that waiting improves the board.
 | DEFERRED | 1175 |
 | SALARY | 30 |
 
-Nine rookies expected to go inside the first ten picks, costing $30 between them, holding $1,311 of surplus
-over their contracts — of which **$1,153, or 88%, arrives after the season the pick is spent in**.
+Nine rookies expected to go inside the first ten picks, costing $30 between them, holding $1,327 of
+surplus over their contracts — of which **$1,163, or 88%, arrives after the season the pick is spent
+in**.
 
 That figure is the whole case for the rookie board. It is the part of a pick that no auction dollar can buy
 at any price, and pricing a rookie on his first season would report a tenth of it.

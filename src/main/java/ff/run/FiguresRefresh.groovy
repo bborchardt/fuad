@@ -105,10 +105,8 @@ class FiguresRefresh {
                     })
                 } as Closure<Void>,
                 steepness   : { PrintWriter out ->
-                    ModelFiguresPrinter.printSteepness(out, PriceSteepness.of(
-                            PriceSteepness.observationsFrom(past.findAll {
-                                AuctionSpend.CALIBRATED_SEASONS.contains(it.key)
-                            })))
+                    ModelFiguresPrinter.printSteepness(out,
+                            PriceSteepness.of(PriceSteepness.observationsFrom(past)))
                 } as Closure<Void>,
                 rookiecurve : { PrintWriter out -> rookies.printCurve(out) } as Closure<Void>,
                 rookiesalary: { PrintWriter out -> rookies.printSalary(out) } as Closure<Void>,

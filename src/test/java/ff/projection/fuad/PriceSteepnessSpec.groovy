@@ -8,8 +8,8 @@ import spock.lang.Specification
  *
  * A number produced by a search is only worth what the search is worth, and the search here is over a
  * likelihood with a censored term that has no closed form to check it against. So it is checked the other
- * way round: signings are generated at a known gamma, censored exactly as the record censors them, and the
- * fit has to find the gamma they were made with. That is the test that would fail if the ascent stopped
+ * way round: signings are generated at a known gamma, then censored and rounded to the dollar exactly as
+ * the record is, and the fit has to find the gamma they were made with. That is the test that would fail if the ascent stopped
  * early, if the censored term were wrong, or if the error function under it were inaccurate.
  *
  * <b>Averaged over draws rather than taken from one.</b> A single set of eighty signings recovers gamma to
@@ -32,9 +32,11 @@ class PriceSteepnessSpec extends Specification {
      * gamma is, which keeps the share of censored signings roughly where the record has it rather than
      * letting it swing from none to most as gamma moves.
      *
-     * <b>Not rounded to whole dollars, deliberately.</b> The record is in whole dollars and this is not, so
-     * the test asks whether the estimator recovers a steepness rather than whether it also undoes the
-     * league's currency.
+     * <b>Rounded down to whole dollars, because that is how the record arrives</b>, and because taking a
+     * price as a point on a continuous line rather than as the dollar it was written down to is what used to
+     * bias this: measured this way the old point likelihood read a market as steeper than it was by 0.02 to
+     * 0.06, which is more than the sampling error of the seasons behind the constants. A fixture that
+     * handed the estimator continuous prices could not see that at all.
      */
     private static List<PriceSteepness.Observation> signings(double gamma, int count, long seed,
                                                              double sigma = 0.5d) {
@@ -44,7 +46,7 @@ class PriceSteepnessSpec extends Specification {
             BigDecimal value = (120.0 / rank) as BigDecimal
             double paid = 1.0d + rate * Math.pow(value.toDouble(), gamma) *
                     Math.exp(sigma * scatter.nextGaussian())
-            new PriceSteepness.Observation('QB', value, (paid < 2.0d ? 1.0d : paid) as BigDecimal)
+            new PriceSteepness.Observation('QB', value, Math.max(1, (int) paid) as BigDecimal)
         }
     }
 
@@ -98,6 +100,31 @@ class PriceSteepnessSpec extends Specification {
         expect: 'no row rather than a steepness invented from a handful of contracts'
         PriceSteepness.of(signings(1.2d, PriceSteepness.MINIMUM_SIGNINGS - 1, 7919L)).isEmpty()
         !PriceSteepness.of(signings(1.2d, PriceSteepness.MINIMUM_SIGNINGS, 7919L)).isEmpty()
+    }
+
+    /**
+     * A position nobody bids over the minimum on says nothing about steepness, and must not be made to.
+     *
+     * With no interval bounded above, the likelihood climbs without limit as the line is pushed down and the
+     * search stops wherever it ran out of steps — which is a number, and looks like a measurement, and is
+     * neither. Kicker is already half censored, so this is a floor the record could reach.
+     */
+    def "declines to fit a position bought entirely at the minimum bid"() {
+        given: 'every signing at a dollar, and then all but a handful'
+        List<PriceSteepness.Observation> all = (1..20).collect { int rank ->
+            new PriceSteepness.Observation('QB', (120.0 / rank) as BigDecimal, 1.0 as BigDecimal)
+        }
+        List<PriceSteepness.Observation> nearly = all.take(18) +
+                (19..20).collect { int rank ->
+                    new PriceSteepness.Observation('QB', (120.0 / rank) as BigDecimal, 9.0 as BigDecimal)
+                }
+
+        expect: 'neither is fitted, where both used to come back with a steepness'
+        PriceSteepness.of(all).isEmpty()
+        PriceSteepness.of(nearly).isEmpty()
+
+        and: 'while enough of them clearing the reserve is fitted as usual'
+        !PriceSteepness.of(signings(1.2d, 40, 7919L)).isEmpty()
     }
 
     def "puts the normal distribution where it belongs, which the censored term rests on"() {

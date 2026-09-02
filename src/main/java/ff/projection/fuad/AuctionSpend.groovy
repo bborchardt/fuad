@@ -187,12 +187,24 @@ class AuctionSpend {
      * by rule rather than bid for, so counting him would make the auction look bigger than it was.
      */
     static List<Signing> signings(String season) {
-        Map<String, List> preDraft = byPlayer(LoadUtils.mflRostersResourcePath(season))
-        Map<String, List> postDraft = byPlayer(LoadUtils.mflPostDraftRostersResourcePath(season))
-        List<Map> players = LoadUtils.loadJsonResource(
-                LoadUtils.mflPlayersResourcePath(season)).players.player as List<Map>
-        signingsOf(season, preDraft, postDraft, players)
+        SIGNINGS.computeIfAbsent(season) { String at ->
+            Map<String, List> preDraft = byPlayer(LoadUtils.mflRostersResourcePath(at))
+            Map<String, List> postDraft = byPlayer(LoadUtils.mflPostDraftRostersResourcePath(at))
+            List<Map> players = LoadUtils.loadJsonResource(
+                    LoadUtils.mflPlayersResourcePath(at)).players.player as List<Map>
+            signingsOf(at, preDraft, postDraft, players).asImmutable()
+        }
     }
+
+    /**
+     * One season's signings, read once however many times they are asked for.
+     *
+     * A season is most of two megabytes of JSON and the same list now answers two questions — what the board
+     * should have charged, and how steeply the league bids — which are computed over the same seasons in the
+     * same run. Held rather than recomputed because the input is a committed resource: nothing can change
+     * under it within a process.
+     */
+    private static final Map<String, List<Signing>> SIGNINGS = new HashMap<String, List<Signing>>()
 
     /**
      * The same, from rosters already read.

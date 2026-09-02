@@ -91,23 +91,59 @@ class PriceSteepness {
     static final int MINIMUM_SIGNINGS = 12
 
     /**
+     * And below this many that cleared the reserve, whatever the total.
+     *
+     * A position bought entirely at the minimum bid says nothing about how steeply it is bid, and the
+     * likelihood knows it: with no interval bounded above, it climbs without limit as the line is pushed
+     * down, and the search stops wherever it ran out of steps. Twenty signings all at a dollar returned a
+     * steepness of -0.5 and eighteen of twenty returned 4.41, neither of them a measurement. Kicker is
+     * already half censored, so this is a floor the record could reach rather than a theoretical one.
+     */
+    static final int MINIMUM_CLEARING_RESERVE = 8
+
+    /**
+     * The seasons the steepness is fitted over: the calibrated ones the record can price and score.
+     *
+     * The same set wherever it is asked for. The figure and the spec that holds the constant to it used to
+     * derive it separately — one from the boards a figures run happened to have priced, the other from
+     * {@link AuctionSpend#CALIBRATED_SEASONS} entire — so a season present to one and absent from the other
+     * would have left GAMMA and INFORCE describing two different fits while agreeing to the hundredth.
+     */
+    static List<String> fittedSeasons() {
+        AuctionSpend.CALIBRATED_SEASONS.findAll { AuctionSpend.isMeasurable(it) }
+    }
+
+    /**
      * Every signing of the fitted seasons, joined to what the board said that player was worth.
      *
      * Joined on the MFL id like {@link AuctionAccuracy}, and for the same reason: a board row and a roster
      * row carry the same identifier, so no name matching stands between the record and the fit.
+     *
+     * <b>A signing the board valued at nothing is left out, and that is not the selection it looks like.</b>
+     * Eleven of the 257 are, and two thirds of those went at the minimum bid, so dropping them by any rule
+     * that noticed their price would bias the fit exactly as truncation does. This rule does not notice
+     * their price: a player worth nothing has a share of {@code 0^gamma}, which is zero at every steepness,
+     * so he says nothing about the slope and cannot be made to. The log of his value is undefined for the
+     * same reason it is uninformative.
      */
     static List<Observation> observationsFrom(Map<String, List<PlayerValuation>> boardsBySeason) {
-        boardsBySeason.collectMany { String season, List<PlayerValuation> board ->
-            Map<String, BigDecimal> worth = board.collectEntries { [(it.playerId): it.valueOverReplacement] }
-            AuctionSpend.signings(season).findAll { worth[it.playerId] > 0 }
-                    .collect { new Observation(it.position, worth[it.playerId], it.paid) }
-        }
+        boardsBySeason.findAll { fittedSeasons().contains(it.key) }
+                .collectMany { String season, List<PlayerValuation> board ->
+                    Map<String, BigDecimal> worth = board.collectEntries {
+                        [(it.playerId): it.valueOverReplacement]
+                    }
+                    AuctionSpend.signings(season)
+                            .findAll { worth[it.playerId] != null && worth[it.playerId] > 0 }
+                            .collect { new Observation(it.position, worth[it.playerId], it.paid) }
+                }
     }
 
-    /** One fit per position that has enough signings to make a claim. */
+    /** One fit per position that has enough signings, and enough of them priced, to make a claim. */
     static List<Fit> of(List<Observation> observations) {
         observations.groupBy { it.position }
-                .findAll { String position, List<Observation> at -> at.size() >= MINIMUM_SIGNINGS }
+                .findAll { String position, List<Observation> at ->
+                    at.size() >= MINIMUM_SIGNINGS && at.count { !it.censored } >= MINIMUM_CLEARING_RESERVE
+                }
                 .collect { String position, List<Observation> at -> fitOf(position, at) }
                 .sort { AuctionSpend.POSITIONS.indexOf(it.position) }
     }
@@ -143,11 +179,20 @@ class PriceSteepness {
     }
 
     /**
-     * The likelihood of a set of signings under one line, with the minimum bid treated as a bound.
+     * The likelihood of a set of signings under one line, every one of them read as the interval it is.
      *
-     * An uncensored signing contributes the density of its own residual. One at the minimum bid contributes
-     * the probability that the line would have put it there at all — the mass below the floor — which is
-     * what lets it inform the slope without pretending to a price it never revealed.
+     * <b>A price is a whole number of dollars, and treating it as a point on a continuous line is what
+     * biases this.</b> An auction settles somewhere and the league writes down the dollar; a contract at $7
+     * says the market cleared between seven and eight, not at seven exactly. Taken as a point that
+     * understates every price by part of a dollar, and understates the cheap ones by proportionally far
+     * more, which tilts the line and reads a market as steeper than it is — measured against synthetic
+     * signings priced at a known steepness and then rounded, by 0.02 to 0.06, which is larger than the
+     * sampling error of the seasons behind it.
+     *
+     * So every signing contributes the mass between the two prices it could have been, and the minimum bid
+     * is not a special case but the lowest such interval with nothing under it: a dollar signing says the
+     * market cleared below the reserved dollar and no more than that. One formulation covers both, which is
+     * the point — the censored term was right and the uncensored one was the approximation.
      */
     private static double logLikelihood(List<Observation> at, double intercept, double gamma, double sigma) {
         if (sigma <= 0) {
@@ -155,16 +200,14 @@ class PriceSteepness {
         }
         double total = 0.0d
         for (Observation observation : at) {
-            double x = Math.log(observation.value.toDouble())
-            if (observation.censored) {
-                // Everything the record says is that the market cleared him under the reserved dollar,
-                // which in these logs is everything below zero.
-                total += Math.log(Math.max(1e-300d, standardNormalBelow((0.0d - intercept - gamma * x) / sigma)))
-            } else {
-                double z = (Math.log(observation.paid.toDouble() - MINIMUM_BID.toDouble())
-                        - intercept - gamma * x) / sigma
-                total += -Math.log(sigma) - 0.5d * Math.log(2 * Math.PI) - 0.5d * z * z
-            }
+            double mean = intercept + gamma * Math.log(observation.value.toDouble())
+            double paid = observation.paid.toDouble()
+            // Above the reserved dollar the price is somewhere in [paid, paid + 1), so what is above the
+            // reserve is in [paid - 1, paid) and its log in [log(paid - 1), log(paid)).
+            double upper = standardNormalBelow((Math.log(paid) - mean) / sigma)
+            double lower = observation.censored ? 0.0d
+                    : standardNormalBelow((Math.log(paid - MINIMUM_BID.toDouble()) - mean) / sigma)
+            total += Math.log(Math.max(1e-300d, upper - lower))
         }
         total
     }
@@ -172,10 +215,12 @@ class PriceSteepness {
     /**
      * Coordinate ascent with a halving step, which is enough for a surface this well behaved.
      *
-     * The censored likelihood is concave in these three parameters, so there is one maximum and no way to
-     * climb to a false one. A search rather than a formula because the censored term has no closed form;
-     * {@code PriceSteepnessSpec} holds it to a gamma it is given by construction, over synthetic signings
-     * censored the same way the record is.
+     * A search rather than a formula because an interval likelihood has no closed form. It is started from
+     * the least-squares line through the signings that clear the reserve, which is near enough that the
+     * ascent has a short way to travel. The surface is not concave in these coordinates — a Tobit
+     * likelihood is concave only after reparameterising, and this is not that — so what stands behind the
+     * answer is the check rather than the shape: {@code PriceSteepnessSpec} holds it to a steepness it is
+     * given by construction, over synthetic signings censored and rounded the same way the record is.
      */
     private static double[] maximise(List<Observation> at, double[] start) {
         double[] best = start.clone()

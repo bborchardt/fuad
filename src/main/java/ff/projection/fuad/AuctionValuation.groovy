@@ -91,7 +91,7 @@ class AuctionValuation {
      *
      * <b>That check did not exist and its absence was expensive.</b> These were fitted once, by hand,
      * against a value column the model then changed twice, and nothing recomputed them — so quarterback sat
-     * at 1.44 and tight end at 1.51 while the record said 1.03 and 0.89, and every board since was priced
+     * at 1.44 and tight end at 1.51 while the record said 1.01 and 0.87, and every board since was priced
      * off the drift. Correcting it improved the board against every season on record including the one held
      * out of the fit. The old figures are kept in docs/TODO.md with what they cost.
      *
@@ -101,7 +101,7 @@ class AuctionValuation {
      * running back is the steepest position this league bids, and kicker much the flattest.
      */
     static final Map<String, BigDecimal> PRICE_STEEPNESS =
-            [QB: 1.03, RB: 1.22, WR: 1.12, TE: 0.89, PK: 0.61].asImmutable() as Map<String, BigDecimal>
+            [QB: 1.01, RB: 1.19, WR: 1.08, TE: 0.87, PK: 0.58].asImmutable() as Map<String, BigDecimal>
 
     /**
      * How often a tier of expiring contract has actually changed hands, 2022-2025.
