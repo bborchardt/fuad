@@ -12,16 +12,30 @@ it would absorb that only partly does. `PRICE_STEEPNESS` has since been refitted
 — which was worth more accuracy than the spread change cost, so the two together leave the board better than
 it was. But they are separable, and separated they do not both point the same way.
 
-Mean absolute error against what the league actually paid, over 2022-2025, each model given its own fitted
-steepness:
+Mean absolute error against what the league actually paid, over 2022-2025, each model given its own
+steepness fitted from the record by `PriceSteepness`:
 
 | | old spread | new spread |
 | --- | --- | --- |
 | steepness as it was committed | 7.66 | 8.05 |
-| steepness refitted from the record | **7.50** | 7.80 |
+| steepness refitted from the record | **7.52** | 7.77 |
 
-Refitting helps both. **The spread change costs about 0.3 either way**, and the best board on this measure
-is the old spread with the new steepness, which is not what is committed.
+Refitting helps both. **The spread change costs about a quarter of a dollar either way**, and the best board
+on this measure is the old spread with a refitted steepness, which is not what is committed.
+
+**The seasons disagree, and which way depends on whether they were fitted on.** Broken out, the old spread
+wins comfortably on the three seasons the steepness was fitted over and loses on the one it was not:
+
+| | 2023-25, fitted on | 2022, held out |
+| --- | --- | --- |
+| old spread, refitted | **6.96** | 9.65 |
+| new spread, refitted | 7.48 | **8.83** |
+
+Refitting the old spread gains it 0.38 in sample and costs it 0.79 out, which is what overfitting looks
+like; refitting the new spread gains 0.28 in sample and 0.32 out. One held-out season is thin evidence and
+it is the season the league had not adjusted to superflex in, so this is a reason to be unsure rather than a
+reason to decide — but it is the only part of the measurement that is not scored on what it was fitted to,
+and it points the other way from the rest.
 
 ### Why it is not simply reverted
 
@@ -39,9 +53,10 @@ them.
 
 ### What is not settled
 
-- **Whether the fitted seasons are enough to tell.** Four seasons, 312 signings, and the one season held out
-  of the calibration is also the season the league had not adjusted to superflex in. On that season the two
-  models are within a tenth of each other and the ordering of the four boards above reverses.
+- **Whether the fitted seasons are enough to tell.** Four seasons and 312 signings, of which the three that
+  decide the pooled figure are the three every constant in the chain was fitted on. The ordering reverses on
+  the fourth. Another season of the record would settle more than any amount of further argument about
+  these.
 - **Whether the tag censors the fit as badly as the minimum bid does.** The steepness fit handles a dollar
   signing as the bound it is, and has nothing to say about the eight players a year held out of the auction
   entirely. Those are the top of every position — exactly where the spread change moved value most — so the
