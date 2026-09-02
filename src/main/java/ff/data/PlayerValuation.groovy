@@ -64,8 +64,27 @@ class PlayerValuation {
      * this league behaves. What a rational league would pay.
      */
     int value
-    /** What open bidding here is expected to pay, whether or not the player reaches it. */
+    /**
+     * What open bidding here is expected to pay, whether or not the player reaches it.
+     *
+     * For everyone the auction actually prices this is the rate the board clears at, with every predicted
+     * tag standing. A tagged player never reaches that bidding, so his is {@link #untaggedSalary} instead:
+     * the price in the world where his own team used no tag. Those are two different worlds and no scale
+     * puts them side by side — a tagged row is the answer to a different question, which is what the
+     * franchise flag on the board is for. The gap between them is bounded by how concentrated the board is;
+     * see docs/fuad/PROJECTION.md.
+     */
     int marketSalary
+    /**
+     * What the player would fetch in the world where the team holding him used no tag at all.
+     *
+     * The basis {@link #getTagSurplus} is measured on, and the reason it is a field rather than the market
+     * price: a team choosing which of its expiring players to tag is comparing them all against that one
+     * world, so pricing the incumbent there and his team-mates in the world where his tag still stands
+     * discounts the first and inflates the second. Equal to {@link #marketSalary} for a tagged player, whose
+     * price is that world by definition, and for anyone held by a team that tagged nobody.
+     */
+    int untaggedSalary
     /**
      * What it takes to prise the player off the team that holds him.
      *
@@ -88,10 +107,12 @@ class PlayerValuation {
     /**
      * What a tag saves against open bidding. Positive means the tag is the cheaper way to keep them.
      *
-     * Measured against the market price rather than what they end up costing, since a tagged player's cost
-     * is the tag price by definition and comparing that to itself would always come out at zero.
+     * Measured against {@link #untaggedSalary} rather than against what they end up costing, since a tagged
+     * player's cost is the tag price by definition and comparing that to itself would always come out at
+     * zero. Both halves therefore describe the same world — the one where the team holding him tags nobody
+     * — so a team's expiring players can be ranked against each other on it.
      */
-    int getTagSurplus() { marketSalary - franchiseSalary }
+    int getTagSurplus() { untaggedSalary - franchiseSalary }
 
     /**
      * Value less the price the market is expected to settle at: is this player worth what he will cost.

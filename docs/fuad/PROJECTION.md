@@ -541,33 +541,87 @@ player costs the tag price by definition, and comparing that against itself make
 — which sends the loop oscillating forever rather than settling. The board therefore reports both a
 `MARKET` price and a `SALARY`.
 
-A tagged player's `MARKET` is the price he would have fetched **had his own team not tagged him, with every
-other team's tag still standing**. That puts him back in the bidding and puts the money his team would have
-spent tagging him back in the pot. Both halves matter: pricing him against a pool he has been removed from,
-or against a pot his own tag has already left, overstates him by a quarter at the top, since once the
-tagged are gone the best player left is a large share of what remains.
+#### The world a saving is read in
 
-**It does not always reach a fixed point, and where it does not the board says so.** Two expiring players
-on one roster can each be the better tag once the other is tagged: taking one out of the bidding puts his
-tag price back in the pot and lifts what the other would fetch, which flips the saving back the other way.
-2026 used to do this for franchise 0001, where two expiring players saved the same amount to the dollar.
+A tag is a choice between two boards: the one where the team uses it, and the one where it uses none — the
+player back in the bidding, his tag price back in the pot, and one more roster spot to fill. What the tag
+saves is the difference between them, so the market half has to be read on the second. A tagged player's
+`MARKET` is accordingly the price he would have fetched **had his own team not tagged him, with every other
+team's tag still standing**.
 
-**A tie is broken on the more valuable player, and that is what stopped it.** Surpluses are whole dollars
-off levels carrying a standard error of seven points or so, so two of them tying says only that the model
-cannot separate what the tag *saves*. It can still separate what the two players are *worth* — `VALUE` is
-worth priced against the cap, before any adjustment for how this league bids — so the tie goes to the
-better contract. Choosing the same way every time is what breaks the cycle: the loop stopped flipping, the
-board settled, and the two surpluses then separated on their own.
+**And so is every rival on the same roster.** A team is not deciding whether to tag one named player, it is
+deciding which of its expiring players to tag, and those comparisons have to be on one basis. Priced player
+by player they were not: the player actually tagged was measured in the world where his tag is lifted while
+his own team-mates were measured in the world where it still stands — against a smaller pool and a smaller
+pot, which prices them higher. A systematic discount on the incumbent and a systematic premium on the
+challenger, running the same way every time. `AuctionValuation` now takes **one clearing rate per team**,
+the rate of that team's own no-tag world, and reads every one of its expiring players off it.
 
-The cycle is real all the same and the warning stays, because nothing here proves ties are the only way in.
+2026 is the case this used to trip over. Franchise 0001 holds Lamar Jackson and Amon-Ra St. Brown, and their
+savings came out at 23 and 23 — a tie, settled on worth. Read in one world they are 23 and 22: the tie was
+never there, and St. Brown's extra dollar was the world in which Jackson had already been tagged.
 
-What matters is that the set the board **reports** is the set it was **priced with**. Those came apart
-once: the loop ran out of rounds part way round the cycle and the tags were re-read from the round after
-the last pricing, so a team was told to tag one player while all 106 prices, his own included, assumed it
-had tagged another. The prices were never wrong — only the column naming the tag was. `AuctionValuation`
-now stops on the set it priced and prints an unsettled warning naming the players it cannot choose between,
-rather than letting half a turn of the cycle read as an answer. `FranchiseTagSettlementSpec` holds it to
-that.
+**Nothing on the board moved for it.** The nine tags are the nine that were predicted before, at the same
+prices; what changed is which of them the model can say it chose on purpose. Fifteen of the sixty-eight held
+players nobody tags come out a dollar apart on the two bases, none of them by more than a dollar, and no
+player without a holder differs at all.
+
+#### The two bases are not one scale, and cannot be made into one
+
+`PRICE` for anyone the auction can bid on is the rate the board clears at with every predicted tag standing.
+`PRICE` for a tagged player is his own team's no-tag world. Those are different worlds, no scale puts them
+side by side, and the `FRANCHISED` column is what says which basis a row is on.
+
+**The counterfactual is always the lower of the two, and that is not a defect — it is the same inequality as
+the tag being worth using.** Write a player's share of the bidding as `b` and what his tag returns to the pot
+as a fraction of it as `a`. The counterfactual rate is below the board's own rate by `(b − a) / (1 + b)`, so
+it is lower exactly when `b > a`; and `b > a` rearranges to `market > tag`, which is the condition for the
+tag to save anything at all. A player worth tagging cannot fail to be discounted by his own counterfactual.
+The size of it is bounded by `b / (1 + b)`, which is a fact about how concentrated the board is and not
+about him: the largest share on the 2026 board is 7% of the bidding, so no gap on it can exceed about six
+dollars. The largest actually is two, the tag prices returning most of the difference through `a`.
+
+**What would make it bite is concentration, not a small board.** A board of one position leaves its best
+player at 7% of the bidding however deep it runs, and there the gap exceeds the step between adjacent ranks,
+so a tagged player prices below the rank beneath him and the ordering inverts. Adding a second position
+halves the top share and it stops. Every board this model is asked to price carries five, and the real board
+reaches the same 7% without inverting, because its tag prices are large enough to return most of it.
+
+**Pricing him at the board's own rate instead is two per cent out, not a quarter.** That figure was measured
+on a board this repository no longer produces and it is worth saying what replaced it, because the two halves
+of the counterfactual pull opposite ways and very nearly cancel. Taking Ja'Marr Chase at his real tag of 61:
+putting him back in the bidding on its own would price him at 92 against his 96, and putting his tag back in
+the pot on its own at 102. Doing neither — charging him the rate the untagged pay — gives 98. The naive
+figure looks nearly harmless because it makes two errors of opposite sign, which is a reason to distrust it
+rather than to keep it.
+
+#### It settles, and where it cannot it says so
+
+The loop used not to reach a fixed point, and the reason was the comparison across two worlds rather than
+anything about the football: two expiring players on one roster could each be the better tag once the other
+was tagged, for ever. Reading a team's candidates off one rate closes that, and closes it by construction
+rather than by tie-breaking.
+
+**A tie is still broken on the more valuable player**, and still has to be: surpluses are whole dollars off
+levels carrying a standard error of seven points or so, so two of them tying says only that the model cannot
+separate what the tag *saves*. It can still separate what the two players are *worth* — `VALUE` is worth
+priced against the cap, before any adjustment for how this league bids — so the tie goes to the better
+contract, and the same way every time.
+
+**The bounded loop and its warning stay.** Closing the cycle is not a proof: prices are whole dollars, and a
+dollar of truncation is not something the argument rules out. What survives in the record is slower rather than
+circular — tagging is self-reinforcing, since a tag returns less to the pot than the share it takes out of
+the bidding was earning, so each one lifts the rate and pulls the next team over the line. Where teams are
+finely enough separated they come in one at a time, and a synthetic board of forty of them takes fourteen
+rounds against a budget of ten. The 2026 board settles in three.
+
+What matters when it does stop short is that the set the board **reports** is the set it was **priced with**.
+Those came apart once: the loop ran out of rounds part way round and the tags were re-read from the round
+after the last pricing, so a team was told to tag one player while all 106 prices, his own included, assumed
+it had tagged another. The prices were never wrong — only the column naming the tag was. `AuctionValuation`
+stops on the set it priced and prints a warning naming the teams it had not finished deciding about, rather
+than letting half a turn read as an answer. `FranchiseTagSettlementSpec` holds it to that, on a board built
+to overrun the budget.
 
 ## What it produces for 2026
 
@@ -687,17 +741,21 @@ league is not.
   board so a plan can weigh this; nothing prices it. See
   [LEAGUE_RULES.md](LEAGUE_RULES.md#contract-length).
 - **Nine of ten teams are predicted to tag**, at the high end of the observed 5-to-9. 2026's tag prices are
-  low against the market because they are computed from 2025 salaries. All nine settle, which they did not
-  before ties were broken on value: see [the tag loop](#6-franchise-tags-iterated-to-a-fixed-point).
-- **Tag surplus asks what a tag saves, never whether the player is worth it.** It is `MARKET` less the tag
-  price, so the tag a team is told to use is the one it saves most on even where that player is priced above
-  what he is worth. **Value enters only to break a tie**, which is a deliberately small role: it decides
-  between two tags the model cannot otherwise separate, and never overrides a surplus that is genuinely
-  larger. A team whose best saving is on a player it should not want is still told to tag him.
+  low against the market because they are computed from 2025 salaries. The set settles in three rounds, and
+  the closest decision on the board is separated by a dollar: see
+  [the tag loop](#6-franchise-tags-iterated-to-a-fixed-point).
+- **Tag surplus asks what a tag saves, never whether the player is worth it.** It is what he would have
+  fetched had his team tagged nobody, less the tag price, so the tag a team is told to use is the one it
+  saves most on even where that player is priced above what he is worth. **Value enters only to break a
+  tie**, which is a deliberately small role: it decides between two tags the model cannot otherwise
+  separate, and never overrides a surplus that is genuinely larger. A team whose best saving is on a player
+  it should not want is still told to tag him.
 - **The calibration is fitted on three seasons.** Positional shares swing hard year to year, and dropping
   2022 as a transition year buys accuracy at the cost of a thinner sample.
-- **The market price of a tagged player is never tested.** It is a counterfactual for a player who will not
-  reach the auction, and no observed price can confirm or refute it — see below.
+- **The market price of a tagged player is never tested against anything the league did.** It is a
+  counterfactual for a player who will not reach the auction, and no observed price can confirm or refute
+  it. What is checked is that it is the price of a world the model can actually price — the same board with
+  that team's tag lifted, to the dollar — and not that the world is the right one to ask about.
 - **Kicker value rests on a replacement nobody has to accept.** See [Kickers](#kickers). The position is
   priced like any other now, and it is the one place where value and price disagree by a factor rather than
   a margin — which is either an inefficiency or a limit of what value over replacement can say about a
@@ -716,7 +774,10 @@ They answer different questions and blending them answered neither. The board re
 
 - `VALUE` — worth: value over replacement priced against the cap, with no adjustment for this league.
 - `PRICE` — what open bidding here is expected to settle at: value calibrated to the positional shares the
-  league actually spends (`MARKET_WEIGHT` is now 1.0) and to how steeply it bids **within** a position.
+  league actually spends (`MARKET_WEIGHT` is now 1.0) and to how steeply it bids **within** a position. For
+  a franchised player, who reaches no open bidding, it is the price in the world where his own team tagged
+  nobody — a different basis, flagged by `FRANCHISED`. See
+  [the tag loop](#6-franchise-tags-iterated-to-a-fixed-point).
 - `COST` — what the holding team actually pays, which is the tag price for a franchised player.
 - `ACQUIRE` — what it takes to prise him off the team that holds him.
 - `EDGE` / `BAND` — `VALUE − PRICE`, banded rather than given to the dollar, because it is the difference

@@ -192,13 +192,18 @@ class AuctionValuation {
     }
 
     /**
-     * Say so when the tags never settle, rather than picking a round and letting it read as an answer.
+     * Say so when the tags do not settle, rather than picking a round and letting it read as an answer.
      *
-     * Two expiring players on one roster can each be the better tag once the other is tagged: taking one out
-     * of the bidding puts his tag price back in the pot and lifts what the other would fetch, which flips
-     * the saving back the other way. The cycle is real rather than a rounding artefact, and the surpluses
-     * driving it sit inside the standard error the levels carry, so the model genuinely cannot separate
-     * them.
+     * <b>What is left here is slowness rather than a cycle.</b> Two expiring players on one roster used to
+     * be able to each be the better tag once the other was tagged, and that is closed: they are now read off
+     * one rate, so lifting a tag cannot hand the saving to a team-mate. What remains is that tagging is
+     * self-reinforcing — a tag returns less to the pot than the share it takes out of the bidding was
+     * earning, so each one lifts the rate and pulls the next team over the line — and where teams are
+     * finely enough separated they come in one at a time. A queue long enough outruns
+     * {@link #MAX_TAG_ITERATIONS}.
+     *
+     * Closing the cycle is not a proof, which is why this stays: prices are whole dollars, and a dollar of
+     * truncation is not something the argument above rules out.
      *
      * The board stays priced with the tags it reports. What it cannot do is claim the set is settled.
      */
@@ -267,22 +272,23 @@ class AuctionValuation {
         BigDecimal valueRate = clearingRate(freeCap * SPEND_RATE * (1.0 - ROOKIE_BUDGET_SHARE),
                 slotsToFill, available.keySet(), vor)
 
+        Map<String, BigDecimal> untaggedRates = untaggedRates(available, franchiseSalary, priceShares,
+                tagged, pot, slots + 1, biddingShare, biddingRate)
+
         available.collect { String id, List p ->
             String position = p[1] as String
             int rank = p[2] as int
             BigDecimal share = priceShares[id] ?: 0.0
-            // A tagged player's market price is what he would have cost had his own team not tagged him,
-            // with everyone else's tag still standing. That puts him back in the bidding and puts the money
-            // his team would have spent tagging him back in the pot. Pricing him instead at a rate set by a
-            // pool he was removed from, against a pot his tag had already been taken out of, inflates the
-            // very best by a quarter: after the tagged are gone the top of the board is a large share of
-            // what is left.
-            BigDecimal rate = tagged.contains(id) && biddingShare + share > 0 ?
-                    (pot + (franchiseSalary[position] ?: 0) - (slots + 1)) / (biddingShare + share) :
-                    biddingRate
-            int market = Math.max(1, (1 + rate * share) as int)
-            int worth = Math.max(1, (1 + valueRate * (vor[id] ?: 0.0)) as int)
             String holder = p[3] as String
+            // What the auction pays, at the one rate the auction clears at. A tagged player never reaches
+            // it, so his own price is the counterfactual below instead; everyone else's is this.
+            int bid = Math.max(1, (1 + biddingRate * share) as int)
+            // What he would have fetched had the team holding him used no tag at all. One world per team,
+            // so that everything a team's tag decision compares is measured against the same money.
+            BigDecimal untaggedRate = untaggedRates.containsKey(holder) ? untaggedRates[holder] : biddingRate
+            int untagged = Math.max(1, (1 + untaggedRate * share) as int)
+            int market = tagged.contains(id) ? untagged : bid
+            int worth = Math.max(1, (1 + valueRate * (vor[id] ?: 0.0)) as int)
             // Restricted: the team holding an expiring contract may match, so an outside bid has to clear
             // what the player is worth to them, not just what the market would otherwise settle at.
             int acquire = holder ? matchingPrice(market, worth, franchiseSalary[position]) : market
@@ -302,6 +308,7 @@ class AuctionValuation {
                     valueOverReplacement: vor[id] ?: 0.0,
                     value: worth,
                     marketSalary: market,
+                    untaggedSalary: untagged,
                     acquisitionSalary: acquire,
                     availability: tagged.contains(id) ? TAGGED_AVAILABILITY :
                             holder ? availabilityFor(rank) : 1.0,
@@ -310,6 +317,49 @@ class AuctionValuation {
                     franchiseId: p[3] as String,
                     franchiseTagged: tagged.contains(id))
         }
+    }
+
+    /**
+     * The clearing rate each team's tag decision is measured against: one per team that used a tag.
+     *
+     * A tag is a choice between two worlds. In one the team pays the tag price and the player never reaches
+     * the auction; in the other it tags nobody, the player is back in the bidding, his tag price is back in
+     * the pot and there is one more roster spot to fill. What the tag saves is the difference, so the market
+     * half of {@link PlayerValuation#getTagSurplus} has to come from that second world — the player's actual
+     * cost is the tag price, and comparing that against itself makes every tag look pointless and none
+     * stable.
+     *
+     * <b>The point of doing it per team rather than per player is that a team is choosing between its own
+     * expiring players, and those comparisons have to be on one basis.</b> Priced player by player, the one
+     * currently tagged was valued in the world where his tag is lifted while his own team-mates were valued
+     * in the world where it still stands — a bigger pool and a bigger pot against a smaller pool and a
+     * smaller pot, which is a systematic discount on the incumbent and a systematic premium on the
+     * challenger. That is not a rounding artefact but the very mechanism {@link #warnUnsettled} exists for:
+     * lifting a tag lifts what a team-mate would fetch, which flips the saving back the other way, and the
+     * loop cycles. Measuring every one of a team's candidates at the rate of that team's own no-tag world
+     * takes the asymmetry out, and the ranking within a team then depends on the players rather than on
+     * which of them the previous round happened to tag.
+     *
+     * Everyone else — a player nobody holds, or one held by a team that tagged nobody — has no tag to lift,
+     * and is left at the rate the board itself clears at.
+     *
+     * Keyed by team and not by player, which is only well defined because {@link #predictTags} returns at
+     * most one tag per team. It is the league rule, and the grouping there enforces it.
+     */
+    private static Map<String, BigDecimal> untaggedRates(Map<String, List> available,
+                                                         Map<String, Integer> franchiseSalary,
+                                                         Map<String, BigDecimal> priceShares,
+                                                         Set<String> tagged, BigDecimal pot,
+                                                         int untaggedSlots, BigDecimal biddingShare,
+                                                         BigDecimal biddingRate) {
+        available.findAll { String id, List p -> tagged.contains(id) && p[3] }
+                .collectEntries { String id, List p ->
+                    BigDecimal share = priceShares[id] ?: 0.0
+                    BigDecimal rate = biddingShare + share > 0 ?
+                            (pot + (franchiseSalary[p[1] as String] ?: 0) - untaggedSlots) /
+                                    (biddingShare + share) : biddingRate
+                    [(p[3] as String): rate]
+                }
     }
 
     /**
