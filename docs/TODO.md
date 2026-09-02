@@ -91,3 +91,73 @@ This is a documentation gap rather than a modelling error, and it is now recorde
 is here so that the two bases are known to disagree, and so the check is not redone from scratch the next
 time somebody notices. What would change the answer is a curve whose expected games differ materially across
 the contested ranks — worth re-running then, and not before.
+
+## A tagged player's price and everyone else's are computed in different worlds
+
+`AuctionValuation.price` prices an untagged player at the board's clearing rate, `(pot − slots) /
+biddingShare`, where the tagged have already left the pool and their tag prices have already left the pot. A
+tagged player cannot be priced that way — [it would overstate him by a quarter](fuad/PROJECTION.md#6-franchise-tags-iterated-to-a-fixed-point)
+— so he gets a counterfactual instead: the clearing rate of the world in which his own team did not tag him,
+with him back in the pool, his tag price back in the pot, and one more slot to fill.
+
+```
+tagged:    (pot + franchiseSalary − (slots + 1)) / (biddingShare + share)
+everyone:  (pot − slots) / biddingShare
+```
+
+**Each rate is right for its own world, and the `PRICE` column reports both side by side.** That is the
+whole of the issue: the two are not on one scale, and nothing on the board says which basis a price is on.
+
+**The counterfactual is systematically the lower of the two, and always in the same direction.** It adds the
+player's own share to the denominator and only the tag price to the numerator, and a player worth tagging is
+by definition worth more than his tag costs. In the limit where the tag were free the depression is exactly
+`share / (biddingShare + share)`.
+
+### How much it moves
+
+The 2026 board, at the round the tags settled on — nine tags, `pot` 1444, `slots` 69, `biddingShare` 1532:
+
+| Player | tag | counterfactual | at the board's own rate | gap | tag/price |
+| --- | --- | --- | --- | --- | --- |
+| Ja'Marr Chase, WR1 | 61 | 96 | 98 | -2 | 0.64 |
+| Lamar Jackson, QB2 | 66 | 89 | 90 | -1 | 0.74 |
+| Jahmyr Gibbs, RB1 | 60 | 74 | 75 | -1 | 0.81 |
+| CeeDee Lamb, WR5 | 61 | 79 | 80 | -1 | 0.77 |
+| Jonathan Taylor, RB4 | 60 | 72 | 72 | 0 | 0.83 |
+| Saquon Barkley, RB7 | 60 | 65 | 65 | 0 | 0.92 |
+| Dalton Kincaid, TE11 | 24 | 30 | 30 | 0 | 0.80 |
+
+**Nought to two dollars, and it is bounded well below what the mechanism allows.** Holding Chase's share and
+varying only the tag price he is put back with, the gap widens from -2 at his real tag of 61 to -6 at a tag
+of 1, and no further: one player's share against a `biddingShare` of 1532 is 7%, so 7% is the whole of the
+effect available on a board this size. The depression is a property of how concentrated the board is, not of
+the tag price.
+
+**Where it bites is a board whose adjacent prices are closer together than that.** `AuctionPricingSpec`
+prices 45 quarterbacks and nothing else, so one player's share is a much larger fraction of the total and
+consecutive ranks are 3% apart. There the top player is tagged and prices at 132 against the second's 139:
+the ordering inverts, and the test asserting that a better player never costs less to prise loose has to
+exclude tagged players to pass. That exclusion is honest — a tagged price is a different measurement — but
+it is the property being given up rather than checked.
+
+**The blast radius is not nothing, which is what separates this from the item above it.** `tagSurplus` is
+`marketSalary − franchiseSalary` and it is what `predictTags` iterates on, so a depressed market price
+understates what a tag saves and could in principle change which player a team tags. It does not in 2026:
+the smallest surplus among the tagged is Barkley's 5 and Kincaid's 6, against a depression of nought to two.
+
+### What a fix would have to answer
+
+- **Whether the two bases should be reconciled or merely labelled.** They answer different questions and
+  both answers are wanted — one says what a tag saves, the other what the auction pays. Reporting which
+  basis each price is on may be the whole of the fix, in which case this belongs in the printers and not in
+  the pricing.
+- **Whether the depression is an error at all.** In the counterfactual world the best player really is back
+  in the pool against barely more money, so prices really would be lower. Calling that wrong requires saying
+  what the right comparison is, and "what he would fetch in the world where nobody was tagged" is a third
+  world, not either of the two on the board.
+- **What it would take to make `tagSurplus` like-for-like.** This is the half with a decision hanging on it.
+  Both terms would have to come from one world, and the tag price is fixed by rule in all of them, so it is
+  the market half that would have to move.
+- **Whether a smaller board would expose it.** Everything above is measured on a 105-player board where one
+  share is 7% of the total. The pathology is real at 45 players and one position; whether any board the
+  model is actually asked to price gets near that is unknown, and is the cheapest of these to answer.
