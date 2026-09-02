@@ -102,7 +102,7 @@ class PointsCurve {
     private static final int OUTCOME_WIDENING_STEP = 5
 
     /**
-     * Below this many seasons a window is widened, and past the priced depth it is the whole position.
+     * Below this many seasons a window is widened, and once it would outrun the priced range it is that range.
      *
      * Which is the old pooled spread, so a position with too few seasons to say anything finer degrades to
      * what it had before rather than to a distribution built out of a handful of years. It does not fire on
@@ -924,12 +924,12 @@ class PointsCurve {
      * The seasons within {@link #OUTCOME_RADIUS} ranks of one, keyed by the rank each of them came from.
      *
      * Kept keyed rather than flattened because every season has to be expressed against its <b>own</b>
-     * rank's level before it can stand for this one. Dividing a window by its middle instead would report
-     * each of its better ranks as a season that beat expectation and each of its worse ranks as one that
-     * missed, which is the shape of the curve read as though it were the shape of luck.
+     * rank's expectation before it can stand for this one. Dividing a window by its middle instead would
+     * report each of its better ranks as a season that beat expectation and each of its worse ranks as one
+     * that missed, which is the shape of the curve read as though it were the shape of luck.
      *
      * Widened a step at a time so a rank that is nearly well enough observed keeps most of its locality,
-     * and past the priced depth the window is the position. See {@link #MINIMUM_OUTCOMES}.
+     * and a window wider than the priced range is that range. See {@link #MINIMUM_OUTCOMES}.
      */
     private static Map<Integer, List<RealisedSeason>> windowAround(Map<Integer, List<RealisedSeason>> byRank,
                                                                    int deepest, int centre) {

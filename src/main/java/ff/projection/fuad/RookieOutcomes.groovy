@@ -118,7 +118,8 @@ class RookieOutcomes {
      *
      * Normalised this way, {@code level(rank) x multiplier} is a season from somewhere in the window scaled
      * from its own rank onto this one, which is exactly what pooling neighbours is for. It is what
-     * {@link PointsCurve#outcomeMultipliers} does for veterans, and for the same reason.
+     * {@link PointsCurve#outcomeSeasons} now does for veterans, and for the same reason — this was the
+     * first place the argument was made, and the veteran curve was pooling a whole position when it was.
      */
     private List<PointsCurve.Outcome> outcomesWithin(String position, int rank, int radius, int contractYear) {
         Map<Integer, List<RealisedSeason>> realised = seasons.realised(contractYear)[position] ?: [:]
