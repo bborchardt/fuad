@@ -1709,6 +1709,65 @@ answer is always no, and `RFRCOST` shows what the right to match costs an outsid
 The caveat: acquisition price assumes the incumbent values him the same as the league does, which is least
 true exactly when it matters — a team with no starting quarterback will overpay to keep one.
 
+## How close the board comes to what was paid
+
+Everything above says what the model believes. This says whether the belief resembled an auction, which is a
+different question and until recently was not asked anywhere. `check_docs.sh` holds this document to the
+figures and `check_strategy.sh` holds a plan to its board; both ask whether the model agrees with itself.
+Nothing held the board to the record, and the cost of that turned up twice in one afternoon — a repricing
+that made the board measurably worse went unnoticed until somebody thought to look, and `PRICE_STEEPNESS`, a
+constant fitted once and offline, turned out to be worth more accuracy than the repricing cost. See
+[TODO.md](../TODO.md).
+
+Every superflex season is priced and joined to what each player really went for. **The join is on the MFL id
+and never on a name**, so a board row and a roster row are the same player by construction, and a fall in
+`PRICED` means the pool has stopped covering the auction rather than that name matching has drifted:
+
+<!-- figures: fuad/accuracy key=SEASON+POS -->
+
+| SEASON | POS | SIGNINGS | PRICED | PAID | COST | MAE | BIAS | RHO |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2022 | ALL | 68 | 66 | 1416 | 1284 | 9.15 | -2.00 | 0.811 |
+| 2023 | ALL | 86 | 83 | 1801 | 1616 | 7.65 | -2.23 | 0.843 |
+| 2024 | ALL | 83 | 79 | 1787 | 1683 | 7.77 | -1.32 | 0.863 |
+| 2025 | ALL | 88 | 84 | 2103 | 1876 | 7.85 | -2.70 | 0.864 |
+
+`MAE` is the headline: the board is out by seven or eight dollars a player. `RHO` says the ordering is
+better than the dollars — around 0.86, so the board knows who is expensive and is less sure how expensive.
+
+**`BIAS` is the column that separates a mis-levelled board from a mis-shaped one**, and it says the board is
+mis-levelled: `COST` totals run under `PAID` in every season, by 6% to 11%. That is a question for the pot
+rather than for the curve — how much of a free cap a league spends is `SPEND_RATE`, measured over the same
+seasons — and it is a smaller error than the per-player one, which is what says most of the seven dollars is
+shape rather than level.
+
+Position by position it is not evenly spread, and quarterback in 2025 is the outlier worth looking at:
+
+<!-- figures: fuad/accuracy key=SEASON+POS -->
+
+| SEASON | POS | SIGNINGS | PRICED | PAID | COST | MAE | BIAS | RHO |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2025 | QB | 17 | 16 | 617 | 415 | 16.00 | -12.63 | 0.816 |
+| 2025 | RB | 22 | 20 | 612 | 642 | 7.10 | 1.50 | 0.920 |
+| 2025 | WR | 30 | 29 | 719 | 653 | 6.34 | -2.28 | 0.891 |
+| 2025 | TE | 11 | 11 | 143 | 151 | 6.55 | 0.73 | 0.637 |
+| 2025 | PK | 8 | 8 | 12 | 15 | 0.63 | 0.38 | 0.233 |
+
+The league paid $617 for seventeen quarterbacks and the board said $415. The ordering was fine — `RHO` 0.816
+— so this is the level at one position in one season, and it is the same turn towards quarterback that
+[§5](#5-pulled-towards-how-this-league-actually-bids) reports from the spend side. Kicker's `RHO` of 0.233 is
+the other end of it: eight signings and almost all of them at the minimum bid, so there is barely an ordering
+to get right.
+
+**This is reported and not enforced, and the reason is not timidity.** A threshold would block changes that
+are right as readily as changes that are wrong, and it would be a threshold on a figure that is not out of
+sample: the curve is built from every season the statistics cover whichever season is being priced, so the
+level leaks, and `MARKET_SHARE` and `SPEND_RATE` are fitted on the same seasons the error is measured over.
+It measures **fit, not prediction**. What it is good for is comparing two models, which carry those
+advantages equally — and that is exactly the use it was written for. 2022 is the one season held out of the
+calibration, and it is also the season the league had not yet adjusted to superflex, so it is a weak test
+rather than a clean one.
+
 ## Why the top of the board is not testable against what has been paid
 
 The largest auction price in the record is $100 and the model's top price is $104. Neither the agreement

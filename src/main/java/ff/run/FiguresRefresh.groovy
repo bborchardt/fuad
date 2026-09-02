@@ -8,6 +8,7 @@ import ff.league.League
 import ff.load.greenfield.GreenfieldBoard
 import ff.print.figures.greenfield.GreenfieldFiguresPrinter
 import ff.print.figures.fuad.ModelFiguresPrinter
+import ff.projection.fuad.AuctionAccuracy
 import ff.print.figures.fuad.RookieFiguresPrinter
 import ff.print.greenfield.GreenfieldAdpPrinter
 import ff.print.greenfield.GreenfieldDemandPrinter
@@ -92,6 +93,9 @@ class FiguresRefresh {
         write(figuresDir, 'fuad', year, TABLES.collectEntries { String name, String method ->
             [(name): { PrintWriter out -> printer."$method"(out) } as Closure<Void>]
         } + [
+                accuracy    : { PrintWriter out ->
+                    ModelFiguresPrinter.printAccuracy(out, accuracy(loader))
+                } as Closure<Void>,
                 rookiecurve : { PrintWriter out -> rookies.printCurve(out) } as Closure<Void>,
                 rookiesalary: { PrintWriter out -> rookies.printSalary(out) } as Closure<Void>,
                 rookiedemand: { PrintWriter out -> rookies.printDemand(out) } as Closure<Void>,
@@ -102,6 +106,25 @@ class FiguresRefresh {
                 rookieboard : { PrintWriter out -> rookies.printBoard(out) } as Closure<Void>,
         ])
         write(figuresDir, 'greenfield', year, greenfield(year))
+    }
+
+    /**
+     * The board held to what the league actually paid, over every season it can be held to.
+     *
+     * Each of those seasons has to be priced, which is the whole board built again — the curve is shared, so
+     * it is the valuation rather than the levelling that is paid for four times. That is the cost of having
+     * an answer at all, and it is why this lives in the figures rather than in a report: it changes when the
+     * model changes and it is committed so that the change shows up in the diff.
+     *
+     * A season that cannot be priced is left out rather than scored as a miss. Pricing needs the prior
+     * season's rosters to know what is expiring, so the first season on record can never be one of these.
+     */
+    private static List<AuctionAccuracy.Fit> accuracy(FuadValuationLoader loader) {
+        AuctionAccuracy.MEASURED_SEASONS.collectMany { String season ->
+            LoadUtils.YEARS.contains(season) ?
+                    AuctionAccuracy.of(season, loader.valuations(season, new FuadLoader().loadData(season)))
+                    : []
+        }
     }
 
     /**

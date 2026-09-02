@@ -150,33 +150,81 @@ class AuctionSpend {
     }
 
     /** What one season's auction paid each position, and what it had to spend. */
-    static Season of(String season) {
+    /**
+     * One player somebody bid on, and what he cost.
+     *
+     * Carried per player rather than only summed by position because the same signings answer two
+     * questions. {@link #of} needs their total, which is where {@link AuctionValuation#MARKET_SHARE} comes
+     * from. Holding the board to what was actually paid needs them one at a time, joined to the player the
+     * board priced. Both have to be counting the same event or the second is measuring the first's
+     * definition rather than the model.
+     */
+    static class Signing {
+        /** The MFL id, which is what a board row carries too, so the join needs no name matching. */
+        final String playerId
+        final String position
+        final BigDecimal paid
+        /** Re-signed off an expiring contract, against arrived from outside the league's rosters. */
+        final boolean resigned
+
+        Signing(String playerId, String position, BigDecimal paid, boolean resigned) {
+            this.playerId = playerId
+            this.position = position
+            this.paid = paid
+            this.resigned = resigned
+        }
+    }
+
+    /**
+     * Every player somebody bid on that season, and what he went for.
+     *
+     * Two kinds, and the second was omitted for a long time. An expiring contract that reappears on the
+     * post-draft roster was re-signed at whatever it now carries. A veteran on no pre-draft roster at all
+     * was bid on at the same auction, and is told from an in-season pickup by the transaction log rather
+     * than by his salary: the auction arrives as a roster load and a waiver claim does not.
+     *
+     * Rookies are excluded throughout. A rookie was on no pre-draft roster either, but his contract is set
+     * by rule rather than bid for, so counting him would make the auction look bigger than it was.
+     */
+    static List<Signing> signings(String season) {
         Map<String, List> preDraft = byPlayer(LoadUtils.mflRostersResourcePath(season))
         Map<String, List> postDraft = byPlayer(LoadUtils.mflPostDraftRostersResourcePath(season))
         List<Map> players = LoadUtils.loadJsonResource(
                 LoadUtils.mflPlayersResourcePath(season)).players.player as List<Map>
         Map<String, String> positionById = players.collectEntries { [(it.id as String): it.position as String] }
         Map<String, String> statusById = players.collectEntries { [(it.id as String): (it.status ?: '') as String] }
+        Set<String> pickedUp = pickedUpAfterAuction(season)
 
-        Map<String, BigDecimal> dollars = [:].withDefault { 0.0 as BigDecimal }
+        List<Signing> signings = []
         preDraft.each { String id, List held ->
             String position = positionById[id]
             if (expiring(held) && postDraft.containsKey(id) && POSITIONS.contains(position)) {
-                dollars[position] += postDraft[id][1] as BigDecimal
+                signings << new Signing(id, position, postDraft[id][1] as BigDecimal, true)
             }
         }
-
-        // And the veterans who were on no pre-draft roster at all, who are bid on at the same auction and
-        // whose money the pot used to omit. Told from an in-season pickup by the transaction log rather
-        // than by their salary: the auction arrives as a roster load and a waiver claim does not.
-        Set<String> pickedUp = pickedUpAfterAuction(season)
-        BigDecimal freeAgentDollars = 0.0
         postDraft.each { String id, List held ->
             String position = positionById[id]
             if (!preDraft.containsKey(id) && statusById[id] != 'R' && !pickedUp.contains(id) &&
                     POSITIONS.contains(position)) {
-                dollars[position] += held[1] as BigDecimal
-                freeAgentDollars += held[1] as BigDecimal
+                signings << new Signing(id, position, held[1] as BigDecimal, false)
+            }
+        }
+        signings
+    }
+
+    static Season of(String season) {
+        Map<String, List> preDraft = byPlayer(LoadUtils.mflRostersResourcePath(season))
+        Map<String, List> postDraft = byPlayer(LoadUtils.mflPostDraftRostersResourcePath(season))
+        List<Map> players = LoadUtils.loadJsonResource(
+                LoadUtils.mflPlayersResourcePath(season)).players.player as List<Map>
+        Map<String, String> statusById = players.collectEntries { [(it.id as String): (it.status ?: '') as String] }
+
+        Map<String, BigDecimal> dollars = [:].withDefault { 0.0 as BigDecimal }
+        BigDecimal freeAgentDollars = 0.0
+        signings(season).each { Signing signing ->
+            dollars[signing.position] += signing.paid
+            if (!signing.resigned) {
+                freeAgentDollars += signing.paid
             }
         }
 
@@ -195,6 +243,7 @@ class AuctionSpend {
         // The same money split by position. Taken over the scoring positions only, so the shares are of
         // what the league commits to players it can start rather than of every contract on a roster.
         Map<String, BigDecimal> committedByPosition = [:].withDefault { 0.0 as BigDecimal }
+        Map<String, String> positionById = players.collectEntries { [(it.id as String): it.position as String] }
         preDraft.each { String id, List held ->
             String position = positionById[id]
             if (!expiring(held) && POSITIONS.contains(position)) {

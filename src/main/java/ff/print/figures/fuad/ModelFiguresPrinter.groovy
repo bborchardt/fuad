@@ -2,6 +2,7 @@ package ff.print.figures.fuad
 
 import ff.data.FranchiseTag
 import ff.data.PlayerValuation
+import ff.projection.fuad.AuctionAccuracy
 import ff.projection.fuad.AuctionSpend
 import ff.projection.fuad.AuctionValuation
 import ff.projection.ByeWeeks
@@ -108,6 +109,42 @@ class ModelFiguresPrinter {
                                 .setScale(2, RoundingMode.HALF_UP),
                 ].join('\t'))
             }
+        }
+    }
+
+    /**
+     * How close the board came to what the league actually paid, a season and a position at a time.
+     *
+     * <b>The one figure here that is not about the model's own consistency.</b> Every other table says what
+     * the model believes; this one says whether the belief resembled an auction. It is written because the
+     * absence of it let two things pass unnoticed at once — a repricing that made the board measurably worse,
+     * and a constant fitted offline that was worth more accuracy than the repricing cost. See docs/TODO.md.
+     *
+     * {@code MAE} is the headline and {@code BIAS} is what tells a mis-levelled board from a mis-shaped one:
+     * the model runs uniformly under what was paid, which is a question for the pot rather than for the
+     * curve. {@code RHO} asks the different question of whether the ordering was right.
+     *
+     * <b>It is reported and not enforced.</b> A threshold on an in-sample figure over a couple of hundred
+     * signings would block changes that are right as readily as changes that are wrong, and this is measured
+     * over seasons the calibration was itself fitted on. It belongs in a reader's hands, beside the caveats
+     * on {@link AuctionAccuracy}.
+     */
+    static void printAccuracy(PrintWriter out, List<AuctionAccuracy.Fit> fits) {
+        out.println(['SEASON', 'POS', 'SIGNINGS', 'PRICED', 'COVERAGE', 'PAID', 'COST', 'MAE', 'BIAS',
+                     'RHO'].join('\t'))
+        fits.each { AuctionAccuracy.Fit fit ->
+            out.println([
+                    fit.season,
+                    fit.position,
+                    fit.signings,
+                    fit.priced,
+                    fit.signings > 0 ? percent((fit.priced as BigDecimal) / fit.signings) : '',
+                    fit.paid.setScale(0, RoundingMode.HALF_UP),
+                    fit.cost.setScale(0, RoundingMode.HALF_UP),
+                    fit.meanAbsolute.setScale(2, RoundingMode.HALF_UP),
+                    fit.bias.setScale(2, RoundingMode.HALF_UP),
+                    fit.correlation.setScale(3, RoundingMode.HALF_UP),
+            ].join('\t'))
         }
     }
 
