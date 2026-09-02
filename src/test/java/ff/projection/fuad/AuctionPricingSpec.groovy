@@ -249,6 +249,44 @@ class AuctionPricingSpec extends Specification {
     }
 
     /**
+     * The world a tag is measured in has to be a board the model could itself have priced.
+     *
+     * Its roster spots are counted by the same rule as the board's own rather than by adding one to it. The
+     * two agree wherever spots outnumber tags and part company exactly where they do not: the reserve is
+     * floored at one spot, so a board with more tags than spots left has one either way, and adding one
+     * invents a spot that world does not have, reserves a dollar against it and reports the saving a dollar
+     * short. A dollar is enough to flip a team sitting on the margin, and flip it back next round.
+     *
+     * The board below is that case and nothing else — every player held by his own team, and four spots to
+     * fill between the six teams that want to tag. Counting the world's spots by adding one instead, this
+     * board never settles inside the loop's rounds; boards of the same kind traced out past them are found
+     * to cycle rather than to be converging slowly, one team flipping in and out without end.
+     */
+    def "a board with more tags than roster spots left still settles"() {
+        given:
+        ByteArrayOutputStream captured = new ByteArrayOutputStream()
+        PrintStream original = System.err
+        System.err = new PrintStream(captured)
+
+        when: 'every player held by his own team, and fewer spots to fill than teams that would tag'
+        List<PlayerValuation> board
+        try {
+            board = AuctionValuation.value(curveFor(['QB']),
+                    new StarterRequirements([QB: 2], [QB: 2], 2, 10),
+                    poolOf(['QB'], 25) { int rank -> "f$rank".toString() },
+                    [QB: 6], 120.0, 4, NO_BYES)
+        } finally {
+            System.err = original
+        }
+
+        then: 'more tags than spots, or the floor is not in play and this fixture is not the one'
+        board.count { it.franchiseTagged } > 4
+
+        and: 'and the tags settle rather than flipping a marginal team in and out for ever'
+        !captured.toString().contains('did not settle')
+    }
+
+    /**
      * How often a player of this rank reaches another team at all, which is a fact about the rule and not
      * about him.
      *

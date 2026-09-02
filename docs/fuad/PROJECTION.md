@@ -600,7 +600,11 @@ rather than to keep it.
 The loop used not to reach a fixed point, and the reason was the comparison across two worlds rather than
 anything about the football: two expiring players on one roster could each be the better tag once the other
 was tagged, for ever. Reading a team's candidates off one rate closes that, and closes it by construction
-rather than by tie-breaking.
+rather than by tie-breaking. A second route closed with it — the counterfactual counts the roster spots of
+the world it describes by the same rule the board counts its own, where it used to add one to the board's,
+which invents a spot on any board holding more tags than spots left and reports the saving a dollar short.
+Each mechanism was reproducible on demand beforehand; with both closed, some 28,000 synthetic boards
+produced no tag set that cycles at all.
 
 **A tie is still broken on the more valuable player**, and still has to be: surpluses are whole dollars off
 levels carrying a standard error of seven points or so, so two of them tying says only that the model cannot
@@ -608,8 +612,8 @@ separate what the tag *saves*. It can still separate what the two players are *w
 priced against the cap, before any adjustment for how this league bids — so the tie goes to the better
 contract, and the same way every time.
 
-**The bounded loop and its warning stay.** Closing the cycle is not a proof: prices are whole dollars, and a
-dollar of truncation is not something the argument rules out. What survives in the record is slower rather than
+**The bounded loop and its warning stay.** Neither closure is a proof: prices are whole dollars, and a dollar
+of truncation is not something either argument rules out. What survives in the record is slower rather than
 circular — tagging is self-reinforcing, since a tag returns less to the pot than the share it takes out of
 the bidding was earning, so each one lifts the rate and pulls the next team over the line. Where teams are
 finely enough separated they come in one at a time, and a synthetic board of forty of them takes fourteen

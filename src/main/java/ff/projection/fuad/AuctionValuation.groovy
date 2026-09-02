@@ -202,7 +202,7 @@ class AuctionValuation {
      * finely enough separated they come in one at a time. A queue long enough outruns
      * {@link #MAX_TAG_ITERATIONS}.
      *
-     * Closing the cycle is not a proof, which is why this stays: prices are whole dollars, and a dollar of
+     * Neither closure is a proof, which is why this stays: prices are whole dollars, and a dollar of
      * truncation is not something the argument above rules out.
      *
      * The board stays priced with the tags it reports. What it cannot do is claim the set is settled.
@@ -264,7 +264,7 @@ class AuctionValuation {
         // Rookies never reach the auction, but their contracts and their roster spots are spoken for, so
         // both come off before anything is priced.
         BigDecimal pot = freeCap * SPEND_RATE * (1.0 - ROOKIE_BUDGET_SHARE) - spentOnTags
-        int slots = Math.max(1, slotsToFill - tagged.size())
+        int slots = slotsLeft(slotsToFill, tagged.size())
         BigDecimal biddingRate = clearingRate(pot, slots, bidFor.keySet(), priceShares)
         BigDecimal biddingShare = (bidFor.keySet().collect { priceShares[it] ?: 0.0 }.sum() ?: 0.0) as BigDecimal
 
@@ -273,7 +273,7 @@ class AuctionValuation {
                 slotsToFill, available.keySet(), vor)
 
         Map<String, BigDecimal> untaggedRates = untaggedRates(available, franchiseSalary, priceShares,
-                tagged, pot, slots + 1, biddingShare, biddingRate)
+                tagged, pot, slotsToFill, biddingShare, biddingRate)
 
         available.collect { String id, List p ->
             String position = p[1] as String
@@ -320,6 +320,24 @@ class AuctionValuation {
     }
 
     /**
+     * Roster spots the auction still has to fill, once the tagged have left it.
+     *
+     * Floored at one, since the clearing rate reserves a dollar a spot out of the pot and a board with no
+     * spots left would hand every remaining dollar to whoever is priced.
+     *
+     * <b>Shared with the counterfactual, which is the point of it being a method.</b> A tagged player's
+     * world is the board with one fewer tag, so its slot count has to be built by this same rule rather
+     * than by adding one to the board's. They agree everywhere the floor is slack, and disagree exactly
+     * where it is not: a board with more tags than spots left has one slot either way, so adding one
+     * invents a spot the world it describes does not have, reserves a dollar against it, and reports a
+     * saving a dollar short. That is enough to flip a team sitting on the margin, and it was the one route
+     * to a tag set that never settles that survived pricing each team's candidates in one world.
+     */
+    private static int slotsLeft(int slotsToFill, int tags) {
+        Math.max(1, slotsToFill - tags)
+    }
+
+    /**
      * The clearing rate each team's tag decision is measured against: one per team that used a tag.
      *
      * A tag is a choice between two worlds. In one the team pays the tag price and the player never reaches
@@ -349,12 +367,14 @@ class AuctionValuation {
     private static Map<String, BigDecimal> untaggedRates(Map<String, List> available,
                                                          Map<String, Integer> franchiseSalary,
                                                          Map<String, BigDecimal> priceShares,
-                                                         Set<String> tagged, BigDecimal pot,
-                                                         int untaggedSlots, BigDecimal biddingShare,
-                                                         BigDecimal biddingRate) {
+                                                         Set<String> tagged, BigDecimal pot, int slotsToFill,
+                                                         BigDecimal biddingShare, BigDecimal biddingRate) {
         available.findAll { String id, List p -> tagged.contains(id) && p[3] }
                 .collectEntries { String id, List p ->
                     BigDecimal share = priceShares[id] ?: 0.0
+                    // The world this team's tag is lifted in holds one fewer tag, and counts its roster
+                    // spots by the board's own rule rather than by adding one to the board's count.
+                    int untaggedSlots = slotsLeft(slotsToFill, tagged.size() - 1)
                     BigDecimal rate = biddingShare + share > 0 ?
                             (pot + (franchiseSalary[p[1] as String] ?: 0) - untaggedSlots) /
                                     (biddingShare + share) : biddingRate
