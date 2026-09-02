@@ -191,6 +191,18 @@ class AuctionSpend {
         Map<String, List> postDraft = byPlayer(LoadUtils.mflPostDraftRostersResourcePath(season))
         List<Map> players = LoadUtils.loadJsonResource(
                 LoadUtils.mflPlayersResourcePath(season)).players.player as List<Map>
+        signingsOf(season, preDraft, postDraft, players)
+    }
+
+    /**
+     * The same, from rosters already read.
+     *
+     * {@link #of} needs these files for its own reasons and {@code players.json} alone is most of two
+     * megabytes, so the season is parsed once and both readings are taken off it. Loading it twice was
+     * measurable on a figures refresh, which prices four seasons, and on the spec that walks every one.
+     */
+    private static List<Signing> signingsOf(String season, Map<String, List> preDraft,
+                                            Map<String, List> postDraft, List<Map> players) {
         Map<String, String> positionById = players.collectEntries { [(it.id as String): it.position as String] }
         Map<String, String> statusById = players.collectEntries { [(it.id as String): (it.status ?: '') as String] }
         Set<String> pickedUp = pickedUpAfterAuction(season)
@@ -212,6 +224,13 @@ class AuctionSpend {
         signings
     }
 
+    /** Whether the record carries what pricing and scoring this season both need. */
+    static boolean isMeasurable(String season) {
+        LoadUtils.hasResource(LoadUtils.mflPostDraftRostersResourcePath(season)) &&
+                LoadUtils.hasResource(LoadUtils.mflRostersResourcePath(season)) &&
+                LoadUtils.hasResource(LoadUtils.mflRostersResourcePath(((season as int) - 1) as String))
+    }
+
     static Season of(String season) {
         Map<String, List> preDraft = byPlayer(LoadUtils.mflRostersResourcePath(season))
         Map<String, List> postDraft = byPlayer(LoadUtils.mflPostDraftRostersResourcePath(season))
@@ -221,7 +240,7 @@ class AuctionSpend {
 
         Map<String, BigDecimal> dollars = [:].withDefault { 0.0 as BigDecimal }
         BigDecimal freeAgentDollars = 0.0
-        signings(season).each { Signing signing ->
+        signingsOf(season, preDraft, postDraft, players).each { Signing signing ->
             dollars[signing.position] += signing.paid
             if (!signing.resigned) {
                 freeAgentDollars += signing.paid

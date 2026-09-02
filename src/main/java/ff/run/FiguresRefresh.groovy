@@ -9,6 +9,7 @@ import ff.load.greenfield.GreenfieldBoard
 import ff.print.figures.greenfield.GreenfieldFiguresPrinter
 import ff.print.figures.fuad.ModelFiguresPrinter
 import ff.projection.fuad.AuctionAccuracy
+import ff.projection.fuad.AuctionSpend
 import ff.print.figures.fuad.RookieFiguresPrinter
 import ff.print.greenfield.GreenfieldAdpPrinter
 import ff.print.greenfield.GreenfieldDemandPrinter
@@ -116,15 +117,16 @@ class FiguresRefresh {
      * an answer at all, and it is why this lives in the figures rather than in a report: it changes when the
      * model changes and it is committed so that the change shows up in the diff.
      *
-     * A season that cannot be priced is left out rather than scored as a miss. Pricing needs the prior
-     * season's rosters to know what is expiring, so the first season on record can never be one of these.
+     * A season that cannot be priced is left out rather than scored as a miss, and what that takes is asked
+     * of the record rather than assumed from the year: pricing needs the prior season's rosters to know what
+     * is expiring, and scoring needs this season's post-draft rosters to know what was paid. The season
+     * being priced now has the first and not the second, so it is measurable only in arrears.
      */
     private static List<AuctionAccuracy.Fit> accuracy(FuadValuationLoader loader) {
-        AuctionAccuracy.MEASURED_SEASONS.collectMany { String season ->
-            LoadUtils.YEARS.contains(season) ?
+        AuctionAccuracy.MEASURED_SEASONS.findAll { AuctionSpend.isMeasurable(it) }
+                .collectMany { String season ->
                     AuctionAccuracy.of(season, loader.valuations(season, new FuadLoader().loadData(season)))
-                    : []
-        }
+                }
     }
 
     /**

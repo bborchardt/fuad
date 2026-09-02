@@ -122,7 +122,13 @@ class ModelFiguresPrinter {
      *
      * {@code MAE} is the headline and {@code BIAS} is what tells a mis-levelled board from a mis-shaped one:
      * the model runs uniformly under what was paid, which is a question for the pot rather than for the
-     * curve. {@code RHO} asks the different question of whether the ordering was right.
+     * curve. {@code RHO} asks the different question of whether the ordering was right, and is blank where
+     * there is no ordering to score rather than zero, which would read as having failed at one.
+     *
+     * <b>{@code SIGNINGS} is the only column counted over the whole record.</b> {@code PAID}, {@code COST}
+     * and both errors are taken over the {@code PRICED} rows, because a dollar the board never quoted a
+     * price for cannot be an error in it — which also means {@code PAID} here is below the same season's
+     * total in fuad/spend.tsv by whatever the pool did not cover.
      *
      * <b>It is reported and not enforced.</b> A threshold on an in-sample figure over a couple of hundred
      * signings would block changes that are right as readily as changes that are wrong, and this is measured
@@ -143,7 +149,7 @@ class ModelFiguresPrinter {
                     fit.cost.setScale(0, RoundingMode.HALF_UP),
                     fit.meanAbsolute.setScale(2, RoundingMode.HALF_UP),
                     fit.bias.setScale(2, RoundingMode.HALF_UP),
-                    fit.correlation.setScale(3, RoundingMode.HALF_UP),
+                    fit.correlation == null ? '' : fit.correlation.setScale(3, RoundingMode.HALF_UP),
             ].join('\t'))
         }
     }

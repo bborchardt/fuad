@@ -42,13 +42,26 @@ class AuctionAccuracy {
         final String season
         /** The position, or {@link #ALL} for the season entire. */
         final String position
-        /** Signings the record holds, which is the denominator {@link #priced} is read against. */
+        /**
+         * Signings the record holds, which is the denominator {@link #priced} is read against.
+         *
+         * <b>The only figure here counted over the whole record.</b> Everything below is over {@link #priced}
+         * instead, so this is the one column that answers what the auction was rather than what the board was
+         * scored on.
+         */
         final int signings
-        /** How many of them the board also priced, and so how many this row is computed over. */
+        /** How many of them the board also priced, and so how many every figure below is computed over. */
         final int priced
-        /** What those signings actually cost, in dollars. */
+        /**
+         * What the priced signings actually cost, in dollars.
+         *
+         * Over {@link #priced} and not {@link #signings}, because a dollar the board never quoted a price for
+         * cannot be an error in it. So this runs below the same season's total in
+         * {@link AuctionSpend.Season#dollars} by whatever the pool did not cover, and the two are not the
+         * same quantity even though both are money the league spent.
+         */
         final BigDecimal paid
-        /** What the board said they would, over the same players. */
+        /** What the board said those same players would cost. */
         final BigDecimal cost
         /** Mean absolute error in dollars, which is the headline. */
         final BigDecimal meanAbsolute
@@ -61,7 +74,13 @@ class AuctionAccuracy {
          * curve and the steepness.
          */
         final BigDecimal bias
-        /** Rank correlation against what was paid, which asks about the ordering rather than the dollars. */
+        /**
+         * Rank correlation against what was paid, which asks about the ordering rather than the dollars.
+         *
+         * Null where there is no ordering to score rather than zero, which is a real answer meaning the
+         * board ordered the auction no better than chance. A position bought entirely at the minimum bid has
+         * no variance to correlate with and would otherwise report as though it had failed.
+         */
         final BigDecimal correlation
 
         Fit(String season, String position, int signings, int priced, BigDecimal paid, BigDecimal cost,
@@ -106,7 +125,7 @@ class AuctionAccuracy {
 
     private static Fit fitOf(String season, String position, int signings, List<List<BigDecimal>> pairs) {
         if (!pairs) {
-            return new Fit(season, position, signings, 0, 0.0, 0.0, 0.0, 0.0, 0.0)
+            return new Fit(season, position, signings, 0, 0.0, 0.0, 0.0, 0.0, null)
         }
         BigDecimal paid = pairs.collect { it[1] }.sum() as BigDecimal
         BigDecimal cost = pairs.collect { it[0] }.sum() as BigDecimal
@@ -125,7 +144,7 @@ class AuctionAccuracy {
      */
     private static BigDecimal rankCorrelationOf(List<List<BigDecimal>> pairs) {
         if (pairs.size() < 2) {
-            return 0.0
+            return null
         }
         List<Double> model = ranked(pairs.collect { it[0] })
         List<Double> actual = ranked(pairs.collect { it[1] })
@@ -139,7 +158,7 @@ class AuctionAccuracy {
             varianceActual += da * da
         }
         varianceModel > 0 && varianceActual > 0 ?
-                (covariance / Math.sqrt(varianceModel * varianceActual)) as BigDecimal : 0.0
+                (covariance / Math.sqrt(varianceModel * varianceActual)) as BigDecimal : null
     }
 
     /** Ranks of a list, ties sharing the average of the places they cover. */

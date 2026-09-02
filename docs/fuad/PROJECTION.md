@@ -1753,11 +1753,21 @@ Position by position it is not evenly spread, and quarterback in 2025 is the out
 | 2025 | TE | 11 | 11 | 143 | 151 | 6.55 | 0.73 | 0.637 |
 | 2025 | PK | 8 | 8 | 12 | 15 | 0.63 | 0.38 | 0.233 |
 
-The league paid $617 for seventeen quarterbacks and the board said $415. The ordering was fine — `RHO` 0.816
-— so this is the level at one position in one season, and it is the same turn towards quarterback that
-[§5](#5-pulled-towards-how-this-league-actually-bids) reports from the spend side. Kicker's `RHO` of 0.233 is
-the other end of it: eight signings and almost all of them at the minimum bid, so there is barely an ordering
-to get right.
+The league paid $617 for the sixteen quarterbacks the board priced and the board said $415. The ordering was
+fine — `RHO` 0.816 — so this is the level at one position in one season, and it is the same turn towards
+quarterback that [§5](#5-pulled-towards-how-this-league-actually-bids) reports from the spend side. Kicker's
+`RHO` of 0.233 is the other end of it: eight signings and almost all of them at the minimum bid, so there is
+barely an ordering to get right.
+
+**`SIGNINGS` is the only column counted over the whole record**, and everything beside it is over `PRICED`.
+A dollar the board never quoted a price for cannot be an error in it, so `PAID` here runs below the same
+season's total in `fuad/spend.tsv` by whatever the pool did not cover — seventeen quarterbacks were signed in
+2025 for $619 and sixteen of them are scored above.
+
+One more caution about the `ALL` row: its `RHO` pools ranks across positions, so it is flattered by how well
+the board separates a quarterback from a kicker, which is largely `MARKET_SHARE` doing its job and is fitted
+on these very seasons. Three of the five positions under it score lower. Read the positional rows for the
+ordering and the `ALL` row for the dollars.
 
 **This is reported and not enforced, and the reason is not timidity.** A threshold would block changes that
 are right as readily as changes that are wrong, and it would be a threshold on a figure that is not out of
