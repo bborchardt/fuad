@@ -148,6 +148,48 @@ class FranchiseTagSettlementSpec extends Specification {
     }
 
     /**
+     * The slowest cascade a league this size was found to produce, well inside the budget.
+     *
+     * The companion to the board below, and the reason that one has to be forty teams. A budget at or under
+     * the longest run that would have settled turns the warning into a sentence meaning either "this cycles"
+     * or "this was merely slow", so what matters is the headroom, and the headroom is what drifts silently.
+     *
+     * This is the slowest of six thousand synthetic ten-franchise boards: eighty expiring contracts spread
+     * round the teams, nine of which end up tagging, settling in five rounds against a budget of ten. Ten
+     * teams do not take ten rounds because the queue advances in blocks rather than a team at a time.
+     */
+    def "a board the size of this league settles well inside the rounds it is given"() {
+        given: 'ten franchises holding eight expiring players each, dealt round the board'
+        Map<String, List> pool = (1..115).collectEntries { int rank ->
+            [("q$rank" as String): ["QB $rank" as String, 'QB', rank,
+                                    rank <= 80 ? "f${(rank - 1) % 10 + 1}" as String : null]]
+        }
+        Map<Integer, List<BigDecimal>> shape = (1..115).collectEntries { int rank ->
+            BigDecimal expected = (379 - rank * 8) as BigDecimal
+            [(rank): [expected, expected * 0.5, expected * 1.5] * 3]
+        }
+
+        when:
+        ByteArrayOutputStream captured = new ByteArrayOutputStream()
+        PrintStream original = System.err
+        System.err = new PrintStream(captured)
+        List<PlayerValuation> board
+        try {
+            board = AuctionValuation.value(PointsCurve.of([QB: TestSeasons.byRank(shape)]),
+                    new StarterRequirements([QB: 2], [QB: 2], 2, 10), pool, [QB: 6], 204.0, 76,
+                    new ByeWeeks([:], LAST_WEEK))
+        } finally {
+            System.err = original
+        }
+
+        then: 'it settles, with rounds to spare'
+        !captured.toString().contains('did not settle')
+
+        and: 'having actually made a cascade of it, or the fixture is not the one this is about'
+        board.findAll { it.franchiseTagged }.collect { it.franchiseId }.toSet().size() == 9
+    }
+
+    /**
      * A cascade of teams tagging one after another, longer than the loop has rounds for.
      *
      * This is what the warning is left guarding, now that a team's candidates are all read off one rate.

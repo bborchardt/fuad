@@ -154,6 +154,21 @@ class AuctionValuation {
      */
     static final BigDecimal SPEND_RATE = 0.83
 
+    /**
+     * Rounds the tag settlement gets, which has to clear any cascade that is merely slow.
+     *
+     * The budget has one job the loop cannot do without: it has to sit above the longest run that would
+     * have settled, or {@link #warnUnsettled} stops meaning "this board cycles" and starts meaning "one of
+     * those two things". Tagging is self-reinforcing — a tag returns less to the pot than the share it
+     * takes out of the bidding was earning — so each one lifts the rate and can pull the next team over the
+     * line, and a long enough queue of teams coming in one at a time is slow without being circular.
+     *
+     * <b>Ten is roughly twice what this league can need.</b> The queue does not advance a team a round, it
+     * advances in blocks, so ten teams do not take ten rounds: over six thousand synthetic ten-franchise
+     * boards the slowest settles in five, and 2026 settles in three. It grows well under linearly in the
+     * teams, forty of them taking fourteen — so a league would have to roughly treble before this bound
+     * came near a cascade, and the figure to revisit it against is the number of franchises.
+     */
     private static final int MAX_TAG_ITERATIONS = 10
 
     /**
@@ -200,7 +215,8 @@ class AuctionValuation {
      * self-reinforcing — a tag returns less to the pot than the share it takes out of the bidding was
      * earning, so each one lifts the rate and pulls the next team over the line — and where teams are
      * finely enough separated they come in one at a time. A queue long enough outruns
-     * {@link #MAX_TAG_ITERATIONS}.
+     * {@link #MAX_TAG_ITERATIONS}, which takes a board several times the size of this league's — that
+     * constant's own note carries what was measured.
      *
      * Neither closure is a proof, which is why this stays: prices are whole dollars, and a dollar of
      * truncation is not something the argument above rules out.

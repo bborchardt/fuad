@@ -626,7 +626,9 @@ of truncation is not something either argument rules out. What survives in the r
 circular — tagging is self-reinforcing, since a tag returns less to the pot than the share it takes out of
 the bidding was earning, so each one lifts the rate and pulls the next team over the line. Where teams are
 finely enough separated they come in one at a time, and a synthetic board of forty of them takes fourteen
-rounds against a budget of ten. The 2026 board settles in three.
+rounds against a budget of ten. **That budget is roughly twice what a league this size can want**: the queue
+advances in blocks rather than a team at a time, so over six thousand synthetic ten-franchise boards the
+slowest settles in five rounds, and the 2026 board settles in three.
 
 What matters when it does stop short is that the set the board **reports** is the set it was **priced with**.
 Those came apart once: the loop ran out of rounds part way round and the tags were re-read from the round
