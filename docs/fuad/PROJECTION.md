@@ -559,7 +559,16 @@ the rate of that team's own no-tag world, and reads every one of its expiring pl
 
 2026 is the case this used to trip over. Franchise 0001 holds Lamar Jackson and Amon-Ra St. Brown, and their
 savings came out at 23 and 23 — a tie, settled on worth. Read in one world they are 23 and 22: the tie was
-never there, and St. Brown's extra dollar was the world in which Jackson had already been tagged.
+never there, and St. Brown's extra dollar was the world in which Jackson had already been tagged. `TAGMARGIN`
+on the board figures is the narrowest such gap on the board, over the teams that had a choice at all.
+
+<!-- figures: fuad/board -->
+
+| FIGURE | VALUE |
+| --- | --- |
+| TAGS | 9 |
+| TEAMSTAGGING | 9 |
+| TAGMARGIN | 1 |
 
 **Nothing on the board moved for it.** The nine tags are the nine that were predicted before, at the same
 prices; what changed is which of them the model can say it chose on purpose. Fifteen of the sixty-eight held

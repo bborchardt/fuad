@@ -168,6 +168,7 @@ class ModelFiguresPrinter {
         List<Integer> prices = valuations.collect { it.marketSalary }.sort().reverse()
         List<Integer> costs = valuations.collect { it.salary }.sort().reverse()
         List<PlayerValuation> tagged = valuations.findAll { it.franchiseTagged }
+        Integer margin = tagMargin(tagged)
         // One figure per row rather than one wide row. The documentation reads these down a column against
         // what the league actually did, and a name in the first column is what lets a table be checked.
         out.println(['FIGURE', 'VALUE'].join('\t'))
@@ -182,9 +183,38 @@ class ModelFiguresPrinter {
                 TOP40COST       : concentration(costs),
                 TAGS            : tagged.size(),
                 TEAMSTAGGING    : tagged.collect { it.franchiseId }.toSet().size(),
+                TAGMARGIN       : margin == null ? '' : margin,
                 FREECAP         : freeCap.setScale(0, RoundingMode.HALF_UP),
                 EXPECTEDSPEND   : (freeCap * AuctionValuation.SPEND_RATE).setScale(0, RoundingMode.HALF_UP),
         ].each { String figure, Object value -> out.println([figure, value].join('\t')) }
+    }
+
+    /**
+     * The narrowest choice any team was actually asked to make, in dollars.
+     *
+     * A tag goes to the expiring player it saves most on, and how much that decision is worth is not the
+     * size of the saving but the gap between it and the team's next best. Where the gap is a dollar the
+     * model is not really choosing, and the documentation should not read as though it were.
+     *
+     * <b>Both sides are read on the same money.</b> Every one of a team's expiring players is priced at the
+     * rate of that team's own no-tag world, so the two savings can be subtracted from each other. They used
+     * not to be: the tagged player was measured in the world where his tag is lifted and his rivals in the
+     * world where it stands, which credited the rivals with a dollar or so that was not theirs — enough, in
+     * 2026, to turn a one dollar margin into a tie. See docs/fuad/PROJECTION.md.
+     *
+     * <b>Read over the teams that used a tag, and blank where none of them had a second expiring player to
+     * weigh it against.</b> Blank therefore covers a board on which nobody tagged at all, and does not say
+     * that every team held one candidate. A team holding two it declined to tag either of is left out on
+     * purpose: the gap between two savings that are both negative is not a decision the model made.
+     */
+    private Integer tagMargin(List<PlayerValuation> tagged) {
+        List<Integer> margins = tagged.collect { PlayerValuation tag ->
+            List<PlayerValuation> rivals = valuations.findAll {
+                it.franchiseId == tag.franchiseId && it.playerId != tag.playerId
+            }
+            rivals ? tag.tagSurplus - (rivals.collect { it.tagSurplus }.max() as int) : null
+        }.findAll { it != null } as List<Integer>
+        margins ? margins.min() : null
     }
 
     /**

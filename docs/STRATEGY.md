@@ -191,7 +191,8 @@ are the same number, because his `PRICE` *is* the price with his team's tag lift
 bid on whose team tagged somebody else, `PRICE` is the board's own rate, which is a dollar or so above the
 world the saving is read in — so subtracting on the board slightly overstates what tagging him instead would
 have saved, and can show two of a team's players tied where the model separated them. Read who is
-`FRANCHISED` rather than recomputing the choice.
+`FRANCHISED` rather than recomputing the choice; the margin the closest such decision came down to is
+`TAGMARGIN` on the model's own figures.
 
 **What answers it is `VALUE` against `TAG`, and not `EDGE`.** `EDGE` is `VALUE` less `PRICE`, and `PRICE` is
 the money a tagged player will never cost: it is the reading for a player you are choosing whether to
