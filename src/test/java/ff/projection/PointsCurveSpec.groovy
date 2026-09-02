@@ -134,6 +134,95 @@ class PointsCurveSpec extends Specification {
         multipliers.count { it == 0.0d } == multipliers.size() / 4
     }
 
+    /**
+     * Ranks 1-15 realise within a tenth of expectation, ranks 16-30 within three fifths of it.
+     *
+     * A step rather than a gradient so that a window entirely inside one half is entirely inside it, which
+     * is what makes the assertion about the window rather than about where the step happens to fall.
+     */
+    private static Map<Integer, List<BigDecimal>> widening() {
+        (1..30).collectEntries { int rank ->
+            BigDecimal expected = (300 - rank * 5) as BigDecimal
+            BigDecimal swing = rank <= 15 ? 0.1 : 0.6
+            [(rank): [expected, expected * (1 - swing), expected * (1 + swing)] * 3]
+        }
+    }
+
+    def "gives a rank the spread of the ranks around it, not the whole position's"() {
+        given: 'a board whose deep ranks scatter six times as widely as its top ones'
+        PointsCurve curve = PointsCurve.of([WR: TestSeasons.byRank(widening())])
+
+        expect: 'the top of the board is measured against the top of the board'
+        curve.outcomeVariation('WR', 3) < curve.outcomeVariation('WR', 25) / 2
+
+        and: 'and the range the board quotes widens with it'
+        curve.outcomePercentile('WR', 3, 0.90) < curve.outcomePercentile('WR', 25, 0.90)
+        curve.outcomePercentile('WR', 3, 0.10) > curve.outcomePercentile('WR', 25, 0.10)
+
+        and: 'the pooled reading is neither, which is the whole complaint against it'
+        curve.outcomeVariation('WR', 3) < variationOf(curve.outcomeMultipliers('WR'))
+        curve.outcomeVariation('WR', 25) > variationOf(curve.outcomeMultipliers('WR'))
+    }
+
+    def "carries a rank's availability in the same window as its rate"() {
+        given: 'every rank scores at its own rate, but the deep half of the board plays five games not thirteen'
+        Map<Integer, List<RealisedSeason>> byRank = (1..30).collectEntries { int rank ->
+            int games = rank <= 15 ? 13 : 5
+            BigDecimal rate = ((300 - rank * 5) / 13) as BigDecimal
+            [(rank): (1..9).collect { new RealisedSeason(points: rate * games, games: games) }]
+        }
+
+        when:
+        PointsCurve curve = PointsCurve.of([WR: byRank])
+
+        then: 'the games come from the same seasons the rates do, so they split where the board splits'
+        meanGamesOf(curve, 3) == 13.0d
+        meanGamesOf(curve, 25) == 5.0d
+
+        and: 'which is the half a pooled distribution could not report at all'
+        meanGamesOf(curve, 3) != meanGamesOf(curve, 25)
+    }
+
+    def "normalises each window on its own seasons, so carrying a spread moves no expected points"() {
+        given:
+        PointsCurve curve = PointsCurve.of([WR: TestSeasons.byRank(widening())])
+
+        expect: 'every priced rank, at both ends of the board and in the middle of it'
+        [1, 3, 15, 25, 30].every { int rank ->
+            List<Double> played = curve.outcomeSeasons('WR', rank)
+                    .findAll { it.games > 0 }.collect { it.rateMultiplier }
+            played.size() >= 20 && Math.abs(played.sum() / played.size() - 1.0d) < 0.001d
+        }
+    }
+
+    def "hands a rank past the priced depth the deepest priced rank's window"() {
+        given: 'a receiver board the relevance floor cuts well short of the ranking'
+        PointsCurve curve = PointsCurve.of([WR: TestSeasons.byRank(
+                (1..60).collectEntries { int rank ->
+                    BigDecimal expected = (300 - rank * 5) as BigDecimal
+                    [(rank): [expected, expected * 0.5, expected * 1.5] * 3]
+                })])
+        int deepest = curve.pricedDepth('WR')
+
+        expect: 'the floor bites before the ranking runs out, so there is a beyond to speak about'
+        deepest < curve.depth('WR')
+
+        and: 'a rank the curve no longer makes a claim about is not given a distribution of its own'
+        curve.outcomeVariation('WR', deepest + 10) == curve.outcomeVariation('WR', deepest)
+        curve.outcomeSample('WR', deepest + 10) == curve.outcomeSample('WR', deepest)
+    }
+
+    private static double meanGamesOf(PointsCurve curve, int rank) {
+        List<PointsCurve.Outcome> outcomes = curve.outcomeSeasons('WR', rank)
+        outcomes.collect { it.games as double }.sum() / outcomes.size()
+    }
+
+    private static BigDecimal variationOf(List<Double> multipliers) {
+        double mean = multipliers.sum() / multipliers.size()
+        double variance = multipliers.collect { (it - mean) * (it - mean) }.sum() / (multipliers.size() - 1)
+        (Math.sqrt(variance) / mean) as BigDecimal
+    }
+
     def "reports the range a position's seasons run to, low below expectation and high above"() {
         given: 'a quarter of seasons lost entirely, a quarter at half, a quarter half again as much'
         Map<Integer, List<BigDecimal>> uneven = (1..30).collectEntries { int rank ->

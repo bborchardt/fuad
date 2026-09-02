@@ -318,8 +318,10 @@ class AuctionValuation {
                     pointsPerGame: curve.levelledRate(position, rank),
                     expectedGames: curve.expectedGames(position, rank),
                     tier: curve.tier(position, rank),
-                    pointsLow: curve.seasonPoints(position, rank) * curve.outcomePercentile(position, ExpectedValue.LOW_OUTCOME),
-                    pointsHigh: curve.seasonPoints(position, rank) * curve.outcomePercentile(position, ExpectedValue.HIGH_OUTCOME),
+                    pointsLow: curve.seasonPoints(position, rank) *
+                            curve.outcomePercentile(position, rank, ExpectedValue.LOW_OUTCOME),
+                    pointsHigh: curve.seasonPoints(position, rank) *
+                            curve.outcomePercentile(position, rank, ExpectedValue.HIGH_OUTCOME),
                     bye: byes.of(position, rank),
                     valueOverReplacement: vor[id] ?: 0.0,
                     value: worth,

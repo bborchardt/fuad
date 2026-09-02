@@ -144,9 +144,11 @@ for something, that something is now a column:
 | which rookie gaps are real, across positions | `VAL_LOW`-`VAL_HIGH` on `rookies` | comparing a back to a tight end on midpoints |
 
 `PTSLOW` and `PTSHIGH` carry a caveat worth restating, because the whole point of the boundary is not to
-assume things the model does not know: **the range is the position's, scaled to the player.** Two players
-at one position have the same proportional spread. It says nothing about which of them is the safer pick,
-and a plan that treats it as though it does has smuggled in a belief the model does not hold.
+assume things the model does not know: **the range is the board's at that rank, scaled to the player.** Two
+players at one rank have the same proportional spread, and two ranks apart differ because that stretch of
+the board has run differently, not because one of them is the steadier man. It says nothing about which of
+them is the safer pick, and a plan that treats it as though it does has smuggled in a belief the model does
+not hold.
 
 **`AVAIL` is the same shape of caveat, and it needs `EXP/CAP` read beside it.** It is a rank band's
 retention rate — how often a top-12 expiring contract has changed hands, across every team and every cap

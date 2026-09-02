@@ -76,9 +76,16 @@ class ModelFiguresPrinter {
      * given up on is not a figure anything should be citing. {@code PPG} is the levelled rate, so
      * {@code PPG * G} lands on {@code PTS} — the board reports it that way and a reader who multiplies two
      * columns has to arrive at the third.
+     *
+     * {@code SEASONS}, {@code SPREAD}, {@code LOW} and {@code HIGH} are the rank's outcome window: how many
+     * realised seasons stand behind its spread, how widely their rates scatter, and the range the board
+     * quotes from them. They are per rank because the spread is — see
+     * {@link ff.projection.PointsCurve#OUTCOME_RADIUS} — and reading {@code SPREAD} down a position beside
+     * {@code G} is the evidence that it had to be: both move, and they move together.
      */
     void printCurve(PrintWriter out) {
-        out.println(['POS', 'RANK', 'PTS', 'PPG', 'G', 'SE', 'TIER', 'VOR', 'VOREXP'].join('\t'))
+        out.println(['POS', 'RANK', 'PTS', 'PPG', 'G', 'SE', 'TIER', 'VOR', 'VOREXP', 'SEASONS', 'SPREAD',
+                     'LOW', 'HIGH'].join('\t'))
         POSITIONS.findAll { curve.pricedDepth(it) > 0 }.each { String position ->
             (1..curve.pricedDepth(position)).each { int rank ->
                 out.println([
@@ -93,6 +100,12 @@ class ModelFiguresPrinter {
                                 .setScale(1, RoundingMode.HALF_UP),
                         ExpectedValue.valueOverReplacementAtExpectation(curve, replacement, position, rank, byes)
                                 .setScale(1, RoundingMode.HALF_UP),
+                        curve.outcomeSample(position, rank),
+                        curve.outcomeVariation(position, rank).setScale(2, RoundingMode.HALF_UP),
+                        curve.outcomePercentile(position, rank, ExpectedValue.LOW_OUTCOME)
+                                .setScale(2, RoundingMode.HALF_UP),
+                        curve.outcomePercentile(position, rank, ExpectedValue.HIGH_OUTCOME)
+                                .setScale(2, RoundingMode.HALF_UP),
                 ].join('\t'))
             }
         }

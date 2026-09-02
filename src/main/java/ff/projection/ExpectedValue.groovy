@@ -31,10 +31,17 @@ class ExpectedValue {
     /**
      * Value over replacement, averaged over how the season might actually go.
      *
-     * A season is replayed against every one the position has actually produced, and the value over
-     * replacement averaged across them. Taking the expectation at the end rather than the start is the whole
-     * point: a player projected level with replacement is worth nothing at his average and a good deal in
-     * the seasons he beats it, and only the second reading gives a bench any value at all.
+     * A season is replayed against every one this stretch of the board has actually produced, and the value
+     * over replacement averaged across them. Taking the expectation at the end rather than the start is the
+     * whole point: a player projected level with replacement is worth nothing at his average and a good deal
+     * in the seasons he beats it, and only the second reading gives a bench any value at all.
+     *
+     * <b>The seasons come from the rank's own neighbourhood, not from the whole position.</b> One pool a
+     * position replayed the best quarterback on the board and the 34th through the same distribution, and
+     * the record says a deep rank scatters two to three times as widely and plays four fewer games. Since
+     * this reading is convex in the spread and linear in the games, pooling was two errors at once — and
+     * they happened to be the same size at the top of the board, which is why it looked harmless. See
+     * {@link PointsCurve#outcomeSeasons}.
      *
      * <b>Each replayed season is a rate and a number of games, not one blended number.</b> A player who
      * misses half a year was previously modelled as scoring half as much every week, which put him under
@@ -62,7 +69,7 @@ class ExpectedValue {
             return 0.0
         }
         int playable = PointsCurve.playableWeeks(byes.of(position, rank), byes.lastWeek).size()
-        List<PointsCurve.Outcome> outcomes = curve.outcomeSeasons(position)
+        List<PointsCurve.Outcome> outcomes = curve.outcomeSeasons(position, rank)
         if (!outcomes || !playable) {
             return valueOverReplacement(weekly, against, 1.0d)
         }
@@ -89,9 +96,9 @@ class ExpectedValue {
      * multiplier does, and a season nobody played contributes nothing rather than a discounted something.
      *
      * That makes this correct only for multipliers normalised on <b>rate</b>. See
-     * {@link ff.projection.fuad.RookieOutcomes}, which is the only thing that builds them that way; the
-     * curve's own {@link PointsCurve#outcomeMultipliers} are ratios of season totals and belong to the form
-     * above.
+     * {@link ff.projection.fuad.RookieOutcomes} and {@link PointsCurve#outcomeSeasons}, which are the two
+     * things that build them that way; the curve's own {@link PointsCurve#outcomeMultipliers} are ratios of
+     * season totals and are a description of a position rather than something to price with.
      */
     static BigDecimal expectedValueOverReplacement(BigDecimal rate, List<PointsCurve.Outcome> outcomes,
                                                    Map<Integer, BigDecimal> against,

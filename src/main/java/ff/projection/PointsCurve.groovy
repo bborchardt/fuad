@@ -67,6 +67,51 @@ class PointsCurve {
     private static final int AVAILABILITY_SMOOTHING_RADIUS = 10
 
     /**
+     * Ranks either side of one whose seasons make up its outcome spread.
+     *
+     * <b>The spread belongs to a stretch of the board, not to the whole position.</b> One pool per position
+     * handed the best quarterback on the board and the 34th the same distribution of rate multipliers and
+     * the same distribution of games, and the record says they do not have one. Taken rank by rank the
+     * coefficient of variation of the rate multiplier climbs from 0.17 at the top of quarterback to 0.47 at
+     * its priced floor, from 0.21 to 0.53 at receiver, and the same way at every other position; how much
+     * football a rank plays falls with it. The figures are in docs/figures/fuad/&lt;year&gt;/curve.tsv as
+     * SPREAD against G, rather than quoted here where nothing would notice them going stale.
+     *
+     * Some of that widening is a genuine feature of the board. There are 32 starting jobs at quarterback, so
+     * a rank past about 26 is a backup whose season is close to bimodal — he takes a job through somebody's
+     * injury or he never plays — and value over replacement is convex, so a bimodal rank is worth real money
+     * at a mean that looks worthless. Pooling could not see any of that, and the reason it priced the top of
+     * the board about right was that it handed an elite player more volatility than his neighbours carry,
+     * which raises value through the per-week floor at zero, and more missed games than they carry, which
+     * lowers it. Two errors of the same size are not an argument.
+     *
+     * <b>A sliding window rather than bands, because a band has edges and an edge near replacement is a
+     * cliff.</b> Tiers were the obvious candidate, being a grouping the curve already believes in, and they
+     * are the wrong shape: a tier boundary is a claim about levels being separable, the spread moves
+     * smoothly and continuously with rank, and two ranks a tier apart would price tens of dollars apart on
+     * nothing but which side of the line they fell. {@link ff.projection.fuad.RookieOutcomes} learned that
+     * on the rookie board and this is the same lesson.
+     *
+     * Five either side is 99 seasons at a rank with a full window, against the 45 behind a level and the
+     * 20 a distribution is required to have here. Measured at three, five and eight the widening by rank is
+     * the same shape, so the radius is chosen for sample rather than to make the pattern appear.
+     */
+    private static final int OUTCOME_RADIUS = 5
+
+    /** How much wider the window goes, a step at a time, when a rank is too thinly observed to speak. */
+    private static final int OUTCOME_WIDENING_STEP = 5
+
+    /**
+     * Below this many seasons a window is widened, and past the priced depth it is the whole position.
+     *
+     * Which is the old pooled spread, so a position with too few seasons to say anything finer degrades to
+     * what it had before rather than to a distribution built out of a handful of years. It does not fire on
+     * nine seasons of the five positions this league scores: the narrowest full window is 99 and the
+     * shallowest one-sided edge is 54.
+     */
+    private static final int MINIMUM_OUTCOMES = 20
+
+    /**
      * Ranks levelled below this share of the position's best do not get a say in the outcome spread.
      *
      * Not because they are uninteresting but because a ratio taken against a very small number is not a
@@ -202,7 +247,8 @@ class PointsCurve {
     private final Map<String, Map<Integer, BigDecimal>> errorByPosition
     private final Map<String, Map<Integer, Integer>> tierByPosition
     private final Map<String, List<Double>> multipliersByPosition
-    private final Map<String, List<Outcome>> outcomesByPosition
+    private final Map<String, Map<Integer, List<Double>>> rankMultipliersByPosition
+    private final Map<String, Map<Integer, List<Outcome>>> outcomesByPosition
     private final Map<String, Integer> depthByPosition
     private final Map<String, Census> censusByPosition
 
@@ -212,7 +258,8 @@ class PointsCurve {
                         Map<String, Map<Integer, BigDecimal>> errorByPosition,
                         Map<String, Map<Integer, Integer>> tierByPosition,
                         Map<String, List<Double>> multipliersByPosition,
-                        Map<String, List<Outcome>> outcomesByPosition,
+                        Map<String, Map<Integer, List<Double>>> rankMultipliersByPosition,
+                        Map<String, Map<Integer, List<Outcome>>> outcomesByPosition,
                         Map<String, Integer> depthByPosition,
                         Map<String, Census> censusByPosition) {
         this.rateByPosition = rateByPosition
@@ -221,6 +268,7 @@ class PointsCurve {
         this.errorByPosition = errorByPosition
         this.tierByPosition = tierByPosition
         this.multipliersByPosition = multipliersByPosition
+        this.rankMultipliersByPosition = rankMultipliersByPosition
         this.outcomesByPosition = outcomesByPosition
         this.depthByPosition = depthByPosition
         this.censusByPosition = censusByPosition
@@ -242,7 +290,8 @@ class PointsCurve {
         Map<String, Map<Integer, BigDecimal>> errors = [:]
         Map<String, Map<Integer, Integer>> tiers = [:]
         Map<String, List<Double>> multipliers = [:]
-        Map<String, List<Outcome>> outcomes = [:]
+        Map<String, Map<Integer, List<Double>>> rankMultipliers = [:]
+        Map<String, Map<Integer, List<Outcome>>> outcomes = [:]
         Map<String, Integer> depths = [:]
         Map<String, Census> census = [:]
 
@@ -285,11 +334,13 @@ class PointsCurve {
                 tiers[position] = tiersOf(settled, settledError)
                 depths[position] = settled.keySet().max() as int
                 multipliers[position] = spread(position, byRank, settled)
-                outcomes[position] = outcomesOf(position, byRank, rate, settled)
+                rankMultipliers[position] = multipliersByRank(position, byRank, settled)
+                outcomes[position] = outcomesByRank(position, byRank, rate, settled)
                 census[position] = censusOf(position, byRank, settled, anchor)
             }
         }
-        new PointsCurve(rates, games, levels, errors, tiers, multipliers, outcomes, depths, census)
+        new PointsCurve(rates, games, levels, errors, tiers, multipliers, rankMultipliers, outcomes, depths,
+                census)
     }
 
     Set<String> positions() { levelByPosition.keySet().asImmutable() }
@@ -405,27 +456,67 @@ class PointsCurve {
     List<Double> outcomeMultipliers(String position) { multipliersByPosition[position] ?: [] }
 
     /**
-     * The same seasons, but split into how he played and how often, and kept paired.
+     * The seasons this rank's neighbourhood produced, split into how he played and how often, and paired.
      *
      * Paired deliberately: a season's rate and its games came from one player having one year, and pricing
      * them as independent draws would lose whatever relation they have. This is what value over replacement
      * is averaged across, and it is why an injury-shortened season is now worth something — a starter who
      * played six games at his own rate cleared replacement in six weeks, where smearing the same total over
      * thirteen made him look like a player who never cleared it at all.
+     *
+     * <b>It is still a property of the board and never of the player.</b> The seasons come from the ranks
+     * around this one rather than from whoever holds it, so two players at the same rank get the same
+     * spread, and realised variation is never read as this man being the erratic one. What changed is the
+     * unit: a stretch of about eleven ranks instead of a whole position. See {@link #OUTCOME_RADIUS}.
+     *
+     * A rank past the priced depth is given the deepest priced rank's window. Nothing there carries money,
+     * so the alternative is a spread of ratios taken against a level the consensus was not really claiming.
      */
-    List<Outcome> outcomeSeasons(String position) { outcomesByPosition[position] ?: [] }
+    List<Outcome> outcomeSeasons(String position, int rank) {
+        outcomesByPosition[position]?.get(rank) ?: []
+    }
 
     /**
-     * The multiplier a given share of this position's seasons came in under.
+     * The multiplier a given share of this rank's seasons came in under, over the same window.
      *
-     * <b>It is a property of the position, not of the player.</b> The ratios are pooled across every rank
-     * that carries enough money to be a ratio of the same thing, so two players at the same position get
-     * the same spread around their own different levels. That is deliberate — realised variation cannot
-     * tell an erratic player from one the consensus misjudged — and it is why nothing here should be read
-     * as this player being the risky one.
+     * The whole season rather than the rate — this is what the board quotes as a range, and a reader
+     * comparing two players wants the season he would get, absence included. It is the percentile form of
+     * {@link #outcomeSeasons} and comes from exactly the same seasons, so the range on the board and the
+     * spread the price was averaged over cannot drift apart.
+     *
+     * <b>Still a property of the board and not of the player</b>, for the reason given on
+     * {@link #outcomeSeasons}: it says what this stretch of the board has done, not what this man will do.
+     */
+    BigDecimal outcomePercentile(String position, int rank, double percentile) {
+        percentileOf(rankMultipliersByPosition[position]?.get(rank), percentile)
+    }
+
+    /**
+     * The same multiplier over the position's whole priced range, which is a description and not a price.
+     *
+     * Nothing prices off this. It is what {@link #outcomeMultipliers} summarises — the shape of the
+     * distribution, whose left tail runs to zero at every position while its right stops not far above one
+     * and a half — and that shape is a fact about the position rather than about any rank in it. The board
+     * quotes {@link #outcomePercentile(String, int, double)} instead, being the window the rank was
+     * actually priced against.
      */
     BigDecimal outcomePercentile(String position, double percentile) {
-        List<Double> sorted = (multipliersByPosition[position] ?: []).sort()
+        percentileOf(multipliersByPosition[position], percentile)
+    }
+
+    /** How widely this rank's window scatters when it plays: the coefficient of variation of its rates. */
+    BigDecimal outcomeVariation(String position, int rank) {
+        List<Double> played = outcomeSeasons(position, rank)
+                .findAll { it.games > 0 }
+                .collect { it.rateMultiplier as BigDecimal }
+        variationOf(played)
+    }
+
+    /** How many seasons stand behind this rank's spread, which is what says whether it can carry one. */
+    int outcomeSample(String position, int rank) { outcomeSeasons(position, rank).size() }
+
+    private static BigDecimal percentileOf(List<Double> multipliers, double percentile) {
+        List<Double> sorted = (multipliers ?: []).sort()
         if (!sorted) {
             return 1.0
         }
@@ -751,34 +842,105 @@ class PointsCurve {
     }
 
     /**
-     * The same seasons split in two, rate against the rank's rate and games as they were.
+     * Each rank's own seasons split in two, rate against the rank's rate and games as they were.
      *
-     * Rate multipliers are scaled to average one so that carrying the spread moves no expected points. A
-     * lost season keeps its zero games and carries whatever multiplier the scaling leaves it with, which is
-     * read by nothing either way: with no games there is no week for a rate to apply to.
+     * Rate multipliers are scaled so that the window averages one, which is what keeps carrying the spread
+     * from moving any expected points: the level is the curve's job and the window's is only the width
+     * around it. That distinction is the measurement the whole change rests on — mean realised rate against
+     * a rank's expectation is flat across the board, 0.937 to 0.950 at quarterback, so there was never a
+     * level to correct here, only a width.
+     *
+     * A lost season keeps its zero games and carries whatever multiplier the scaling leaves it with, which
+     * is read by nothing either way: with no games there is no week for a rate to apply to.
      */
-    private static List<Outcome> outcomesOf(String position, Map<Integer, List<RealisedSeason>> byRank,
-                                            Map<Integer, BigDecimal> rate,
-                                            Map<Integer, BigDecimal> level) {
-        int deepest = pricedDepthOf(position, level)
-        List<Outcome> raw = byRank.collectMany { int rank, List<RealisedSeason> seasons ->
-            BigDecimal expected = level[rank]
-            BigDecimal expectedRate = rate[rank]
-            if (!expected || rank > deepest || !expectedRate) {
+    private static Map<Integer, List<Outcome>> outcomesByRank(String position,
+                                                              Map<Integer, List<RealisedSeason>> byRank,
+                                                              Map<Integer, BigDecimal> rate,
+                                                              Map<Integer, BigDecimal> level) {
+        windowsBy(position, byRank, level) { Map<Integer, List<RealisedSeason>> within ->
+            List<Outcome> raw = within.collectMany { int at, List<RealisedSeason> seasons ->
+                BigDecimal expectedRate = rate[at]
+                expectedRate > 0 ? seasons.collect { RealisedSeason season ->
+                    new Outcome(season.games > 0 ? (season.rate / expectedRate).toDouble() : 1.0d, season.games)
+                } : [] as List<Outcome>
+            }
+            if (raw.size() < MINIMUM_OUTCOMES) {
                 return [] as List<Outcome>
             }
-            seasons.collect { RealisedSeason season ->
-                new Outcome(season.games > 0 ? (season.rate / expectedRate).toDouble() : 1.0d, season.games)
+            List<Double> played = raw.findAll { it.games > 0 }.collect { it.rateMultiplier }
+            if (!played) {
+                return [] as List<Outcome>
+            }
+            double mean = played.sum() / played.size()
+            mean > 0 ? raw.collect { new Outcome(it.rateMultiplier / mean, it.games) } : [] as List<Outcome>
+        }
+    }
+
+    /**
+     * The same window read as whole seasons, which is the range the board quotes rather than prices with.
+     *
+     * Built here rather than derived from {@link #outcomesByRank} so that both readings come out of one
+     * pooling unit and one pass. They are the same seasons: a rank whose window is wide in rate is wide in
+     * range, and there is no way for the two to disagree about which seasons they are describing.
+     */
+    private static Map<Integer, List<Double>> multipliersByRank(String position,
+                                                                Map<Integer, List<RealisedSeason>> byRank,
+                                                                Map<Integer, BigDecimal> level) {
+        windowsBy(position, byRank, level) { Map<Integer, List<RealisedSeason>> within ->
+            List<Double> ratios = within.collectMany { int at, List<RealisedSeason> seasons ->
+                BigDecimal expected = level[at]
+                expected > 0 ? seasons.collect { (it.points / expected).toDouble() } : [] as List<Double>
+            }
+            if (ratios.size() < MINIMUM_OUTCOMES) {
+                return [] as List<Double>
+            }
+            double mean = ratios.sum() / ratios.size()
+            mean > 0 ? ratios.collect { it / mean } : [] as List<Double>
+        }
+    }
+
+    /**
+     * Every levelled rank's window of seasons, read by whatever the caller wants out of it.
+     *
+     * Ranks past the priced depth are given the deepest priced rank's window rather than one of their own:
+     * a ratio against a level the consensus was not really claiming is not a ratio of the same thing, which
+     * is what {@link #RELEVANT_FRACTION} exists to say, and it says it about the spread as much as about the
+     * pool.
+     */
+    private static <T> Map<Integer, List<T>> windowsBy(String position,
+                                                       Map<Integer, List<RealisedSeason>> byRank,
+                                                       Map<Integer, BigDecimal> level,
+                                                       Closure<List<T>> read) {
+        int deepest = pricedDepthOf(position, level)
+        if (deepest < 1) {
+            return [:]
+        }
+        level.keySet().sort().collectEntries { int rank ->
+            [(rank): read(windowAround(byRank, deepest, Math.min(rank, deepest)))]
+        }
+    }
+
+    /**
+     * The seasons within {@link #OUTCOME_RADIUS} ranks of one, keyed by the rank each of them came from.
+     *
+     * Kept keyed rather than flattened because every season has to be expressed against its <b>own</b>
+     * rank's level before it can stand for this one. Dividing a window by its middle instead would report
+     * each of its better ranks as a season that beat expectation and each of its worse ranks as one that
+     * missed, which is the shape of the curve read as though it were the shape of luck.
+     *
+     * Widened a step at a time so a rank that is nearly well enough observed keeps most of its locality,
+     * and past the priced depth the window is the position. See {@link #MINIMUM_OUTCOMES}.
+     */
+    private static Map<Integer, List<RealisedSeason>> windowAround(Map<Integer, List<RealisedSeason>> byRank,
+                                                                   int deepest, int centre) {
+        for (int radius = OUTCOME_RADIUS; ; radius += OUTCOME_WIDENING_STEP) {
+            Map<Integer, List<RealisedSeason>> within = byRank.findAll { int at, List<RealisedSeason> seasons ->
+                at <= deepest && Math.abs(at - centre) <= radius
+            }
+            int seasons = within.values().collect { it.size() }.sum(0) as int
+            if (seasons >= MINIMUM_OUTCOMES || radius >= deepest) {
+                return within
             }
         }
-        if (raw.size() < 20) {
-            return []
-        }
-        List<Double> played = raw.findAll { it.games > 0 }.collect { it.rateMultiplier }
-        if (!played) {
-            return []
-        }
-        double mean = played.sum() / played.size()
-        mean > 0 ? raw.collect { new Outcome(it.rateMultiplier / mean, it.games) } : []
     }
 }

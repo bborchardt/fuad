@@ -316,8 +316,81 @@ clear of it — RB48 is worth nothing at all on the second reading and about fiv
 The spread is real: realised points at a given preseason rank vary with a coefficient of variation of 0.5 to
 0.6 by position, and players nominally below replacement still clear it often.
 
-So a season is replayed against **every season the position has actually produced**, and value over
-replacement averaged across them.
+So a season is replayed against **every season the ranks around this one have actually produced**, and value
+over replacement averaged across them.
+
+**The pool is a stretch of the board and not the whole position, because the record says the two are not the
+same thing.** One pool a position replayed the best quarterback on the board and the 34th through the same
+distribution of rate multipliers and the same distribution of games. `SPREAD` is how widely a rank's own
+seasons scatter in the years they happen:
+
+<!-- figures: fuad/curve across=POS field=SPREAD -->
+
+| Rank | QB | WR | RB | TE |
+| --- | --- | --- | --- | --- |
+| 1 | 0.17 | 0.21 | 0.28 | 0.28 |
+| 12 | 0.25 | 0.25 | 0.25 | 0.31 |
+| 24 | 0.29 | 0.25 | 0.33 | 0.40 |
+| 36 | 0.47 | 0.33 | 0.44 | 0.49 |
+
+and `G` is how many of them happen at all:
+
+<!-- figures: fuad/curve across=POS field=G -->
+
+| Rank | QB | WR | RB | TE |
+| --- | --- | --- | --- | --- |
+| 1 | 11.46 | 11.45 | 11.12 | 10.73 |
+| 12 | 11.39 | 11.44 | 10.91 | 10.72 |
+| 24 | 10.11 | 10.94 | 10.43 | 10.40 |
+| 36 | 6.24 | 10.62 | 10.26 | 9.37 |
+
+**The level was never what was wrong.** Mean realised rate against a rank's own expectation is flat across
+the board — 0.937 to 0.950 at quarterback — so the curve's central estimate was unbiased by rank and only
+the width around it varied. What the window changes is the width, and it is normalised on its own seasons
+so that carrying it still moves no expected points.
+
+**Some of the widening is the board and some of it is arithmetic, and the arithmetic is the smaller half.**
+There are 32 starting jobs at quarterback, so a rank past about 26 is a backup whose season is close to
+bimodal: he takes a job through somebody's injury, or he never plays. That is a real feature of the
+position. But a ratio taken against a smaller expected number is also mechanically noisier, which is what
+`RELEVANT_FRACTION` exists to bound and it does not stop at the cut. How much of it that accounts for is
+readable rather than arguable: `SE` against `PTS` bounds the noise in that denominator at 3.8% of the level
+at QB1 and 12.8% at QB36, and taking the second out in quadrature leaves 0.45 of the 0.47 measured there.
+About a twenty-fifth of the width at the very deepest rank, and less everywhere else, is the ratio rather
+than the football.
+
+**Why this was invisible while it was wrong.** Pooling handed an elite player more volatility than his
+neighbours carry, which raises value through the per-week floor at zero, and more missed games than they
+carry, which lowers it. At the top of quarterback the two happened to be the same size, so the players the
+board actually turns on were priced almost exactly right — by two errors cancelling rather than by either
+being small. They do not cancel in the middle, and the middle is where most of the money is.
+
+**A sliding window rather than bands, because a band has edges and an edge near replacement is a cliff.**
+Tiers were the obvious candidate, being a grouping the curve already believes in. They are the wrong shape:
+a tier boundary is a claim about two levels being separable, the spread moves smoothly and continuously with
+rank, and two ranks a tier apart would price tens of dollars apart on nothing but which side of the line they
+fell on. The rookie board learned that with real bands and real dollars — see
+[the spread that priced rookies above the league](#the-spread-that-priced-rookies-above-the-league) — and
+this is the same lesson applied to the veterans.
+
+Five ranks either side is 99 seasons where the window is full, against the 45 a level is a mean of, and the
+count is carried as `SEASONS` on the same row so a reader can see which ranks are speaking from a full
+window and which from a one-sided edge. Measured at three, five and eight ranks either side the widening by
+rank is the same shape, so the radius is chosen for sample rather than to make the pattern appear.
+
+**Rate and availability are one change and not two.** They were pooled separately and could have been fixed
+separately, and there is no reason to: what was wrong is the pooling unit, not either half. A window is a set
+of realised seasons, and each of them carries its rate and its games together, so both halves come out of one
+pass and cannot disagree about which seasons they describe.
+
+**What it moved.** The top of the board barely notices: Lamar Jackson's value over replacement at QB2 moves
+by one point in 79 and Ja'Marr Chase's at WR1 by none, which is the cancellation above showing up as it
+should. The middle moves by five to twenty-five per cent — running backs 11 through 27 and receivers 22
+through 41 downward, the back of every position upward — and the positional shares of worth renormalise
+around it: quarterback's `VORSHARE` rises from 24.8 to 25.6 and receiver's falls from 23.8 to 22.9. The one figure that moves the wrong way against
+the record is the count of players above the minimum bid, which goes from 76 to 86 against the 70 the league
+signs, all of it ten deep players repriced from $1 to $2 or $3 — $13 of a $1,936 pot, and a count in which a
+$2 player and a $1 player are the same decision.
 
 Each replayed season is a rate and a number of games, kept paired as one player's year rather than drawn
 apart. That matters most for the seasons that ended early. Smearing an injured starter's total across the
@@ -376,17 +449,21 @@ As priced, which is generated:
 > board.
 
 Twenty-seven players above the minimum bid against the seventy the league signs, and tight end priced out
-of existence altogether. The reason is structural rather than a matter of picking a gentler bar: the games
-a season loses are drawn from the position's pooled distribution, so the charge is **the same number for
-every player at a position**. Subtract a constant from everyone and let the positional shares renormalise,
-and the money tilts to whoever had most of it already — the top tenth of the board goes from 34.7% to
-60.2%. A rank-invariant penalty cannot correct a rank-invariant assumption; it only steepens the curve.
+of existence altogether. The reason is structural rather than a matter of picking a gentler bar: those three
+were measured while the games a season loses came from the position's pooled distribution, so the charge was
+**the same number for every player at a position**. Subtract a constant from everyone and let the positional
+shares renormalise, and the money tilts to whoever had most of it already — the top tenth of the board goes
+from 34.7% to 60.2%. A rank-invariant penalty cannot correct a rank-invariant assumption; it only steepens
+the curve.
 
-The one thing here that is rank-graded moves nothing. Value over replacement draws its games from the
-pooled distribution while `PTS` uses the rank's own, which is a real inconsistency, and repairing it shifts
-no quarterback on the board by more than a dollar. The ranks where availability genuinely differs — the back
-of quarterback plays barely six games against the best one's eleven and a half — are already at the minimum
-bid.
+The rank-invariant assumption is itself gone now. Games come from the rank's own window along with the rate
+— see [3b](#3b-outcome-spread-which-is-what-a-bench-is-worth) — so the mildest of the three alternatives, a
+rank's own availability, is no longer an alternative at all but what the model does. It shifted no
+quarterback by more than a dollar when it was measured against the pooled version, for the reason it was
+always going to: the ranks where availability genuinely differs — the back of quarterback plays barely six
+games against the best one's eleven and a half — are already at the minimum bid. That is a repair to what
+value over replacement draws from, and it is not the same as charging a player for the weeks he misses,
+which is the question this section is about and which the paragraph below settles.
 
 **What settles it is that the cost is charged elsewhere, once.** At the auction a team buys its whole
 roster in one sitting, so what covers an injured starter is another player it also bought. Charging the
@@ -748,7 +825,8 @@ league is not.
 - **The spread cannot tell volatility from disagreement.** It is realised variation, so a genuinely erratic
   player and one the consensus simply misjudged look identical. For pricing that is the right total, but it
   means the model has no notion of a safe pick versus a risky one — which is why `PTSLOW` and `PTSHIGH` are
-  a position's range scaled to a player, and must not be read as his own.
+  the range of the ranks around his, scaled to him, and must not be read as his own. That the range now
+  varies down a position says where on the board a player sits, never which player he is.
 - **Contract length is not modelled.** A salary buys one season, and length is chosen jointly with price
   rather than being an input. The record shows the shape the cut penalty implies: 87% of signings above $40
   are one-year deals, against 70% at $1-2, and the dynasty-minus-redraft gap tracks length four times more
@@ -829,10 +907,12 @@ Alongside them the board carries what a plan needs in order to reason without go
   **`G` is not `AVAIL`.** `G` is how much football he plays; `AVAIL` is the chance he ever reaches another
   team, which is a fact about the right of first refusal and nothing to do with his health.
 - `PTSLOW` / `PTSHIGH` — the same rank in a bad season and a good one, at the 10th and 90th percentile of
-  realised outcomes. **The spread belongs to the position, not to the player.** Every quarterback gets the
-  same proportional range around his own level, because realised variation cannot tell an erratic player
-  from one the consensus misjudged. A wide range means the position is wide; it never means this player is
-  the risky one.
+  the seasons the ranks around his have produced. **The spread belongs to the board, not to the player.**
+  Two players at one rank get the same proportional range, because realised variation cannot tell an erratic
+  player from one the consensus misjudged. A wide range means this stretch of the board is wide — and the
+  deep end of every position is much wider than the top, which is a fact about where the ranking stops
+  making a confident claim; it never means this player is the risky one. See
+  [3b](#3b-outcome-spread-which-is-what-a-bench-is-worth).
 - `BYE` — the week he is off. A fact of the schedule rather than a judgement about him, and the one thing
   about a particular player the model is willing to know.
 - `TIER` — the band of ranks at this position the curve **cannot tell apart**, 1 being the best. Levels are
