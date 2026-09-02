@@ -9,6 +9,7 @@ import ff.projection.StarterRequirements
 import ff.projection.fuad.TagHistory
 import ff.projection.TestSeasons
 import spock.lang.Specification
+import spock.lang.Unroll
 
 /**
  * The figures the documentation cites have to be the model's, and have to hold together.
@@ -185,6 +186,43 @@ class ModelFiguresPrinterSpec extends Specification {
         and: 'and the tags counted by player and by team, which differ when one team holds two'
         figures.TAGS == '1'
         figures.TEAMSTAGGING == '1'
+    }
+
+    /**
+     * The margin is the gap between a team's tag and its next best, not the size of the saving.
+     *
+     * Both read on that team's own no-tag money, which is what makes them subtractable at all. A team
+     * holding one expiring player was never choosing, so it contributes no margin — and a board where
+     * nobody was choosing reports none rather than reporting zero, which would read as a board the model
+     * could not separate.
+     */
+    def "reports how narrow the closest tag decision was, over teams that had a choice"() {
+        given: 'one team choosing between two players, and one team with nobody to choose against'
+        List<PlayerValuation> valuations = [
+                choosing('WR', 1, 40, 'f1', true), choosing('WR', 2, 37, 'f1'),
+                choosing('RB', 1, 50, 'f2', true),
+        ]
+
+        expect: 'the narrowest gap between a tag and the runner up on the same roster'
+        board(valuations).TAGMARGIN == '3'
+    }
+
+    @Unroll
+    def "reports no margin where no team that tagged had anybody to weigh it against: #situation"() {
+        expect: 'blank, since nothing was chosen between, rather than a margin of nought'
+        board(valuations).TAGMARGIN == ''
+
+        where:
+        situation                     | valuations
+        'each tagger holds one'       | [choosing('WR', 1, 40, 'f1', true), choosing('RB', 1, 50, 'f2', true)]
+        'nobody tagged at all'        | [choosing('WR', 1, 40, 'f1'), choosing('WR', 2, 37, 'f1')]
+    }
+
+    /** A held player whose saving is stated outright: no tag price, so the surplus is the price itself. */
+    private static PlayerValuation choosing(String position, int rank, int untagged, String franchise,
+                                            boolean tagged = false) {
+        valued(position, rank, untagged, untagged, franchise, tagged)
+                .copyWith(untaggedSalary: untagged)
     }
 
     def "reports the pot the board was divided out of"() {

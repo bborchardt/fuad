@@ -13,8 +13,8 @@ import ff.projection.TestSeasons
  *
  * {@link AuctionValuationSpec} checks that the constants dividing the money are the measurements they claim
  * to be. This checks what happens to the money once they have divided it, which had nothing on it at all:
- * the positional totals surviving the steepening, the prices summing to the pot, the counterfactual a
- * tagged player is priced at, and the two columns the right of first refusal produces.
+ * the positional totals surviving the steepening, the prices summing to the pot, the world a tag decision
+ * is measured in, and the two columns the right of first refusal produces.
  *
  * Every board here is synthetic. These are properties the arithmetic has to hold for any curve, so pinning
  * them to a season's figures would only be the drift problem with a spec around it — see
@@ -185,6 +185,108 @@ class AuctionPricingSpec extends Specification {
     }
 
     /**
+     * Everything a team's tag decision compares comes from one world.
+     *
+     * A tag is a choice between two boards: the one where the team uses it, and the one where it uses none
+     * and the player is back in the bidding with his tag price back in the pot. What a tag saves is the
+     * difference between them, so the market half of it has to be read on the second — and so does every
+     * rival candidate on the same roster, or the team is not comparing like with like.
+     *
+     * Priced player by player it was not. The player actually tagged was measured in the world where his
+     * tag is lifted while his own team-mates were measured in the world where it still stands, against a
+     * smaller pool and a smaller pot. That discounts the incumbent and inflates the challenger every time,
+     * which is a bias rather than noise, and it is the mechanism the settlement loop used to cycle on: see
+     * {@link FranchiseTagSettlementSpec}.
+     *
+     * <b>One team holds the whole board here, so the world where that team tags nobody is exactly the board
+     * priced with the tag out of reach</b> — which makes the claim checkable to the dollar rather than by
+     * argument.
+     */
+    def "every one of a team's expiring players is measured in the world where it tags nobody"() {
+        given: 'one team holding the board, priced once with a tag worth using and once with none'
+        Map<String, List> pool = poolOf(['QB'], 30) { int rank -> 'f1' }
+        def boardWith = { int tagPrice ->
+            AuctionValuation.value(curveFor(['QB']), new StarterRequirements([QB: 2], [QB: 2], 2, 10),
+                    pool, [QB: tagPrice], 2438.0, 60, NO_BYES)
+        }
+
+        when:
+        List<PlayerValuation> tagged = boardWith(40)
+        List<PlayerValuation> none = boardWith(100000)
+
+        then: 'one tag was used, so there is one world for the whole roster to be measured in'
+        tagged.count { it.franchiseTagged } == 1
+        !none.any { it.franchiseTagged }
+
+        and: 'and every player the team holds is measured there, the tagged one and his rivals alike'
+        tagged.every { PlayerValuation player ->
+            player.untaggedSalary == find(none, player.playerId).marketSalary
+        }
+
+        and: 'while what the auction pays for the ones it can still bid on is the board rate, which is higher'
+        tagged.findAll { !it.franchiseTagged }.every { it.marketSalary >= it.untaggedSalary }
+        tagged.any { !it.franchiseTagged && it.marketSalary > it.untaggedSalary }
+    }
+
+    /**
+     * A player nobody holds has no tag to lift, so the two prices are one price.
+     *
+     * Worth stating outright because {@code untaggedSalary} is the basis of a saving that only a holder can
+     * make, and a board of free agents must not quietly carry a second number that differs from the first.
+     */
+    def "a player nobody holds is priced once, on the board's own rate"() {
+        given: 'one team holds the best player, and nobody holds the rest'
+        List<PlayerValuation> board = AuctionValuation.value(curveFor(['QB']),
+                new StarterRequirements([QB: 2], [QB: 2], 2, 10),
+                poolOf(['QB'], 40) { int rank -> rank == 1 ? 'f1' : null },
+                [QB: 40], 2438.0, 60, NO_BYES)
+
+        expect: 'a tag really was used, or there was no second world for anyone to be measured in'
+        board.count { it.franchiseTagged } == 1
+
+        and: 'and the unheld are on one price, however the tagged one is measured'
+        board.findAll { !it.franchiseId }.every { it.untaggedSalary == it.marketSalary }
+    }
+
+    /**
+     * The world a tag is measured in has to be a board the model could itself have priced.
+     *
+     * Its roster spots are counted by the same rule as the board's own rather than by adding one to it. The
+     * two agree wherever spots outnumber tags and part company exactly where they do not: the reserve is
+     * floored at one spot, so a board with more tags than spots left has one either way, and adding one
+     * invents a spot that world does not have, reserves a dollar against it and reports the saving a dollar
+     * short. A dollar is enough to flip a team sitting on the margin, and flip it back next round.
+     *
+     * The board below is that case and nothing else — every player held by his own team, and four spots to
+     * fill between the six teams that want to tag. Counting the world's spots by adding one instead, this
+     * board never settles inside the loop's rounds; boards of the same kind traced out past them are found
+     * to cycle rather than to be converging slowly, one team flipping in and out without end.
+     */
+    def "a board with more tags than roster spots left still settles"() {
+        given:
+        ByteArrayOutputStream captured = new ByteArrayOutputStream()
+        PrintStream original = System.err
+        System.err = new PrintStream(captured)
+
+        when: 'every player held by his own team, and fewer spots to fill than teams that would tag'
+        List<PlayerValuation> board
+        try {
+            board = AuctionValuation.value(curveFor(['QB']),
+                    new StarterRequirements([QB: 2], [QB: 2], 2, 10),
+                    poolOf(['QB'], 25) { int rank -> "f$rank".toString() },
+                    [QB: 6], 120.0, 4, NO_BYES)
+        } finally {
+            System.err = original
+        }
+
+        then: 'more tags than spots, or the floor is not in play and this fixture is not the one'
+        board.count { it.franchiseTagged } > 4
+
+        and: 'and the tags settle rather than flipping a marginal team in and out for ever'
+        !captured.toString().contains('did not settle')
+    }
+
+    /**
      * How often a player of this rank reaches another team at all, which is a fact about the rule and not
      * about him.
      *
@@ -297,10 +399,12 @@ class AuctionPricingSpec extends Specification {
      * player clearing at the allowance would pay no premium while one clearing a dollar more would pay his
      * full worth. Bounding the premium instead is monotonic in rank all the way down the board.
      *
-     * Tagged players sit outside the ordering for a reason of their own: a tag is priced off a
-     * counterfactual pot, with that player back in the bidding and his tag money back in the pool, so his
-     * market price is not on the same scale as the rest of the board. That is {@code price}'s doing and
-     * predates any bound on the premium.
+     * Tagged players sit outside this ordering for a reason of their own, and it is a reason rather than an
+     * exemption: a tagged row is priced in the world where his team tagged nobody, so it is not on the same
+     * scale as rows priced in the world where it did. The ordering is not given up, it is asserted where it
+     * means something — the row below checks it over the whole board in the one world that holds all of
+     * them, and {@code every one of a team's expiring players is measured in the world where it tags nobody}
+     * pins each tagged row to its price there.
      */
     def "a better player never costs less to prise loose than a worse one"() {
         given:
@@ -314,6 +418,29 @@ class AuctionPricingSpec extends Specification {
                 .sort { it.positionRank }.collect { it.acquisitionSalary }
 
         then: 'the acquisition price never rises as the players get worse'
+        byRank == byRank.sort(false).reverse()
+    }
+
+    /**
+     * And the same ordering over every player, on the one board where they are all in one world.
+     *
+     * The row above has to skip the tagged, which leaves the property untested exactly where the tag
+     * mechanism could break it. Pricing the same board with the tag out of reach puts every player back on
+     * one rate, and the ordering then has to hold across all of them — including the player who would
+     * otherwise have been tagged, whose reported price is this board's price for him.
+     */
+    def "and never on the board where nobody is tagged, over every player on it"() {
+        given: 'the same board, with a tag nobody would ever use'
+        List<PlayerValuation> none = AuctionValuation.value(curveFor(['QB']),
+                new StarterRequirements([QB: 2], [QB: 2], 2, 10),
+                poolOf(['QB'], 45) { int rank -> 'f1' },
+                [QB: 100000], 2438.0, 60, NO_BYES)
+
+        expect: 'nobody is tagged, so there is no second world on this board'
+        !none.any { it.franchiseTagged }
+
+        and: 'and the ordering holds over the whole of it, with nobody left out'
+        List<Integer> byRank = none.sort { it.positionRank }.collect { it.acquisitionSalary }
         byRank == byRank.sort(false).reverse()
     }
 

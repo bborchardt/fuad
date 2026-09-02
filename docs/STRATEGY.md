@@ -180,11 +180,19 @@ not reach. Every other figure on the board can be checked against something; thi
 rather than for want of data. It is also the number the whole tag decision turns on, so a plan leaning hard
 on a tagged player's `PRICE` is leaning on the one figure the model cannot be held to.
 
-**`TAG` says what a tag saves, never whether you want the player.** Tag surplus is `PRICE` less the tag
-price, so the tag a team is told to use is the one it saves most on, even where the tag costs more than the
-player is worth. Value enters only to break a tie between two surpluses the model cannot separate, and never
-overrides a larger saving. A team whose best saving is on a contract it should not want is still told to tag
-it, and the board will not say so.
+**`TAG` says what a tag saves, never whether you want the player.** The saving is what the player would
+have gone for had the team holding him tagged nobody, less the tag price, so the tag a team is told to use
+is the one it saves most on even where the tag costs more than the player is worth. Value enters only to
+break a tie between two savings the model cannot separate, and never overrides a larger one. A team whose
+best saving is on a contract it should not want is still told to tag it, and the board will not say so.
+
+**Which means `PRICE` less `TAG` is the saving only for a player already tagged.** For a tagged row the two
+are the same number, because his `PRICE` *is* the price with his team's tag lifted. For a player still being
+bid on whose team tagged somebody else, `PRICE` is the board's own rate, which is a dollar or so above the
+world the saving is read in — so subtracting on the board slightly overstates what tagging him instead would
+have saved, and can show two of a team's players tied where the model separated them. Read who is
+`FRANCHISED` rather than recomputing the choice; the margin the closest such decision came down to is
+`TAGMARGIN` on the model's own figures.
 
 **What answers it is `VALUE` against `TAG`, and not `EDGE`.** `EDGE` is `VALUE` less `PRICE`, and `PRICE` is
 the money a tagged player will never cost: it is the reading for a player you are choosing whether to
