@@ -228,9 +228,14 @@ class FranchiseTagSettlementSpec extends Specification {
         System.err = new PrintStream(captured)
         List<PlayerValuation> board
         try {
+            // The one call here that names its settings. What is under test is the cascade's reporting
+            // when the rounds run out, which is the same loop whatever shapes the prices — but the board
+            // that produces a fourteen-deep queue was found by search under the VOR endpoint, and the
+            // same forty teams settle in three under the production signal. Pinning keeps the fixture the
+            // thing it was searched for; the rest of this spec runs the shipped path.
             board = AuctionValuation.value(PointsCurve.of([QB: TestSeasons.byRank(shape)]),
                     new StarterRequirements([QB: 2], [QB: 2], 2, 12), pool, [QB: 2], 120.0, 60,
-                    new ByeWeeks([:], LAST_WEEK))
+                    new ByeWeeks([:], LAST_WEEK), AuctionValuation.DEFAULT_SETTINGS)
         } finally {
             System.err = original
         }

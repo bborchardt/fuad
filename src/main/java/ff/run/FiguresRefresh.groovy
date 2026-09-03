@@ -10,6 +10,7 @@ import ff.load.greenfield.GreenfieldBoard
 import ff.print.figures.greenfield.GreenfieldFiguresPrinter
 import ff.print.figures.fuad.ModelFiguresPrinter
 import ff.projection.fuad.AuctionAccuracy
+import ff.projection.fuad.AuctionStudy
 import ff.projection.fuad.AuctionSpend
 import ff.projection.fuad.PriceSteepness
 import ff.print.figures.fuad.RookieFiguresPrinter
@@ -102,9 +103,17 @@ class FiguresRefresh {
                 accuracy    : { PrintWriter out ->
                     ModelFiguresPrinter.printAccuracy(out, AuctionAccuracy.of(past))
                 } as Closure<Void>,
+                auctionstudy: { PrintWriter out ->
+                    ModelFiguresPrinter.printAuctionStudy(out, AuctionStudy.of())
+                } as Closure<Void>,
+                accuracyobservations: { PrintWriter out ->
+                    ModelFiguresPrinter.printAccuracyObservations(out, AuctionAccuracy.observations(past))
+                } as Closure<Void>,
                 steepness   : { PrintWriter out ->
                     ModelFiguresPrinter.printSteepness(out,
-                            PriceSteepness.of(PriceSteepness.observationsFrom(past)))
+                            PriceSteepness.of(PriceSteepness.observationsFrom(
+                                    past, PriceSteepness.fittedSeasons(),
+                                    { PlayerValuation it -> it.points }), true))
                 } as Closure<Void>,
                 rookiecurve : { PrintWriter out -> rookies.printCurve(out) } as Closure<Void>,
                 rookiesalary: { PrintWriter out -> rookies.printSalary(out) } as Closure<Void>,

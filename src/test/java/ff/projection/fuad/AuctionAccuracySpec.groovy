@@ -160,4 +160,19 @@ class AuctionAccuracySpec extends Specification {
         whole.priced == 0
         whole.meanAbsolute == 0.0
     }
+
+    def "exposes every scored signing as one paired diagnostic row"() {
+        given:
+        Map<String, List<PlayerValuation>> boards = seasons.collectEntries { [(it): board(it)] }
+
+        when:
+        List<AuctionAccuracy.Observation> observations = AuctionAccuracy.observations(boards)
+
+        then:
+        observations.size() == AuctionAccuracy.of(boards)
+                .findAll { it.position == AuctionAccuracy.ALL }.collect { it.priced }.sum()
+        observations.every { it.benchmark != null &&
+                it.pairedDifference == it.boardError - it.benchmarkError }
+        observations.any { it.resigned } && observations.any { !it.resigned }
+    }
 }

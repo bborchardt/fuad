@@ -3,6 +3,7 @@ package ff.print.figures.fuad
 import ff.data.FranchiseTag
 import ff.data.PlayerValuation
 import ff.projection.fuad.AuctionAccuracy
+import ff.projection.fuad.AuctionStudy
 import ff.projection.fuad.PriceSteepness
 import ff.projection.fuad.AuctionSpend
 import ff.projection.fuad.AuctionValuation
@@ -136,10 +137,10 @@ class ModelFiguresPrinter {
      * this league paid at the same rank in its <b>other</b> seasons, which is the most obvious alternative
      * to a model and the one a reader would otherwise assume was better. See {@link AuctionAccuracy.Fit}.
      *
-     * <b>It is reported and not enforced.</b> A threshold on an in-sample figure over a couple of hundred
+     * <b>It is reported and not thresholded.</b> A threshold on an in-sample figure over a couple of hundred
      * signings would block changes that are right as readily as changes that are wrong, and this is measured
-     * over seasons the calibration was itself fitted on. It belongs in a reader's hands, beside the caveats
-     * on {@link AuctionAccuracy}.
+     * over seasons the calibration was itself fitted on. The comparative gates belong to the held-out
+     * {@link AuctionStudy} instead.
      */
     static void printAccuracy(PrintWriter out, List<AuctionAccuracy.Fit> fits) {
         out.println(['SEASON', 'POS', 'SIGNINGS', 'PRICED', 'COVERAGE', 'PAID', 'COST', 'MAE', 'BIAS',
@@ -161,6 +162,49 @@ class ModelFiguresPrinter {
         }
     }
 
+    /** The candidate market shapes, each scored with its target season absent from every fitted input. */
+    static void printAuctionStudy(PrintWriter out, List<AuctionStudy.Fit> fits) {
+        out.println(['SEASON', 'POS', 'MODEL', 'PRICED', 'MAE', 'BIAS'].join('\t'))
+        fits.each { AuctionStudy.Fit fit ->
+            out.println([
+                    fit.season,
+                    fit.position,
+                    fit.model,
+                    fit.priced,
+                    fit.meanAbsolute == null ? '' : fit.meanAbsolute.setScale(2, RoundingMode.HALF_UP),
+                    fit.bias == null ? '' : fit.bias.setScale(2, RoundingMode.HALF_UP),
+            ].join('\t'))
+        }
+    }
+
+    /**
+     * The paired rows behind accuracy, suitable for rank-band and signing-type diagnostics.
+     *
+     * <b>A zero is a measurement here and an empty cell is not, so the two are never allowed to collide.</b>
+     * Groovy's elvis reads {@code 0} as absent, and on this file that is not a nicety: the rows where the
+     * board and the rank median agree exactly are the rows whose difference is zero, and blanking them
+     * would drop the ties out of any paired comparison this file exists to support — eighteen per cent of
+     * the sample, all of it from one side of the question.
+     */
+    static void printAccuracyObservations(PrintWriter out, List<AuctionAccuracy.Observation> observations) {
+        out.println(['SEASON', 'POS', 'RANK', 'RESIGNED', 'PAID', 'BOARD', 'NAIVE', 'BOARDERROR',
+                     'NAIVEERROR', 'DIFFERENCE'].join('\t'))
+        observations.each { AuctionAccuracy.Observation observation ->
+            out.println([
+                    observation.season,
+                    observation.position,
+                    observation.rank,
+                    observation.resigned,
+                    observation.paid,
+                    observation.board,
+                    observation.benchmark == null ? '' : observation.benchmark,
+                    observation.boardError,
+                    observation.benchmarkError == null ? '' : observation.benchmarkError,
+                    observation.pairedDifference == null ? '' : observation.pairedDifference,
+            ].join('\t'))
+        }
+    }
+
     /**
      * How steeply the league bids within a position, fitted from what it paid, beside the constant in force.
      *
@@ -175,13 +219,16 @@ class ModelFiguresPrinter {
      * steep market as a flat one.
      */
     static void printSteepness(PrintWriter out, List<PriceSteepness.Fit> fits) {
-        out.println(['POS', 'SIGNINGS', 'CENSORED', 'GAMMA', 'SIGMA', 'INFORCE'].join('\t'))
+        out.println(['POS', 'SIGNINGS', 'CENSORED', 'GAMMA', 'GAMMALOW', 'GAMMAHIGH', 'SIGMA',
+                     'INFORCE'].join('\t'))
         fits.each { PriceSteepness.Fit fit ->
             out.println([
                     fit.position,
                     fit.signings,
                     fit.censored,
                     fit.gamma.setScale(2, RoundingMode.HALF_UP),
+                    fit.gammaLow == null ? '' : fit.gammaLow.setScale(2, RoundingMode.HALF_UP),
+                    fit.gammaHigh == null ? '' : fit.gammaHigh.setScale(2, RoundingMode.HALF_UP),
                     fit.sigma.setScale(2, RoundingMode.HALF_UP),
                     AuctionValuation.PRICE_STEEPNESS[fit.position] ?: '',
             ].join('\t'))

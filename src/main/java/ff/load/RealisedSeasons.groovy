@@ -46,9 +46,10 @@ class RealisedSeasons {
      * @param ranked  the consensus ranking that gave each season its order, a season at a time
      */
     static Map<String, Map<Integer, List<RealisedSeason>>> byRank(
-            League league, Closure<Collection<FpRankedPlayer>> ranked) {
+            League league, Closure<Collection<FpRankedPlayer>> ranked,
+            Collection<String> seasons = league.seasons) {
         Map<String, Map<Integer, List<RealisedSeason>>> realised = [:].withDefault { [:].withDefault { [] } }
-        league.seasons.each { String season ->
+        seasons.each { String season ->
             if (league.dstScoring) {
                 defences(league, season, ranked(season), realised)
             }

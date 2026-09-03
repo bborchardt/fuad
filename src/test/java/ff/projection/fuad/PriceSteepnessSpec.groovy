@@ -24,6 +24,12 @@ class PriceSteepnessSpec extends Specification {
     private static final int DRAWS = 30
 
     /**
+     * Fewer, because a profiled fit costs about a second and thirty of them is a minute of the build for a
+     * coverage figure that twelve already settles.
+     */
+    private static final int COVERAGE_DRAWS = 12
+
+    /**
      * Signings at a known steepness, scattered about it the way the fit assumes they are.
      *
      * {@code paid = 1 + rate * value^gamma} with a lognormal disturbance, and anything the market would have
@@ -125,6 +131,53 @@ class PriceSteepnessSpec extends Specification {
 
         and: 'while enough of them clearing the reserve is fitted as usual'
         !PriceSteepness.of(signings(1.2d, 40, 7919L)).isEmpty()
+    }
+
+    /**
+     * <b>An interval that does not contain the answer is worse than none</b>, so it is checked the only way
+     * it can be: over signings whose steepness is known by construction, counting how often the interval
+     * covers it. Nominally nineteen draws in twenty, and the seeds are fixed, so this is a fact about the
+     * estimator rather than a sample that might come out differently tomorrow.
+     */
+    def "its interval covers the steepness the signings were made at"() {
+        expect:
+        (1..COVERAGE_DRAWS).count { int draw ->
+            PriceSteepness.Fit fit = PriceSteepness.of(signings(1.4d, 80, draw * 7919L), true)
+                    .find { it.position == 'QB' }
+            fit.gammaLow <= 1.4d && fit.gammaHigh >= 1.4d
+        } >= COVERAGE_DRAWS - 2
+    }
+
+    /**
+     * The width has to answer to the scatter, or it is decoration.
+     *
+     * Sample size cannot be tested with this fixture and that is the fixture being honest: its signings run
+     * down the ranks, so adding more adds minimum-bid contracts that carry a bound and no slope. Eighty
+     * signings and three hundred and twenty return the same interval to three decimals, which is the
+     * estimator correctly declining to buy precision from observations that hold none.
+     */
+    def "brackets its own estimate, and widens with the scatter it is fitted through"() {
+        given:
+        List<PriceSteepness.Fit> byScatter = [0.25d, 0.5d, 1.0d].collect { double sigma ->
+            PriceSteepness.of(signings(1.4d, 80, 7919L, sigma), true).find { it.position == 'QB' }
+        }
+
+        expect: 'the estimate strictly inside its own interval at every scatter'
+        byScatter.every { it.gammaLow < it.gamma && it.gamma < it.gammaHigh }
+
+        and: 'each doubling of the scatter bought with a wider claim'
+        byScatter.collect { it.gammaHigh - it.gammaLow } ==
+                byScatter.collect { it.gammaHigh - it.gammaLow }.sort()
+
+        and: 'four times the scatter costing better than twice the width'
+        (byScatter.last().gammaHigh - byScatter.last().gammaLow) >
+                2 * (byScatter.first().gammaHigh - byScatter.first().gammaLow)
+    }
+
+    def "leaves the interval off unless it is asked for"() {
+        expect: 'a fold that refits the steepness per candidate reads gamma and pays for nothing else'
+        PriceSteepness.of(signings(1.4d, 80, 7919L)).find { it.position == 'QB' }.gammaLow == null
+        PriceSteepness.of(signings(1.4d, 80, 7919L), true).find { it.position == 'QB' }.gammaLow != null
     }
 
     def "puts the normal distribution where it belongs, which the censored term rests on"() {

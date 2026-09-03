@@ -9,11 +9,10 @@ import ff.projection.StarterRequirements
 /**
  * Price an auction: turn expected points into dollars, subject to the money that actually exists.
  *
- * The chain is points to value over replacement to dollars, and only the last step is this class's.
- * {@link ExpectedValue} carries the first two, which describe the football and not the market: what a rank
- * is worth over the player who would replace it is the same question whatever a league bids with. What
- * follows here is the part that is true of this auction and of nothing else — a cap, a spend rate, the
- * shares this league's bidding has actually landed on, and franchise tags to settle.
+ * The points curve feeds two deliberately separate answers. {@link ExpectedValue} turns it into value over
+ * replacement for intrinsic {@code VALUE}; expected points themselves supply the within-position shape of
+ * market {@code PRICE}. What follows here is the part true of this auction and of nothing else — a cap, a
+ * spend rate, the shares this league's bidding has actually landed on, and franchise tags to settle.
  *
  * <b>Replacement is worked out week by week, not over the season.</b> A team has to field a starting lineup
  * every week, so the player it would otherwise start is the best one available <i>that week</i>, and in a
@@ -23,14 +22,16 @@ import ff.projection.StarterRequirements
  *
  * <b>Dollars come from dividing a known pot.</b> Teams spend a fairly steady share of the cap they have
  * free, 70 to 87 per cent across the measurable record, so the pot is knowable in advance. Every player who must be
- * signed is reserved a dollar, and what is left is shared out in proportion to value over replacement.
- * Prices therefore sum to the money available, which no curve fitted player by player will do.
+ * signed is reserved a dollar. The rest is first allocated to positions in the shares the league actually
+ * pays, then divided within each position by its fitted points shape. Prices therefore sum to the money
+ * available, which no curve fitted player by player will do.
  *
  * <b>Then it is pulled towards how this league actually bids.</b> Pure value over replacement puts far more
  * of the pot on running backs than this league spends, and far less on wide receivers.
  * {@link #MARKET_WEIGHT} decides how far to trust the theory against the record; it is 1.0, so
  * {@link #calibrate} forces the positional shares in {@link #MARKET_SHARE} exactly, and {@link #steepen}
- * bends each position's curve without disturbing its total.
+ * bends each position's points curve without disturbing its total. Value remains VOR; points supply only
+ * the shape of the price the market is expected to pay.
  *
  * <b>What a position finally holds is a little off that target, and predictably so.</b> Every roster spot
  * still to be filled is reserved a dollar before anything is priced, and that reservation is handed out by
@@ -44,6 +45,16 @@ import ff.projection.StarterRequirements
  * docs/fuad/PROJECTION.md.
  */
 class AuctionValuation {
+
+    /** Which model-side quantity supplies the shape of the market price curve. */
+    enum PriceSignal {
+        /** Expected value over replacement, including the observed outcome distribution. */
+        VOR,
+        /** Value over replacement at the expected season, without the convexity adjustment. */
+        EXPECTED_VOR,
+        /** Expected season points, with no replacement level. */
+        POINTS
+    }
 
     /**
      * Share of the pot each position has taken since the league repriced, 2023-2025.
@@ -77,31 +88,39 @@ class AuctionValuation {
 
 
     /**
-     * How much steeper this league's prices run than value, within a position.
+     * The market fit when VOR supplies the within-position shape.
      *
      * Above one the market pays more for the best at a position and less for the rest than their value
      * warrants; below one it spreads money more evenly than value does. This belongs to price and never to
      * value: it is a description of behaviour, not of worth.
      *
-     * <b>Fitted rather than chosen, and regenerated rather than remembered.</b> {@link PriceSteepness}
+     * Retained as the structural endpoint in {@link AuctionStudy}, and used by the VOR-only board that
+     * rookie valuation quotes production against. {@link PriceSteepness}
      * recovers each of these from what the league actually paid over
      * {@link AuctionSpend#CALIBRATED_SEASONS}, by the estimator the pricing arithmetic itself implies;
-     * {@code AuctionValuationSpec} fails when the constant and the fit part company, and both sit side by
-     * side in docs/figures/fuad/&lt;year&gt;/steepness.tsv as GAMMA against INFORCE.
+     * {@code AuctionValuationSpec} fails when the constant and the fit part company.
      *
-     * <b>That check did not exist and its absence was expensive.</b> These were fitted once, by hand,
+     * These were fitted once, by hand,
      * against a value column the model then changed twice, and nothing recomputed them — so quarterback sat
      * at 1.44 and tight end at 1.51 while the record said 1.01 and 0.87, and every board since was priced
      * off the drift. Correcting it improved the board against every season on record including the one held
-     * out of the fit. The old figures are kept in docs/TODO.md with what they cost.
+     * out of the fit.
      *
      * <b>Quarterback is no longer the steepest, and the reason it looked steepest was the minimum bid.</b>
      * A dollar signing is a censored observation rather than a cheap one, and a fit that drops those reads
      * a steep market as a flat one and a flat one as flatter still. Handled properly the order changes:
      * running back is the steepest position this league bids, and kicker much the flattest.
      */
-    static final Map<String, BigDecimal> PRICE_STEEPNESS =
+    static final Map<String, BigDecimal> VOR_STEEPNESS =
             [QB: 1.01, RB: 1.19, WR: 1.08, TE: 0.87, PK: 0.58].asImmutable() as Map<String, BigDecimal>
+
+    /**
+     * The production market fit, where expected points rather than VOR supplies the price shape.
+     * Exponents are larger because points remain well above zero at replacement while VOR does not; only
+     * the price shapes they produce are comparable, not the powers themselves.
+     */
+    static final Map<String, BigDecimal> PRICE_STEEPNESS =
+            [QB: 2.52, RB: 3.14, WR: 4.00, TE: 3.90, PK: 1.60].asImmutable() as Map<String, BigDecimal>
 
     /**
      * How often a tier of expiring contract has actually changed hands, 2022-2025.
@@ -168,6 +187,70 @@ class AuctionValuation {
     static final BigDecimal SPEND_RATE = 0.83
 
     /**
+     * Everything on the market side of a valuation that can be learned from completed auctions.
+     *
+     * Carrying these inputs as a value is what lets a historical evaluation fit on three auctions and price
+     * the fourth without mutating global constants or quietly reading the answer it is meant to predict.
+     * {@link #DEFAULT_SETTINGS} is the structural VOR endpoint retained for low-level callers;
+     * {@link #productionSettings()} is what reports use.
+     *
+     * {@code rankPrice} is a prior shape by position and rank, expressed as dollars above the reserved
+     * minimum bid.  It is normalised back to the structural position total before it is blended, so it can
+     * change who receives a position's money but cannot invent money or bypass the clearing calculation.
+     */
+    static class Settings {
+        final Map<String, BigDecimal> marketShare
+        final Map<String, BigDecimal> priceSteepness
+        final BigDecimal spendRate
+        final BigDecimal rookieBudgetShare
+        final PriceSignal priceSignal
+        final Map<String, Map<Integer, BigDecimal>> rankPrice
+        final BigDecimal rankWeight
+
+        Settings(Map<String, BigDecimal> marketShare,
+                 Map<String, BigDecimal> priceSteepness,
+                 BigDecimal spendRate,
+                 BigDecimal rookieBudgetShare,
+                 PriceSignal priceSignal = PriceSignal.VOR,
+                 Map<String, Map<Integer, BigDecimal>> rankPrice = [:],
+                 BigDecimal rankWeight = 0.0) {
+            this.marketShare = marketShare.asImmutable()
+            this.priceSteepness = priceSteepness.asImmutable()
+            this.spendRate = spendRate
+            this.rookieBudgetShare = rookieBudgetShare
+            this.priceSignal = priceSignal
+            this.rankPrice = rankPrice.collectEntries { String position, Map<Integer, BigDecimal> byRank ->
+                [(position): byRank.asImmutable()]
+            }.asImmutable()
+            this.rankWeight = rankWeight
+            if (rankWeight < 0 || rankWeight > 1) {
+                throw new IllegalArgumentException("rankWeight must be between zero and one: $rankWeight")
+            }
+        }
+
+        Settings withSignal(PriceSignal signal, BigDecimal weight = 0.0,
+                            Map<String, Map<Integer, BigDecimal>> prices = rankPrice) {
+            new Settings(marketShare, priceSteepness, spendRate, rookieBudgetShare,
+                    signal, prices, weight)
+        }
+
+        Settings withSteepness(Map<String, BigDecimal> steepness) {
+            new Settings(marketShare, steepness, spendRate, rookieBudgetShare,
+                    priceSignal, rankPrice, rankWeight)
+        }
+    }
+
+    /** The structural VOR endpoint used by low-level callers and rookie valuation. */
+    static final Settings DEFAULT_SETTINGS = new Settings(
+            MARKET_SHARE, VOR_STEEPNESS, SPEND_RATE, ROOKIE_BUDGET_SHARE)
+
+    /** The market settings used by the actual board. */
+    static Settings productionSettings() {
+        new Settings(MARKET_SHARE, PRICE_STEEPNESS, SPEND_RATE, ROOKIE_BUDGET_SHARE,
+                PriceSignal.POINTS)
+    }
+
+    /**
      * Rounds the tag settlement gets, which has to clear any cascade that is merely slow.
      *
      * The budget has one job the loop cannot do without: it has to sit above the longest run that would
@@ -195,7 +278,8 @@ class AuctionValuation {
      */
     static List<PlayerValuation> value(PointsCurve curve, StarterRequirements requirements,
                                        Map<String, List> available, Map<String, Integer> franchiseSalary,
-                                       BigDecimal freeCap, int slotsToFill, ByeWeeks byes) {
+                                       BigDecimal freeCap, int slotsToFill, ByeWeeks byes,
+                                       Settings settings = productionSettings()) {
         Map<String, Map<Integer, BigDecimal>> replacement =
                 ExpectedValue.replacementLevels(curve, requirements, byes)
 
@@ -207,7 +291,8 @@ class AuctionValuation {
         List<PlayerValuation> valuations = []
         for (int i = 0; i < MAX_TAG_ITERATIONS; i++) {
             pricedWith = tagged
-            valuations = price(curve, replacement, available, franchiseSalary, freeCap, slotsToFill, tagged, byes)
+            valuations = price(curve, replacement, available, franchiseSalary, freeCap, slotsToFill,
+                    tagged, byes, settings)
             tagged = predictTags(valuations)
             if (tagged == pricedWith) {
                 break
@@ -274,7 +359,7 @@ class AuctionValuation {
     private static List<PlayerValuation> price(PointsCurve curve, Map<String, Map<Integer, BigDecimal>> replacement,
                                                Map<String, List> available, Map<String, Integer> franchiseSalary,
                                                BigDecimal freeCap, int slotsToFill, Set<String> tagged,
-                                               ByeWeeks byes) {
+                                               ByeWeeks byes, Settings settings) {
         // Tagged players never reach the bidding, and their price leaves the pot with them.
         BigDecimal spentOnTags = available.findAll { id, p -> tagged.contains(id) }
                 .collect { id, p -> franchiseSalary[p[1] as String] ?: 0 }
@@ -287,18 +372,30 @@ class AuctionValuation {
         Map<String, BigDecimal> vor = available.collectEntries { String id, List p ->
             [(id): ExpectedValue.expectedValueOverReplacement(curve, replacement, p[1] as String, p[2] as int, byes)]
         }
-        Map<String, BigDecimal> priceShares = steepen(calibrate(vor, available), available)
+        Map<String, BigDecimal> marketSignal = available.collectEntries { String id, List p ->
+            String position = p[1] as String
+            int rank = p[2] as int
+            BigDecimal signal = settings.priceSignal == PriceSignal.POINTS ?
+                    curve.seasonPoints(position, rank) :
+                    settings.priceSignal == PriceSignal.EXPECTED_VOR ?
+                            ExpectedValue.valueOverReplacementAtExpectation(
+                                    curve, replacement, position, rank, byes) : vor[id]
+            [(id): signal ?: 0.0 as BigDecimal]
+        }
+        Map<String, BigDecimal> priceShares = steepen(
+                calibrate(marketSignal, available, settings.marketShare), available, settings.priceSteepness)
+        priceShares = blendWithRank(priceShares, available, settings)
 
         // What the auction pays, once the tagged are gone and their tag prices have left the pot with them.
         // Rookies never reach the auction, but their contracts and their roster spots are spoken for, so
         // both come off before anything is priced.
-        BigDecimal pot = freeCap * SPEND_RATE * (1.0 - ROOKIE_BUDGET_SHARE) - spentOnTags
+        BigDecimal pot = freeCap * settings.spendRate * (1.0 - settings.rookieBudgetShare) - spentOnTags
         int slots = slotsLeft(slotsToFill, tagged.size())
         BigDecimal biddingRate = clearingRate(pot, slots, bidFor.keySet(), priceShares)
         BigDecimal biddingShare = (bidFor.keySet().collect { priceShares[it] ?: 0.0 }.sum() ?: 0.0) as BigDecimal
 
         // Value is the same money divided by worth alone, with no regard for how this league behaves.
-        BigDecimal valueRate = clearingRate(freeCap * SPEND_RATE * (1.0 - ROOKIE_BUDGET_SHARE),
+        BigDecimal valueRate = clearingRate(freeCap * settings.spendRate * (1.0 - settings.rookieBudgetShare),
                 slotsToFill, available.keySet(), vor)
 
         Map<String, BigDecimal> untaggedRates = untaggedRates(available, franchiseSalary, priceShares,
@@ -463,9 +560,10 @@ class AuctionValuation {
      * Bend each position's price curve to the steepness the league actually bids at, keeping that
      * position's total spend where the share calibration put it.
      */
-    private static Map<String, BigDecimal> steepen(Map<String, BigDecimal> shares, Map<String, List> available) {
+    private static Map<String, BigDecimal> steepen(Map<String, BigDecimal> shares, Map<String, List> available,
+                                                   Map<String, BigDecimal> steepness) {
         Map<String, BigDecimal> bent = shares.collectEntries { String id, BigDecimal share ->
-            BigDecimal gamma = PRICE_STEEPNESS[available[id][1] as String] ?: 1.0
+            BigDecimal gamma = steepness[available[id][1] as String] ?: 1.0
             [(id): share > 0 ? Math.pow(share.toDouble(), gamma.toDouble()) as BigDecimal : 0.0]
         }
         Map<String, BigDecimal> before = [:].withDefault { 0.0 as BigDecimal }
@@ -478,6 +576,32 @@ class AuctionValuation {
         bent.collectEntries { String id, BigDecimal share ->
             String position = available[id][1] as String
             [(id): after[position] > 0 ? share * before[position] / after[position] : share]
+        }
+    }
+
+    /** Blend a historical rank shape into the structural shares without changing any position's total. */
+    private static Map<String, BigDecimal> blendWithRank(Map<String, BigDecimal> structural,
+                                                         Map<String, List> available, Settings settings) {
+        if (settings.rankWeight <= 0 || !settings.rankPrice) {
+            return structural
+        }
+        Map<String, BigDecimal> historical = available.collectEntries { String id, List player ->
+            String position = player[1] as String
+            int rank = player[2] as int
+            [(id): settings.rankPrice[position]?.get(rank) ?: 0.0 as BigDecimal]
+        }
+        Map<String, BigDecimal> structuralTotal = [:].withDefault { 0.0 as BigDecimal }
+        Map<String, BigDecimal> historicalTotal = [:].withDefault { 0.0 as BigDecimal }
+        available.each { String id, List player ->
+            String position = player[1] as String
+            structuralTotal[position] += structural[id] ?: 0.0
+            historicalTotal[position] += historical[id] ?: 0.0
+        }
+        structural.collectEntries { String id, BigDecimal share ->
+            String position = available[id][1] as String
+            BigDecimal prior = historicalTotal[position] > 0 ?
+                    historical[id] * structuralTotal[position] / historicalTotal[position] : share
+            [(id): share * (1.0 - settings.rankWeight) + prior * settings.rankWeight]
         }
     }
 
@@ -495,7 +619,8 @@ class AuctionValuation {
     }
 
     /** Pull each position's slice of value towards the slice the league has historically bought. */
-    private static Map<String, BigDecimal> calibrate(Map<String, BigDecimal> vor, Map<String, List> available) {
+    private static Map<String, BigDecimal> calibrate(Map<String, BigDecimal> vor, Map<String, List> available,
+                                                     Map<String, BigDecimal> marketShare) {
         BigDecimal total = (vor.values().findAll { it > 0 }.sum() ?: 0.0) as BigDecimal
         if (total <= 0) {
             return vor
@@ -505,7 +630,7 @@ class AuctionValuation {
 
         Map<String, BigDecimal> scale = byPosition.collectEntries { String position, BigDecimal positionVor ->
             BigDecimal modelShare = positionVor / total
-            BigDecimal target = MARKET_SHARE[position]
+            BigDecimal target = marketShare[position]
             [(position): !target || modelShare <= 0 ? 1.0 :
                     (1.0 - MARKET_WEIGHT) + MARKET_WEIGHT * target / modelShare]
         }
