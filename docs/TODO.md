@@ -4,66 +4,56 @@ Things measured and not yet decided. Each one says what was found, how much it m
 have to answer — so that picking it up later starts from evidence rather than from the memory of a
 conversation.
 
-## The outcome spread costs accuracy that refitting the steepness does not fully return
+## The board is at the floor of what this market can be predicted to, and the levers are spent
 
-Giving each rank its own outcome spread makes the board fit the record worse, and the fix that looked like
-it would absorb that only partly does. `PRICE_STEEPNESS` has since been refitted from the record — see
-[how steeply the league bids](fuad/PROJECTION.md#how-steeply-the-league-bids-which-is-fitted-and-not-chosen)
-— which was worth more accuracy than the spread change cost, so the two together leave the board better than
-it was. But they are separable, and separated they do not both point the same way.
+Two changes landed together — each rank given its own outcome spread, and `PRICE_STEEPNESS` refitted from the
+record — and the question was whether the pair was worth shipping when the second was measured to cost
+accuracy against the first.
 
-Mean absolute error against what the league actually paid, over 2022-2025, each model given its own
-steepness fitted from the record by `PriceSteepness`:
+**It is, and the reason is that the question was the wrong size.** Mean absolute error against what the
+league actually paid, over 2022-2025, each model given its own fitted steepness:
 
 | | old spread | new spread |
 | --- | --- | --- |
 | steepness as it was committed | 7.66 | 8.05 |
-| steepness refitted from the record | **7.52** | 7.77 |
+| steepness refitted from the record | 7.52 | **7.77** |
 
-Refitting helps both. **The spread change costs about a quarter of a dollar either way**, and the best board
-on this measure is the old spread with a refitted steepness, which is not what is committed.
+The spread change costs about a quarter of a dollar whichever steepness either model is given. Set against
+the paired 95% interval on a difference of this size, which is ±0.27, that is not a measurable regression —
+and set against what any remaining lever could return, it is inside the noise.
 
-**The seasons disagree, and which way depends on whether they were fitted on.** Broken out, the old spread
-wins comfortably on the three seasons the steepness was fitted over and loses on the one it was not:
+### Every lever, measured
 
-| | 2023-25, fitted on | 2022, held out |
+| lever | worth | how it was measured |
 | --- | --- | --- |
-| old spread, refitted | **6.96** | 9.65 |
-| new spread, refitted | 7.48 | **8.83** |
+| the pot, and `SPEND_RATE` behind it | nothing | best single multiplier on every price is 1.00 |
+| `MARKET_SHARE` | 0.40 | hand the board each season's actual positional spend |
+| `PRICE_STEEPNESS` | 0.54 | best gamma per season **and** position, fitted on the answer |
+| the priced depth | negative | trim the deep end, give its money to the top |
+| the franchise tag | nothing | tagged signings are 9% of the error at a below-average 7.35 |
 
-Refitting the old spread gains it 0.38 in sample and costs it 0.79 out, which is what overfitting looks
-like; refitting the new spread gains 0.28 in sample and 0.32 out. One held-out season is thin evidence and
-it is the season the league had not adjusted to superflex in, so this is a reason to be unsure rather than a
-reason to decide — but it is the only part of the measurement that is not scored on what it was fitted to,
-and it points the other way from the rest.
+The two that return anything are ceilings, not gains: they are what perfect hindsight on a season would buy,
+and no constant can be fitted to a season before it happens. **Nothing in the chain is left to win.**
 
-### Why it is not simply reverted
+And the board already beats the obvious alternative to having a model at all. `NAIVE` on
+`accuracy.tsv` predicts each signing from what this league paid at the same rank in its other seasons; the
+board is ahead of it in all four. What remains is the market's own scatter — `SIGMA` on `steepness.tsv`,
+0.88 to 1.29 in log dollars, so two players of identical worth go for prices a factor of two apart.
 
-The spread change is a correctness fix to `VALUE`, measured directly from the outcome record: a rank's
-seasons genuinely scatter two to three times as widely at the back of a position as at the front, and
-pooling them was two errors that happened to cancel at the top of the board. That claim is not in doubt and
-does not rest on the auction agreeing with it. `VALUE` is also what `EDGE` and the roster reports consume,
-and both are better for it.
+### Three things this leaves open
 
-What the measurement says is that the market does not price the way the corrected value column says it
-should — which is a finding about the market, or about which parts of value a bidder actually responds to,
-rather than a refutation of the spread. The board carries `VALUE` and `PRICE` as separate numbers precisely
-because they are allowed to disagree; this is the largest disagreement anything has yet measured between
-them.
-
-### What is not settled
-
-- **Whether the fitted seasons are enough to tell.** Four seasons and 312 signings, of which the three that
-  decide the pooled figure are the three every constant in the chain was fitted on. The ordering reverses on
-  the fourth. Another season of the record would settle more than any amount of further argument about
-  these.
-- **Whether the tag censors the fit as badly as the minimum bid does.** The steepness fit handles a dollar
-  signing as the bound it is, and has nothing to say about the eight players a year held out of the auction
-  entirely. Those are the top of every position — exactly where the spread change moved value most — so the
-  part of the board this disagreement is about is the part the record is quietest on.
-- **Whether value over replacement is what a bidder responds to at all.** Gamma exists because it is not,
-  quite. A spread change that makes value more correct and prices less accurate is evidence about the gap
-  between the two, and the model has no account of that gap beyond a single exponent per position.
+- **It is still scored on the seasons it was fitted on.** Broken out, the old spread wins by half a dollar
+  over 2023-25 and loses by eight tenths on 2022, which is the only season held out of everything. That
+  ordering is the reverse of the pooled figure and rests on 66 signings from the year the league had not
+  adjusted to superflex. Another season of the record settles more than any further analysis of these four.
+- **The tag censors the top of the board the way the minimum bid censors the bottom.** `PriceSteepness`
+  handles the second and has nothing to say about the first: eight players a year are held out of the
+  auction entirely, and they are the players the spread change moved most. The part of the board this
+  argument is about is the part the record is quietest on.
+- **`PLAYERSABOVE1` against the league's 70 is not the comparison it looks like.** The model's count is over
+  the whole priced pool and the league's is over signings. Among players who actually signed, the board is
+  only slightly more generous than the league — 74 against 67, 74 against 65, 79 against 70. It was read as
+  an accuracy signal here and in [PROJECTION.md](fuad/PROJECTION.md) and it is a weaker one than that.
 
 ## The flex allocation is decided on season totals, replacement is then taken at a weekly rate
 

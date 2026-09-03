@@ -389,13 +389,14 @@ by one point in 79 and Ja'Marr Chase's at WR1 by none, which is the cancellation
 should. The middle moves by five to twenty-five per cent — running backs 11 through 27 and receivers 22
 through 41 downward, the back of every position upward — and the positional shares of worth renormalise
 around it: quarterback's `VORSHARE` rises from 24.8 to 25.6 and receiver's falls from 23.8 to 22.9. The one
-figure that moves the wrong way against the record is the count of players above the minimum bid, which rose
-from 76 to 86 against the 70 the league signs — ten deep players repriced from $1 to $2 or $3, which is $13
-of the pot and a count in which a $2 player and a $1 player are the same decision. Refitting the steepness
-afterwards took it further still, to 97, for the same reason at the other end of the board: a flatter kicker
-and tight end spread money down. Both are recorded in
-[how close the board comes to what was paid](#how-close-the-board-comes-to-what-was-paid), which is where
-the two changes are weighed against each other rather than argued about.
+count that looks worst against the record is the number of players above the minimum bid, which rose from 76
+to 86 and then to 97 as the steepness was refitted — against the 70 the league signs. **That comparison is
+weaker than it looks**: the model's count is over the whole priced pool and the league's is over signings,
+so they have different denominators. Among the players who actually signed, the board is only slightly more
+generous than the league was — 74 against 67 in 2023, 74 against 65 in 2024, 79 against 70 in 2025. What
+both changes really did is weighed player by player in
+[how close the board comes to what was paid](#how-close-the-board-comes-to-what-was-paid), which is the
+comparison that shares a denominator.
 
 Each replayed season is a rate and a number of games, kept paired as one player's year rather than drawn
 apart. That matters most for the seasons that ended early. Smearing an injured starter's total across the
@@ -744,9 +745,12 @@ The highest `PRICE` is Ja'Marr Chase, which no one pays because he is tagged wel
 | Players | 105 | |
 | Total cost | 1936 | |
 | Top price | 105 | $100 |
-| Players above $1 | 97 | 70 |
+| Players above $1 | 97 | 70* |
 | Top 40 price | 82.9 | 87% |
 | Teams tagging | 8 | 7 |
+
+\* Not the same denominator: the model's count is over the priced pool and the league's over signings. Among
+players who actually signed the two are within a handful of each other every season.
 
 Position shares are the ones the league actually spends, since `MARKET_WEIGHT` is 1.0. `SHARE` is what the
 board came out at and `TARGETSHARE` what the calibration aimed for:
@@ -1812,21 +1816,50 @@ and never on a name**, so a board row and a roster row are the same player by co
 
 <!-- figures: fuad/accuracy key=SEASON+POS -->
 
-| SEASON | POS | SIGNINGS | PRICED | PAID | COST | MAE | BIAS | RHO |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 2022 | ALL | 68 | 66 | 1416 | 1253 | 8.83 | -2.47 | 0.809 |
-| 2023 | ALL | 86 | 83 | 1801 | 1606 | 7.36 | -2.35 | 0.836 |
-| 2024 | ALL | 83 | 79 | 1787 | 1676 | 7.51 | -1.41 | 0.844 |
-| 2025 | ALL | 88 | 84 | 2103 | 1857 | 7.57 | -2.93 | 0.883 |
+| SEASON | POS | SIGNINGS | PRICED | PAID | COST | MAE | BIAS | RHO | NAIVE |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2022 | ALL | 68 | 66 | 1416 | 1253 | 8.83 | -2.47 | 0.809 | 9.44 |
+| 2023 | ALL | 86 | 83 | 1801 | 1606 | 7.36 | -2.35 | 0.836 | 7.99 |
+| 2024 | ALL | 83 | 79 | 1787 | 1676 | 7.51 | -1.41 | 0.844 | 7.86 |
+| 2025 | ALL | 88 | 84 | 2103 | 1857 | 7.57 | -2.93 | 0.883 | 7.98 |
 
 `MAE` is the headline: the board is out by seven or eight dollars a player. `RHO` says the ordering is
 better than the dollars — around 0.86, so the board knows who is expensive and is less sure how expensive.
 
-**`BIAS` is the column that separates a mis-levelled board from a mis-shaped one**, and it says the board is
-mis-levelled: `COST` totals run under `PAID` in every season, by 6% to 11%. That is a question for the pot
-rather than for the curve — how much of a free cap a league spends is `SPEND_RATE`, measured over the same
-seasons — and it is a smaller error than the per-player one, which is what says most of the seven dollars is
-shape rather than level.
+**Seven dollars is neither good nor bad until something else has tried the same signings.** `NAIVE` is that
+something: each player predicted as the median this league paid at his position and within six ranks of his,
+over its **other** seasons. It is the most obvious alternative to a model, it needs no model at all, and the
+board beats it in every season on record. That is the first thing to read here, because the instinct on
+seeing a seven dollar error is that a simpler rule would do better, and the record says it does not.
+
+**What the error is made of, and why almost none of it is reachable.** The market prices two players of the
+same worth about a factor of two apart — that is `SIGMA` on the steepness figure, 0.88 to 1.29 in log
+dollars — so most of `MAE` is the auction's own scatter rather than anything the model decides. Every lever
+in the chain has been measured against it:
+
+| lever | worth | how it was measured |
+| --- | --- | --- |
+| the pot, and `SPEND_RATE` behind it | nothing | the best single multiplier on every price is 1.00 |
+| `MARKET_SHARE` | 0.40 | hand the board each season's actual positional spend |
+| `PRICE_STEEPNESS` | 0.54 | the best gamma per season **and** position, fitted on the answer |
+| the priced depth | negative | trimming the deep end and giving its money to the top |
+| the franchise tag | nothing | tagged signings carry 9% of the error at a below-average 7.35 |
+
+Two of those are ceilings rather than gains: they are what perfect hindsight on a season would buy, and
+nothing can be fitted to a season before it happens. **So there is no remaining lever of any size**, and
+differences of a tenth or two between one model and another — which is the scale everything on this branch
+moved by — sit well inside a floor that no arrangement of these five can lift.
+
+**The bias is not a level error, which is worth saying because it looks like one.** `BIAS` is negative in
+every season, and yet scaling every price up makes the board worse, not better: the cheap end is
+*over*priced by about five dollars a player and the dear end *under*priced by thirteen. It is a slope, and
+the slope is what `PRICE_STEEPNESS` is already fitted to.
+
+**`BIAS` separates a mis-levelled board from a mis-shaped one.** `COST` totals run under `PAID` in every
+season, by 6% to 11%, which looks like a question for the pot. It is not: see above, where scaling the whole
+board up is measured and makes it worse. The signed error is the average of an overpriced bottom and an
+underpriced top, and the per-player error is far larger than the total error, which is what says most of the
+seven dollars is shape rather than level.
 
 Position by position it is not evenly spread, and quarterback in 2025 is the outlier worth looking at:
 

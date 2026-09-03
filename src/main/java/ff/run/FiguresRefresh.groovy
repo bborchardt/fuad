@@ -100,9 +100,7 @@ class FiguresRefresh {
             [(name): { PrintWriter out -> printer."$method"(out) } as Closure<Void>]
         } + [
                 accuracy    : { PrintWriter out ->
-                    ModelFiguresPrinter.printAccuracy(out, past.collectMany { String season, board ->
-                        AuctionAccuracy.of(season, board)
-                    })
+                    ModelFiguresPrinter.printAccuracy(out, AuctionAccuracy.of(past))
                 } as Closure<Void>,
                 steepness   : { PrintWriter out ->
                     ModelFiguresPrinter.printSteepness(out,

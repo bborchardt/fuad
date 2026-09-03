@@ -131,6 +131,11 @@ class ModelFiguresPrinter {
      * price for cannot be an error in it — which also means {@code PAID} here is below the same season's
      * total in fuad/spend.tsv by whatever the pool did not cover.
      *
+     * <b>{@code NAIVE} is what makes {@code MAE} readable.</b> Seven dollars of error is neither good nor
+     * bad until something else has tried the same 312 signings: it is the same players predicted from what
+     * this league paid at the same rank in its <b>other</b> seasons, which is the most obvious alternative
+     * to a model and the one a reader would otherwise assume was better. See {@link AuctionAccuracy.Fit}.
+     *
      * <b>It is reported and not enforced.</b> A threshold on an in-sample figure over a couple of hundred
      * signings would block changes that are right as readily as changes that are wrong, and this is measured
      * over seasons the calibration was itself fitted on. It belongs in a reader's hands, beside the caveats
@@ -138,7 +143,7 @@ class ModelFiguresPrinter {
      */
     static void printAccuracy(PrintWriter out, List<AuctionAccuracy.Fit> fits) {
         out.println(['SEASON', 'POS', 'SIGNINGS', 'PRICED', 'COVERAGE', 'PAID', 'COST', 'MAE', 'BIAS',
-                     'RHO'].join('\t'))
+                     'RHO', 'NAIVE'].join('\t'))
         fits.each { AuctionAccuracy.Fit fit ->
             out.println([
                     fit.season,
@@ -151,6 +156,7 @@ class ModelFiguresPrinter {
                     fit.meanAbsolute.setScale(2, RoundingMode.HALF_UP),
                     fit.bias.setScale(2, RoundingMode.HALF_UP),
                     fit.correlation == null ? '' : fit.correlation.setScale(3, RoundingMode.HALF_UP),
+                    fit.benchmark == null ? '' : fit.benchmark.setScale(2, RoundingMode.HALF_UP),
             ].join('\t'))
         }
     }

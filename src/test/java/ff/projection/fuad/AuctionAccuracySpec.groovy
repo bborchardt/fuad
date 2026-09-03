@@ -116,6 +116,30 @@ class AuctionAccuracySpec extends Specification {
         whole.correlation > 0.999
     }
 
+    /**
+     * The yardstick has to be scored on the same players as the thing it is a yardstick for.
+     *
+     * A benchmark computed over a different or smaller set is worse than none: it would let the board look
+     * good by being measured somewhere the alternative was not, which is the failure this whole figure was
+     * written to catch one level down.
+     */
+    def "benchmarks each season on the others, over exactly the players it scores itself on"() {
+        given:
+        Map<String, List<PlayerValuation>> boards = seasons.collectEntries { [(it): board(it)] }
+
+        when:
+        List<AuctionAccuracy.Fit> fits = AuctionAccuracy.of(boards)
+                .findAll { it.position == AuctionAccuracy.ALL }
+
+        then: 'every season has one, since every season has others to be compared against'
+        fits.size() == seasons.size()
+        fits.every { it.benchmark != null && it.benchmark > 0 }
+
+        and: 'a season with nothing to compare against has none rather than a number from nowhere'
+        AuctionAccuracy.of(seasons.last(), boards[seasons.last()])
+                .every { it.benchmark == null }
+    }
+
     def "counts a season it cannot price as unmeasured rather than as a miss"() {
         when: 'no board at all, which is what a season with no prior roster snapshot would give'
         List<AuctionAccuracy.Fit> fits = AuctionAccuracy.of(seasons.last(), [])
