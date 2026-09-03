@@ -179,18 +179,33 @@ class AuctionAccuracy {
      *
      * The median rather than the mean, since a market this scattered has outliers at the top that a mean
      * follows and a median does not — and the point of the benchmark is to be the best obvious thing, not a
-     * weak one.
+     * weak one. That principle decides the two details underneath as well: a true median rather than the
+     * lower of a middle pair, and the nearest ranks rather than the whole position where the window is
+     * empty. Both were the other way round first, and both flattered the board.
      */
     private static BigDecimal historyOf(List<List> elsewhere, String position, int rank) {
         List<List> atPosition = elsewhere.findAll { it[0] == position }
-        List<BigDecimal> within = atPosition
-                .findAll { Math.abs((it[1] as int) - rank) <= BENCHMARK_RADIUS }
-                .collect { it[2] as BigDecimal }.sort()
-        // Past the window the position's own median stands in, so a deep rank the other seasons never
-        // reached is still predicted by something rather than dropped — dropping it would flatter the
-        // benchmark by scoring it only where it is comfortable.
-        List<BigDecimal> paid = within ?: atPosition.collect { it[2] as BigDecimal }.sort()
-        paid ? paid[(paid.size() - 1).intdiv(2)] : null
+        if (!atPosition) {
+            return null
+        }
+        List<List> within = atPosition.findAll { Math.abs((it[1] as int) - rank) <= BENCHMARK_RADIUS }
+        // Past the window, the nearest ranks the other seasons did reach, rather than the position entire.
+        // Falling back to the whole position predicts a deep rank at something near the position's middle,
+        // which is wrong by a distance and flatters the board — this benchmark has to be the best obvious
+        // alternative to it, not a straw one.
+        if (!within) {
+            int nearest = atPosition.collect { Math.abs((it[1] as int) - rank) }.min()
+            within = atPosition.findAll { Math.abs((it[1] as int) - rank) == nearest }
+        }
+        medianOf(within.collect { it[2] as BigDecimal })
+    }
+
+    /** The true median, averaging the middle pair where there is one rather than taking the lower of them. */
+    private static BigDecimal medianOf(List<BigDecimal> values) {
+        List<BigDecimal> sorted = values.sort(false)
+        int size = sorted.size()
+        size % 2 == 1 ? sorted[size.intdiv(2)]
+                : (sorted[size.intdiv(2) - 1] + sorted[size.intdiv(2)]) / 2
     }
 
     private static Fit fitOf(String season, String position, int signings, List<List<BigDecimal>> pairs,

@@ -1828,14 +1828,39 @@ better than the dollars — around 0.86, so the board knows who is expensive and
 
 **Seven dollars is neither good nor bad until something else has tried the same signings.** `NAIVE` is that
 something: each player predicted as the median this league paid at his position and within six ranks of his,
-over its **other** seasons. It is the most obvious alternative to a model, it needs no model at all, and the
-board beats it in every season on record. That is the first thing to read here, because the instinct on
-seeing a seven dollar error is that a simpler rule would do better, and the record says it does not.
+over its **other** seasons. It needs no model at all — no curve, no replacement level, no value over
+replacement — and it is the first thing anybody would try instead.
+
+**The board beats it in every season, and loses to it at two positions out of five.** Read down the
+positional rows rather than the `ALL` ones, because the whole of the board's advantage is at one position:
+
+<!-- figures: fuad/accuracy key=SEASON+POS -->
+
+| SEASON | POS | PRICED | MAE | NAIVE |
+| --- | --- | --- | --- | --- |
+| 2023 | QB | 15 | 4.87 | 7.67 |
+| 2023 | RB | 19 | 8.89 | 7.13 |
+| 2024 | RB | 23 | 11.17 | 9.39 |
+| 2025 | RB | 20 | 7.05 | 6.83 |
+| 2025 | WR | 29 | 6.34 | 5.47 |
+
+Pooled over the four seasons the board is 9.09 against the rank median's 12.36 at quarterback and 7.07
+against 8.10 at tight end, and **7.70 against 8.85 at running back and 8.73 against 9.22 at receiver, the
+wrong way round**. Running back it loses in all four seasons, receiver in three of four. Those two positions
+carry 173 of the 312 signings and about two thirds of the money.
+
+That is not a floor and it is not noise: a rule with no model in it prices this league's backs and receivers
+better than the model does, by more than any lever below is worth. What the board is buying with all its
+machinery is quarterback, where consensus rank and a curve beat the league's own history by three dollars a
+player, and where superflex makes replacement level the whole question. **This is the open finding on the
+board and it is recorded as one** — see [TODO.md](../TODO.md).
 
 **What the error is made of, and why almost none of it is reachable.** The market prices two players of the
 same worth about a factor of two apart — that is `SIGMA` on the steepness figure, 0.88 to 1.29 in log
 dollars — so most of `MAE` is the auction's own scatter rather than anything the model decides. Every lever
 in the chain has been measured against it:
+
+<!-- model: b692f07 -->
 
 | lever | worth | how it was measured |
 | --- | --- | --- |
@@ -1845,10 +1870,18 @@ in the chain has been measured against it:
 | the priced depth | negative | trimming the deep end and giving its money to the top |
 | the franchise tag | nothing | tagged signings carry 9% of the error at a below-average 7.35 |
 
+Those five are counterfactual runs rather than model output, so unlike everything else here they are
+remembered rather than regenerated, and the stamp above says which model they were taken against.
+
 Two of those are ceilings rather than gains: they are what perfect hindsight on a season would buy, and
-nothing can be fitted to a season before it happens. **So there is no remaining lever of any size**, and
-differences of a tenth or two between one model and another — which is the scale everything on this branch
-moved by — sit well inside a floor that no arrangement of these five can lift.
+nothing can be fitted to a season before it happens. **So no lever inside the pricing chain returns much**,
+and differences of a tenth or two between one model and another — the scale everything on this branch moved
+by — sit inside what these five can reach.
+
+What that does not mean is that the board is as good as it can be. The lever table asks what the *price
+transform* can still win, given the value column it is handed. `NAIVE` asks a different question and answers
+it less comfortably: at running back and receiver the value column itself is the thing losing to a rule that
+does not have one.
 
 **The bias is not a level error, which is worth saying because it looks like one.** `BIAS` is negative in
 every season, and yet scaling every price up makes the board worse, not better: the cheap end is

@@ -135,6 +135,16 @@ class AuctionAccuracySpec extends Specification {
         fits.size() == seasons.size()
         fits.every { it.benchmark != null && it.benchmark > 0 }
 
+        and: 'and it is formed for every player the board is scored on, so the two share a denominator'
+        seasons.every { String season ->
+            List<PlayerValuation> priced = boards[season]
+            Map<String, PlayerValuation> byId = priced.collectEntries { [(it.playerId): it] }
+            AuctionSpend.signings(season).every { byId[it.playerId] == null ||
+                    AuctionAccuracy.of(season, priced, boards.findAll { it.key != season })
+                            .find { it.position == AuctionAccuracy.ALL }.priced ==
+                    AuctionAccuracy.of(season, priced).find { it.position == AuctionAccuracy.ALL }.priced }
+        }
+
         and: 'a season with nothing to compare against has none rather than a number from nowhere'
         AuctionAccuracy.of(seasons.last(), boards[seasons.last()])
                 .every { it.benchmark == null }

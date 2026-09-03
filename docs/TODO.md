@@ -4,56 +4,52 @@ Things measured and not yet decided. Each one says what was found, how much it m
 have to answer — so that picking it up later starts from evidence rather than from the memory of a
 conversation.
 
-## The board is at the floor of what this market can be predicted to, and the levers are spent
+## The board loses to a rank median at running back and receiver
 
-Two changes landed together — each rank given its own outcome spread, and `PRICE_STEEPNESS` refitted from the
-record — and the question was whether the pair was worth shipping when the second was measured to cost
-accuracy against the first.
+The board is held to what the league paid by `AuctionAccuracy`, and beside its error it now carries the
+error of the most obvious thing anybody would try instead: `NAIVE` predicts each signing as the median this
+league paid at the same position within six ranks, over its **other** seasons. No curve, no replacement
+level, no value over replacement.
 
-**It is, and the reason is that the question was the wrong size.** Mean absolute error against what the
-league actually paid, over 2022-2025, each model given its own fitted steepness:
+Pooled over 2022-2025, per position:
 
-| | old spread | new spread |
-| --- | --- | --- |
-| steepness as it was committed | 7.66 | 8.05 |
-| steepness refitted from the record | 7.52 | **7.77** |
+| POS | signings | board | rank median | |
+| --- | --- | --- | --- | --- |
+| QB | 56 | 9.09 | 12.36 | board by 3.27 |
+| RB | 74 | 8.85 | 7.70 | **rank median by 1.15** |
+| WR | 99 | 9.22 | 8.73 | **rank median by 0.49** |
+| TE | 44 | 7.07 | 8.10 | board by 1.03 |
+| PK | 39 | 0.90 | 0.90 | level |
+| all | 312 | 7.77 | 8.07 | board by 0.31 |
 
-The spread change costs about a quarter of a dollar whichever steepness either model is given. Set against
-the paired 95% interval on a difference of this size, which is ±0.27, that is not a measurable regression —
-and set against what any remaining lever could return, it is inside the noise.
+**The board's whole advantage is quarterback.** Running back it loses in all four seasons, receiver in three
+of four, and those two positions carry 173 of the 312 signings and about two thirds of the money. The
+aggregate win is real but it is one position carrying four.
 
-### Every lever, measured
+### Why this is the finding and not the levers
 
-| lever | worth | how it was measured |
-| --- | --- | --- |
-| the pot, and `SPEND_RATE` behind it | nothing | best single multiplier on every price is 1.00 |
-| `MARKET_SHARE` | 0.40 | hand the board each season's actual positional spend |
-| `PRICE_STEEPNESS` | 0.54 | best gamma per season **and** position, fitted on the answer |
-| the priced depth | negative | trim the deep end, give its money to the top |
-| the franchise tag | nothing | tagged signings are 9% of the error at a below-average 7.35 |
+Every lever inside the price chain was measured and none returns much: the pot nothing, `MARKET_SHARE` 0.40
+and `PRICE_STEEPNESS` 0.54 with hindsight nobody has, the priced depth negative, the franchise tag nothing.
+That was written up as "no remaining lever of any size", which was true of the price transform and wrong as
+a conclusion — the transform is handed a value column, and at running back and receiver it is the value
+column that is losing. A gap of 1.15 at running back is larger than any of those five.
 
-The two that return anything are ceilings, not gains: they are what perfect hindsight on a season would buy,
-and no constant can be fitted to a season before it happens. **Nothing in the chain is left to win.**
+### What a fix would have to answer
 
-And the board already beats the obvious alternative to having a model at all. `NAIVE` on
-`accuracy.tsv` predicts each signing from what this league paid at the same rank in its other seasons; the
-board is ahead of it in all four. What remains is the market's own scatter — `SIGMA` on `steepness.tsv`,
-0.88 to 1.29 in log dollars, so two players of identical worth go for prices a factor of two apart.
-
-### Three things this leaves open
-
-- **It is still scored on the seasons it was fitted on.** Broken out, the old spread wins by half a dollar
-  over 2023-25 and loses by eight tenths on 2022, which is the only season held out of everything. That
-  ordering is the reverse of the pooled figure and rests on 66 signings from the year the league had not
-  adjusted to superflex. Another season of the record settles more than any further analysis of these four.
-- **The tag censors the top of the board the way the minimum bid censors the bottom.** `PriceSteepness`
-  handles the second and has nothing to say about the first: eight players a year are held out of the
-  auction entirely, and they are the players the spread change moved most. The part of the board this
-  argument is about is the part the record is quietest on.
-- **`PLAYERSABOVE1` against the league's 70 is not the comparison it looks like.** The model's count is over
-  the whole priced pool and the league's is over signings. Among players who actually signed, the board is
-  only slightly more generous than the league — 74 against 67, 74 against 65, 79 against 70. It was read as
-  an accuracy signal here and in [PROJECTION.md](fuad/PROJECTION.md) and it is a weaker one than that.
+- **Whether it is the curve or the market.** A rank median encodes what this league pays; value over
+  replacement encodes what a rank scores. They differ most where a position's replacement level is least
+  binding, which is exactly running back and receiver — 26 and 31 starters against quarterback's 20 under
+  superflex. It may be that the model is wrong about backs, or that the league is, and `EDGE` exists on the
+  assumption of the second.
+- **Whether quarterback is the exception or the rule.** Superflex is what makes quarterback replacement
+  bite, and it is the one position where the board is decisively better. If the board only adds value where
+  replacement level is scarce, that is worth knowing plainly rather than having it averaged into one number.
+- **Whether a blend beats either.** Nothing here has tried the obvious thing of pricing from both. That is a
+  change to what the board *is*, not a constant, and it should not be made before the question above is
+  answered.
+- **How much of this survives another season.** 312 signings, four seasons, and the positional splits are 44
+  to 99 apiece. The running back gap is consistent across all four seasons, which is the strongest thing
+  here; the receiver gap is not.
 
 ## The flex allocation is decided on season totals, replacement is then taken at a weekly rate
 
