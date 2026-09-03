@@ -1818,10 +1818,10 @@ and never on a name**, so a board row and a roster row are the same player by co
 
 | SEASON | POS | SIGNINGS | PRICED | PAID | COST | MAE | BIAS | RHO | NAIVE |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 2022 | ALL | 68 | 66 | 1416 | 1253 | 8.83 | -2.47 | 0.809 | 9.44 |
-| 2023 | ALL | 86 | 83 | 1801 | 1606 | 7.36 | -2.35 | 0.836 | 7.99 |
-| 2024 | ALL | 83 | 79 | 1787 | 1676 | 7.51 | -1.41 | 0.844 | 7.86 |
-| 2025 | ALL | 88 | 84 | 2103 | 1857 | 7.57 | -2.93 | 0.883 | 7.98 |
+| 2022 | ALL | 68 | 66 | 1416 | 1253 | 8.83 | -2.47 | 0.809 | 9.55 |
+| 2023 | ALL | 86 | 83 | 1801 | 1606 | 7.36 | -2.35 | 0.836 | 7.79 |
+| 2024 | ALL | 83 | 79 | 1787 | 1676 | 7.51 | -1.41 | 0.844 | 7.57 |
+| 2025 | ALL | 88 | 84 | 2103 | 1857 | 7.57 | -2.93 | 0.883 | 7.66 |
 
 `MAE` is the headline: the board is out by seven or eight dollars a player. `RHO` says the ordering is
 better than the dollars — around 0.86, so the board knows who is expensive and is less sure how expensive.
@@ -1831,8 +1831,9 @@ something: each player predicted as the median this league paid at his position 
 over its **other** seasons. It needs no model at all — no curve, no replacement level, no value over
 replacement — and it is the first thing anybody would try instead.
 
-**The board beats it in every season, and loses to it at two positions out of five.** Read down the
-positional rows rather than the `ALL` ones, because the whole of the board's advantage is at one position:
+**The board beats it in every season — by 0.06 in 2024 and 0.09 in 2025 — and loses to it at two positions
+out of five.** Read down the positional rows rather than the `ALL` ones, because the whole of the board's
+advantage is at one position:
 
 <!-- figures: fuad/accuracy key=SEASON+POS -->
 
