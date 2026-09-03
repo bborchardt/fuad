@@ -112,8 +112,8 @@ class BoardColumnsSpec extends Specification {
         valuations.every { it.pointsLow < it.points && it.pointsHigh > it.points }
     }
 
-    def "scales the range with the player, but keeps its shape the position's"() {
-        given:
+    def "scales the range with the player, and keeps its shape the board's"() {
+        given: 'a board every rank of which realises at the same half and half again'
         List<PlayerValuation> valuations = value(new ByeWeeks([:], LAST_WEEK))
         PlayerValuation best = valuations.find { it.positionRank == 5 }
         PlayerValuation worse = valuations.find { it.positionRank == 15 }
@@ -121,9 +121,40 @@ class BoardColumnsSpec extends Specification {
         expect: 'the better player has more points in a bad season than the worse one does'
         best.pointsLow > worse.pointsLow
 
-        and: 'but the same proportional range, since realised variation is measured per position, not per player'
-        ((best.pointsHigh / best.points) - (worse.pointsHigh / worse.points)).abs() < 0.001
-        ((best.pointsLow / best.points) - (worse.pointsLow / worse.points)).abs() < 0.001
+        and: 'and much the same proportional range, since these ranks did scatter alike'
+        ((best.pointsHigh / best.points) - (worse.pointsHigh / worse.points)).abs() < 0.05
+        ((best.pointsLow / best.points) - (worse.pointsLow / worse.points)).abs() < 0.05
+    }
+
+    /**
+     * The range is the rank's own, which is a claim the board could not make while the spread was pooled.
+     *
+     * Two players whose levels differ by a third but whose neighbourhoods scatter alike are quoted the same
+     * shape; two whose neighbourhoods do not are not. A reader comparing a range across the board is
+     * comparing what those stretches of it have actually done.
+     */
+    def "widens the quoted range where the board's own seasons widen"() {
+        given: 'ranks past ten realise six times as widely as the ones before them'
+        PointsCurve curve = PointsCurve.of([WR: TestSeasons.byRank(
+                (1..30).collectEntries { int rank ->
+                    BigDecimal expected = (210 - rank * 6) as BigDecimal
+                    BigDecimal swing = rank <= 10 ? 0.1 : 0.6
+                    [(rank): [expected, expected * (1 - swing), expected * (1 + swing)] * 3]
+                })])
+        Map<String, List> available = (1..20).collectEntries { int rank ->
+            [("p$rank" as String): ["Player $rank" as String, 'WR', rank, null, rank + 3]]
+        }
+
+        when:
+        List<PlayerValuation> valuations = AuctionValuation.value(curve,
+                new StarterRequirements([WR: 2], [WR: 4], 3, 10), available, [WR: 40], 300.0, 20,
+                new ByeWeeks([:], LAST_WEEK))
+        PlayerValuation tight = valuations.find { it.positionRank == 3 }
+        PlayerValuation wide = valuations.find { it.positionRank == 18 }
+
+        then: 'the deep rank is quoted the wider season, in both directions'
+        wide.pointsHigh / wide.points > tight.pointsHigh / tight.points
+        wide.pointsLow / wide.points < tight.pointsLow / tight.points
     }
 
     /**

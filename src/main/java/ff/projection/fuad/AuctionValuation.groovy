@@ -79,16 +79,29 @@ class AuctionValuation {
     /**
      * How much steeper this league's prices run than value, within a position.
      *
-     * Fitted as `price ~ value^gamma` across signings by consensus rank, over the same repriced seasons. Above one the market
-     * pays more for the best at a position and less for the rest than their value warrants; below one it
-     * spreads money more evenly than value does. Quarterback is much the steepest, which is the league
-     * paying a premium for an elite starter that value over replacement will not produce on its own, since
-     * superflex starts twenty of them and so sets a high replacement.
+     * Above one the market pays more for the best at a position and less for the rest than their value
+     * warrants; below one it spreads money more evenly than value does. This belongs to price and never to
+     * value: it is a description of behaviour, not of worth.
      *
-     * This belongs to price and never to value: it is a description of behaviour, not of worth.
+     * <b>Fitted rather than chosen, and regenerated rather than remembered.</b> {@link PriceSteepness}
+     * recovers each of these from what the league actually paid over
+     * {@link AuctionSpend#CALIBRATED_SEASONS}, by the estimator the pricing arithmetic itself implies;
+     * {@code AuctionValuationSpec} fails when the constant and the fit part company, and both sit side by
+     * side in docs/figures/fuad/&lt;year&gt;/steepness.tsv as GAMMA against INFORCE.
+     *
+     * <b>That check did not exist and its absence was expensive.</b> These were fitted once, by hand,
+     * against a value column the model then changed twice, and nothing recomputed them — so quarterback sat
+     * at 1.44 and tight end at 1.51 while the record said 1.01 and 0.87, and every board since was priced
+     * off the drift. Correcting it improved the board against every season on record including the one held
+     * out of the fit. The old figures are kept in docs/TODO.md with what they cost.
+     *
+     * <b>Quarterback is no longer the steepest, and the reason it looked steepest was the minimum bid.</b>
+     * A dollar signing is a censored observation rather than a cheap one, and a fit that drops those reads
+     * a steep market as a flat one and a flat one as flatter still. Handled properly the order changes:
+     * running back is the steepest position this league bids, and kicker much the flattest.
      */
     static final Map<String, BigDecimal> PRICE_STEEPNESS =
-            [QB: 1.44, RB: 1.13, WR: 1.07, TE: 1.51, PK: 1.00].asImmutable() as Map<String, BigDecimal>
+            [QB: 1.01, RB: 1.19, WR: 1.08, TE: 0.87, PK: 0.58].asImmutable() as Map<String, BigDecimal>
 
     /**
      * How often a tier of expiring contract has actually changed hands, 2022-2025.
@@ -318,8 +331,10 @@ class AuctionValuation {
                     pointsPerGame: curve.levelledRate(position, rank),
                     expectedGames: curve.expectedGames(position, rank),
                     tier: curve.tier(position, rank),
-                    pointsLow: curve.seasonPoints(position, rank) * curve.outcomePercentile(position, ExpectedValue.LOW_OUTCOME),
-                    pointsHigh: curve.seasonPoints(position, rank) * curve.outcomePercentile(position, ExpectedValue.HIGH_OUTCOME),
+                    pointsLow: curve.seasonPoints(position, rank) *
+                            curve.outcomePercentile(position, rank, ExpectedValue.LOW_OUTCOME),
+                    pointsHigh: curve.seasonPoints(position, rank) *
+                            curve.outcomePercentile(position, rank, ExpectedValue.HIGH_OUTCOME),
                     bye: byes.of(position, rank),
                     valueOverReplacement: vor[id] ?: 0.0,
                     value: worth,

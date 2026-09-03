@@ -64,7 +64,7 @@ class FranchiseTagSettlementSpec extends Specification {
         try {
             List<PlayerValuation> board = AuctionValuation.value(curve(),
                     new StarterRequirements([QB: 1, WR: 1], [QB: 2, WR: 2], 3, 4),
-                    pool(), [QB: 3, WR: 6], 80.0, 4, new ByeWeeks([:], LAST_WEEK))
+                    pool(), [QB: 3, WR: 7], 80.0, 4, new ByeWeeks([:], LAST_WEEK))
             [board, captured.toString()]
         } finally {
             System.err = original
@@ -90,9 +90,14 @@ class FranchiseTagSettlementSpec extends Specification {
     /**
      * The board that used to flip for ever between one team's two players.
      *
-     * It is kept exactly as it was, because what makes it interesting is unchanged: one franchise holding
-     * two players each big enough that taking either out of the bidding moves what the other would fetch.
-     * That is still true, and it no longer decides anything, because both are now read off the same rate.
+     * What makes it interesting is unchanged: one franchise holding two players each big enough that taking
+     * either out of the bidding moves what the other would fetch. That is still true, and it no longer
+     * decides anything, because both are now read off the same rate.
+     *
+     * The receiver's tag price moved by a dollar when {@link AuctionValuation#PRICE_STEEPNESS} was refitted
+     * from the record. The board it makes is the same board — two candidates on one roster, one of them
+     * tagged, the other dearer to buy than to tag — and the dollar is what keeps that last gap open rather
+     * than exactly closed, which is the thing the choice used to turn on.
      */
     def "the two players a team is choosing between no longer flip it round for ever"() {
         given:
@@ -176,7 +181,7 @@ class FranchiseTagSettlementSpec extends Specification {
         List<PlayerValuation> board
         try {
             board = AuctionValuation.value(PointsCurve.of([QB: TestSeasons.byRank(shape)]),
-                    new StarterRequirements([QB: 2], [QB: 2], 2, 10), pool, [QB: 6], 204.0, 76,
+                    new StarterRequirements([QB: 2], [QB: 2], 2, 10), pool, [QB: 5], 204.0, 76,
                     new ByeWeeks([:], LAST_WEEK))
         } finally {
             System.err = original
@@ -186,7 +191,10 @@ class FranchiseTagSettlementSpec extends Specification {
         !captured.toString().contains('did not settle')
 
         and: 'having actually made a cascade of it, or the fixture is not the one this is about'
-        board.findAll { it.franchiseTagged }.collect { it.franchiseId }.toSet().size() == 9
+        // Nearly every team, rather than a count to the team: a tag price a dollar either side of this one
+        // takes the cascade from all ten to four, so pinning the number would be pinning the constant that
+        // moved it. What the fixture has to produce is a long cascade, and that is what is asserted.
+        board.findAll { it.franchiseTagged }.collect { it.franchiseId }.toSet().size() >= 8
     }
 
     /**

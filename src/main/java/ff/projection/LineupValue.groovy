@@ -57,6 +57,15 @@ class LineupValue {
     static class Rostered {
         final String position
         /**
+         * The seasons his rank is replayed against, and the games they average.
+         *
+         * Held here rather than looked up per replay because both are fixed the moment a rank is known and
+         * {@link #seasonOf} wants them four hundred times a roster. They are his rank's own window, not the
+         * position's — see {@link PointsCurve#outcomeSeasons}.
+         */
+        final List<PointsCurve.Outcome> outcomes
+        final double meanGames
+        /**
          * What he scores in a week he plays.
          *
          * A rate rather than an expectation, because how much football he plays is now drawn rather than
@@ -69,8 +78,11 @@ class LineupValue {
         /** How many of those weeks this rank has historically played. */
         final double expectedGames
 
-        Rostered(String position, double rate, int[] playable, double expectedGames) {
+        Rostered(String position, List<PointsCurve.Outcome> outcomes, double rate, int[] playable,
+                 double expectedGames) {
             this.position = position
+            this.outcomes = outcomes
+            this.meanGames = outcomes ? outcomes.collect { it.games }.sum() / outcomes.size() : 0.0d
             this.rate = rate
             this.playable = playable
             this.expectedGames = expectedGames
@@ -102,7 +114,6 @@ class LineupValue {
     private final Map<String, Integer> maximums
     private final int slots
     private final int lastWeek
-    private final Map<String, Double> meanGames = [:]
 
     LineupValue(PointsCurve curve, ByeWeeks byes, StarterRequirements requirements) {
         this.curve = curve
@@ -171,7 +182,8 @@ class LineupValue {
         if (!rate || !games || !playable) {
             return null
         }
-        new Rostered(position, rate.toDouble(), playable as int[], games.toDouble())
+        new Rostered(position, curve.outcomeSeasons(position, rank), rate.toDouble(), playable as int[],
+                games.toDouble())
     }
 
     /** What this roster scores, averaged over the seasons it is replayed against. */
@@ -222,16 +234,21 @@ class LineupValue {
      * ended early is also, often enough, one that was going badly. Drawing them apart would lose whatever
      * relation they have.
      *
-     * <b>How much he plays is his rank's, not the position's.</b> The outcome list is pooled across the
-     * ranks that carry money, so its games are the position's. Taken raw they would hand a backup
-     * quarterback the availability of a starter, which is exactly the thing rank does predict at that
-     * position, where it predicts it nowhere else. So the draw is read as a multiplier against the position's
-     * own mean and applied to what this rank has historically played. See docs/figures.
+     * <b>How much he plays is his rank's, not the position's.</b> The outcome list is now drawn from the
+     * ranks around his own rather than from the whole position, so its games are already nearly his — but
+     * only nearly: a window spans eleven ranks and availability is levelled over twenty-one. So the draw is
+     * still read as a multiplier against its window's own mean and applied to what this rank has
+     * historically played, which keeps the replayed seasons averaging exactly his {@code expectedGames}.
+     *
+     * That rescale used to be carrying far more weight than a reconciliation. While the list was the whole
+     * position's it was the only thing standing between a backup quarterback and the availability of a
+     * starter, and it could correct the mean while leaving him the spread of a player with a job. See
+     * docs/figures.
      */
     private void seasonOf(List<Rostered> roster, int sample, double[] multipliers, boolean[][] playing) {
         for (int index = 0; index < roster.size(); index++) {
             Rostered player = roster[index]
-            List<PointsCurve.Outcome> outcomes = curve.outcomeSeasons(player.position)
+            List<PointsCurve.Outcome> outcomes = player.outcomes
             int weeks
             if (!outcomes) {
                 multipliers[index] = 1.0
@@ -240,24 +257,12 @@ class LineupValue {
                 PointsCurve.Outcome outcome = outcomes[Math.min(outcomes.size() - 1,
                         (draw(sample, index, FORM) * outcomes.size()) as int)]
                 multipliers[index] = outcome.rateMultiplier
-                double mean = meanGamesOf(player.position, outcomes)
-                weeks = Math.round(mean > 0 ? player.expectedGames * outcome.games / mean
-                        : player.expectedGames) as int
+                weeks = Math.round(player.meanGames > 0
+                        ? player.expectedGames * outcome.games / player.meanGames : player.expectedGames) as int
             }
             play(player, playing[index], Math.max(0, Math.min(player.playable.length, weeks)),
                     draw(sample, index, TIMING))
         }
-    }
-
-    /** The games a position's replayed seasons average, which is what a drawn one is a multiple of. */
-    private double meanGamesOf(String position, List<PointsCurve.Outcome> outcomes) {
-        Double known = meanGames[position]
-        if (known != null) {
-            return known
-        }
-        double mean = outcomes ? outcomes.collect { it.games }.sum() / outcomes.size() : 0.0d
-        meanGames[position] = mean
-        mean
     }
 
     /**

@@ -289,17 +289,17 @@ Value over replacement at a player's expected points is `max(0, E[X] - replaceme
 actually worth is `E[max(0, X - replacement)]`, because a player only has to be started in the weeks he is
 good. The second is never smaller, and the gap is widest at replacement level — exactly where a bench sits:
 
-`VOR` is the first, which is what the board prices with; `VOREXP` is the second, carried only so the two can
-be compared. Read down a position at a time:
+`VOREXP` is the first, carried only so the two can be compared; `VOR` is the second, which is what the board
+prices with. Read down a position at a time:
 
 <!-- figures: fuad/curve across=POS field=VOR -->
 
 | Rank | QB | WR | RB |
 | --- | --- | --- | --- |
-| 10 | 43.2 | | |
-| 30 | | 17.6 | 15.6 |
-| 38 | | 12.5 | |
-| 48 | | | 4.1 |
+| 10 | 42.6 | | |
+| 30 | | 14.4 | 16.3 |
+| 38 | | 9.7 | |
+| 48 | | | 7.6 |
 
 <!-- figures: fuad/curve across=POS field=VOREXP -->
 
@@ -311,13 +311,92 @@ be compared. Read down a position at a time:
 | 48 | | | 0.0 |
 
 Every one of those gaps is positive, and it is widest where a player sits near replacement rather than well
-clear of it — RB48 is worth nothing at all on the second reading and about five points on the first.
+clear of it — RB48 is worth nothing at all at his expectation and nearly eight points once the season is
+allowed to go several ways.
 
 The spread is real: realised points at a given preseason rank vary with a coefficient of variation of 0.5 to
 0.6 by position, and players nominally below replacement still clear it often.
 
-So a season is replayed against **every season the position has actually produced**, and value over
-replacement averaged across them.
+So a season is replayed against **every season the ranks around this one have actually produced**, and value
+over replacement averaged across them.
+
+**The pool is a stretch of the board and not the whole position, because the record says the two are not the
+same thing.** One pool a position replayed the best quarterback on the board and the 34th through the same
+distribution of rate multipliers and the same distribution of games. `SPREAD` is how widely a rank's own
+seasons scatter in the years they happen:
+
+<!-- figures: fuad/curve across=POS field=SPREAD -->
+
+| Rank | QB | WR | RB | TE |
+| --- | --- | --- | --- | --- |
+| 1 | 0.17 | 0.21 | 0.28 | 0.28 |
+| 12 | 0.25 | 0.25 | 0.25 | 0.31 |
+| 24 | 0.29 | 0.25 | 0.33 | 0.40 |
+| 36 | 0.47 | 0.33 | 0.44 | 0.49 |
+
+and `G` is how many of them happen at all:
+
+<!-- figures: fuad/curve across=POS field=G -->
+
+| Rank | QB | WR | RB | TE |
+| --- | --- | --- | --- | --- |
+| 1 | 11.46 | 11.45 | 11.12 | 10.73 |
+| 12 | 11.39 | 11.44 | 10.91 | 10.72 |
+| 24 | 10.11 | 10.94 | 10.43 | 10.40 |
+| 36 | 6.24 | 10.62 | 10.26 | 9.37 |
+
+**The level was never what was wrong.** Mean realised rate against a rank's own expectation is flat across
+the board — 0.937 to 0.950 at quarterback — so the curve's central estimate was unbiased by rank and only
+the width around it varied. What the window changes is the width, and it is normalised on its own seasons
+so that carrying it still moves no expected points.
+
+**Some of the widening is the board and some of it is arithmetic, and the arithmetic is the smaller half.**
+There are 32 starting jobs at quarterback, so a rank past about 26 is a backup whose season is close to
+bimodal: he takes a job through somebody's injury, or he never plays. That is a real feature of the
+position. But a ratio taken against a smaller expected number is also mechanically noisier, which is what
+`RELEVANT_FRACTION` exists to bound and it does not stop at the cut. How much of it that accounts for is
+readable rather than arguable: `SE` against `PTS` bounds the noise in that denominator at 3.8% of the level
+at QB1 and 12.8% at QB36, and taking the second out in quadrature leaves 0.45 of the 0.47 measured there.
+About a twenty-fifth of the width at the very deepest rank, and less everywhere else, is the ratio rather
+than the football.
+
+**Why this was invisible while it was wrong.** Pooling handed an elite player more volatility than his
+neighbours carry, which raises value through the per-week floor at zero, and more missed games than they
+carry, which lowers it. At the top of quarterback the two happened to be the same size, so the players the
+board actually turns on were priced almost exactly right — by two errors cancelling rather than by either
+being small. They do not cancel in the middle, and the middle is where most of the money is.
+
+**A sliding window rather than bands, because a band has edges and an edge near replacement is a cliff.**
+Tiers were the obvious candidate, being a grouping the curve already believes in. They are the wrong shape:
+a tier boundary is a claim about two levels being separable, the spread moves smoothly and continuously with
+rank, and two ranks a tier apart would price tens of dollars apart on nothing but which side of the line they
+fell on. The rookie board learned that with real bands and real dollars — see
+[the spread that priced rookies above the league](#the-spread-that-priced-rookies-above-the-league) — and
+this is the same lesson applied to the veterans.
+
+Five ranks either side is 99 seasons where the window is full, against the 45 a level is a mean of, and the
+count is carried as `SEASONS` on the same row so a reader can see which ranks are speaking from a full
+window and which from a one-sided edge. Measured at three, five and eight ranks either side the widening by
+rank is the same shape, so the radius is chosen for sample rather than to make the pattern appear.
+
+**Rate and availability are one change and not two.** They were pooled separately and could have been fixed
+separately, and there is no reason to: what was wrong is the pooling unit, not either half. A window is a set
+of realised seasons, and each of them carries its rate and its games together, so both halves come out of one
+pass and cannot disagree about which seasons they describe.
+
+**What it moved.** The top of the board barely notices: Lamar Jackson's value over replacement at QB2 moves
+by one point in 79 and Ja'Marr Chase's at WR1 by none, which is the cancellation above showing up as it
+should. The middle moves by five to twenty-five per cent — running backs 11 through 27 and receivers 22
+through 41 downward, the back of every position upward — and the positional shares of worth renormalise
+around it: quarterback's `VORSHARE` rises from 24.8 to 25.6 and receiver's falls from 23.8 to 22.9. The one
+count that looks worst against the record is the number of players above the minimum bid, which rose from 76
+to 86 and then to 97 as the steepness was refitted — against the 70 the league signs. **That comparison is
+weaker than it looks**: the model's count is over the whole priced pool and the league's is over signings,
+so they have different denominators. Among the players who actually signed, the board is only slightly more
+generous than the league was — 74 against 67 in 2023, 74 against 65 in 2024, 79 against 70 in 2025. What
+both changes really did is weighed player by player in
+[how close the board comes to what was paid](#how-close-the-board-comes-to-what-was-paid), which is the
+comparison that shares a denominator.
 
 Each replayed season is a rate and a number of games, kept paired as one player's year rather than drawn
 apart. That matters most for the seasons that ended early. Smearing an injured starter's total across the
@@ -362,9 +441,9 @@ As priced, which is generated:
 
 | FIGURE | VALUE | Actual 2025 |
 | --- | --- | --- |
-| Players above $1 | 76 | 70 |
-| Top cost | 84 | $100 |
-| Top 40 cost | 86.7 | 87% |
+| Players above $1 | 97 | 70 |
+| Top cost | 73 | $100 |
+| Top 40 cost | 81.4 | 87% |
 
 <!-- model: 59b4f91 -->
 
@@ -376,17 +455,21 @@ As priced, which is generated:
 > board.
 
 Twenty-seven players above the minimum bid against the seventy the league signs, and tight end priced out
-of existence altogether. The reason is structural rather than a matter of picking a gentler bar: the games
-a season loses are drawn from the position's pooled distribution, so the charge is **the same number for
-every player at a position**. Subtract a constant from everyone and let the positional shares renormalise,
-and the money tilts to whoever had most of it already — the top tenth of the board goes from 34.7% to
-60.2%. A rank-invariant penalty cannot correct a rank-invariant assumption; it only steepens the curve.
+of existence altogether. The reason is structural rather than a matter of picking a gentler bar: those three
+were measured while the games a season loses came from the position's pooled distribution, so the charge was
+**the same number for every player at a position**. Subtract a constant from everyone and let the positional
+shares renormalise, and the money tilts to whoever had most of it already — the top tenth of the board goes
+from 34.7% to 60.2%. A rank-invariant penalty cannot correct a rank-invariant assumption; it only steepens
+the curve.
 
-The one thing here that is rank-graded moves nothing. Value over replacement draws its games from the
-pooled distribution while `PTS` uses the rank's own, which is a real inconsistency, and repairing it shifts
-no quarterback on the board by more than a dollar. The ranks where availability genuinely differs — the back
-of quarterback plays barely six games against the best one's eleven and a half — are already at the minimum
-bid.
+The rank-invariant assumption is itself gone now. Games come from the rank's own window along with the rate
+— see [3b](#3b-outcome-spread-which-is-what-a-bench-is-worth) — so the mildest of the three alternatives, a
+rank's own availability, is no longer an alternative at all but what the model does. It shifted no
+quarterback by more than a dollar when it was measured against the pooled version, for the reason it was
+always going to: the ranks where availability genuinely differs — the back of quarterback plays barely six
+games against the best one's eleven and a half — are already at the minimum bid. That is a repair to what
+value over replacement draws from, and it is not the same as charging a player for the weeks he misses,
+which is the question this section is about and which the paragraph below settles.
 
 **What settles it is that the cost is charged elsewhere, once.** At the auction a team buys its whole
 roster in one sitting, so what covers an injured starter is another player it also bought. Charging the
@@ -557,23 +640,36 @@ pot, which prices them higher. A systematic discount on the incumbent and a syst
 challenger, running the same way every time. `AuctionValuation` now takes **one clearing rate per team**,
 the rate of that team's own no-tag world, and reads every one of its expiring players off it.
 
-2026 is the case this used to trip over. Franchise 0001 holds Lamar Jackson and Amon-Ra St. Brown, and their
-savings came out at 23 and 23 — a tie, settled on worth. Read in one world they are 23 and 22: the tie was
-never there, and St. Brown's extra dollar was the world in which Jackson had already been tagged. `TAGMARGIN`
-on the board figures is the narrowest such gap on the board, over the teams that had a choice at all.
+<!-- model: b0f526d -->
+
+> **Superseded, and not reproducible**: 2026 was the case this used to trip over. One franchise held Lamar
+> Jackson and Amon-Ra St. Brown, and their savings came out at **23** and **23** — a tie, settled on worth.
+> Read in one world they were **23** and **22**: the tie was never there, and St. Brown's extra dollar was
+> the world in which Jackson had already been tagged. Fifteen of the sixty-eight held players nobody tags
+> came out a dollar apart on the two bases and none by more than a dollar. Those figures are from a model
+> that priced quarterback at a steepness of 1.44; refitting it from the record took quarterback to 1.01 —
+> see [how steeply the league bids](#how-steeply-the-league-bids-which-is-fitted-and-not-chosen) — and the
+> board no longer contains that example. The two-world reading it is compared against is itself gone, so
+> neither half can be regenerated.
+
+The same franchise still holds both, and on the current board the choice is not close: St. Brown saves 31
+against Jackson's 6, so the tag goes to the receiver on any reading. What the argument needed was a board
+where a team's two candidates land within a dollar of each other, and this one has none — the narrowest
+choice any team is actually asked to make is now `TAGMARGIN`:
 
 <!-- figures: fuad/board -->
 
 | FIGURE | VALUE |
 | --- | --- |
-| TAGS | 9 |
-| TEAMSTAGGING | 9 |
-| TAGMARGIN | 1 |
+| TAGS | 8 |
+| TEAMSTAGGING | 8 |
+| TAGMARGIN | 7 |
 
-**Nothing on the board moved for it.** The nine tags are the nine that were predicted before, at the same
-prices; what changed is which of them the model can say it chose on purpose. Fifteen of the sixty-eight held
-players nobody tags come out a dollar apart on the two bases, none of them by more than a dollar, and no
-player without a holder differs at all.
+Seven dollars is comfortably wider than the phantom the two-world reading used to invent, which is why
+nothing on the 2026 board now turns on it. **That is a fact about this year's board and not about the
+rule**: the asymmetry ran the same way every time it arose, and a season whose margins are tighter would
+feel it again. The fix stands on the argument rather than on the size of the example, and
+`AuctionPricingSpec` pins each of a team's candidates to that team's own no-tag world to the dollar.
 
 #### The two bases are not one scale, and cannot be made into one
 
@@ -647,11 +743,14 @@ The highest `PRICE` is Ja'Marr Chase, which no one pays because he is tagged wel
 | FIGURE | VALUE | Actual 2025 |
 | --- | --- | --- |
 | Players | 105 | |
-| Total cost | 1934 | |
-| Top price | 96 | $100 |
-| Players above $1 | 76 | 70 |
-| Top 40 price | 87.6 | 87% |
-| Teams tagging | 9 | 7 |
+| Total cost | 1936 | |
+| Top price | 105 | $100 |
+| Players above $1 | 97 | 70* |
+| Top 40 price | 82.9 | 87% |
+| Teams tagging | 8 | 7 |
+
+\* Not the same denominator: the model's count is over the priced pool and the league's over signings. Among
+players who actually signed the two are within a handful of each other every season.
 
 Position shares are the ones the league actually spends, since `MARKET_WEIGHT` is 1.0. `SHARE` is what the
 board came out at and `TARGETSHARE` what the calibration aimed for:
@@ -661,10 +760,10 @@ board came out at and `TARGETSHARE` what the calibration aimed for:
 | POS | PLAYERS | RESERVE | SHARE | TARGETSHARE |
 | --- | --- | --- | --- | --- |
 | QB | 19 | 0.9 | 23.8 | 23.7 |
-| RB | 22 | 1.1 | 32.0 | 32.3 |
-| WR | 24 | 1.2 | 33.2 | 33.5 |
-| TE | 22 | 1.1 | 9.9 | 9.4 |
-| PK | 18 | 0.9 | 1.2 | 1.0 |
+| RB | 22 | 1.0 | 32.0 | 32.3 |
+| WR | 24 | 1.1 | 33.1 | 33.5 |
+| TE | 22 | 1.0 | 9.6 | 9.4 |
+| PK | 18 | 0.9 | 1.5 | 1.0 |
 
 **Those two columns do not match, and the reason is not a failure of the calibration.** It hits the target
 exactly — the shares of value it hands on are `TARGETSHARE` to the decimal, and bending each position's
@@ -677,13 +776,20 @@ below it. Add `RESERVE` to `TARGETSHARE` scaled down by the reserved fraction an
 within a third of a point of `SHARE`. Kicker is the plain case, and its row in the table above says it: a
 sixth of the board's players against a `SHARE` almost the whole of which is minimum bids.
 
-Nine tags are predicted, one per team.
+Eight tags are predicted, one apiece to eight of the ten teams. It was nine before the steepness was
+refitted from the record: quarterback bid at 1.44 made Lamar Jackson worth tagging and at 1.01 it does not,
+which is the single largest thing that correction did to this board.
 
-The concentration is the number to watch. Splitting rate from availability raised the top of the board — the
-best players lose less to the injury smear than the deep ones did — and the top forty now hold a little
-under 89% of what open bidding would pay, against the 87% the league actually spent in 2025. A point of
-drift toward a more top-heavy board than the record, small but in the direction the model is least able to
-check, since the tag keeps the very top from ever being priced in the open.
+The concentration is the number to watch, and it has now been pushed both ways. Splitting rate from
+availability raised the top of the board, the best players losing less to the injury smear than the deep
+ones did, and taking each rank's outcome spread from its own neighbourhood has since given some of that back
+at the other end: a deep rank's seasons run wider than the position's, and value over replacement is convex,
+so the bench is worth more than one pooled distribution said. Refitting the steepness from the record pushed
+the same way again. The top forty now hold 82.9% of what open bidding would pay against the 87% the league
+actually spent in 2025, having been a little over it before both changes.
+That is a point of drift toward a flatter board than the record rather than a steeper one, and it is small
+either way, but it is in the direction the model is least able to check: the tag keeps the very top from
+ever being priced in the open.
 
 ## Team context
 
@@ -748,7 +854,8 @@ league is not.
 - **The spread cannot tell volatility from disagreement.** It is realised variation, so a genuinely erratic
   player and one the consensus simply misjudged look identical. For pricing that is the right total, but it
   means the model has no notion of a safe pick versus a risky one — which is why `PTSLOW` and `PTSHIGH` are
-  a position's range scaled to a player, and must not be read as his own.
+  the range of the ranks around his, scaled to him, and must not be read as his own. That the range now
+  varies down a position says where on the board a player sits, never which player he is.
 - **Contract length is not modelled.** A salary buys one season, and length is chosen jointly with price
   rather than being an input. The record shows the shape the cut penalty implies: 87% of signings above $40
   are one-year deals, against 70% at $1-2, and the dynasty-minus-redraft gap tracks length four times more
@@ -829,10 +936,12 @@ Alongside them the board carries what a plan needs in order to reason without go
   **`G` is not `AVAIL`.** `G` is how much football he plays; `AVAIL` is the chance he ever reaches another
   team, which is a fact about the right of first refusal and nothing to do with his health.
 - `PTSLOW` / `PTSHIGH` — the same rank in a bad season and a good one, at the 10th and 90th percentile of
-  realised outcomes. **The spread belongs to the position, not to the player.** Every quarterback gets the
-  same proportional range around his own level, because realised variation cannot tell an erratic player
-  from one the consensus misjudged. A wide range means the position is wide; it never means this player is
-  the risky one.
+  the seasons the ranks around his have produced. **The spread belongs to the board, not to the player.**
+  Two players at one rank get the same proportional range, because realised variation cannot tell an erratic
+  player from one the consensus misjudged. A wide range means this stretch of the board is wide — and the
+  deep end of every position is much wider than the top, which is a fact about where the ranking stops
+  making a confident claim; it never means this player is the risky one. See
+  [3b](#3b-outcome-spread-which-is-what-a-bench-is-worth).
 - `BYE` — the week he is off. A fact of the schedule rather than a judgement about him, and the one thing
   about a particular player the model is willing to know.
 - `TIER` — the band of ranks at this position the curve **cannot tell apart**, 1 being the best. Levels are
@@ -846,23 +955,30 @@ Alongside them the board carries what a plan needs in order to reason without go
   better predictor of what a signing goes on to score over the following two seasons, at every price band —
   but the top of the board cannot act on it, since a long deal there is unwritable under the cut penalty.
 
-Within-position steepness is fitted per position as `price ~ value^gamma` over historical signings by
-consensus rank over the same seasons:
+Within-position steepness is fitted per position as `price ~ value^gamma` over the same seasons' signings,
+with the minimum-bid ones treated as the censored observations they are — see
+[how steeply the league bids](#how-steeply-the-league-bids-which-is-fitted-and-not-chosen), where the
+estimator and what it rests on are set out:
 
 <!-- figures: fuad/positions -->
 
 | POS | GAMMA |
 | --- | --- |
-| QB | 1.44 |
-| RB | 1.13 |
-| WR | 1.07 |
-| TE | 1.51 |
+| QB | 1.01 |
+| RB | 1.19 |
+| WR | 1.08 |
+| TE | 0.87 |
 
-Tight end is the fragile one
-— it swings on a handful of signings a year and moved from 0.84 to 1.51 when 2022 came out. Quarterback is much the steepest, which is the
-league paying an elite-starter premium that value over replacement will not produce on its own, since
-superflex starts twenty quarterbacks and so sets a high replacement. This belongs to price and never to
-value: it describes behaviour, not worth.
+Tight end is the fragile one — thirty-three signings, a quarter of them at the minimum bid, and it has moved
+across most of this range as seasons have come in and out of the fit. **Running back is the steepest position
+this league bids and kicker much the flattest**, with quarterback almost exactly in line with value.
+
+That last is a correction. Quarterback was carried at 1.44 for as long as this constant existed, and read as
+the league paying an elite-starter premium that value over replacement will not produce on its own, since
+superflex starts twenty quarterbacks and so sets a high replacement. The premium is not in the record: it was
+an artefact of fitting the line over the signings above the minimum bid alone, which reads every market as
+flatter than it is and the flattest ones as flatter still. This belongs to price and never to value: it
+describes behaviour, not worth.
 
 The split immediately shows what the blend was hiding. This league **overpays for receivers and underpays
 for running backs**, and the size of it is on a committed figure rather than in a sentence: `TARGETSHARE`
@@ -873,10 +989,10 @@ calibration touches it.
 
 | POS | TARGETSHARE | VORSHARE |
 | --- | --- | --- |
-| WR | 33.5 | 23.8 |
-| RB | 32.3 | 37.0 |
+| WR | 33.5 | 22.9 |
+| RB | 32.3 | 36.9 |
 
-Receiver is bought a third above what it is worth and running back at about nine tenths of it. Named by
+Receiver is bought nearly half again above what it is worth and running back at about seven eighths of it. Named by
 position rather than by player for the reason [STRATEGY.md](../STRATEGY.md#what-the-board-carries) gives about
 ranks: a position is on a figure that is committed and checked, where the two players this paragraph used
 to name were on a board that is regenerated and never kept — and both of their numbers had gone stale.
@@ -922,9 +1038,11 @@ level carries a standard error of seven to nine points:
 QB10 and QB11 are half a point apart on estimates carrying seven. That is not a claim about which is
 better; it is the curve saying it cannot separate them.
 
-Two things then amplify a point of noise into dollars, and both are worst at quarterback. Superflex starts
-20 of them, so replacement sits at QB20 and value is a small difference against a large number. Then
-`PRICE_STEEPNESS` for QB, at 1.44, is the steepest of any position and stretches that again.
+What then amplifies a point of noise into dollars is worst at quarterback: superflex starts 20 of them, so
+replacement sits at QB20 and value is a small difference against a large number. `PRICE_STEEPNESS` used to
+be blamed for a second helping of it, quarterback being carried at 1.44 and read as the steepest position on
+the board. It is not — refitted from the record it comes out at 1.01, which stretches nothing — so the
+amplification here is replacement alone, and it is enough on its own.
 
 `TIER` says so directly. Lawrence, Prescott and Mahomes all come out tier 5, priced $34, $34 and $30, and
 the spread between them should be read as nothing at all.
@@ -1355,12 +1473,13 @@ reached which pick, not a claim that waiting improves the board.
 | --- | --- |
 | RANKED | 117 |
 | TOPTEN | 9 |
-| SURPLUS | 1221 |
-| DEFERRED | 1074 |
+| SURPLUS | 1327 |
+| DEFERRED | 1163 |
 | SALARY | 30 |
 
-Nine rookies expected to go inside the first ten picks, costing $30 between them, holding $1,221 of surplus
-over their contracts — of which **$1,074, or 88%, arrives after the season the pick is spent in**.
+Nine rookies expected to go inside the first ten picks, costing $30 between them, holding $1,327 of
+surplus over their contracts — of which **$1,163, or 88%, arrives after the season the pick is spent
+in**.
 
 That figure is the whole case for the rookie board. It is the part of a pick that no auction dollar can buy
 at any price, and pricing a rookie on his first season would report a tenth of it.
@@ -1495,7 +1614,7 @@ anything — a dead constant that looked live, and which cost an afternoon of mi
 
 | POS | SHARE | TARGETSHARE | PRICEDDEPTH | SEASONS | LOST | P10 | P90 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| PK | 1.2 | 1.0 | 25 | 225 | 11 | 0.36 | 1.41 |
+| PK | 1.5 | 1.0 | 25 | 225 | 11 | 0.36 | 1.41 |
 
 Rank predicts kicker scoring better than the position's reputation suggests. Over 2017-2025 the preseason
 PK1 finished inside the top ten kickers in **every one of the nine seasons**, and the curve separates the
@@ -1530,15 +1649,15 @@ any calibration touches it, which is what makes the pair worth reading:
 
 | POS | TARGETSHARE | VORSHARE |
 | --- | --- | --- |
-| QB | 23.7 | 24.8 |
-| RB | 32.3 | 37.0 |
-| WR | 33.5 | 23.8 |
-| TE | 9.4 | 8.3 |
-| PK | 1.0 | 6.2 |
+| QB | 23.7 | 25.6 |
+| RB | 32.3 | 36.9 |
+| WR | 33.5 | 22.9 |
+| TE | 9.4 | 8.1 |
+| PK | 1.0 | 6.6 |
 
-Kicker is out by a factor of nearly six and nothing else is out by a factor at all. Quarterback and running
-back are bought at about nine tenths of their worth; receiver is bought a third above it and **tight end
-two fifths above**, which is the same mispricing
+Kicker is out by a factor of nearly seven and nothing else is out by a factor at all. Quarterback is bought
+at about nine tenths of its worth and running back at seven eighths; receiver is bought nearly half again
+above it and **tight end a sixth above**, which is the same mispricing
 [§5](#5-pulled-towards-how-this-league-actually-bids) reports from the price side. This sentence had tight
 end the wrong way round for as long as it has existed, saying a third below where the two columns beside it
 have always said above — which is what a figure nothing recomputed buys you even when the figure itself is
@@ -1624,17 +1743,221 @@ answer is always no, and `RFRCOST` shows what the right to match costs an outsid
 The caveat: acquisition price assumes the incumbent values him the same as the league does, which is least
 true exactly when it matters — a team with no starting quarterback will overpay to keep one.
 
+### How steeply the league bids, which is fitted and not chosen
+
+`PRICE_STEEPNESS` bends each position's price curve to how steeply this league actually bids within it, and
+it is the one number in the chain that was fitted once and then left. It was fitted against a value column
+the model has since changed twice; nothing recomputed it, and by the time anything looked it was half a gamma
+from what the record said.
+
+**The estimator is the pricing arithmetic read backwards, not a preference.** [§5](#5-pulled-towards-how-this-league-actually-bids)
+sets a position's shares proportional to `value^gamma`, renormalises them to that position's own total, and
+prices each player at `1 + rate × share`. Taking logs of the part above the reserved minimum bid,
+`log(paid − 1) = a + gamma × log(value)`, and the slope of that line **is** gamma. Nothing is searched for,
+and nothing depends on the model's own pot — which matters, because that pot runs 6% to 11% under what the
+league spent, and an estimator built on dollar error would quietly bend gamma to absorb it. Level is not
+gamma's job.
+
+**A dollar signing is a censored observation, not a cheap one.** Half the kickers and a quarter of the tight
+ends go at the minimum bid, which says only that the market cleared them somewhere below it. Fitting over the
+rest alone is selection on the outcome and reads a steep market as a flat one — worth 0.2 to 0.3 of gamma at
+every position that carries money, which is larger than the corrections it would then be hiding. So they are
+kept, and enter the likelihood as the bound they are.
+
+<!-- figures: fuad/steepness -->
+
+| POS | SIGNINGS | CENSORED | GAMMA | SIGMA | INFORCE |
+| --- | --- | --- | --- | --- | --- |
+| QB | 45 | 3 | 1.01 | 0.88 | 1.01 |
+| RB | 62 | 6 | 1.19 | 0.84 | 1.19 |
+| WR | 76 | 12 | 1.08 | 1.15 | 1.08 |
+| TE | 33 | 8 | 0.87 | 1.29 | 0.87 |
+| PK | 30 | 15 | 0.58 | 0.79 | 0.58 |
+
+`GAMMA` is recomputed from the record whenever the figures are; `INFORCE` is what the model carries. **The
+point of the pair is that they can disagree**, and `AuctionValuationSpec` fails when they do, so a change to
+the value column cannot silently leave the steepness behind again.
+
+**Quarterback used to sit at 1.44 and tight end at 1.51**, and the documentation explained the first as this
+league paying a premium for an elite starter under superflex. The record does not support it: at 1.01,
+quarterback is bid almost exactly in line with value, and **running back is the steepest position this league
+bids**. Correcting the five constants improved the board against every season on record —
+
+| | MAE before | after |
+| --- | --- | --- |
+| 2022, held out of the fit | 9.15 | 8.77 |
+| 2023 | 7.65 | 7.40 |
+| 2024 | 7.77 | 7.61 |
+| 2025 | 7.85 | 7.60 |
+
+— and the season that gained most is the one the fit never saw, which is the only evidence here that is not
+in sample. What it does not fix is the level: `BIAS` is unchanged in sign and size, because gamma moves money
+inside a position and never into one.
+
+**What the fit cannot see is the tag.** The best players at a position are held below open bidding and never
+appear as a signing, so the steepest part of every curve is fitted where the market was allowed to operate
+and extrapolated over where it was not. That is the same censoring as the minimum bid at the other end of the
+board, and unlike the minimum bid it is not handled — there is no bound to give the likelihood, because a
+tagged player reveals nothing about what he would have fetched.
+
+## How close the board comes to what was paid
+
+Everything above says what the model believes. This says whether the belief resembled an auction, which is a
+different question and until recently was not asked anywhere. `check_docs.sh` holds this document to the
+figures and `check_strategy.sh` holds a plan to its board; both ask whether the model agrees with itself.
+Nothing held the board to the record, and the cost of that turned up twice in one afternoon — a repricing
+that made the board measurably worse went unnoticed until somebody thought to look, and `PRICE_STEEPNESS`, a
+constant fitted once and offline, turned out to be worth more accuracy than the repricing cost. See
+[TODO.md](../TODO.md).
+
+Every superflex season is priced and joined to what each player really went for. **The join is on the MFL id
+and never on a name**, so a board row and a roster row are the same player by construction, and a fall in
+`PRICED` means the pool has stopped covering the auction rather than that name matching has drifted:
+
+<!-- figures: fuad/accuracy key=SEASON+POS -->
+
+| SEASON | POS | SIGNINGS | PRICED | PAID | COST | MAE | BIAS | RHO | NAIVE |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2022 | ALL | 68 | 66 | 1416 | 1253 | 8.83 | -2.47 | 0.809 | 9.55 |
+| 2023 | ALL | 86 | 83 | 1801 | 1606 | 7.36 | -2.35 | 0.836 | 7.79 |
+| 2024 | ALL | 83 | 79 | 1787 | 1676 | 7.51 | -1.41 | 0.844 | 7.57 |
+| 2025 | ALL | 88 | 84 | 2103 | 1857 | 7.57 | -2.93 | 0.883 | 7.66 |
+
+`MAE` is the headline: the board is out by seven or eight dollars a player. `RHO` says the ordering is
+better than the dollars — around 0.86, so the board knows who is expensive and is less sure how expensive.
+
+**Seven dollars is neither good nor bad until something else has tried the same signings.** `NAIVE` is that
+something: each player predicted as the median this league paid at his position and within six ranks of his,
+over its **other** seasons. It needs no model at all — no curve, no replacement level, no value over
+replacement — and it is the first thing anybody would try instead.
+
+**The board beats it in every season — by 0.06 in 2024 and 0.09 in 2025 — and loses to it at two positions
+out of five.** Read down the positional rows rather than the `ALL` ones, because the whole of the board's
+advantage is at one position:
+
+<!-- figures: fuad/accuracy key=SEASON+POS -->
+
+| SEASON | POS | PRICED | MAE | NAIVE |
+| --- | --- | --- | --- | --- |
+| 2023 | QB | 15 | 4.87 | 7.67 |
+| 2023 | RB | 19 | 8.89 | 7.13 |
+| 2024 | RB | 23 | 11.17 | 9.39 |
+| 2025 | RB | 20 | 7.05 | 6.83 |
+| 2025 | WR | 29 | 6.34 | 5.47 |
+
+Pooled over the four seasons the board is 9.09 against the rank median's 12.36 at quarterback and 7.07
+against 8.10 at tight end, and **7.70 against 8.85 at running back and 8.73 against 9.22 at receiver, the
+wrong way round**. Running back it loses in all four seasons, receiver in three of four. Those two positions
+carry 173 of the 312 signings and about two thirds of the money.
+
+That is not a floor and it is not noise: a rule with no model in it prices this league's backs and receivers
+better than the model does, by more than any lever below is worth. What the board is buying with all its
+machinery is quarterback, where consensus rank and a curve beat the league's own history by three dollars a
+player, and where superflex makes replacement level the whole question. **This is the open finding on the
+board and it is recorded as one** — see [TODO.md](../TODO.md).
+
+**What the error is made of, and why almost none of it is reachable.** The market prices two players of the
+same worth about a factor of two apart — that is `SIGMA` on the steepness figure, 0.88 to 1.29 in log
+dollars — so most of `MAE` is the auction's own scatter rather than anything the model decides. Every lever
+in the chain has been measured against it:
+
+<!-- model: b692f07 -->
+
+| lever | worth | how it was measured |
+| --- | --- | --- |
+| the pot, and `SPEND_RATE` behind it | nothing | the best single multiplier on every price is 1.00 |
+| `MARKET_SHARE` | 0.40 | hand the board each season's actual positional spend |
+| `PRICE_STEEPNESS` | 0.54 | the best gamma per season **and** position, fitted on the answer |
+| the priced depth | negative | trimming the deep end and giving its money to the top |
+| the franchise tag | nothing | tagged signings carry 9% of the error at a below-average 7.35 |
+
+Those five are counterfactual runs rather than model output, so unlike everything else here they are
+remembered rather than regenerated, and the stamp above says which model they were taken against.
+
+Two of those are ceilings rather than gains: they are what perfect hindsight on a season would buy, and
+nothing can be fitted to a season before it happens. **So no lever inside the pricing chain returns much**,
+and differences of a tenth or two between one model and another — the scale everything on this branch moved
+by — sit inside what these five can reach.
+
+What that does not mean is that the board is as good as it can be. The lever table asks what the *price
+transform* can still win, given the value column it is handed. `NAIVE` asks a different question and answers
+it less comfortably: at running back and receiver the value column itself is the thing losing to a rule that
+does not have one.
+
+**The bias is not a level error, which is worth saying because it looks like one.** `BIAS` is negative in
+every season, and yet scaling every price up makes the board worse, not better: the cheap end is
+*over*priced by about five dollars a player and the dear end *under*priced by thirteen. It is a slope, and
+the slope is what `PRICE_STEEPNESS` is already fitted to.
+
+**`BIAS` separates a mis-levelled board from a mis-shaped one.** `COST` totals run under `PAID` in every
+season, by 6% to 11%, which looks like a question for the pot. It is not: see above, where scaling the whole
+board up is measured and makes it worse. The signed error is the average of an overpriced bottom and an
+underpriced top, and the per-player error is far larger than the total error, which is what says most of the
+seven dollars is shape rather than level.
+
+Position by position it is not evenly spread, and quarterback in 2025 is the outlier worth looking at:
+
+<!-- figures: fuad/accuracy key=SEASON+POS -->
+
+| SEASON | POS | SIGNINGS | PRICED | PAID | COST | MAE | BIAS | RHO |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2025 | QB | 17 | 16 | 617 | 440 | 14.06 | -11.06 | 0.816 |
+| 2025 | RB | 22 | 20 | 612 | 615 | 7.05 | 0.15 | 0.904 |
+| 2025 | WR | 30 | 29 | 719 | 629 | 6.34 | -3.10 | 0.895 |
+| 2025 | TE | 11 | 11 | 143 | 160 | 7.36 | 1.55 | 0.614 |
+| 2025 | PK | 8 | 8 | 12 | 13 | 0.63 | 0.13 | 0.130 |
+
+The league paid $617 for the sixteen quarterbacks the board priced and the board said $415. The ordering was
+fine — `RHO` 0.816 — so this is the level at one position in one season, and it is the same turn towards
+quarterback that [§5](#5-pulled-towards-how-this-league-actually-bids) reports from the spend side. Kicker's
+`RHO` of 0.233 is the other end of it: eight signings and almost all of them at the minimum bid, so there is
+barely an ordering to get right.
+
+**`SIGNINGS` is the only column counted over the whole record**, and everything beside it is over `PRICED`.
+A dollar the board never quoted a price for cannot be an error in it, so `PAID` here runs below the same
+season's total in `fuad/spend.tsv` by whatever the pool did not cover — seventeen quarterbacks were signed in
+2025 for $619 and sixteen of them are scored above.
+
+One more caution about the `ALL` row: its `RHO` pools ranks across positions, so it is flattered by how well
+the board separates a quarterback from a kicker, which is largely `MARKET_SHARE` doing its job and is fitted
+on these very seasons. Three of the five positions under it score lower. Read the positional rows for the
+ordering and the `ALL` row for the dollars.
+
+**This is reported and not enforced, and the reason is not timidity.** A threshold would block changes that
+are right as readily as changes that are wrong, and it would be a threshold on a figure that is not out of
+sample: the curve is built from every season the statistics cover whichever season is being priced, so the
+level leaks, and `MARKET_SHARE` and `SPEND_RATE` are fitted on the same seasons the error is measured over.
+It measures **fit, not prediction**. What it is good for is comparing two models, which carry those
+advantages equally — and that is exactly the use it was written for. 2022 is the one season held out of the
+calibration, and it is also the season the league had not yet adjusted to superflex, so it is a weak test
+rather than a clean one.
+
 ## Why the top of the board is not testable against what has been paid
 
-The largest auction price in the record is $100 and the model's top price is $90, which looks like
-agreement and is not evidence of any. **The observed prices are censored by the tag**: the best players are
-tagged at the positional average of last year's top five and never reach open bidding, so the auction has
-essentially never had to price a top-five player. The one time it nearly did, Lamar Jackson in 2025, the
-winning team paid $100 *and* gave up a first round pick, so even that understates what he cost.
+The largest auction price in the record is $100 and the model's top price is $104. Neither the agreement
+this looked like when the model's figure was $90 nor the disagreement it looks like now is evidence of
+anything. **The observed prices are censored by the tag**: the best players are tagged at the positional
+average of last year's top five and never reach open bidding, so the auction has essentially never had to
+price a top-five player. The one time it nearly did, Lamar Jackson in 2025, the winning team paid $100 *and*
+gave up a first round pick, so even that understates what he cost.
 
-What can be checked is concentration rather than level: the board puts 89% of the pot in its top 40 against
-87% in 2025. The top prices themselves remain willingness to pay rather than clearing prices — an auction
-settles at what the *second* bidder will go to — and the tag keeps that question unanswerable either way.
+<!-- figures: fuad/board -->
+
+| FIGURE | VALUE |
+| --- | --- |
+| TOPPRICE | 105 |
+| TOP40PRICE | 82.9 |
+
+What can be checked is concentration rather than level, and it is checked against 87% in 2025: `TOP40PRICE`
+is generated rather than quoted, so it moves in the commit that moves it. It has been on both sides of the
+record — a point above before ranks were given their own outcome spread, and four under once
+that and the steepness refit had both landed, each of them spreading money down the board. That is a wider
+gap than this figure has carried before and it is the one place the two changes visibly cost something, set
+against an accuracy measured player by player that both of them improved; see
+[how close the board comes to what was paid](#how-close-the-board-comes-to-what-was-paid), which is the
+better instrument now that there is one. The top prices themselves remain willingness to pay rather than
+clearing prices — an auction settles at what the *second* bidder will go to — and the tag keeps that
+question unanswerable either way.
 
 ## Provenance
 

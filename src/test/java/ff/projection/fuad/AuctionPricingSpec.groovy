@@ -75,26 +75,30 @@ class AuctionPricingSpec extends Specification {
      * behaviour inside a position quietly deciding how much of the pot the position gets.
      *
      * Asserted on two positions given <b>the same curve</b>, so every difference between them is the
-     * steepness, quarterback being much the steeper of the two — the fitted figures are GAMMA on
-     * docs/figures/fuad/&lt;year&gt;/positions.tsv. Their money then has to divide as their target shares do and
-     * in no other proportion.
+     * steepness. Which two is taken from {@link AuctionValuation#PRICE_STEEPNESS} rather than named here:
+     * the constants are refitted from the record whenever the value column moves — see
+     * {@link ff.projection.fuad.PriceSteepness} — and a fixture that named quarterback as the steep one
+     * stopped being about steepness at all the first time it was not. Their money then has to divide as
+     * their target shares do and in no other proportion.
      */
     def "each position keeps the share the calibration gave it, however steeply it is bid"() {
-        given: 'two positions with identical curves and identical pools'
-        List<PlayerValuation> board = AuctionValuation.value(curveFor(['QB', 'WR']),
-                new StarterRequirements([QB: 2, WR: 2], [QB: 2, WR: 2], 4, 10),
-                poolOf(['QB', 'WR'], 40), [QB: 500, WR: 500], 10000.0, 80, NO_BYES)
+        given: 'the steepest position the league bids and the flattest, given identical curves and pools'
+        String steep = AuctionSpend.POSITIONS.max { AuctionValuation.PRICE_STEEPNESS[it] }
+        String flat = AuctionSpend.POSITIONS.min { AuctionValuation.PRICE_STEEPNESS[it] }
+        List<PlayerValuation> board = AuctionValuation.value(curveFor([steep, flat]),
+                new StarterRequirements([(steep): 2, (flat): 2], [(steep): 2, (flat): 2], 4, 10),
+                poolOf([steep, flat], 40), [(steep): 500, (flat): 500], 10000.0, 80, NO_BYES)
 
         when:
-        BigDecimal total = moneyAt(board, 'QB') + moneyAt(board, 'WR')
-        BigDecimal targets = AuctionValuation.MARKET_SHARE.QB + AuctionValuation.MARKET_SHARE.WR
+        BigDecimal total = moneyAt(board, steep) + moneyAt(board, flat)
+        BigDecimal targets = AuctionValuation.MARKET_SHARE[steep] + AuctionValuation.MARKET_SHARE[flat]
 
         then: 'the split is the ratio of their targets, not of their steepnesses'
-        (moneyAt(board, 'QB') / total - AuctionValuation.MARKET_SHARE.QB / targets).abs() < 0.005
-        (moneyAt(board, 'WR') / total - AuctionValuation.MARKET_SHARE.WR / targets).abs() < 0.005
+        (moneyAt(board, steep) / total - AuctionValuation.MARKET_SHARE[steep] / targets).abs() < 0.005
+        (moneyAt(board, flat) / total - AuctionValuation.MARKET_SHARE[flat] / targets).abs() < 0.005
 
         and: 'while inside each position the steeper one really is steeper, so this had something to catch'
-        topShare(board, 'QB') > topShare(board, 'WR') + 0.02
+        topShare(board, steep) > topShare(board, flat) + 0.02
     }
 
     /** What the best five at a position hold of that position's money, which is what steepness moves. */
@@ -257,10 +261,15 @@ class AuctionPricingSpec extends Specification {
      * invents a spot that world does not have, reserves a dollar against it and reports the saving a dollar
      * short. A dollar is enough to flip a team sitting on the margin, and flip it back next round.
      *
-     * The board below is that case and nothing else — every player held by his own team, and four spots to
-     * fill between the six teams that want to tag. Counting the world's spots by adding one instead, this
-     * board never settles inside the loop's rounds; boards of the same kind traced out past them are found
-     * to cycle rather than to be converging slowly, one team flipping in and out without end.
+     * The board below is that case and nothing else — every player held by his own team, and far more teams
+     * that would tag than spots to fill. Counting the world's spots by adding one instead, this board never
+     * settles inside the loop's rounds; boards of the same kind traced out past them are found to cycle
+     * rather than to be converging slowly, one team flipping in and out without end.
+     *
+     * The franchise salary is set well under what the pool is worth so that the situation is structural
+     * rather than marginal. It used to sit a dollar above, where a handful of players cleared it, and a
+     * refit of {@link AuctionValuation#PRICE_STEEPNESS} that flattened quarterback took the count to none —
+     * leaving a test that passed on a board with no tags on it at all to check.
      */
     def "a board with more tags than roster spots left still settles"() {
         given:
@@ -274,7 +283,7 @@ class AuctionPricingSpec extends Specification {
             board = AuctionValuation.value(curveFor(['QB']),
                     new StarterRequirements([QB: 2], [QB: 2], 2, 10),
                     poolOf(['QB'], 25) { int rank -> "f$rank".toString() },
-                    [QB: 6], 120.0, 4, NO_BYES)
+                    [QB: 4], 120.0, 4, NO_BYES)
         } finally {
             System.err = original
         }
@@ -369,16 +378,25 @@ class AuctionPricingSpec extends Specification {
      * of the top five at that position last season — is what the board already knows about the top of a
      * position, and it is what the right of first refusal is allowed to add and no more.
      *
+     * <b>Priced at the flattest position the league bids</b>, because that is where the bound has anything
+     * to do. Value is taken on raw worth and the market price on the steepened share, so the gap between
+     * them opens where steepening moves money away from the top — which is where gamma is furthest below
+     * one. Named by that rather than by position: this was pinned to quarterback, and a refit that took
+     * quarterback to almost exactly one closed the gap to a dollar and left the bound with nothing to bind.
+     * Kicker is flatter still and is excluded, its depth being capped shallower than this fixture is deep.
+     *
      * The board is held by one team so that a franchise salary this cheap tags one player rather than the
      * whole pool. That team then holds two tag candidates, which is the case {@code warnUnsettled} exists
      * for, so the warning this prints on stderr is the expected one.
      */
     def "the right to match can add no more than the top of a position"() {
         given: 'the whole board held by one team, which has one tag, so a cheap tag cannot empty the auction'
-        List<PlayerValuation> held = AuctionValuation.value(curveFor(['QB']),
-                new StarterRequirements([QB: 2], [QB: 2], 2, 10),
-                poolOf(['QB'], 45) { int rank -> 'f1' },
-                [QB: TOP_OF_POSITION], 2438.0, 60, NO_BYES)
+        String flattest = (AuctionSpend.POSITIONS - PointsCurve.DEPTH_CAP.keySet())
+                .min { AuctionValuation.PRICE_STEEPNESS[it] }
+        List<PlayerValuation> held = AuctionValuation.value(curveFor([flattest]),
+                new StarterRequirements([(flattest): 2], [(flattest): 2], 2, 10),
+                poolOf([flattest], 45) { int rank -> 'f1' },
+                [(flattest): TOP_OF_POSITION], 2438.0, 60, NO_BYES)
 
         expect: 'the right to match adds something, but never more than the position is worth at its top'
         held.every { it.restrictionPremium >= 0 && it.restrictionPremium <= TOP_OF_POSITION }

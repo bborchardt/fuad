@@ -2,6 +2,8 @@ package ff.print.figures.fuad
 
 import ff.data.FranchiseTag
 import ff.data.PlayerValuation
+import ff.projection.fuad.AuctionAccuracy
+import ff.projection.fuad.PriceSteepness
 import ff.projection.fuad.AuctionSpend
 import ff.projection.fuad.AuctionValuation
 import ff.projection.ByeWeeks
@@ -76,9 +78,16 @@ class ModelFiguresPrinter {
      * given up on is not a figure anything should be citing. {@code PPG} is the levelled rate, so
      * {@code PPG * G} lands on {@code PTS} — the board reports it that way and a reader who multiplies two
      * columns has to arrive at the third.
+     *
+     * {@code SEASONS}, {@code SPREAD}, {@code LOW} and {@code HIGH} are the rank's outcome window: how many
+     * realised seasons stand behind its spread, how widely their rates scatter, and the range the board
+     * quotes from them. They are per rank because the spread is — see
+     * {@link ff.projection.PointsCurve#OUTCOME_RADIUS} — and reading {@code SPREAD} down a position beside
+     * {@code G} is the evidence that it had to be: both move, and they move together.
      */
     void printCurve(PrintWriter out) {
-        out.println(['POS', 'RANK', 'PTS', 'PPG', 'G', 'SE', 'TIER', 'VOR', 'VOREXP'].join('\t'))
+        out.println(['POS', 'RANK', 'PTS', 'PPG', 'G', 'SE', 'TIER', 'VOR', 'VOREXP', 'SEASONS', 'SPREAD',
+                     'LOW', 'HIGH'].join('\t'))
         POSITIONS.findAll { curve.pricedDepth(it) > 0 }.each { String position ->
             (1..curve.pricedDepth(position)).each { int rank ->
                 out.println([
@@ -93,8 +102,89 @@ class ModelFiguresPrinter {
                                 .setScale(1, RoundingMode.HALF_UP),
                         ExpectedValue.valueOverReplacementAtExpectation(curve, replacement, position, rank, byes)
                                 .setScale(1, RoundingMode.HALF_UP),
+                        curve.outcomeSample(position, rank),
+                        curve.outcomeVariation(position, rank).setScale(2, RoundingMode.HALF_UP),
+                        curve.outcomePercentile(position, rank, ExpectedValue.LOW_OUTCOME)
+                                .setScale(2, RoundingMode.HALF_UP),
+                        curve.outcomePercentile(position, rank, ExpectedValue.HIGH_OUTCOME)
+                                .setScale(2, RoundingMode.HALF_UP),
                 ].join('\t'))
             }
+        }
+    }
+
+    /**
+     * How close the board came to what the league actually paid, a season and a position at a time.
+     *
+     * <b>The one figure here that is not about the model's own consistency.</b> Every other table says what
+     * the model believes; this one says whether the belief resembled an auction. It is written because the
+     * absence of it let two things pass unnoticed at once — a repricing that made the board measurably worse,
+     * and a constant fitted offline that was worth more accuracy than the repricing cost. See docs/TODO.md.
+     *
+     * {@code MAE} is the headline and {@code BIAS} is what tells a mis-levelled board from a mis-shaped one:
+     * the model runs uniformly under what was paid, which is a question for the pot rather than for the
+     * curve. {@code RHO} asks the different question of whether the ordering was right, and is blank where
+     * there is no ordering to score rather than zero, which would read as having failed at one.
+     *
+     * <b>{@code SIGNINGS} is the only column counted over the whole record.</b> {@code PAID}, {@code COST}
+     * and both errors are taken over the {@code PRICED} rows, because a dollar the board never quoted a
+     * price for cannot be an error in it — which also means {@code PAID} here is below the same season's
+     * total in fuad/spend.tsv by whatever the pool did not cover.
+     *
+     * <b>{@code NAIVE} is what makes {@code MAE} readable.</b> Seven dollars of error is neither good nor
+     * bad until something else has tried the same 312 signings: it is the same players predicted from what
+     * this league paid at the same rank in its <b>other</b> seasons, which is the most obvious alternative
+     * to a model and the one a reader would otherwise assume was better. See {@link AuctionAccuracy.Fit}.
+     *
+     * <b>It is reported and not enforced.</b> A threshold on an in-sample figure over a couple of hundred
+     * signings would block changes that are right as readily as changes that are wrong, and this is measured
+     * over seasons the calibration was itself fitted on. It belongs in a reader's hands, beside the caveats
+     * on {@link AuctionAccuracy}.
+     */
+    static void printAccuracy(PrintWriter out, List<AuctionAccuracy.Fit> fits) {
+        out.println(['SEASON', 'POS', 'SIGNINGS', 'PRICED', 'COVERAGE', 'PAID', 'COST', 'MAE', 'BIAS',
+                     'RHO', 'NAIVE'].join('\t'))
+        fits.each { AuctionAccuracy.Fit fit ->
+            out.println([
+                    fit.season,
+                    fit.position,
+                    fit.signings,
+                    fit.priced,
+                    fit.signings > 0 ? percent((fit.priced as BigDecimal) / fit.signings) : '',
+                    fit.paid.setScale(0, RoundingMode.HALF_UP),
+                    fit.cost.setScale(0, RoundingMode.HALF_UP),
+                    fit.meanAbsolute.setScale(2, RoundingMode.HALF_UP),
+                    fit.bias.setScale(2, RoundingMode.HALF_UP),
+                    fit.correlation == null ? '' : fit.correlation.setScale(3, RoundingMode.HALF_UP),
+                    fit.benchmark == null ? '' : fit.benchmark.setScale(2, RoundingMode.HALF_UP),
+            ].join('\t'))
+        }
+    }
+
+    /**
+     * How steeply the league bids within a position, fitted from what it paid, beside the constant in force.
+     *
+     * <b>The point of the pair of columns is that they can disagree.</b> {@code GAMMA} is recomputed from the
+     * record every time the figures are, and {@code INFORCE} is what {@link AuctionValuation#PRICE_STEEPNESS}
+     * carries; a change to the value column moves the first and not the second, which is exactly how the old
+     * constants came to be half a gamma away from what the league was doing. {@code AuctionValuationSpec}
+     * fails when they part, so the disagreement cannot last longer than a commit.
+     *
+     * {@code CENSORED} is what makes the fit worth having rather than a regression: those signings went at
+     * the minimum bid, which says only that the market cleared them below it, and dropping them reads a
+     * steep market as a flat one.
+     */
+    static void printSteepness(PrintWriter out, List<PriceSteepness.Fit> fits) {
+        out.println(['POS', 'SIGNINGS', 'CENSORED', 'GAMMA', 'SIGMA', 'INFORCE'].join('\t'))
+        fits.each { PriceSteepness.Fit fit ->
+            out.println([
+                    fit.position,
+                    fit.signings,
+                    fit.censored,
+                    fit.gamma.setScale(2, RoundingMode.HALF_UP),
+                    fit.sigma.setScale(2, RoundingMode.HALF_UP),
+                    AuctionValuation.PRICE_STEEPNESS[fit.position] ?: '',
+            ].join('\t'))
         }
     }
 
