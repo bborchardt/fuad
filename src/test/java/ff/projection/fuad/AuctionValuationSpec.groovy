@@ -131,8 +131,8 @@ class AuctionValuationSpec extends Specification {
     /**
      * The steepness constants against the record they are supposed to describe.
      *
-     * <b>This is the check that did not exist, and its absence is the whole of docs/TODO.md's second
-     * entry.</b> {@code PRICE_STEEPNESS} was fitted once, by hand, against a value column the model then
+     * <b>This is the check that did not exist, and its absence was an open question until it did.</b>
+     * {@code PRICE_STEEPNESS} was fitted once, by hand, against a value column the model then
      * changed twice; nothing recomputed it, so it drifted half a gamma from what the league was doing and
      * every board since was priced off the drift. {@link AuctionSpend#shareByPosition} has been held to its
      * constant this way for as long as it has existed, and this is the same discipline applied to the other

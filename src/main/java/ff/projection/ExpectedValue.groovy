@@ -178,7 +178,9 @@ class ExpectedValue {
      * the ordering. Availability diverges sharply only at the back of quarterback, which the cap has already
      * settled.
      *
-     * Recorded rather than repaired so the check is not redone. See docs/TODO.md.
+     * Recorded rather than repaired so the check is not redone. What would change the answer is a curve
+     * whose expected games differ materially across the ranks that do compete — worth re-running then,
+     * and not before.
      */
     static Map<String, Integer> startersOf(PointsCurve curve, StarterRequirements requirements) {
         requirements.startersByPosition(curve.positions().collectEntries { String position ->
