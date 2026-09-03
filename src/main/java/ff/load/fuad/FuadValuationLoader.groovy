@@ -58,7 +58,43 @@ class FuadValuationLoader {
      */
     private PointsCurve curve
 
+    /** Finished seasons used to build {@link #curve}; injectable so a historical season can be held out. */
+    private final List<String> curveSeasons
+
+    /** Market-side parameters; the normal board uses the committed measurements. */
+    private final AuctionValuation.Settings pricing
+
     private final Map<String, List<PlayerValuation>> valuationsByYear = [:]
+
+    FuadValuationLoader() {
+        this(null, LEAGUE.seasons, AuctionValuation.productionSettings())
+    }
+
+    /**
+     * Named rather than overloaded, because {@code (List, Settings)} and {@code (PointsCurve, Settings)}
+     * are the same signature to Groovy's dispatcher once the first argument is null.
+     *
+     * {@code new FuadValuationLoader(null, settings)} threw {@code Ambiguous method overloading} at runtime
+     * with nothing to warn at compile time, and callers were writing {@code (PointsCurve) null} to get past
+     * it. Two names cost nothing and cannot be got wrong.
+     */
+    static FuadValuationLoader overSeasons(List<String> curveSeasons, AuctionValuation.Settings pricing) {
+        new FuadValuationLoader(null, curveSeasons, pricing)
+    }
+
+    /** A loader over a curve already built, which is how a fold reuses one across candidates. */
+    static FuadValuationLoader withCurve(PointsCurve curve, AuctionValuation.Settings pricing) {
+        new FuadValuationLoader(curve, LEAGUE.seasons, pricing)
+    }
+
+    private FuadValuationLoader(PointsCurve curve, List<String> curveSeasons,
+                                AuctionValuation.Settings pricing) {
+        this.curve = curve
+        // != null rather than elvis: an empty list is a caller asking for no seasons, and reading it as
+        // "absent" would quietly build the curve from every season instead of none.
+        this.curveSeasons = (curveSeasons != null ? curveSeasons : LEAGUE.seasons).toList().asImmutable()
+        this.pricing = pricing != null ? pricing : AuctionValuation.DEFAULT_SETTINGS
+    }
 
     PointsCurve curve() {
         curve ?: (curve = PointsCurve.of(realisedByRank()))
@@ -106,6 +142,9 @@ class FuadValuationLoader {
     /** When each rookie rank comes off the board, measured over the league's own superflex drafts. */
     private RookieDemand rookieDemand
 
+    /** The unblended value-priced board the rookie model quotes future production against. */
+    private FuadValuationLoader structuralLoader
+
     private final Map<String, List<RookieValue>> rookieValuesByYear = [:]
 
     RookieSeasons rookieSeasons() {
@@ -143,17 +182,27 @@ class FuadValuationLoader {
             return rookieValuesByYear[year]
         }
         ByeWeeks byes = byes(year)
+        List<PlayerValuation> structuralBoard = structuralLoader()
+                .valuations(year, fuadData)
         rookieValuesByYear[year] = RookieValuation.value(
                 rookieSeasons(),
                 rookieOutcomes(),
                 rookieDynastyIndex(),
                 ExpectedValue.replacementLevels(curve(), requirements(year), byes),
-                valuations(year, fuadData),
+                structuralBoard,
                 rookieBaselines(year),
                 rookieDemand().expectedPickByRank(),
                 fuadData.rookieRanks,
                 byeByTeam(year),
                 byes.lastWeek)
+    }
+
+    /**
+     * Rookie value is a claim about what production is worth, not what this league is expected to bid.
+     * Keep it on VOR alone even though the veteran board's market-price column also knows auction history.
+     */
+    private FuadValuationLoader structuralLoader() {
+        structuralLoader ?: (structuralLoader = FuadValuationLoader.withCurve(curve(), AuctionValuation.DEFAULT_SETTINGS))
     }
 
     List<PlayerValuation> valuations(String year, FuadData fuadData) {
@@ -174,7 +223,7 @@ class FuadValuationLoader {
                 LoadUtils.loadJsonResource(LoadUtils.mflPlayersResourcePath(priorYear)) as Map)
 
         valuationsByYear[year] = AuctionValuation.value(curve, requirements, available(year, fuadData),
-                franchiseSalary, freeCapOf(year, league), slotsToFill(year, teams), byes)
+                franchiseSalary, freeCapOf(year, league), slotsToFill(year, teams), byes, pricing)
     }
 
     /**
@@ -260,7 +309,7 @@ class FuadValuationLoader {
 
     /** Every ranked season the curve is built from, restated under this league's rules. */
     private Map<String, Map<Integer, List<RealisedSeason>>> realisedByRank() {
-        RealisedSeasons.byRank(LEAGUE, this.&ranked)
+        RealisedSeasons.byRank(LEAGUE, this.&ranked, curveSeasons)
     }
 
     /**

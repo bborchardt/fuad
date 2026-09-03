@@ -5,13 +5,14 @@ import ff.data.PlayerValuation
 /**
  * How close the board came to what the league actually paid, season by season and position by position.
  *
- * <b>This is the only check the model has that reaches outside itself.</b> {@code check_docs.sh} holds the
+ * <b>This is the join through which the model reaches outside itself.</b> {@code check_docs.sh} holds the
  * prose to the figures and {@code check_strategy.sh} holds a plan to the board it was written from; both ask
  * whether the model is consistent with itself. Nothing asked whether the board resembles an auction, and the
  * cost of that showed up twice in one afternoon: a repricing that made the board measurably worse went
  * unnoticed until somebody thought to look, and {@link AuctionValuation#PRICE_STEEPNESS} — a constant fitted
  * once, offline, against a value column the model has since changed twice — turned out to be worth more
- * accuracy than the repricing cost. See docs/TODO.md.
+ * accuracy than the repricing cost. {@link AuctionStudy} now uses the same join with each target season
+ * absent from the inputs behind its board.
  *
  * <b>Joined on the MFL id, never on a name.</b> A board row and a roster row carry the same identifier, so
  * the two are the same player by construction. Every other join in this project matches consensus names to
@@ -22,12 +23,11 @@ import ff.data.PlayerValuation
  * franchise tag has held the very best players below open bidding. It is the column the record can speak to;
  * {@code PRICE} is what the auction would have settled at for players it never got to bid on.
  *
- * <b>None of this is out of sample, and no arrangement of nine seasons would make it so.</b> The curve is
+ * <b>The ordinary accuracy table is not out of sample.</b> The curve is
  * built from every season the statistics cover whichever season is being priced, so the level leaks;
  * {@link AuctionSpend#CALIBRATED_SEASONS} are fitted on and then scored on. It measures fit, not prediction,
- * and a comparison between two models is fair where an absolute figure is flattered. 2022 is the one season
- * held out of the calibration and it is also the season the league had not yet adjusted to superflex, so it
- * is a weak test rather than a clean one.
+ * and a comparison between two models is fair where an absolute figure is flattered. Use
+ * {@link AuctionStudy} for the comparison in which the target is removed from every fitted input.
  */
 class AuctionAccuracy {
 
@@ -36,6 +36,34 @@ class AuctionAccuracy {
 
     /** The row a position, or a whole season, comes out at. */
     static final String ALL = 'ALL'
+
+    /** One joined signing, retained so aggregate error can be diagnosed without rebuilding the join. */
+    static class Observation {
+        final String season
+        final String position
+        final int rank
+        final boolean resigned
+        final BigDecimal paid
+        final BigDecimal board
+        final BigDecimal benchmark
+
+        Observation(String season, String position, int rank, boolean resigned, BigDecimal paid,
+                    BigDecimal board, BigDecimal benchmark) {
+            this.season = season
+            this.position = position
+            this.rank = rank
+            this.resigned = resigned
+            this.paid = paid
+            this.board = board
+            this.benchmark = benchmark
+        }
+
+        BigDecimal getBoardError() { (board - paid).abs() }
+        BigDecimal getBenchmarkError() { benchmark == null ? null : (benchmark - paid).abs() }
+        BigDecimal getPairedDifference() {
+            benchmarkError == null ? null : boardError - benchmarkError
+        }
+    }
 
     /** How one position of one season came out. */
     static class Fit {
@@ -131,6 +159,20 @@ class AuctionAccuracy {
         }
     }
 
+    /** Every signing behind {@link #of(Map)}, carrying both predictions on the same row. */
+    static List<Observation> observations(Map<String, List<PlayerValuation>> boardsBySeason) {
+        boardsBySeason.collectMany { String season, List<PlayerValuation> board ->
+            Map<String, PlayerValuation> priced = board.collectEntries { [(it.playerId): it] }
+            List<List> elsewhere = historyFrom(boardsBySeason.findAll { it.key != season })
+            AuctionSpend.signings(season).findAll { priced[it.playerId] != null }.collect { signing ->
+                PlayerValuation valuation = priced[signing.playerId]
+                new Observation(season, signing.position, valuation.positionRank, signing.resigned,
+                        signing.paid, valuation.salary as BigDecimal,
+                        historyOf(elsewhere, signing.position, valuation.positionRank))
+            }
+        }
+    }
+
     /**
      * One season's board against one season's signings.
      *
@@ -146,11 +188,7 @@ class AuctionAccuracy {
         List<AuctionSpend.Signing> signings = AuctionSpend.signings(season)
         // Every other season's signings, each carrying the rank it held that year, which is what makes the
         // benchmark a claim about a rank rather than about a position.
-        List<List> elsewhere = against.collectMany { String at, List<PlayerValuation> other ->
-            Map<String, Integer> rankById = other.collectEntries { [(it.playerId): it.positionRank] }
-            AuctionSpend.signings(at).findAll { rankById[it.playerId] != null }
-                    .collect { [it.position, rankById[it.playerId], it.paid] }
-        }
+        List<List> elsewhere = historyFrom(against)
         Map<String, List<List<BigDecimal>>> joined = [:].withDefault { [] }
         Map<String, List<List<BigDecimal>>> naive = [:].withDefault { [] }
         Map<String, Integer> counted = [:].withDefault { 0 }
@@ -172,6 +210,14 @@ class AuctionAccuracy {
         fits + [fitOf(season, ALL, (counted.values().sum() ?: 0) as int,
                 joined.values().collectMany { it } as List<List<BigDecimal>>,
                 naive.values().collectMany { it } as List<List<BigDecimal>>)]
+    }
+
+    private static List<List> historyFrom(Map<String, List<PlayerValuation>> boards) {
+        boards.collectMany { String at, List<PlayerValuation> other ->
+            Map<String, Integer> rankById = other.collectEntries { [(it.playerId): it.positionRank] }
+            AuctionSpend.signings(at).findAll { rankById[it.playerId] != null }
+                    .collect { [it.position, rankById[it.playerId], it.paid] }
+        }
     }
 
     /**

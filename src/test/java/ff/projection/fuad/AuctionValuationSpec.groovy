@@ -141,9 +141,10 @@ class AuctionValuationSpec extends Specification {
      * Loose enough to survive the sampling error of thirty to seventy signings a position, which is a few
      * hundredths, and far tighter than the gap it exists to catch.
      */
-    def "the steepness constants are what the calibrated seasons actually bid"() {
+    def "the VOR endpoint's steepness constants are what the calibrated seasons actually bid"() {
         given:
-        FuadValuationLoader loader = new FuadValuationLoader()
+        FuadValuationLoader loader = FuadValuationLoader.overSeasons(null,
+                AuctionValuation.DEFAULT_SETTINGS)
         Map<String, List<PlayerValuation>> boards = PriceSteepness.fittedSeasons()
                 .collectEntries { [(it): loader.valuations(it, new FuadLoader().loadData(it))] }
 
@@ -151,6 +152,22 @@ class AuctionValuationSpec extends Specification {
         List<PriceSteepness.Fit> fits = PriceSteepness.of(PriceSteepness.observationsFrom(boards))
 
         then: 'every position the record can speak to is fitted, and the constant is what came out'
+        fits.collect { it.position } as Set == AuctionSpend.POSITIONS as Set
+        fits.every { (it.gamma - AuctionValuation.VOR_STEEPNESS[it.position]).abs() < 0.10 }
+    }
+
+    def "the production steepness constants are fitted to expected points"() {
+        given:
+        FuadValuationLoader loader = FuadValuationLoader.overSeasons(null,
+                AuctionValuation.DEFAULT_SETTINGS)
+        Map<String, List<PlayerValuation>> boards = PriceSteepness.fittedSeasons()
+                .collectEntries { [(it): loader.valuations(it, new FuadLoader().loadData(it))] }
+
+        when:
+        List<PriceSteepness.Fit> fits = PriceSteepness.of(PriceSteepness.observationsFrom(
+                boards, PriceSteepness.fittedSeasons(), { PlayerValuation it -> it.points }))
+
+        then:
         fits.collect { it.position } as Set == AuctionSpend.POSITIONS as Set
         fits.every { (it.gamma - AuctionValuation.PRICE_STEEPNESS[it.position]).abs() < 0.10 }
     }

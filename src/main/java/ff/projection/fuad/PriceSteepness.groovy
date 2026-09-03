@@ -3,21 +3,21 @@ package ff.projection.fuad
 import ff.data.PlayerValuation
 
 /**
- * How much steeper this league bids than value, fitted from what it actually paid.
+ * How much the league stretches a supplied positive signal, fitted from what it actually paid.
  *
  * This is where {@link AuctionValuation#PRICE_STEEPNESS} comes from, and it exists because that constant had
- * nowhere to come from. It was fitted once, by hand, against a value column the model has since changed
+ * nowhere to come from. Its VOR predecessor was fitted once, by hand, against a column the model later changed
  * twice, and nothing recomputed it or could have noticed — {@code check_docs.sh} holds the prose to the
  * figures and {@link AuctionAccuracy} now holds the board to the record, but a number nothing regenerates is
  * outside both. See docs/TODO.md.
  *
  * <b>The estimator is the model's own arithmetic read backwards, not a choice.</b> {@link AuctionValuation}
- * bends a position's shares to {@code share_i ∝ value_i^gamma}, renormalises them to that position's own
+ * bends a position's shares to {@code share_i ∝ signal_i^gamma}, renormalises them to that position's own
  * total, and prices each player at {@code 1 + rate * share_i}. Taking logs of the part above the reserved
  * minimum bid:
  *
  * <pre>
- *     log(paid - 1) = a + gamma * log(value)
+ *     log(paid - 1) = a + gamma * log(signal)
  * </pre>
  *
  * where {@code a} absorbs the clearing rate, the normaliser and the positional calibration together. The
@@ -40,10 +40,10 @@ import ff.data.PlayerValuation
  */
 class PriceSteepness {
 
-    /** One player somebody bid on, and what the board said he was worth. */
+    /** One player somebody bid on, and the positive model signal being fitted. */
     static class Observation {
         final String position
-        /** Value over replacement, which is the quantity {@code steepen} raises to the power of gamma. */
+        /** The quantity {@code steepen} raises to the power of gamma. */
         final BigDecimal value
         /** What he actually went for. */
         final BigDecimal paid
@@ -69,13 +69,26 @@ class PriceSteepness {
         final BigDecimal gamma
         /** The scatter of log price about the fitted line, which says how much of a claim gamma is. */
         final BigDecimal sigma
+        /**
+         * The bottom of the profile-likelihood interval on gamma, which is how much of a claim it really is.
+         *
+         * {@code SIGMA} says how far the signings scatter about the line; this says how far the line itself
+         * could be moved and still describe them. They are different questions and only the second bears on
+         * whether a steepness is worth acting on. See {@link #profileInterval}.
+         */
+        final BigDecimal gammaLow
+        /** The top of the same interval. */
+        final BigDecimal gammaHigh
 
-        Fit(String position, int signings, int censored, BigDecimal gamma, BigDecimal sigma) {
+        Fit(String position, int signings, int censored, BigDecimal gamma, BigDecimal sigma,
+            BigDecimal gammaLow, BigDecimal gammaHigh) {
             this.position = position
             this.signings = signings
             this.censored = censored
             this.gamma = gamma
             this.sigma = sigma
+            this.gammaLow = gammaLow
+            this.gammaHigh = gammaHigh
         }
     }
 
@@ -126,11 +139,14 @@ class PriceSteepness {
      * so he says nothing about the slope and cannot be made to. The log of his value is undefined for the
      * same reason it is uninformative.
      */
-    static List<Observation> observationsFrom(Map<String, List<PlayerValuation>> boardsBySeason) {
-        boardsBySeason.findAll { fittedSeasons().contains(it.key) }
+    static List<Observation> observationsFrom(Map<String, List<PlayerValuation>> boardsBySeason,
+                                              Collection<String> seasons = fittedSeasons(),
+                                              Closure<BigDecimal> valueOf =
+                                                      { PlayerValuation it -> it.valueOverReplacement }) {
+        boardsBySeason.findAll { seasons.contains(it.key) }
                 .collectMany { String season, List<PlayerValuation> board ->
                     Map<String, BigDecimal> worth = board.collectEntries {
-                        [(it.playerId): it.valueOverReplacement]
+                        [(it.playerId): valueOf(it)]
                     }
                     AuctionSpend.signings(season)
                             .findAll { worth[it.playerId] != null && worth[it.playerId] > 0 }
@@ -138,21 +154,31 @@ class PriceSteepness {
                 }
     }
 
-    /** One fit per position that has enough signings, and enough of them priced, to make a claim. */
-    static List<Fit> of(List<Observation> observations) {
+    /**
+     * One fit per position that has enough signings, and enough of them priced, to make a claim.
+     *
+     * <b>{@code profiled} is off by default because the interval costs a few hundred ascents a position and
+     * nothing that prices a board wants it.</b> {@link AuctionStudy} refits the steepness once per candidate
+     * per fold and reads only {@code gamma}; the interval is a claim about the constants themselves, so it
+     * is computed where they are reported and nowhere else.
+     */
+    static List<Fit> of(List<Observation> observations, boolean profiled = false) {
         observations.groupBy { it.position }
                 .findAll { String position, List<Observation> at ->
                     at.size() >= MINIMUM_SIGNINGS && at.count { !it.censored } >= MINIMUM_CLEARING_RESERVE
                 }
-                .collect { String position, List<Observation> at -> fitOf(position, at) }
+                .collect { String position, List<Observation> at -> fitOf(position, at, profiled) }
                 .sort { AuctionSpend.POSITIONS.indexOf(it.position) }
     }
 
-    private static Fit fitOf(String position, List<Observation> at) {
+    private static Fit fitOf(String position, List<Observation> at, boolean profiled) {
         double[] start = leastSquares(at)
         double[] fitted = maximise(at, start)
+        double[] interval = profiled ? profileInterval(at, fitted) : null
         new Fit(position, at.size(), at.count { it.censored }, fitted[1] as BigDecimal,
-                fitted[2] as BigDecimal)
+                fitted[2] as BigDecimal,
+                interval == null ? null : interval[0] as BigDecimal,
+                interval == null ? null : interval[1] as BigDecimal)
     }
 
     /**
@@ -255,6 +281,118 @@ class PriceSteepness {
 
     private static final int MAXIMUM_ROUNDS = 2000
     private static final double TOLERANCE = 1e-6d
+
+    /**
+     * Half of the 95% chi-square point on one degree of freedom, which is what a profile interval drops by.
+     *
+     * The interval is every gamma the record cannot reject against the one it likes best: hold gamma at a
+     * trial value, let the intercept and the scatter go wherever they like underneath it, and keep the trial
+     * if the best likelihood it can reach is within this of the unrestricted maximum.
+     */
+    private static final double PROFILE_DROP = 1.920729d
+
+    /** How far either side of the estimate the search will look before reporting the bound as unreached. */
+    private static final double PROFILE_REACH = 8.0d
+
+    /**
+     * The first step out from the estimate, doubled until the drop is passed.
+     *
+     * Geometric rather than fixed because the widths this has to cover span two orders of magnitude — a
+     * well-fitted position bounds gamma inside a tenth, and a position bought at the minimum bid does not
+     * bound it at all — and every step out costs a full ascent over the nuisance parameters.
+     */
+    private static final double PROFILE_STEP = 0.125d
+
+    /**
+     * How far gamma could be moved and still describe these signings, which is not what {@code SIGMA} says.
+     *
+     * <b>A steepness with no interval on it reads as a measurement when it may be an artefact of the range
+     * the market was allowed to operate over.</b> The point estimate is the top of a surface, and the
+     * surface can be almost flat: a position whose signings span a narrow band of the fitted signal
+     * constrains the slope through that band hardly at all, and the estimator will still return a number to
+     * two decimal places. Receiver is the case that motivated this — no signing at the top rank in four
+     * seasons, eight of ninety-nine inside the top five, and the largest exponent on the board.
+     *
+     * The bound is a bisection on the profile rather than a curvature approximation, because the surface is
+     * not symmetric in gamma and the asymmetry is the informative part: the record bounds a steepness from
+     * below far better than from above, the observations that would bound it from above being exactly the
+     * ones the franchise tag removes.
+     *
+     * A bound that reaches {@link #PROFILE_REACH} is returned at the reach and means what it says — that the
+     * signings do not bound gamma on that side at all, and no width should be read into the figure.
+     */
+    private static double[] profileInterval(List<Observation> at, double[] fitted) {
+        double target = logLikelihood(at, fitted[0], fitted[1], fitted[2]) - PROFILE_DROP
+        [profileBound(at, fitted, target, -1.0d), profileBound(at, fitted, target, 1.0d)] as double[]
+    }
+
+    private static double profileBound(List<Observation> at, double[] fitted, double target, double towards) {
+        double inside = fitted[1]
+        double outside = Double.NaN
+        for (double reach = PROFILE_STEP; reach <= PROFILE_REACH; reach *= 2.0d) {
+            double trial = fitted[1] + towards * Math.min(reach, PROFILE_REACH)
+            if (profileAt(at, fitted, trial) < target) {
+                outside = trial
+                break
+            }
+            inside = trial
+        }
+        if (Double.isNaN(outside)) {
+            return inside
+        }
+        for (int halving = 0; halving < PROFILE_HALVINGS; halving++) {
+            double middle = 0.5d * (inside + outside)
+            if (profileAt(at, fitted, middle) < target) {
+                outside = middle
+            } else {
+                inside = middle
+            }
+        }
+        0.5d * (inside + outside)
+    }
+
+    private static final int PROFILE_HALVINGS = 24
+
+    /**
+     * How closely the nuisance ascent is run, which is looser than the fit itself and deliberately so.
+     *
+     * The profile is only ever compared against a target, so it needs enough precision to place the bound
+     * to a hundredth of a gamma and no more. Held to the fit's own tolerance it costs several times as much
+     * and moves no reported figure.
+     */
+    private static final double PROFILE_TOLERANCE = 1e-4d
+
+    /** The best this set of signings can do with gamma held where it is put. */
+    private static double profileAt(List<Observation> at, double[] fitted, double gamma) {
+        double[] best = [fitted[0], gamma, fitted[2]] as double[]
+        double[] step = [1.0d, 0.0d, 0.5d] as double[]
+        double value = logLikelihood(at, best[0], gamma, best[2])
+        for (int round = 0; round < MAXIMUM_ROUNDS; round++) {
+            boolean improved = false
+            for (int parameter : [0, 2]) {
+                for (double direction : [step[parameter], -step[parameter]]) {
+                    double[] trial = best.clone()
+                    trial[parameter] += direction
+                    if (trial[2] <= 0) {
+                        continue
+                    }
+                    double candidate = logLikelihood(at, trial[0], gamma, trial[2])
+                    if (candidate > value) {
+                        value = candidate
+                        best = trial
+                        improved = true
+                    }
+                }
+            }
+            if (!improved) {
+                [0, 2].each { step[it] *= 0.5d }
+                if (Math.max(step[0], step[2]) < PROFILE_TOLERANCE) {
+                    return value
+                }
+            }
+        }
+        value
+    }
 
     /**
      * The standard normal below a point, which is the whole of what a censored signing contributes.
