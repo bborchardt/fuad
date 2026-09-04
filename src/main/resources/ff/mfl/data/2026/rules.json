@@ -3,61 +3,181 @@
     "rules": {
         "positionRules": [
             {
-                "positions": "WR|TE|RB|QB|PK",
+                "rule": {
+                    "event": {
+                        "$t": "CC"
+                    },
+                    "range": {
+                        "$t": "0-99"
+                    },
+                    "points": {
+                        "$t": "*0.5"
+                    }
+                },
+                "positions": "QB|PK|RB|WR"
+            },
+            {
+                "rule": {
+                    "range": {
+                        "$t": "0-99"
+                    },
+                    "points": {
+                        "$t": "*1"
+                    },
+                    "event": {
+                        "$t": "CC"
+                    }
+                },
+                "positions": "TE"
+            },
+            {
                 "rule": [
                     {
+                        "event": {
+                            "$t": "FG"
+                        },
+                        "range": {
+                            "$t": "0-39"
+                        },
                         "points": {
-                            "$t": "*4.5"
+                            "$t": "3"
+                        }
+                    },
+                    {
+                        "range": {
+                            "$t": "40-49"
+                        },
+                        "points": {
+                            "$t": "4"
+                        },
+                        "event": {
+                            "$t": "FG"
+                        }
+                    },
+                    {
+                        "event": {
+                            "$t": "FG"
+                        },
+                        "range": {
+                            "$t": "50-59"
+                        },
+                        "points": {
+                            "$t": "5"
+                        }
+                    },
+                    {
+                        "points": {
+                            "$t": "6"
+                        },
+                        "range": {
+                            "$t": "60-69"
+                        },
+                        "event": {
+                            "$t": "FG"
+                        }
+                    },
+                    {
+                        "event": {
+                            "$t": "FG"
+                        },
+                        "range": {
+                            "$t": "70-79"
+                        },
+                        "points": {
+                            "$t": "7"
+                        }
+                    },
+                    {
+                        "event": {
+                            "$t": "FG"
+                        },
+                        "range": {
+                            "$t": "80-89"
+                        },
+                        "points": {
+                            "$t": "8"
+                        }
+                    },
+                    {
+                        "points": {
+                            "$t": "9"
+                        },
+                        "range": {
+                            "$t": "90-99"
+                        },
+                        "event": {
+                            "$t": "FG"
+                        }
+                    },
+                    {
+                        "event": {
+                            "$t": "EP"
                         },
                         "range": {
                             "$t": "0-10"
+                        },
+                        "points": {
+                            "$t": "*1"
+                        }
+                    }
+                ],
+                "positions": "PK"
+            },
+            {
+                "rule": [
+                    {
+                        "range": {
+                            "$t": "0-10"
+                        },
+                        "points": {
+                            "$t": "*4.5"
                         },
                         "event": {
                             "$t": "#P"
                         }
                     },
                     {
-                        "event": {
-                            "$t": "PY"
-                        },
                         "points": {
                             "$t": "1/30"
                         },
                         "range": {
                             "$t": "-999-999"
+                        },
+                        "event": {
+                            "$t": "PY"
                         }
                     },
                     {
-                        "range": {
-                            "$t": "0-999"
+                        "event": {
+                            "$t": "IN"
                         },
                         "points": {
                             "$t": "*-1"
                         },
-                        "event": {
-                            "$t": "IN"
-                        }
-                    },
-                    {
-                        "event": {
-                            "$t": "P2"
-                        },
-                        "points": {
-                            "$t": "*2"
-                        },
                         "range": {
                             "$t": "0-999"
                         }
                     },
                     {
-                        "event": {
-                            "$t": "#R"
+                        "range": {
+                            "$t": "0-999"
                         },
+                        "points": {
+                            "$t": "*2"
+                        },
+                        "event": {
+                            "$t": "P2"
+                        }
+                    },
+                    {
                         "range": {
                             "$t": "0-10"
                         },
                         "points": {
                             "$t": "*6"
+                        },
+                        "event": {
+                            "$t": "#R"
                         }
                     },
                     {
@@ -83,36 +203,36 @@
                         }
                     },
                     {
-                        "event": {
-                            "$t": "#C"
+                        "range": {
+                            "$t": "0-10"
                         },
                         "points": {
                             "$t": "*6"
                         },
-                        "range": {
-                            "$t": "0-10"
+                        "event": {
+                            "$t": "#C"
                         }
                     },
                     {
-                        "event": {
-                            "$t": "CY"
-                        },
                         "range": {
                             "$t": "-999-999"
                         },
                         "points": {
                             "$t": "*.1"
+                        },
+                        "event": {
+                            "$t": "CY"
                         }
                     },
                     {
-                        "event": {
-                            "$t": "C2"
+                        "points": {
+                            "$t": "*2"
                         },
                         "range": {
                             "$t": "0-999"
                         },
-                        "points": {
-                            "$t": "*2"
+                        "event": {
+                            "$t": "C2"
                         }
                     },
                     {
@@ -127,14 +247,14 @@
                         }
                     },
                     {
-                        "event": {
-                            "$t": "#KT"
-                        },
                         "range": {
                             "$t": "0-10"
                         },
                         "points": {
                             "$t": "*6"
+                        },
+                        "event": {
+                            "$t": "#KT"
                         }
                     },
                     {
@@ -149,25 +269,25 @@
                         }
                     },
                     {
-                        "event": {
-                            "$t": "#DR"
+                        "range": {
+                            "$t": "0-10"
                         },
                         "points": {
                             "$t": "*6"
                         },
-                        "range": {
-                            "$t": "0-10"
+                        "event": {
+                            "$t": "#DR"
                         }
                     },
                     {
-                        "event": {
-                            "$t": "#FR"
-                        },
                         "points": {
                             "$t": "*6"
                         },
                         "range": {
                             "$t": "0-10"
+                        },
+                        "event": {
+                            "$t": "#FR"
                         }
                     },
                     {
@@ -182,149 +302,29 @@
                         }
                     },
                     {
-                        "points": {
-                            "$t": "*6"
+                        "event": {
+                            "$t": "#MF"
                         },
                         "range": {
                             "$t": "0-10"
                         },
-                        "event": {
-                            "$t": "#MF"
+                        "points": {
+                            "$t": "*6"
                         }
                     },
                     {
-                        "range": {
-                            "$t": "0-10"
-                        },
                         "points": {
                             "$t": "*6"
+                        },
+                        "range": {
+                            "$t": "0-10"
                         },
                         "event": {
                             "$t": "#BP"
                         }
                     }
-                ]
-            },
-            {
-                "positions": "PK",
-                "rule": [
-                    {
-                        "range": {
-                            "$t": "0-39"
-                        },
-                        "points": {
-                            "$t": "3"
-                        },
-                        "event": {
-                            "$t": "FG"
-                        }
-                    },
-                    {
-                        "points": {
-                            "$t": "4"
-                        },
-                        "range": {
-                            "$t": "40-49"
-                        },
-                        "event": {
-                            "$t": "FG"
-                        }
-                    },
-                    {
-                        "event": {
-                            "$t": "FG"
-                        },
-                        "range": {
-                            "$t": "50-59"
-                        },
-                        "points": {
-                            "$t": "5"
-                        }
-                    },
-                    {
-                        "range": {
-                            "$t": "60-69"
-                        },
-                        "points": {
-                            "$t": "6"
-                        },
-                        "event": {
-                            "$t": "FG"
-                        }
-                    },
-                    {
-                        "event": {
-                            "$t": "FG"
-                        },
-                        "range": {
-                            "$t": "70-79"
-                        },
-                        "points": {
-                            "$t": "7"
-                        }
-                    },
-                    {
-                        "range": {
-                            "$t": "80-89"
-                        },
-                        "points": {
-                            "$t": "8"
-                        },
-                        "event": {
-                            "$t": "FG"
-                        }
-                    },
-                    {
-                        "event": {
-                            "$t": "FG"
-                        },
-                        "points": {
-                            "$t": "9"
-                        },
-                        "range": {
-                            "$t": "90-99"
-                        }
-                    },
-                    {
-                        "range": {
-                            "$t": "0-10"
-                        },
-                        "points": {
-                            "$t": "*1"
-                        },
-                        "event": {
-                            "$t": "EP"
-                        }
-                    }
-                ]
-            },
-            {
-                "rule": {
-                    "event": {
-                        "$t": "CC"
-                    },
-                    "points": {
-                        "$t": "*0.5"
-                    },
-                    "range": {
-                        "$t": "0-99"
-                    }
-                },
-                "positions": "QB|PK|RB|WR"
-            },
-            {
-                "rule": {
-                    "points": {
-                        "$t": "*1"
-                    },
-                    "range": {
-                        "$t": "0-99"
-                    },
-                    "event": {
-                        "$t": "CC"
-                    }
-                },
-                "positions": "TE"
+                ],
+                "positions": "WR|TE|RB|QB|PK"
             }
         ]
     },
