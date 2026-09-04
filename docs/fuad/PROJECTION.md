@@ -297,9 +297,9 @@ prices with. Read down a position at a time:
 | Rank | QB | WR | RB |
 | --- | --- | --- | --- |
 | 10 | 42.6 | | |
-| 30 | | 14.4 | 16.3 |
-| 38 | | 9.7 | |
-| 48 | | | 7.6 |
+| 30 | | 14.4 | 16.4 |
+| 38 | | 9.9 | |
+| 48 | | | 7.7 |
 
 <!-- figures: fuad/curve across=POS field=VOREXP -->
 
@@ -442,8 +442,8 @@ As priced, which is generated:
 | FIGURE | VALUE | Actual 2025 |
 | --- | --- | --- |
 | Players above $1 | 95 | 70 |
-| Top cost | 72 | $100 |
-| Top 40 cost | 82.7 | 87% |
+| Top cost | 73 | $100 |
+| Top 40 cost | 82.9 | 87% |
 
 <!-- model: 59b4f91 -->
 
@@ -749,11 +749,11 @@ The highest `PRICE` is Ja'Marr Chase, which no one pays because he is tagged wel
 
 | FIGURE | VALUE | Actual 2025 |
 | --- | --- | --- |
-| Players | 105 | |
+| Players | 103 | |
 | Total cost | 1939 | |
-| Top price | 126 | $100 |
+| Top price | 129 | $100 |
 | Players above $1 | 95 | 70* |
-| Top 40 price | 84.5 | 87% |
+| Top 40 price | 84.8 | 87% |
 | Teams tagging | 9 | 7 |
 
 \* Not the same denominator: the model's count is over the priced pool and the league's over signings. Among
@@ -766,11 +766,11 @@ board came out at and `TARGETSHARE` what the calibration aimed for:
 
 | POS | PLAYERS | RESERVE | SHARE | TARGETSHARE |
 | --- | --- | --- | --- | --- |
-| QB | 19 | 0.9 | 23.8 | 23.7 |
+| QB | 19 | 0.9 | 23.9 | 23.7 |
 | RB | 22 | 1.0 | 32.1 | 32.3 |
-| WR | 24 | 1.1 | 33.0 | 33.5 |
-| TE | 22 | 1.0 | 9.7 | 9.4 |
-| PK | 18 | 0.8 | 1.4 | 1.0 |
+| WR | 24 | 1.1 | 32.9 | 33.5 |
+| TE | 21 | 1.0 | 9.7 | 9.4 |
+| PK | 17 | 0.8 | 1.4 | 1.0 |
 
 **Those two columns do not match, and the reason is not a failure of the calibration.** It hits the target
 exactly — the shares of value it hands on are `TARGETSHARE` to the decimal, and bending each position's
@@ -792,7 +792,7 @@ availability raised the top of the board, the best players losing less to the in
 ones did, and taking each rank's outcome spread from its own neighbourhood has since given some of that back
 at the other end: a deep rank's seasons run wider than the position's, and value over replacement is convex,
 so the bench is worth more than one pooled distribution said. Shaping market price directly from points
-pushes back towards the top. The top forty now hold 84.5% of what open bidding would pay against the 87% the
+pushes back towards the top. The top forty now hold 84.8% of what open bidding would pay against the 87% the
 league actually spent in 2025, having been a little over it before these changes.
 That is a point of drift toward a flatter board than the record rather than a steeper one, and it is small
 either way, but it is in the direction the model is least able to check: the tag keeps the very top from
@@ -996,7 +996,7 @@ calibration touches it.
 | POS | TARGETSHARE | VORSHARE |
 | --- | --- | --- |
 | WR | 33.5 | 22.9 |
-| RB | 32.3 | 36.9 |
+| RB | 32.3 | 37.0 |
 
 Receiver is bought nearly half again above what it is worth and running back at about seven eighths of it. Named by
 position rather than by player for the reason [STRATEGY.md](../STRATEGY.md#what-the-board-carries) gives about
@@ -1239,7 +1239,7 @@ and visible before the draft:
 | 2022 | RB6 | WR20 | RB17 | WR28 | WR31 | 20.4 | 31 |
 | 2024 | WR5 | WR9 | WR17 | TE3 | WR30 | 12.8 | 21 |
 | 2025 | RB3 | QB20 | RB6 | WR15 | WR16 | 12.0 | 22 |
-| 2026 | RB4 | QB17 | WR15 | RB21 | WR25 | 16.4 | 1 |
+| 2026 | RB4 | QB17 | WR15 | RB21 | WR24 | 16.2 | 1 |
 
 Those are where each class's five best rookies sat among their **position's** dynasty assets — the same
 consensus, making the cross-class comparison the rookie ranking refuses to make. 2019's best five were the
@@ -1477,14 +1477,14 @@ reached which pick, not a claim that waiting improves the board.
 
 | FIGURE | VALUE |
 | --- | --- |
-| RANKED | 117 |
+| RANKED | 118 |
 | TOPTEN | 9 |
-| SURPLUS | 1327 |
-| DEFERRED | 1163 |
+| SURPLUS | 1284 |
+| DEFERRED | 1130 |
 | SALARY | 30 |
 
-Nine rookies expected to go inside the first ten picks, costing $30 between them, holding $1,327 of
-surplus over their contracts — of which **$1,163, or 88%, arrives after the season the pick is spent
+Nine rookies expected to go inside the first ten picks, costing $30 between them, holding $1,284 of
+surplus over their contracts — of which **$1,130, or 88%, arrives after the season the pick is spent
 in**.
 
 That figure is the whole case for the rookie board. It is the part of a pick that no auction dollar can buy
@@ -1655,13 +1655,13 @@ any calibration touches it, which is what makes the pair worth reading:
 
 | POS | TARGETSHARE | VORSHARE |
 | --- | --- | --- |
-| QB | 23.7 | 25.6 |
-| RB | 32.3 | 36.9 |
+| QB | 23.7 | 25.8 |
+| RB | 32.3 | 37.0 |
 | WR | 33.5 | 22.9 |
-| TE | 9.4 | 8.1 |
-| PK | 1.0 | 6.6 |
+| TE | 9.4 | 8.0 |
+| PK | 1.0 | 6.4 |
 
-Kicker is out by a factor of nearly seven and nothing else is out by a factor at all. Quarterback is bought
+Kicker is out by a factor of more than six and nothing else is out by a factor at all. Quarterback is bought
 at about nine tenths of its worth and running back at seven eighths; receiver is bought nearly half again
 above it and **tight end a sixth above**, which is the same mispricing
 [§5](#5-pulled-towards-how-this-league-actually-bids) reports from the price side. This sentence had tight
@@ -2041,7 +2041,7 @@ first genuinely prospective check remains the completed 2026 auction; see [TODO.
 
 ## Why the top of the board is not testable against what has been paid
 
-The largest auction price in the record is $100 and the model's top price is $126. Neither that difference
+The largest auction price in the record is $100 and the model's top price is $129. Neither that difference
 nor the agreement it would look like after a small move is evidence of
 anything. **The observed prices are censored by the tag**: the best players are tagged at the positional
 average of last year's top five and never reach open bidding, so the auction has essentially never had to
@@ -2052,12 +2052,12 @@ gave up a first round pick, so even that understates what he cost.
 
 | FIGURE | VALUE |
 | --- | --- |
-| TOPPRICE | 126 |
-| TOP40PRICE | 84.5 |
+| TOPPRICE | 129 |
+| TOP40PRICE | 84.8 |
 
 What can be checked is concentration rather than level, and it is checked against 87% in 2025: `TOP40PRICE`
-is generated rather than quoted, so it moves in the commit that moves it. The current 84.5% sits two and a
-half points under the record, set against an accuracy measured player by player that the points signal
+is generated rather than quoted, so it moves in the commit that moves it. The current 84.8% sits just over two
+points under the record, set against an accuracy measured player by player that the points signal
 improves over VOR in held-out folds; see
 [how close the board comes to what was paid](#how-close-the-board-comes-to-what-was-paid), which is the
 better instrument now that there is one. The top prices themselves remain willingness to pay rather than
