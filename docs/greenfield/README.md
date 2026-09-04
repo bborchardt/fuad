@@ -118,8 +118,8 @@ and to what those ranks are worth over the player who would take the slot instea
 
 | Rank | QB | RB | WR | TE |
 | --- | --- | --- | --- | --- |
-| 1 | 71.7 | 103.3 | 108.3 | 72.2 |
-| 15 | 29.5 | 53.1 | 57.1 | 16.9 |
+| 1 | 71.5 | 103.8 | 108.3 | 72.8 |
+| 15 | 29.2 | 52.8 | 57.1 | 16.9 |
 
 Tight ends level identically in both leagues, which is not an error. A tight end scores six a touchdown, a
 tenth a yard and a full point a reception under both rule sets, and neither the passing yardage rate nor the
@@ -317,7 +317,7 @@ league has typically taken him at — its own median over nine drafts, pooled wi
 and not a national number. `VORRANK` is where he sits by worth, so `EDGE` — `ADP` less `VORRANK` — is how
 far this room lets him fall past his value.
 
-The best back is worth 103.3 and goes at pick 2; the best quarterback is worth 71.7 and goes at 34. He is
+The best back is worth 103.8 and goes at pick 2; the best quarterback is worth 71.5 and goes at 34. He is
 worth less and lasts thirty picks longer, and no single column says that.
 
 **A large edge on a small value is still small.** The widest edges belong to defences, which fall seventy
@@ -332,19 +332,19 @@ says a position can wait; it never argues for taking a lesser player. Draft down
 | PLAYER | POS | RANK | VOR | MEASURED | POSVALUE | MEASUREDSURPLUS | POSSURPLUS |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Chris Olave | WR | 10 | 62.9 | 35.2 | 17.0 | 27.7 | 46.0 |
-| Javonte Williams | RB | 16 | 47.5 | 35.2 | 10.4 | 12.3 | 37.1 |
-| Travis Etienne Jr. | RB | 18 | 39.4 | 35.2 | 10.4 | 4.2 | 29.0 |
-| Luther Burden III | WR | 23 | 47.5 | 34.2 | 16.3 | 13.3 | 31.2 |
-| Drake Maye | QB | 3 | 63.9 | 34.9 | 34.6 | 29.0 | 29.3 |
-| Cam Skattebo | RB | 20 | 27.3 | 35.2 | 10.4 | -7.9 | 17.0 |
-| Omarion Hampton | RB | 9 | 77.2 | 73.0 | 68.4 | 4.2 | 8.8 |
-| Kyle Pitts Sr. | TE | 6 | 27.4 | 35.2 | 22.6 | -7.8 | 4.8 |
-| Tucker Kraft | TE | 7 | 24.0 | 34.9 | 22.6 | -10.8 | 1.4 |
-| Jacory Croskey-Merritt | RB | 38 | 11.8 | 34.2 | 10.4 | -22.4 | 1.4 |
-| Trevor Lawrence | QB | 9 | 35.1 | 35.2 | 37.8 | -0.1 | -2.7 |
-| Rashee Rice | WR | 13 | 57.3 | 72.2 | 66.2 | -14.8 | -8.9 |
+| Javonte Williams | RB | 16 | 48.0 | 35.2 | 10.6 | 12.8 | 37.4 |
+| Travis Etienne Jr. | RB | 17 | 45.9 | 35.2 | 10.6 | 10.7 | 35.4 |
+| Luther Burden III | WR | 22 | 48.9 | 34.2 | 16.3 | 14.7 | 32.6 |
+| Drake Maye | QB | 3 | 63.7 | 34.9 | 34.6 | 28.9 | 29.2 |
+| Cam Skattebo | RB | 20 | 27.8 | 35.2 | 10.6 | -7.4 | 17.2 |
+| Tucker Kraft | TE | 6 | 27.4 | 34.9 | 22.2 | -7.4 | 5.3 |
+| Omarion Hampton | RB | 10 | 73.3 | 73.0 | 69.0 | 0.3 | 4.3 |
+| Kyle Pitts Sr. | TE | 7 | 24.0 | 35.2 | 22.2 | -11.2 | 1.9 |
+| Jacory Croskey-Merritt | RB | 39 | 10.3 | 34.2 | 10.6 | -23.9 | -0.2 |
+| Trevor Lawrence | QB | 9 | 34.9 | 35.2 | 37.6 | -0.3 | -2.7 |
+| Rashee Rice | WR | 14 | 57.2 | 72.2 | 66.2 | -15.0 | -9.0 |
 
-**Which column decides depends on whether the keeper is a starter, and the two point opposite ways for four
+**Which column decides depends on whether the keeper is a starter, and the two point opposite ways for three
 of the twelve.**
 
 `MEASURED` prices the forfeited pick at the best player this league has really left on the board there.
@@ -354,9 +354,9 @@ so the best player available is frequently one the owner cannot field. A pick pr
 quarterback nobody can start overstates what was given up by the whole difference.
 
 Cam Skattebo is the case. Priced at what this league has really left on the board at pick 100, which is
-worth 35.2, the measured reading makes keeping him a loss of 7.9. But the best *back* left there is RB40,
-worth 10.4 — and an owner keeping a starting back is choosing between Skattebo and that, not between
-Skattebo and a quarterback he already has. Read positionally he is worth 17.0. Kyle Pitts and Tucker Kraft flip the same way for the same reason.
+worth 35.2, the measured reading makes keeping him a loss of 7.4. But the best *back* left there is RB40,
+worth 10.6 — and an owner keeping a starting back is choosing between Skattebo and that, not between
+Skattebo and a quarterback he already has. Read positionally he is worth 17.2. Kyle Pitts and Tucker Kraft flip the same way for the same reason.
 
 **Trevor Lawrence flips the other way**, and that is the reading working rather than failing. Quarterbacks
 are the one position this league leaves on the board, so QB12 really is there at pick 99 and really is worth
