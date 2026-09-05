@@ -11,8 +11,9 @@ Built for the season being auctioned, and not meant to run on past ones.
 **Every report that quotes a dollar quotes this one.** `rankings` and `franchise_projections` used to carry
 their own column, from a curve fitted straight from positional rank to dollars, so the same player could be
 worth one number on one sheet and another on the next with nothing to say which was meant. That curve is
-gone. `rankings` shows `PRICE`, being the sheet a bid is made from; `franchise_projections` shows `COST`,
-being read a roster at a time. Both are the board's, unchanged.
+gone. `rankings` shows `VALUE` and `PRICE`, headed `V` and `P` where five positions sit side by side, being
+the sheet a bid is made from and needing both halves of that call; `franchise_projections` shows `COST`,
+being read a roster at a time. All of them are the board's, unchanged.
 
 Fitting dollars to rank directly is the obvious alternative, and three things rule it out here. It pools a
 $250 and a $300 cap, and one-quarterback and superflex lineups, as if they were one league. It reads the
