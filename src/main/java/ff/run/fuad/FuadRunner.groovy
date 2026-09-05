@@ -142,14 +142,16 @@ class FuadRunner {
             }]
         }
         if (TYPE_ROOKIES == type) {
-            // Two tables from one evaluation: the players, and the picks they will be taken with. The
-            // second is not a view of the first — a pick has a price whoever is taken with it, and a team
-            // weighing a trade needs that ladder without a player attached to it.
+            // Three tables from one evaluation, because they are read at three different moments. The
+            // picks are not a view of the players — a pick has a price whoever is taken with it, and a team
+            // weighing a trade needs that ladder without a player attached to it — and the draft sheet is
+            // not a view of the board either: it is cut to what a room can read at the pace a draft moves.
             def printer = new FuadRookieDraftPrinter(fuadData,
                     valuationLoader.rookieValues(year, fuadData),
                     valuationLoader.rookieBaselines(year),
                     valuationLoader.rookieDemand().bestAvailableByPick())
-            return [(type)         : { PrintWriter out -> printer.print(out) },
+            return [('rookie_board'): { PrintWriter out -> printer.printBoard(out) },
+                    (type)          : { PrintWriter out -> printer.printDraft(out) },
                     ('rookie_picks'): { PrintWriter out -> printer.printPicks(out) }]
         }
         if (TYPE_SALARIES == type) {

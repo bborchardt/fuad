@@ -130,4 +130,30 @@ class FuadLoaderSpec extends Specification {
         data.rookieRanks[0].player.name == 'Clyde Edwards-Helaire'
         data.rookieRanks[0].draft == new Draft(1, 32)
     }
+
+    def "takes the bye from the ranking that states one, not the export that omits the column"() {
+        given: 'a season whose dynasty export carries no BYE WEEK column at all'
+        FuadData data = new FuadLoader().loadData('2026')
+
+        expect: 'the redraft ranking answers instead, rather than the missing column reading as week 0'
+        data.playerByNameMap['Lamar Jackson'].bye == '13'
+    }
+
+    def "gives a player his team's bye where no ranking carries him"() {
+        given:
+        FuadData data = new FuadLoader().loadData('2026')
+
+        when: 'every player the model carries who has a team to take a bye from'
+        List<FuadPlayer> onATeam = data.playerByNameMap.values().findAll { it.player.team != 'FA' }
+
+        then: 'a bye is a fact of the schedule, so being unranked is no reason to lack one'
+        onATeam.size() > 400
+        onATeam.every { it.bye.isInteger() && (it.bye as int) > 0 }
+
+        and: 'nobody anywhere is left playing week 0, which is the shape the missing column had'
+        data.playerByNameMap.values().every { it.bye != '0' }
+
+        and: 'an unranked free agent has no team to take one from, and says so rather than naming a week'
+        data.playerByNameMap.values().any { it.player.team == 'FA' && it.bye == '?' }
+    }
 }

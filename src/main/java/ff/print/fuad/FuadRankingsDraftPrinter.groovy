@@ -16,14 +16,23 @@ import ff.print.MultiListPrinter
  * player alone so nothing makes the answers add up to the money that exists. Two sheets quoting different
  * numbers for the same player is worse than either, so there is now one price and this reads it.
  *
- * The column is {@code PRICE} — what open bidding is expected to settle at — because this is the sheet a
- * bid is made from. What the team holding him pays instead, where a franchise tag is cheaper, is on the
- * salaries board as {@code COST}.
+ * The dollars are {@code V} and {@code P}, the salaries board's {@code VALUE} and {@code PRICE} under the
+ * short headings a sheet five positions wide can afford. {@code P} is what open bidding is expected to
+ * settle at, and it is here because this is the sheet a bid is made from; {@code V} is what the player is
+ * worth, so the two read together say whether the expected price is one worth paying. What the team holding
+ * him pays instead, where a franchise tag is cheaper, is on the salaries board as {@code COST}.
  *
  * A player the board does not carry prices blank rather than at zero: rookies, who are drafted separately
  * and cannot be bid on, and ranks past the depth the curve still makes a claim at. See docs/fuad/PROJECTION.md.
  */
 class FuadRankingsDraftPrinter {
+
+    /**
+     * One position's block, repeated across the sheet. {@code A} is deliberately empty: the sheet is
+     * imported into a spreadsheet on draft night and the actual price is typed there, beside the price
+     * that was expected. The unheaded column after it separates one position's block from the next.
+     */
+    private static final List<String> COLUMNS = ['D', 'R', 'Player', 'Bye', 'Owner', 'V', 'P', 'A']
 
     private final FuadData fuadData
     private final Map<String, PlayerValuation> valuationByPlayerId
@@ -35,19 +44,20 @@ class FuadRankingsDraftPrinter {
 
     void print(PrintWriter out) {
         def printRank = this.&printRank.curry(out)
-        new MultiListPrinter().printLists(out,
+        List<PrintableList> lists = [
                 new PrintableList(fuadData.qbRanks.findAll { p -> !p.contract }, printRank),
                 new PrintableList(fuadData.rbRanks.findAll { p -> !p.contract }, printRank),
                 new PrintableList(fuadData.wrRanks.findAll { p -> !p.contract }, printRank),
                 new PrintableList(fuadData.teRanks.findAll { p -> !p.contract }, printRank),
                 new PrintableList(fuadData.pkRanks.findAll { p -> !p.contract }, printRank),
-        )
+        ]
+        out.println(lists.collect { COLUMNS.join('\t') }.join('\t\t'))
+        new MultiListPrinter().printLists(out, lists as PrintableList[])
     }
 
-    /** What open bidding is expected to pay, or blank where the board does not price this player. */
-    private String price(FuadPlayer player) {
-        PlayerValuation valuation = player.mflId ? valuationByPlayerId[player.mflId] : null
-        valuation ? valuation.marketSalary as String : ''
+    /** The board's row for this player, or null where it does not carry him. */
+    private PlayerValuation valuation(FuadPlayer player) {
+        player.mflId ? valuationByPlayerId[player.mflId] : null
     }
 
     private void printRank(PrintWriter out, FuadPlayer player) {
@@ -66,10 +76,13 @@ class FuadRankingsDraftPrinter {
                 out.print "$shortName"
             }
             out.print '\t'
-            out.print price(player)
+            PlayerValuation valuation = valuation(player)
+            out.print(valuation ? valuation.value as String : '')
+            out.print '\t'
+            out.print(valuation ? valuation.marketSalary as String : '')
             out.print '\t'
         } else {
-            out.print "\t\t\t\t\t\t"
+            out.print "\t\t\t\t\t\t\t"
         }
     }
 

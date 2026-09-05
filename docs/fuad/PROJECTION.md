@@ -11,8 +11,9 @@ Built for the season being auctioned, and not meant to run on past ones.
 **Every report that quotes a dollar quotes this one.** `rankings` and `franchise_projections` used to carry
 their own column, from a curve fitted straight from positional rank to dollars, so the same player could be
 worth one number on one sheet and another on the next with nothing to say which was meant. That curve is
-gone. `rankings` shows `PRICE`, being the sheet a bid is made from; `franchise_projections` shows `COST`,
-being read a roster at a time. Both are the board's, unchanged.
+gone. `rankings` shows `VALUE` and `PRICE`, headed `V` and `P` where five positions sit side by side, being
+the sheet a bid is made from and needing both halves of that call; `franchise_projections` shows `COST`,
+being read a roster at a time. All of them are the board's, unchanged.
 
 Fitting dollars to rank directly is the obvious alternative, and three things rule it out here. It pools a
 $250 and a $300 cap, and one-quarterback and superflex lineups, as if they were one league. It reads the
@@ -1508,6 +1509,17 @@ So the player sheet carries value and the pick sheet carries price, and they are
 pick he is actually making. That removed four columns — salary, the contract length, the surplus and the
 deferred share — of which three were the same statement about an assumed pick and the fourth was almost
 always five.
+
+**The player sheet then splits again, for the room rather than for the model.** `rookie_board` is everything
+described here. `rookies` is the same evaluation in the same order, cut to what can be read at the pace a
+draft moves — the player, his team and bye, where the NFL took him, his position in value order, the value
+band, his overall consensus rank and the demand — with the draft order beside it and an empty column to
+write who went where. Nothing is computed differently and no figure disagrees; the working simply is not on
+it.
+
+The one column that does differ is `POS`, which on the draft sheet ranks **by value** where the board's
+`FP_ROOKIE` ranks by the consensus. That is the disagreement worth having in front of you: `FP_ROOKIE` says
+where the ranking puts him, and `POS` says who to take.
 
 `VALUE` is taken over the five years a contract can run rather than over the years the model would sign,
 which is a distinction that cost a correction: summed over the recommended length it moved with the pick

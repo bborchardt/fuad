@@ -111,6 +111,20 @@ files, where the positional rank is read from `POS`, and not harmless in the kic
 *is* the positional rank. Ranks are now taken as written. No tab separated export has tier rows at all, so
 nothing before 2026 is affected either way.
 
+### Bye weeks
+
+**Only the redraft export carries a `BYE WEEK` column.** The dynasty export has never had one, and the
+rookie export has none either — a rookie has no team until the NFL draft assigns him one. A missing column
+reads as `0`, which is not a week any season has, so a report that takes a bye from the wrong export shows
+every player on it a bye of zero and nothing says the column is empty rather than wrong. The `rankings`
+sheet did exactly that.
+
+`FuadLoader` therefore takes the bye from whichever ranking states one, and where none does, **from the
+player's team** — a bye is a fact of the schedule and not an opinion about a player, so being unranked is no
+reason to lack one. That join is on the canonical abbreviation, since the league site writes `KCC` and `NEP`
+where the rankings write `KC` and `NE`; see `NflTeams`. Only a free agent, with no team to take one from, is
+left at `?`, which is a different claim from a number and is not written as one.
+
 
 ## Player names
 

@@ -7,6 +7,7 @@ import ff.data.mfl.MflData
 import ff.data.mfl.MflPlayer
 import ff.load.fantasypros.FantasyProsLoader
 import ff.load.mfl.MflLoader
+import ff.load.util.NflTeams
 import ff.load.util.LoadUtils
 
 class FuadLoader {
@@ -36,13 +37,15 @@ class FuadLoader {
                 .loadRankedPlayers(LoadUtils.fpRookieRankingsPprResourcePath(year))
                 .collectEntries { k, v -> [k.toUpperCase(), v] }
 
+        Map<String, String> byeByTeam = byeByTeam(upperRedraftRankedPlayers)
+
         Map<String, MflPlayer> unmatchedPlayerMap = new HashMap(mflData.playerByNameMap)
         populatePlayerMap(mflData.playerByNameMap, unmatchedPlayerMap, playerMap,
-                upperDynastyRankedPlayers, upperRedraftRankedPlayers, upperRookieRankedPlayers, 10)
+                upperDynastyRankedPlayers, upperRedraftRankedPlayers, upperRookieRankedPlayers, byeByTeam, 10)
         populatePlayerMap(mflData.playerByNameMap, unmatchedPlayerMap, playerMap,
-                upperDynastyRankedPlayers, upperRedraftRankedPlayers, upperRookieRankedPlayers, 5)
+                upperDynastyRankedPlayers, upperRedraftRankedPlayers, upperRookieRankedPlayers, byeByTeam, 5)
         populatePlayerMap(mflData.playerByNameMap, unmatchedPlayerMap, playerMap,
-                upperDynastyRankedPlayers, upperRedraftRankedPlayers, upperRookieRankedPlayers, 3)
+                upperDynastyRankedPlayers, upperRedraftRankedPlayers, upperRookieRankedPlayers, byeByTeam, 3)
 
         Collection<FpRankedPlayer> unmatchedDynasty = upperDynastyRankedPlayers.values().findAll {it.player.position != 'DST' && it.rank.overallRank < 300 }
         Collection<FpRankedPlayer> unmatchedRedraft = upperRedraftRankedPlayers.values().findAll {it.player.position != 'DST' && it.rank.overallRank < 300 }
@@ -75,6 +78,7 @@ class FuadLoader {
             Map<String, FpRankedPlayer> upperDynastyRankedPlayers,
             Map<String, FpRankedPlayer> upperRedraftRankedPlayers,
             Map<String, FpRankedPlayer> upperRookieRankedPlayers,
+            Map<String, String> byeByTeam,
             int minMatchLength) {
         allPlayerMap.each { String name, MflPlayer mflPlayer ->
             if (unmatchedPlayerMap.containsKey(name)) {
@@ -84,11 +88,53 @@ class FuadLoader {
                 if (dynastyRankedPlayer || redraftRankedPlayer || rookieRankedPlayer) {
                     mapToPopulate[mflPlayer.player.name] = new FuadPlayer(
                             mflPlayer.player, dynastyRankedPlayer?.rank, redraftRankedPlayer?.rank, rookieRankedPlayer?.rank,
-                            mflPlayer.contract, mflPlayer.id, mflPlayer.rookie, dynastyRankedPlayer?.bye ?: '?', mflPlayer.draft)
+                            mflPlayer.contract, mflPlayer.id, mflPlayer.rookie,
+                            byeOf(mflPlayer, byeByTeam, redraftRankedPlayer, dynastyRankedPlayer),
+                            mflPlayer.draft)
                     unmatchedPlayerMap.remove(name)
                 }
             }
         }
+    }
+
+    /**
+     * The bye week, from whichever ranking actually carries one, and otherwise from the player's team.
+     *
+     * Only the redraft export has a {@code BYE WEEK} column, kickers' own export included; the dynasty
+     * export has never had one and the loader reads a missing column as 0. Asking the dynasty player
+     * therefore put a bye of 0 against every player on the rankings sheet — a week no season has, and one
+     * a reader pairing byes across a roster cannot tell apart from a real answer.
+     *
+     * A bye is a fact of the schedule rather than an opinion about a player, so anyone the ranking does not
+     * carry still has one as long as a team does: rookies, and the veterans deep enough that no ranking
+     * lists them. Only a free agent, who has no team to take it from, is left at {@code ?} — which is not
+     * the same claim as a number and must not be written as one.
+     */
+    private static String byeOf(MflPlayer mflPlayer, Map<String, String> byeByTeam, FpRankedPlayer... ranked) {
+        ranked.findResult { byeWeek(it?.bye) } ?: byeByTeam[teamOf(mflPlayer.player.team)] ?: '?'
+    }
+
+    /**
+     * Each team's bye, from the ranked players who do carry one.
+     *
+     * Keyed on the canonical abbreviation because the two sources spell a team differently — the league
+     * site writes KCC and NEP where the rankings write KC and NE — and an unmapped one silently leaves a
+     * player playing a week nobody plays. See {@link NflTeams}.
+     */
+    private static Map<String, String> byeByTeam(Map<String, FpRankedPlayer> rankedPlayers) {
+        rankedPlayers.values().findResults { FpRankedPlayer p ->
+            String bye = byeWeek(p.bye)
+            bye ? [teamOf(p.player.team), bye] : null
+        }.collectEntries { it }
+    }
+
+    /** A bye the source actually states, or null: a missing column reads as 0, which is no week at all. */
+    private static String byeWeek(String bye) {
+        bye?.isInteger() && (bye as int) > 0 ? bye : null
+    }
+
+    private static String teamOf(String team) {
+        NflTeams.abbreviationOf(team) ?: team
     }
 
     private List<FuadPlayer> rankedList(Map<String, FuadPlayer> playerMap, String position) {
