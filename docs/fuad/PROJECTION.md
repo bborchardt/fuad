@@ -1510,6 +1510,17 @@ pick he is actually making. That removed four columns — salary, the contract l
 deferred share — of which three were the same statement about an assumed pick and the fourth was almost
 always five.
 
+**The player sheet then splits again, for the room rather than for the model.** `rookie_board` is everything
+described here. `rookies` is the same evaluation in the same order, cut to what can be read at the pace a
+draft moves — the player, his team and bye, where the NFL took him, his position in value order, the value
+band, his overall consensus rank and the demand — with the draft order beside it and an empty column to
+write who went where. Nothing is computed differently and no figure disagrees; the working simply is not on
+it.
+
+The one column that does differ is `POS`, which on the draft sheet ranks **by value** where the board's
+`FP_ROOKIE` ranks by the consensus. That is the disagreement worth having in front of you: `FP_ROOKIE` says
+where the ranking puts him, and `POS` says who to take.
+
 `VALUE` is taken over the five years a contract can run rather than over the years the model would sign,
 which is a distinction that cost a correction: summed over the recommended length it moved with the pick
 too, and by more than the surplus did, because a salary large enough to shorten a contract shortens what is

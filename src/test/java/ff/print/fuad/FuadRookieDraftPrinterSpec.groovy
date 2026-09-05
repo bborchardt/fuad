@@ -11,10 +11,12 @@ import spock.lang.Unroll
 /**
  * The rookie sheet: what a pick is worth over the contract it comes with, and what the pick itself costs.
  *
- * Two tables, because they answer different questions. The first is about players and is read in consensus
- * order; the second is about picks and is read in draft order, and a pick has a price whoever is taken with
- * it. What both have to get right is the arithmetic a reader will not redo: that surplus is value less
- * salary over the years committed, and that the salary on a pick is the one bylaw 8.3 charges there.
+ * Three tables, because they answer different questions. The board is about players and is read best first;
+ * the picks are read in draft order, and a pick has a price whoever is taken with it; the draft sheet is the
+ * board cut to what a room can read at speed, with the draft order beside it. What they have to get right is
+ * the arithmetic a reader will not redo: that surplus is value less salary over the years committed, that
+ * the salary on a pick is the one bylaw 8.3 charges there, and that the draft sheet's two halves are two
+ * tables sharing a row number rather than one table to be read across.
  */
 class FuadRookieDraftPrinterSpec extends Specification {
 
@@ -55,7 +57,7 @@ class FuadRookieDraftPrinterSpec extends Specification {
 
     private static List<List<String>> board(List<RookieValue> values) {
         StringWriter out = new StringWriter()
-        printer(values, []).print(new PrintWriter(out))
+        printer(values, []).printBoard(new PrintWriter(out))
         out.toString().readLines().collect { it.split('\t', -1) as List<String> }
     }
 
@@ -64,6 +66,12 @@ class FuadRookieDraftPrinterSpec extends Specification {
         StringWriter out = new StringWriter()
         printer([], drafted, baselines ?: [QB: 20, RB: 7, WR: 1, TE: 1, PK: 1], best)
                 .printPicks(new PrintWriter(out))
+        out.toString().readLines().collect { it.split('\t', -1) as List<String> }
+    }
+
+    private static List<List<String>> draft(List<RookieValue> values, List<MflDraftPick> drafted) {
+        StringWriter out = new StringWriter()
+        printer(values, drafted).printDraft(new PrintWriter(out))
         out.toString().readLines().collect { it.split('\t', -1) as List<String> }
     }
 
@@ -228,4 +236,82 @@ class FuadRookieDraftPrinterSpec extends Specification {
         rows[2][header.indexOf('BESTWR')] == ''
     }
 
+    def "heads the draft sheet's two halves and separates them with an unnamed column"() {
+        given:
+        List<String> heading = draft([rookie()], [pick(1, 1, 'Martin Someone')]).first()
+
+        expect: 'what the room reads, then a gap, then what it writes down'
+        heading == ['Player', 'Bye', 'NFL', 'Pos', 'VL', 'V', 'VH', 'FP', 'D', '',
+                    'Pick', 'Owner', 'Player']
+    }
+
+    def "ranks a position on the draft sheet by value, not by where the consensus put him"() {
+        given: 'the consensus prefers the receiver it ranks WR1, and the model does not'
+        List<RookieValue> values = [
+                rookie(playerName: 'Preferred', positionRank: 1, overallRank: 1, valueByYear: [10]),
+                rookie(playerName: 'Better', positionRank: 4, overallRank: 9, valueByYear: [90]),
+                rookie(playerName: 'A Back', position: 'RB', positionRank: 1, overallRank: 3,
+                        valueByYear: [50]),
+        ]
+
+        when:
+        List<List<String>> rows = draft(values, [])
+
+        then: 'the column says who to take, so the best receiver is WR1 whatever he is ranked'
+        rows[1][0] == 'Better' && rows[1][3] == 'WR1'
+        rows[2][0] == 'A Back' && rows[2][3] == 'RB1'
+        rows[3][0] == 'Preferred' && rows[3][3] == 'WR2'
+    }
+
+    def "writes the team and bye as one column, and says so where there is neither"() {
+        given: 'a drafted rookie, and one nobody took'
+        List<RookieValue> values = [rookie(nflTeam: 'CIN', bye: 10, valueByYear: [90]),
+                                    rookie(playerName: 'Undrafted', nflTeam: null, bye: null,
+                                           valueByYear: [10])]
+
+        when:
+        List<List<String>> rows = draft(values, [])
+
+        then:
+        rows[1][1] == 'CIN/10'
+
+        and: 'a question mark rather than a blank, which reads as a column that failed to fill'
+        rows[2][1] == '?/?'
+    }
+
+    def "numbers a pick by round and slot, which is how the room calls it"() {
+        given:
+        List<MflDraftPick> drafted = [pick(1, 1, 'Martin Someone'), pick(1, 10, 'Jeff Other'),
+                                      pick(2, 1, 'Martin Someone')]
+
+        when:
+        List<List<String>> rows = draft([rookie()], drafted)
+
+        then:
+        rows[1][10..12] == ['1.1', 'Martin', '']
+        rows[2][10..12] == ['1.10', 'Jeff', '']
+        rows[3][10..12] == ['2.1', 'Martin', '']
+    }
+
+    def "pads whichever half runs out first, so neither can slide up against the other"() {
+        given: 'more rookies than picks, which is every draft'
+        List<RookieValue> values = [rookie(playerName: 'First', valueByYear: [90]),
+                                    rookie(playerName: 'Second', valueByYear: [10])]
+
+        when:
+        List<List<String>> rows = draft(values, [pick(1, 1, 'Martin Someone')])
+
+        then: 'the row past the last pick still carries its rookie'
+        rows.size() == 3
+        rows[2][0] == 'Second'
+        rows[2][10..12] == ['', '', '']
+
+        and: 'every row is the same width, so an import does not shift the halves against each other'
+        rows*.size().unique() == [13]
+    }
+
+    def "leaves the player column empty for the room to fill in"() {
+        expect: 'nothing this model produces belongs there: it is a record of what happened'
+        draft([rookie()], [pick(1, 1, 'Martin Someone')])[1][12] == ''
+    }
 }
