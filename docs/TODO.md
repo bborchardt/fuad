@@ -55,6 +55,13 @@ higher-probability bins do not support a blanket increase. Next test nested shri
 probabilities toward training-only contract-year frequencies, without rank/year exceptions. This would
 be a calibration diagnostic, not a production value change without a coherent outcome distribution.
 
+The [nested event-calibration study](fuad/EVENT_CALIBRATION.md) selects 25–50% shrinkage of CURRENT
+toward those frequencies. Positive-VOR Brier moves from 0.23917 to 0.23527 (benchmark skill +0.84%);
+26-VOR Brier moves from 0.17143 to 0.16981 but still loses to frequency (skill -0.45%). Each event
+improves in only four of nine classes. Gains favor deep QBs, while QB1 does not improve. Next compare
+a training-only rank-aware frequency benchmark, with nested pooling toward contract-year frequency,
+before introducing individual predictors or translating probability corrections into valuations.
+
 ## The board still loses to a rank median at running back and receiver
 
 `AuctionStudy` scores every model with its target auction absent from the points curve, spend rate,
