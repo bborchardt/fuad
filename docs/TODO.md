@@ -22,6 +22,16 @@ already used to develop these experiments. Preserve dated 2026 forecasts before 
 outcomes. The existing study evaluates VOR rather than dollar-price accuracy; improved VOR predictions
 would still need their dollar consequences checked.
 
+The [QB diagnostic](fuad/QB_DIAGNOSTICS.md) narrows this question: four breakout careers account for
+72.4% of five-year squared error, while the other 21 QBs are overpredicted by 16.90 VOR points on average.
+The shortfall persists under replacement thresholds 20% lower and higher. Investigate calibration of the
+probability of becoming a starter and the rank-dependent availability pool, rather than raising every QB's
+value. Draft-time predictors must be evaluated across all prospects, including busts, with class holdouts.
+For rookie QB1, the first-year outcome pool averages 6.57 games against 10.44 at the exact rank in training;
+year two averages 8.27 against 12.38. Test whether borrowing availability across ranks is calibrated before
+adding new player-specific signals; the sparse exact-rank averages are diagnostic evidence, not replacements
+to install without holdout evaluation.
+
 ## The board still loses to a rank median at running back and receiver
 
 `AuctionStudy` scores every model with its target auction absent from the points curve, spend rate,
