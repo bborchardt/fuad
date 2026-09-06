@@ -21,6 +21,11 @@ each has its own report script, its own figures directory and its own documentat
 ./rookie_rate_study.sh [<output-directory>]    # conditional QB rates and rate/games dependence
 ./rookie_event_study.sh [<output-directory>]   # above-replacement and high-VOR QB probabilities
 ./rookie_event_calibration.sh [<output-directory>] # nested QB event-probability shrinkage
+./rookie_rank_frequency.sh [<output-directory>] # nested rank-aware QB event frequency benchmark
+./rookie_chronology_audit.sh [<output-directory>] # season-cutoff coverage; not an as-of replay
+./rookie_chronological_study.sh [<output-directory>] # season-truncated event validation
+./rookie_prospective_capture.sh [<new-directory>] # append-only local 2026 QB event capture
+./rookie_prospective_capture.sh --verify <capture-directory> # check captured artifact hashes
 
 # fuad: the dynasty salary cap auction
 ./fuad_report.sh -t all [-y <year>]            # reports to reports/fuad/<year>

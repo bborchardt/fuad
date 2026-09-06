@@ -4,6 +4,52 @@ Things measured and not yet decided. Each one says what was found, how much it m
 have to answer — so that picking it up later starts from evidence rather than from the memory of a
 conversation.
 
+## Rookie research priorities — agreed next steps
+
+No valuation adjustment has yet earned a production recommendation. Prioritize stronger validation
+over further small calibration variants, in this order:
+
+1. **Chronology-limited validation:** freeze CURRENT, FREQUENCY and NESTED rank frequency, event
+   definitions, rank kernel and weight grid. Bound outcomes and replacement inputs by each forecast
+   cutoff, including inner selection labels. Report missing horizons and class-level as well as pooled
+   scores. Label this a standardized sensitivity study, not a certified historical replay, until ranking
+   timestamps and source vintages are verified.
+2. **Prospective capture:** preserve forecasts before their outcomes arrive, with input hashes, capture
+   time, forecast cutoff, scoring/lineup rules, code revision and dirty-tree provenance. Keep captures
+   immutable and distinguish a genuine preseason capture from one made after play has begun. Do not
+   let incomplete current-season outcomes enter training or imply that hashes prove historical availability.
+3. **Full valuation validation:** turn any surviving probability improvement into a coherent joint
+   games/scoring distribution, then test career VOR, ordering and the complete production model, not
+   just its rookie-only component.
+4. **Other positions:** diagnose RB, WR and TE separately; the QB investigation is not a completed
+   review of the entire rookie valuation model.
+5. **Additional draft-time information:** test predictors such as NFL draft capital and rushing
+   production only after establishing historically available inputs and strong rank/year benchmarks.
+6. **Decision and price consequences:** evaluate player selection and relative value at actual rookie
+   contract costs; improved event probabilities alone do not establish dollar-price accuracy.
+
+Track the validation and capture work here before changing production assumptions. Existing
+[chronology audit](fuad/CHRONOLOGY_AUDIT.md) and [rank-frequency findings](fuad/RANK_FREQUENCY.md)
+define the current information limits and frozen benchmark candidates.
+
+**Validation implementation completed:** the [chronological sensitivity](fuad/VALIDATION_AND_CAPTURE.md)
+scores 81/177 eligible top-50 QB player-seasons. CURRENT beats frequency by 7.66% positive-VOR Brier
+skill and 17.60% for 26 VOR; NESTED gains only 0.80%/0.16%. The earlier pooled benchmark preference
+does not survive this test. Different samples and replacement targets prevent a simple causal comparison.
+Keep production unchanged; next compare matched samples and isolate target-definition effects.
+
+**Capture workflow implemented:** `rookie_prospective_capture.sh` preserves 2026 QB event forecasts,
+cutoff-limited selection, replacement, source/resources, hashes and dirty-tree provenance in new-only
+local capture directories. Verification checks artifact integrity; this is not external tamper-proof
+storage. Captures are git-ignored and need a separate backup. Next implement scoring against the
+original capture and fixed replacement, without selecting a favorable rerun or refitting event labels.
+
+**First local capture completed:** `2026-eab11ead-55a6-4fc8-800a-a351b6842d0e`, September 6 at
+16:36:19 UTC, with verified artifact hashes. It precedes the announced NFL regular-season kickoff but
+does not certify FUAD draft-time eligibility. Eight archived top-50 QBs have 39/40 supported annual
+forecasts per model/event. Audit archived cohort membership and snapshot timing with outcome-blind
+rules, then preserve a separate backup; neither remote backup nor independent timestamping is done.
+
 ## Rookie dynasty calibration has not earned a production change
 
 The [rookie backtest](fuad/ROOKIE_BACKTEST.md#nested-comparison-september-5-2026) compared nine outer class
@@ -61,6 +107,21 @@ toward those frequencies. Positive-VOR Brier moves from 0.23917 to 0.23527 (benc
 improves in only four of nine classes. Gains favor deep QBs, while QB1 does not improve. Next compare
 a training-only rank-aware frequency benchmark, with nested pooling toward contract-year frequency,
 before introducing individual predictors or translating probability corrections into valuations.
+
+The [rank-aware frequency benchmark](fuad/RANK_FREQUENCY.md) selects 50–75% local rank weight.
+Nested Brier is 0.22840 for positive VOR and 0.16823 for 26 VOR, versus CURRENT's 0.23917/0.17143;
+skill versus plain frequency is +3.73%/+0.48%. Pooled calibration masks QB1 underprediction and QB4+
+overprediction. Gains over CURRENT occur in only four/three of nine classes. Freeze CURRENT,
+FREQUENCY and NESTED for a chronological evaluation next, auditing season-level outcome and replacement
+availability at each cutoff rather than only excluding later draft classes. Production remains unchanged.
+
+The [chronology audit](fuad/CHRONOLOGY_AUDIT.md) confirms season-level filtering is feasible, but a
+certified as-of replay is not established: rankings lack capture timestamps, some first commits are
+postseason, statistics are current-vintage extracts, and research uses fixed 2026 rules. Before 2020
+there are no year-four/five top-50 QB donors; before 2022 there are only four year-five donors. Next
+implement an explicitly labeled season-truncated sensitivity with cutoff-limited replacement and
+inner validation outcomes, preserving missing horizons. Historical snapshot provenance remains a
+separate requirement for an actual information-as-known-then claim.
 
 ## The board still loses to a rank median at running back and receiver
 

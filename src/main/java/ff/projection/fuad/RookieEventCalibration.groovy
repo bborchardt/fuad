@@ -27,14 +27,19 @@ class RookieEventCalibration {
         probability == null || baseline == null ? null : (1d - strength) * probability + strength * baseline
     }
 
+    protected Map replacementFor(List<String> excluded) {
+        def key = excluded.unique(false).sort(false).asImmutable()
+        if (!replacements.containsKey(key)) {
+            replacements[key] = replacementProvider(observations.findAll { it.draftClass in key })
+        }
+        replacements[key]
+    }
+
     List<Map> forecast(String target, List<String> excluded) {
         if (!(target in excluded)) throw new IllegalArgumentException('Target class must leave training')
         def key = excluded.unique().sort().asImmutable()
         def context = availability.context(new ArrayList(key))
-        if (!replacements.containsKey(key)) {
-            replacements[key] = replacementProvider(observations.findAll { it.draftClass in key })
-        }
-        def replacement = replacements[key]
+        def replacement = replacementFor(key)
         def donors = context.training.findAll { it.position == 'QB' && it.overallRank <= 50 }.groupBy { it.year }
         def baseline = donors.collectEntries { year, rows ->
             [(year): E.EVENTS.collectEntries { event ->
