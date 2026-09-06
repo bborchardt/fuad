@@ -39,5 +39,11 @@ jobs:
       - name: Build and test
         run: ./mvnw -B --no-transfer-progress verify
 
+      # A separate build, so `verify` above never touches it -- and it compiles ../src/main/java itself, so
+      # a production change breaks it the moment it lands. Unrun, it would rot silently while every
+      # research document went on citing numbers no build could still produce.
+      - name: Build and test the research studies
+        run: ./mvnw -B --no-transfer-progress -f research/pom.xml verify
+
       - name: Check the documentation against the figures
         run: ./check_docs.sh

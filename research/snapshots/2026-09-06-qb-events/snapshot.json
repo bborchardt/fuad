@@ -1,0 +1,18 @@
+{
+    "schemaVersion": 1,
+    "exportedUtc": "2026-09-06T17:16:30.271296Z",
+    "capture": "2026-eab11ead-55a6-4fc8-800a-a351b6842d0e",
+    "manifestSha256": "b9bb6c67cdba48c2e43759f9d7e88bc68ae2791ad8bc10d810b5c3389db78fe6",
+    "committed": {
+        "manifest.json": "b9bb6c67cdba48c2e43759f9d7e88bc68ae2791ad8bc10d810b5c3389db78fe6",
+        "predictions.tsv": "261990dd0a2353449cf47b835f95025ed92239a82e8e97624d1e88b908c91308",
+        "replacement.json": "1beb3ed2761bd66734cec58da81ded2db0010e267075a9624a741cf5246bc42a",
+        "selection.tsv": "9150c36d3e591f2efda67ac36cd94170da0a48af55f855c0a507fd2bf9071609",
+        "working-tree.patch": "a0066254c438cc612c17ede2cef95bf19c75b08753403b423893cd6296c652dc"
+    },
+    "omitted": {
+        "inputs.zip": "1f2146d434d620c4fd5f1e9a8d93fafda0f72d9db32b3ab9338341f72f3cd2b1"
+    },
+    "omittedReason": "Stored by SHA-256 only. manifest.json hashes every captured input individually, so the committed record identifies the inputs without carrying a second copy of the tree.",
+    "provenance": "Committed to Git for distribution and tamper-evidence within a shared history. A commit date is not an independent trusted timestamp, and draft-time eligibility remains UNVERIFIED."
+}
