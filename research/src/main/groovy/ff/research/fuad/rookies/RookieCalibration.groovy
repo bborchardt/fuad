@@ -1,6 +1,8 @@
-package ff.projection.fuad
+package ff.research.fuad.rookies
 
-import ff.projection.fuad.RookieBacktest as B
+import ff.projection.fuad.*
+
+import ff.research.fuad.rookies.RookieBacktest as B
 
 /** Nested class validation of a VOR-centered dynasty signal. Nothing here changes production valuation.
  * Calibration preserves rookie-only predicted totals, not fitted observed totals, by position/year.

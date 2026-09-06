@@ -15,7 +15,6 @@ each has its own report script, its own figures directory and its own documentat
 ./figures_refresh.sh <year>                    # both leagues' figures, to docs/figures/<league>/<year>
 ./check_docs.sh [<year>] [<doc.md> ...]        # hold the docs to those figures
 ./check_strategy.sh <plan.md>                  # hold a plan to the board it was written from
-./rookie_backtest.sh [<output-directory>]      # rookie class holdouts, default reports/fuad/backtest
 
 # fuad: the dynasty salary cap auction
 ./fuad_report.sh -t all [-y <year>]            # reports to reports/fuad/<year>
@@ -36,12 +35,9 @@ joined by the reader at the pick he is making.
 part of `all`. `greenfield` report types are `board`, `keepers`, `picks`, `demand`, `adp` or `all`, with
 `outlook` separate for the same reason — it answers for one draft slot, so it takes `-s`.
 
-The rookie backtest compares forecasts against held-out draft classes in FUAD points over replacement.
-It writes per-player predictions, training-only dynasty fits, and accuracy summaries for one-, three-, and
-five-year horizons. A centered dynasty candidate preserves baseline expected VOR, and nested class holdouts
-select its shrinkage strength; calibration factors and inner selection scores are exported too.
-See [the backtest methodology](docs/fuad/ROOKIE_BACKTEST.md) for model definitions,
-sample coverage, and the distinction between retrospective validation and a live historical forecast.
+Rookie valuation experiments have a separate build, test suite, documentation and Git-backed forecast
+records under [research/](research/README.md). Run `./research/run.sh help` for research commands.
+They do not change the production valuation model or ship in the production artifact.
 
 See [docs/DATA.md](docs/DATA.md) for the statistics and rankings both leagues are built from, and the two
 places a source says something other than what it appears to. Each league's own record is beside its own

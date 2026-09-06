@@ -1,6 +1,8 @@
-package ff.run.fuad
+package ff.research.fuad.rookies
 
-import ff.projection.fuad.RookieBacktest
+import ff.projection.fuad.*
+
+import ff.research.fuad.rookies.RookieBacktest
 import java.util.Locale
 
 class RookieBacktestRunner {
@@ -13,7 +15,7 @@ class RookieBacktestRunner {
     ].asImmutable()
 
     static void main(String[] args) {
-        if (args.size() > 1) throw new IllegalArgumentException('Usage: rookie_backtest.sh [output-directory]')
+        if (args.size() > 1) throw new IllegalArgumentException('Usage: ./research/run.sh backtest [output-directory]')
         File directory = new File(args ? args[0] : 'reports/fuad/backtest')
         def result = RookieBacktest.run(RookieBacktest.observations()) { System.err.println(it) }
         writeReports(directory, result)

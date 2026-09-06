@@ -46,7 +46,13 @@ fi
 if [[ $# -eq 0 ]]; then
     # Both leagues' documents and the shared ones, since a league whose docs nobody happened to name would
     # otherwise go unreported -- which reads the same as being checked and passing.
-    set -- README.md docs/*.md docs/fuad/*.md docs/greenfield/*.md
+    #
+    # The research documents are here for their links alone. They carry no marked table and report NONE,
+    # because a research result is a record of one dated run rather than a claim about the model as it
+    # stands -- but they link into the tree like anything else, and while they were left out a link into a
+    # section that had moved sat broken with nothing to report it.
+    set -- README.md docs/*.md docs/fuad/*.md docs/greenfield/*.md research/README.md research/TODO.md \
+        research/docs/rookies/*.md
 fi
 
 CLASSPATH_FILE="target/classpath.txt"

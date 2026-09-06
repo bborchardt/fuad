@@ -1,4 +1,6 @@
-package ff.projection.fuad
+package ff.research.fuad.rookies
+
+import ff.projection.fuad.*
 
 import ff.projection.ExpectedValue
 import ff.projection.PointsCurve

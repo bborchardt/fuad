@@ -1,4 +1,6 @@
-package ff.projection.fuad
+package ff.research.fuad.rookies
+
+import ff.projection.fuad.*
 
 import ff.data.RealisedSeason
 import ff.data.Rank
@@ -177,14 +179,15 @@ class RookieBacktest {
     /** Fixed 2026 lineup, scored under FUAD rules. No target player's career helps set replacement.
      * A standardized bye week is shared by all candidates and observed outcomes.
      */
-    static Map<String, Map<Integer, BigDecimal>> replacementFor(List<Observation> target) {
+    static Map<String, Map<Integer, BigDecimal>> replacementFor(List<Observation> target,
+                                                               Collection<String> seasons = League.FUAD.seasons) {
         Set<String> names = target*.name as Set
         def fp = new FantasyProsLoader()
         def realised = RealisedSeasons.byRank(League.FUAD, { String season ->
             fp.loadRedraftRankedPlayers(season).values().findAll { ranked ->
                 !names.any { String name -> LoadUtils.isNameMatch(name, ranked.player.name, 5) }
             }
-        })
+        }, seasons)
         def curve = PointsCurve.of(realised)
         ExpectedValue.replacementLevels(curve, new FuadValuationLoader().requirements('2026'),
                 new ByeWeeks([:], LAST_WEEK))

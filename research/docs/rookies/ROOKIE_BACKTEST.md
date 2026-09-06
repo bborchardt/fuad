@@ -1,6 +1,6 @@
 # Rookie backtest
 
-Run `./rookie_backtest.sh` from the project directory with the same Java environment as the other report
+Run `./research/run.sh backtest` from the project directory with the same Java environment as the other report
 scripts. An optional directory argument changes the default output, `reports/fuad/backtest`.
 The command compiles the project and uses local historical resources; it does not refresh rankings or change
 the production rookie board.

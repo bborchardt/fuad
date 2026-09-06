@@ -1,6 +1,8 @@
-package ff.run
+package ff.research.fuad.rookies
 
-import ff.run.fuad.RookieBacktestRunner
+import ff.projection.fuad.*
+
+import ff.research.fuad.rookies.RookieBacktestRunner
 import spock.lang.Specification
 import spock.lang.TempDir
 
