@@ -17,6 +17,7 @@ each has its own report script, its own figures directory and its own documentat
 ./check_strategy.sh <plan.md>                  # hold a plan to the board it was written from
 ./rookie_backtest.sh [<output-directory>]      # rookie class holdouts, default reports/fuad/backtest
 ./rookie_qb_diagnostics.sh [<output-directory>] # QB replacement sensitivity and error concentration
+./rookie_availability_study.sh [<output-directory>] # nested QB outcome-pooling comparison
 
 # fuad: the dynasty salary cap auction
 ./fuad_report.sh -t all [-y <year>]            # reports to reports/fuad/<year>

@@ -32,6 +32,13 @@ year two averages 8.27 against 12.38. Test whether borrowing availability across
 adding new player-specific signals; the sparse exact-rank averages are diagnostic evidence, not replacements
 to install without holdout evaluation.
 
+The [nested availability study](fuad/AVAILABILITY_STUDY.md) has now tested rank-weighted and partial pooling.
+On 177 top-50 QB player-seasons, partial pooling improves games RMSE from 5.28 to 4.92 and zero-game Brier
+from 0.162 to 0.143, chiefly at QB1–3; QB4+ worsens. Five-year VOR RMSE improves from 145.33 to 143.07, but
+MAE increases and first-/three-year RMSE worsen. Production remains unchanged. The open question is now
+whether availability can be calibrated while preserving the appropriate conditional-rate distribution and
+rate/games dependence, particularly among deep prospects. Improved games forecasts alone are insufficient.
+
 ## The board still loses to a rank median at running back and receiver
 
 `AuctionStudy` scores every model with its target auction absent from the points curve, spend rate,
