@@ -47,6 +47,14 @@ undercoverage. Next measure held-out above-replacement and high-VOR event probab
 before adding predictors; improved availability and conditional mean-rate bias are not enough to price
 the upper tail. Preserve pairing and production behavior pending stronger evidence.
 
+The [event-probability study](fuad/EVENT_STUDY.md) finds positive VOR in 35.0% of 177 top-50 QB seasons,
+against current/partial probabilities of 22.7%/27.1%. Partial improves Brier from 0.23917 to 0.22881
+and beats a training-only contract-year frequency benchmark by 3.56%. For a fixed 26-VOR event,
+both still lose to that benchmark (partial skill -0.48%). Deep prospects remain underpredicted, while
+higher-probability bins do not support a blanket increase. Next test nested shrinkage of event
+probabilities toward training-only contract-year frequencies, without rank/year exceptions. This would
+be a calibration diagnostic, not a production value change without a coherent outcome distribution.
+
 ## The board still loses to a rank median at running back and receiver
 
 `AuctionStudy` scores every model with its target auction absent from the points curve, spend rate,

@@ -19,6 +19,7 @@ each has its own report script, its own figures directory and its own documentat
 ./rookie_qb_diagnostics.sh [<output-directory>] # QB replacement sensitivity and error concentration
 ./rookie_availability_study.sh [<output-directory>] # nested QB outcome-pooling comparison
 ./rookie_rate_study.sh [<output-directory>]    # conditional QB rates and rate/games dependence
+./rookie_event_study.sh [<output-directory>]   # above-replacement and high-VOR QB probabilities
 
 # fuad: the dynasty salary cap auction
 ./fuad_report.sh -t all [-y <year>]            # reports to reports/fuad/<year>
