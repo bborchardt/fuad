@@ -59,7 +59,9 @@ class RealisedSeasons {
                     .collectEntries { String name, Integer played -> [(LoadUtils.aliasedName(name)): played] }
             Set<String> unclaimed = NflverseStatsLoader.played(season).collect { LoadUtils.aliasedName(it) } as Set
             ranked(season).each { FpRankedPlayer player ->
-                if (league.scoredPositions.contains(player.player.position) && !NflTeams.isTeam(player.player.name)) {
+                // Position identifies a defence. A player's surname can also be a team nickname
+                // (Brennan Eagles), and must not make a ranked zero-game rookie disappear.
+                if (league.scoredPositions.contains(player.player.position) && player.player.position != 'DST') {
                     String name = claim(unclaimed, player.player.name)
                     // No stat line at all is a season that never happened: no points and no games, which is
                     // an observation about availability and none about how he plays.
@@ -85,7 +87,7 @@ class RealisedSeasons {
         Map<String, BigDecimal> scored =
                 NflverseTeamStatsLoader.seasonPoints(season, league.dstScoring)
         Map<String, Integer> games = NflverseTeamStatsLoader.gamesPlayed(season)
-        ranked.findAll { NflTeams.isTeam(it.player.name) }.each { FpRankedPlayer defence ->
+        ranked.findAll { it.player.position == 'DST' && NflTeams.isTeam(it.player.name) }.each { FpRankedPlayer defence ->
             String team = NflTeams.abbreviationOf(defence.player.name)
             if (scored.containsKey(team)) {
                 realised[defence.player.position][defence.rank.positionRank] << new RealisedSeason(
