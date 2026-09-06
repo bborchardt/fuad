@@ -4,6 +4,24 @@ Things measured and not yet decided. Each one says what was found, how much it m
 have to answer — so that picking it up later starts from evidence rather than from the memory of a
 conversation.
 
+## Rookie dynasty calibration has not earned a production change
+
+The [rookie backtest](fuad/ROOKIE_BACKTEST.md#nested-comparison-september-5-2026) compared nine outer class
+holdouts with 40 inner evaluations to choose shrinkage. On 224 supported five-year top-50 careers,
+centering and nested shrinkage reduced RMSE from 95.32 to 95.17 VOR points (0.16%) and bias from -1.56 to
+-0.78, but lowered ranking correlation from 0.508 to 0.499. The uncentered full refit had +12.24 points
+of bias. Centering addresses that inflation without establishing a stronger five-year player-selection model.
+
+The positional result is mixed: QB RMSE worsened from 145.33 to 149.38, while RB and WR improved. Only 25
+QB careers support that comparison. Twenty of 244 eligible five-year players lacked supported forecasts
+and were excluded equally across candidates. Retain the adjustments as research candidates.
+
+A production change would need to explain the QB weakness (replacement level, comparables, or individual
+class sensitivity), improve ordering as well as calibration, and survive evaluation beyond the classes
+already used to develop these experiments. Preserve dated 2026 forecasts before incorporating that season's
+outcomes. The existing study evaluates VOR rather than dollar-price accuracy; improved VOR predictions
+would still need their dollar consequences checked.
+
 ## The board still loses to a rank median at running back and receiver
 
 `AuctionStudy` scores every model with its target auction absent from the points curve, spend rate,

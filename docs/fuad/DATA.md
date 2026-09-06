@@ -7,6 +7,9 @@ from the raw JSON.
 The statistics and rankings the model is levelled from are shared with the other league and are in
 [DATA.md](../DATA.md).
 
+The shared [player-name notes](../DATA.md#player-names) also record the Brennan Eagles nickname collision
+and why the historical scorer classifies defences by position rather than by name.
+
 ## Files per season
 
 Under `src/main/resources/ff/mfl/data/<year>`:

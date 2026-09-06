@@ -144,6 +144,14 @@ first, then on progressively shorter prefixes of first and last name, with each 
 most once so the specific matches are made before the loose ones can go wrong. That is what tells Gabe from
 Gabriel and Kenny from Kenneth.
 
+A team nickname can also be a player's surname. `NflTeams.abbreviationOf('Brennan Eagles')` resolves to
+PHI because the team-name helper recognizes nickname tails. Using that helper alone to classify ranked
+entries previously dropped this receiver from the rookie sample entirely. This was a loader classification
+bug, not an error in the FantasyPros source. `RealisedSeasons` now uses the ranked position to distinguish
+players from `DST` entries; the team-name helper is used only inside the defence path. A ranked player with
+no statistics remains a zero-point, zero-game observation. `RealisedSeasonsSpec` checks both that case and
+the separation of a receiver named Eagles from the Philadelphia defence, with controlled statistics.
+
 
 ## Collecting it
 

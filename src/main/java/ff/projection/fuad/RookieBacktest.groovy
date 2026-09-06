@@ -229,14 +229,11 @@ class RookieBacktest {
             double error = points > 0 ? curve.standardError(row.position, row.rookieRank).toDouble() / points : 0d
             double adjustment = model == 'FULL_REFIT' ? fit.adjustment(row) : 1d
             def errors = model == 'ROOKIE_POINT' ? [[0d, 1d]] : ERRORS
-            def thresholds = (1..<LAST_WEEK).collect { (replacement[it] ?: 0g).toDouble() }
-            boolean uniform = thresholds.every { it == thresholds.first() }
+            def replay = vorAgainst(replacement)
             errors.each { point ->
                 double shifted = rate * adjustment * Math.max(0d, 1d + point[0] * error)
                 spread.each { outcome ->
-                    double vor = uniform ? Math.min(outcome.games, LAST_WEEK - 1) *
-                            Math.max(0d, shifted * outcome.rateMultiplier - thresholds.first()) :
-                            outcomeVor(shifted, outcome, replacement)
+                    double vor = replay(shifted, outcome)
                     distribution << [vor, point[1] / spread.size()]
                 }
             }
@@ -248,13 +245,20 @@ class RookieBacktest {
      * is normally constant, so avoid constructing fourteen BigDecimal week maps for each replay.
      */
     static double outcomeVor(double rate, PointsCurve.Outcome outcome, Map<Integer, BigDecimal> replacement) {
-        double adjusted = rate * outcome.rateMultiplier
-        double first = (replacement[1] ?: 0g).toDouble()
-        int games = Math.min(outcome.games, LAST_WEEK - 1)
-        if ((1..<LAST_WEEK).every { (replacement[it] ?: 0g).toDouble() == first }) {
-            return games * Math.max(0d, adjusted - first)
+        vorAgainst(replacement)(rate, outcome)
+    }
+
+    /** Prepare replacement once per prediction; both entry points share the same replay arithmetic. */
+    static Closure<Double> vorAgainst(Map<Integer, BigDecimal> replacement) {
+        def thresholds = (1..<LAST_WEEK).collect { (replacement[it] ?: 0g).toDouble() }
+        double first = thresholds.first()
+        boolean uniform = thresholds.every { it == first }
+        return { double rate, PointsCurve.Outcome outcome ->
+            double adjusted = rate * outcome.rateMultiplier
+            int games = Math.min(outcome.games, LAST_WEEK - 1)
+            uniform ? games * Math.max(0d, adjusted - first) :
+                    thresholds.sum { Math.max(0d, adjusted - it) } * games / (LAST_WEEK - 1)
         }
-        (1..<LAST_WEEK).sum { Math.max(0d, adjusted - (replacement[it] ?: 0g).toDouble()) } * games / (LAST_WEEK - 1)
     }
 
     static Map summarize(List<List<Double>> distribution, boolean intervals = true) {

@@ -5,6 +5,10 @@ scripts. An optional directory argument changes the default output, `reports/fua
 The command compiles the project and uses local historical resources; it does not refresh rankings or change
 the production rookie board.
 
+A full run, including nested holdouts, was observed to take about seven minutes. Runtime depends on the
+machine, Java environment and input size. Empty result sets are written as header-only TSV files, replacing
+any older output rather than leaving stale results behind.
+
 ## What is tested
 
 Each of the 2017–2025 rookie classes is held out in turn. Every observed contract year of that class is

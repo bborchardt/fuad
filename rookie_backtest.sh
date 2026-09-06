@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 # Leave one rookie class out of every fitted input; writes diagnostics under reports/.
+# Includes nested class holdouts for calibration and shrinkage selection.
+# A full run was observed to take about seven minutes; runtime depends on the machine and inputs.
+#
+# Usage:
+#   ./rookie_backtest.sh [output-directory]
+#
+# Examples:
+#   ./rookie_backtest.sh                         # reports/fuad/backtest
+#   ./rookie_backtest.sh reports/fuad/experiment # alternate output directory
 set -euo pipefail
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$DIR"
