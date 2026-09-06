@@ -39,6 +39,14 @@ MAE increases and first-/three-year RMSE worsen. Production remains unchanged. T
 whether availability can be calibrated while preserving the appropriate conditional-rate distribution and
 rate/games dependence, particularly among deep prospects. Improved games forecasts alone are insufficient.
 
+The [conditional-rate study](fuad/RATE_STUDY.md) finds little aggregate rate change: on 148 played
+top-50 QB seasons, RMSE moves from 7.192 to 7.173 points/game and CRPS from 4.204 to 4.176. Breaking
+rate/duration dependence worsens five-year VOR RMSE from 145.33 to 149.75 for current pooling and from
+143.07 to 146.46 for partial pooling, despite reducing MAE. Deep QBs have the largest rate errors and
+undercoverage. Next measure held-out above-replacement and high-VOR event probabilities, including busts,
+before adding predictors; improved availability and conditional mean-rate bias are not enough to price
+the upper tail. Preserve pairing and production behavior pending stronger evidence.
+
 ## The board still loses to a rank median at running back and receiver
 
 `AuctionStudy` scores every model with its target auction absent from the points curve, spend rate,
