@@ -55,6 +55,11 @@ See [docs/fuad/LEAGUE_RULES.md](docs/fuad/LEAGUE_RULES.md) for what the rules we
 requirements, salary cap, roster limits, franchise tag prices and scoring — all of which have changed, and
 none of which a projection can assume is constant across years.
 
+See [docs/fuad/ROSTER_LOAD.md](docs/fuad/ROSTER_LOAD.md) for putting a season onto the league site once it
+has been played out: the auction is held in a room and the rookie draft is run by email, so for a few weeks
+the commissioner's workbook is the only record of either. Run with `./mfl_load.sh`. Two steps in it are done
+by hand, and the document records what was tried before settling for that.
+
 See [docs/greenfield/README.md](docs/greenfield/README.md) for the second league: a fourteen team full PPR snake draft
 with keepers priced at a second and an eighth round pick. It shares the curve, replacement and value over
 replacement with the auction and none of its rules, and its currency is picks rather than dollars.
